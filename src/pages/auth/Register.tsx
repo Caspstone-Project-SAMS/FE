@@ -1,9 +1,9 @@
 import './Login.less'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link } from "react-router-dom"
 
-import { Input, Checkbox, Typography, Button } from 'antd';
+import { Input, Checkbox, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 
 import decorateImg from '../../assets/imgs/decoration.png';
@@ -76,11 +76,8 @@ function Register() {
                         <Button className='gg-login-btn' size='large' icon={<Icon component={() => <img className='gg-icon' src={ggIcon} alt='Gg' />} />}>Google</Button>
                         <div className='signUpTxt'>
                             Already have an account? {'  '}
-                            <Link className='nav-link' to={'/login'}>
-                                <Typography.Link
-                                    style={{ fontSize: '1rem' }}
-                                    strong
-                                >Log In</Typography.Link>
+                            <Link className='nav-link' to={'/'}>
+                                Log In
                             </Link>
                         </div>
                     </div>

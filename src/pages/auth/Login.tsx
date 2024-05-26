@@ -1,6 +1,8 @@
 import './Login.less'
 import React, { useEffect, useState } from 'react'
 import { Link } from "react-router-dom"
+import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 import decorateImg from '../../assets/imgs/decoration.png';
 import logo_rm_bg from '../../assets/imgs/logo-removebg-preview.png';
@@ -9,13 +11,55 @@ import ggIcon from '../../assets/icons/googleIcon.png';
 import { Input, Checkbox, Typography, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined } from '@ant-design/icons';
 
+import { Google, TokenResponse, UserGGInfo } from '../../models/auth/Google';
+
+
+const initialVal = {
+    access_token: '',
+    authuser: '',
+    expires_in: 0,
+    prompt: '',
+    scope: '',
+    token_type: '',
+}
 
 function Login() {
+
     const [isRemember, setIsRemember] = useState(false);
+    const [userCode, setUserCode] = useState<TokenResponse>(initialVal);
+    const [userInfo, setUserInfo] = useState<UserGGInfo | null>(null);
 
     const onChange = () => {
         setIsRemember(!isRemember);
+        console.log("user -----------------", userInfo);
     }
+
+    const loginGG = useGoogleLogin({
+        onSuccess: tokenResponse => {
+            console.log(tokenResponse)
+            setUserCode(tokenResponse);
+        },
+    });
+
+    useEffect(() => {
+        axios
+            .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${userCode.access_token}`, {
+                headers: {
+                    Authorization: `Bearer ${userCode.access_token}`,
+                    Accept: 'application/json'
+                }
+            })
+            .then((res) => {
+                console.log("User detail response: ", res);
+                setUserInfo(res.data);
+            })
+            .catch((err) => console.log(err));
+    }, [userCode])
+
+    const logOut = () => {
+        googleLogout();
+        setUserInfo(null);
+    };
 
     return (
         <>
@@ -67,11 +111,15 @@ function Login() {
                             <span>Or sign in with</span>
                             <span className='line'></span>
                         </div>
-                        <Button className='gg-login-btn' size='large' icon={<Icon component={() => <img className='gg-icon' src={ggIcon} alt='Gg' />} />}>Google</Button>
+                        <Button
+                            onClick={() => {
+                                loginGG();
+                            }}
+                            className='gg-login-btn' size='large' icon={<Icon component={() => <img className='gg-icon' src={ggIcon} alt='Gg' />} />}>Google</Button>
                         <div className='signUpTxt'>
                             Don't have an account? {'  '}
                             <Link className='nav-link' to={'/register'}>
-                                <Typography.Link style={{ fontSize: '1rem' }} strong>Sign Up</Typography.Link>
+                                Sign Up
                             </Link>
                         </div>
                     </div>
