@@ -9,7 +9,7 @@ export interface TokenResponse {
   error_uri?: string;
 }
 
-export interface Google {
+export interface GoogleLogin_OnSuccess {
   access_token: string;
   authuser: string;
   expires_in: number;
@@ -18,7 +18,7 @@ export interface Google {
   token_type: string;
 }
 
-export interface UserGGInfo {
+export interface GGUserInfo {
   id: string;
   email: string;
   verified_email: boolean;

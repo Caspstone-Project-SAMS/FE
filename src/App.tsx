@@ -4,6 +4,9 @@ import {
   RouterProvider
 } from "react-router-dom";
 
+import { Provider } from "react-redux";
+import Store from "./redux/Store";
+
 import Login from './pages/auth/Login';
 import Register from "./pages/auth/Register";
 import ErrorPage from "./pages/ErrorPage";
@@ -23,7 +26,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <Provider store={Store}>
+        <RouterProvider router={router} />
+      </Provider>
     </>
   )
 }

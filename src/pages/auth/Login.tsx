@@ -1,7 +1,7 @@
 import './Login.less'
 import React, { useEffect, useState } from 'react'
 import { Link } from "react-router-dom"
-import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 import decorateImg from '../../assets/imgs/decoration.png';
@@ -11,8 +11,7 @@ import ggIcon from '../../assets/icons/googleIcon.png';
 import { Input, Checkbox, Typography, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined } from '@ant-design/icons';
 
-import { Google, TokenResponse, UserGGInfo } from '../../models/auth/Google';
-
+import { TokenResponse, GGUserInfo } from '../../models/auth/GoogleResponse';
 
 const initialVal = {
     access_token: '',
@@ -24,10 +23,9 @@ const initialVal = {
 }
 
 function Login() {
-
     const [isRemember, setIsRemember] = useState(false);
     const [userCode, setUserCode] = useState<TokenResponse>(initialVal);
-    const [userInfo, setUserInfo] = useState<UserGGInfo | null>(null);
+    const [userInfo, setUserInfo] = useState<GGUserInfo | null>(null);
 
     const onChange = () => {
         setIsRemember(!isRemember);
@@ -56,10 +54,10 @@ function Login() {
             .catch((err) => console.log(err));
     }, [userCode])
 
-    const logOut = () => {
-        googleLogout();
-        setUserInfo(null);
-    };
+    // const logOut = () => {
+    //     googleLogout();
+    //     setUserInfo(null);
+    // };
 
     return (
         <>
@@ -72,8 +70,9 @@ function Login() {
                             </div>
                         </div>
                         <div className='project-des'>
-                            <h3
-                            >Student Attendance Management System</h3>
+                            <h3>
+                                Student Attendance Management System
+                            </h3>
                             <div className='des'>Student Tracking with Fingerprint Sensor,<br /> Managing education needs</div>
                         </div>
                         <div className='logo'>
