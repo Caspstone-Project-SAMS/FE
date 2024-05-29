@@ -1,6 +1,11 @@
 export interface UserInfo {
-  token: string;
-  result: UserDetail;
+  // Success
+  token?: string;
+  result?: UserDetail;
+  // Error
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }
 
 interface UserDetail {

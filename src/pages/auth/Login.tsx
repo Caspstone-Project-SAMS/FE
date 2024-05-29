@@ -1,17 +1,22 @@
-import './Login.less'
+import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { Link } from "react-router-dom"
 import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 
+//assets
+import './Login.less'
 import decorateImg from '../../assets/imgs/decoration.png';
 import logo_rm_bg from '../../assets/imgs/logo-removebg-preview.png';
 import ggIcon from '../../assets/icons/googleIcon.png';
 
+//model
+import { TokenResponse, GGUserInfo } from '../../models/auth/GoogleResponse';
+
+//antd
 import { Input, Checkbox, Typography, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined } from '@ant-design/icons';
-
-import { TokenResponse, GGUserInfo } from '../../models/auth/GoogleResponse';
+import { login } from '../../redux/slice/Auth';
+import useDispatch from '../../redux/UseDispatch';
 
 const initialVal = {
     access_token: '',
@@ -23,6 +28,8 @@ const initialVal = {
 }
 
 function Login() {
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [isRemember, setIsRemember] = useState(false);
     const [userCode, setUserCode] = useState<TokenResponse>(initialVal);
     const [userInfo, setUserInfo] = useState<GGUserInfo | null>(null);
@@ -38,6 +45,8 @@ function Login() {
             setUserCode(tokenResponse);
         },
     });
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         axios
@@ -90,12 +99,14 @@ function Login() {
                                 size="large"
                                 placeholder="Email"
                                 className='input'
+                                onChange={(e) => setUsername(e.target.value)}
                                 prefix={<MailOutlined style={{ marginRight: '10px' }} />}
                             />
                             <Input.Password
                                 placeholder="Input password"
                                 size="large"
                                 className='input'
+                                onChange={(e) => setPassword(e.target.value)}
                                 prefix={<LockOutlined style={{ marginRight: '10px' }} />}
                                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                             />
@@ -104,7 +115,12 @@ function Login() {
                             <Checkbox onChange={onChange}>Remember me</Checkbox>
                             <Typography.Link>Forgot password</Typography.Link>
                         </div>
-                        <Button size={'large'} className='sign-in-btn' type="primary">Sign in</Button>
+                        <Button
+                            onClick={async () => {
+                                const res = await dispatch(login({ username, password }));
+                                console.log("Signing here ", res);
+                            }}
+                            size={'large'} className='sign-in-btn' type="primary">Sign in</Button>
                         <div className='other-auth-opt'>
                             <span className='line'></span>
                             <span>Or sign in with</span>
