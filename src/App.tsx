@@ -1,35 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import { Button, Layout, Space, Typography, Avatar, Badge } from "antd";
+
+// import { Content, Header } from "antd/es/layout/layout";
+// import { CiBellOn } from "react-icons/ci";
+
+// // import { AntDesignOutlined, BellFilled } from "@ant-design/icons";
+
+// import "./App.css";
+// import Sidebar from "./components/sidebar/Sidebar";
+
+// function App() {
+//   return (
+//     <Layout className="container">
+//       <Sidebar />
+//       <Layout>
+//         <Header color="white" style={{ backgroundColor: "white" }}>
+//           <div className="header">
+//             {/* <div className="brand">Student Attendance Management System</div> */}
+//             <Typography.Title level={3}>
+//               Student Attendance Management System
+//             </Typography.Title>
+//             <Space wrap size="middle">
+//               <Badge count={10}>
+//                 <Button shape="circle">
+//                   <CiBellOn />
+//                 </Button>
+//               </Badge>
+//               <Avatar
+//                 size={{
+//                   xs: 24,
+//                   sm: 32,
+//                   md: 10,
+//                   lg: 14,
+//                   xl: 32,
+//                   xxl: 10,
+//                 }}
+//                 icon={<CiBellOn />}
+//               />
+//             </Space>
+//           </div>
+//         </Header>
+//         <Content>content</Content>
+//       </Layout>
+//     </Layout>
+//   );
+// }
+
+// export default App;
+
+import { Layout } from "antd";
+
+
+// import { AntDesignOutlined, BellFilled } from "@ant-design/icons";
+
+import "./App.css";
+import Sidebar from "./components/sidebar/Sidebar";
+import Headers from "./components/header/Header";
+import PageContent from "./components/pagecontents/PageContents";
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Layout className="container">
+      <Sidebar />
+      <Layout>
+        <Headers />
+        <PageContent />
+      </Layout>
+    </Layout>
+  );
 }
 
-export default App
+export default App;
