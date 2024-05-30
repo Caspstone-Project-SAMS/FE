@@ -3,6 +3,8 @@ import { GoogleLogin_OnSuccess } from '../../models/auth/GoogleResponse';
 import { UserInfo } from '../../models/UserInfo';
 import authService from '../../hooks/Auth';
 
+// import { history } from '../../hooks/helpers/history';
+
 interface AuthState {
   authStatus: boolean;
   googleAuth?: GoogleLogin_OnSuccess;
@@ -43,6 +45,9 @@ const AuthSlice = createSlice({
       //     loadingStatus: false,
       //     googleAuth: googleAuth,
       //   };
+      // }
+      // if (history.navigate) {
+      //   history.navigate('/dashboard');
       // }
       return {
         ...state,

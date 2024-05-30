@@ -1,7 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import useDispatch from '../../redux/UseDispatch';
 import { useGoogleLogin } from '@react-oauth/google';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { login } from '../../redux/slice/Auth';
 
 //assets
 import './Login.less'
@@ -15,8 +19,7 @@ import { TokenResponse, GGUserInfo } from '../../models/auth/GoogleResponse';
 //antd
 import { Input, Checkbox, Typography, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined } from '@ant-design/icons';
-import { login } from '../../redux/slice/Auth';
-import useDispatch from '../../redux/UseDispatch';
+
 
 const initialVal = {
     access_token: '',
@@ -34,6 +37,8 @@ function Login() {
     const [userCode, setUserCode] = useState<TokenResponse>(initialVal);
     const [userInfo, setUserInfo] = useState<GGUserInfo | null>(null);
 
+    const authStatus = useSelector((state: RootState) => state.auth.authStatus);
+
     const onChange = () => {
         setIsRemember(!isRemember);
         console.log("user -----------------", userInfo);
@@ -47,6 +52,13 @@ function Login() {
     });
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    // redirect to dashboard if already logged in
+    useEffect(() => {
+        if (authStatus) navigate('/dashboard')
+
+    }, []);
 
     useEffect(() => {
         axios
@@ -113,11 +125,15 @@ function Login() {
                         </div>
                         <div className='additional-opt'>
                             <Checkbox onChange={onChange}>Remember me</Checkbox>
-                            <Typography.Link>Forgot password</Typography.Link>
+                            <Typography.Link onClick={() => navigate('/dashboard')}>Forgot password</Typography.Link>
                         </div>
                         <Button
                             onClick={async () => {
                                 const res = await dispatch(login({ username, password }));
+
+                                if (res.payload?.token) {
+                                    navigate('/')
+                                }
                                 console.log("Signing here ", res);
                             }}
                             size={'large'} className='sign-in-btn' type="primary">Sign in</Button>
