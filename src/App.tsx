@@ -1,26 +1,20 @@
-// import './App.css'
-import {
-  createBrowserRouter,
-  RouterProvider
-} from "react-router-dom";
-import Login from './pages/auth/Login';
-import Register from "./pages/auth/Register";
+import { Toaster } from 'react-hot-toast'
 
-function App() {
-  const router = createBrowserRouter([
-    {
-      path: '/',
-      element: <Login />
-    },
-    {
-      path: '/register',
-      element: <Register />
-    }
-  ]);
+import { Provider } from "react-redux";
+import Store from "./redux/Store";
+
+import Router from "./routers/Router";
+
+const App = () => {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <Provider store={Store}>
+        <Router />
+        <Toaster
+          position="top-right"
+        />
+      </Provider>
     </>
   )
 }
