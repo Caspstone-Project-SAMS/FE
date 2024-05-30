@@ -19,6 +19,7 @@ import { TokenResponse, GGUserInfo } from '../../models/auth/GoogleResponse';
 //antd
 import { Input, Checkbox, Typography, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined } from '@ant-design/icons';
+import { UserInfo } from '../../models/UserInfo';
 
 
 const initialVal = {
@@ -46,7 +47,10 @@ function Login() {
     const handleLogin = async () => {
         const res = await dispatch(login({ username, password }));
 
-        if (res.payload?.token) {
+        if (res.payload != null) {
+            const userDetail: UserInfo = res.payload
+            // const role = userDetail.result?.roles[0].name === 'lecture'
+
             navigate('/')
         }
     }

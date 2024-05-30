@@ -1,12 +1,12 @@
-import { Toaster } from 'react-hot-toast'
 
+import { Toaster } from 'react-hot-toast'
 import { Provider } from "react-redux";
 import Store from "./redux/Store";
-
 import Router from "./routers/Router";
 
-const App = () => {
 
+// import "./App.css";
+function App() {
   return (
     <>
       <Provider store={Store}>
@@ -19,4 +19,5 @@ const App = () => {
   )
 }
 
-export default App
+
+export default App;
