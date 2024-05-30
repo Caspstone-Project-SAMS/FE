@@ -1,0 +1,36 @@
+.content {
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.text-account {
+    font-weight: bold;
+}
+
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+}
+
+.parent-card {
+    margin: 0px 20px 0px 20px;
+    height: 450px;
+    width: 580px;
+}
+
+.space-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.account-info {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+}
+
+.account-details {
+    margin-right: 195px;
+}

@@ -1,0 +1,126 @@
+
+.card-content {
+  width: 125%; /* Ensure the card takes full width */
+  margin-top: 30px;
+  margin-left: 18px;
+  height: 270px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between; /* Distribute space between elements */
+  align-items: center; /* Center items vertically */
+}
+
+.class-info {
+  height: 120px;
+  width: 400px;
+  display: flex;
+  justify-content: space-between; /* Distribute space between elements */
+  align-items: center; /* Center items vertically */
+}
+
+.info {
+  width: 100%;
+  justify-content: flex-start; /* Aligns text to the left */
+}
+
+.card-container {
+  width: 100%; /* Ensure the container takes full width */
+  padding-top: 20px;
+  padding-left: 10px;
+}
+
+.card-content1 {
+  /* padding-bottom: 220px; */
+  margin-left: 170px;
+  /* height: 230px; */
+  margin-top: 30px;
+  height: 270px;
+  margin-right: 15px;
+}
+
+.card-header1 {
+  display: flex;
+  justify-content: space-between; /* Distribute space between elements */
+  align-items: center; /* Center items vertically */
+}
+
+.card1 {
+  width: 200px;
+  height: 100px;
+  display: flex;
+  justify-content: space-between; /* Center the contents horizontally if needed */
+  align-items: center; /* Center the contents vertically */
+}
+
+.card3 {
+  width: 200px;
+  height: 100px;
+  display: flex;
+  justify-content: space-between; /* Center the contents horizontally if needed */
+  align-items: center; /* Center the contents vertically */
+
+}
+
+.card2 {
+  width: 230px;
+  height: 209px;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  background-color: #ebfdef;
+  margin-top: 8px;
+}
+
+.icon-col {
+  display: flex;
+  align-items: center; /* Center the icon vertically */
+  margin-bottom: 20px;
+  margin-left: 15px;
+}
+
+.space-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between; /* Ensure spaces are spread out horizontally */
+  align-items: center; /* Center items vertically */
+}
+
+.book-icon {
+  height: 50px;
+  width: 50px;
+}
+
+.upcome-icon {
+  font-size: 30px;
+  position: absolute;
+  right: -40px; /* Adjust these values to position the icon */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.today-icon {
+  font-size: 30px;
+  position: absolute;
+  right: -77px; /* Adjust these values to position the icon */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.icon-container {
+  position: relative;
+}
+
+.two-card {
+  margin-top: -60px;
+}
+
+.spaces-container {
+  margin-top: -20px;
+}
+
+.home {
+  max-height: 700px; /* Adjust the height as needed */
+  overflow-y: auto;
+}

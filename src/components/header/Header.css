@@ -1,0 +1,27 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+}
+
+.vertical {
+  flex-direction: horizontal;
+}
+
+.text {
+  height: 20px;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+}
+
+.narrowTypography {
+  height: 0px;
+}
+
+.down-arrow {
+  display: flex;
+}
