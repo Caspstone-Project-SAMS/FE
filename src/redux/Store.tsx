@@ -5,7 +5,7 @@ import Auth from "./slice/Auth";
 const Store = configureStore({
     reducer: {
         auth: Auth
-    }
+    },
 })
 
 export type RootState = ReturnType<typeof Store.getState>;

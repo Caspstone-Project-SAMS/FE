@@ -37,7 +37,19 @@ function Login() {
     const [userCode, setUserCode] = useState<TokenResponse>(initialVal);
     const [userInfo, setUserInfo] = useState<GGUserInfo | null>(null);
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const authStatus = useSelector((state: RootState) => state.auth.authStatus);
+
+    //Havent authorize for lecture or admin
+    const handleLogin = async () => {
+        const res = await dispatch(login({ username, password }));
+
+        if (res.payload?.token) {
+            navigate('/')
+        }
+    }
 
     const onChange = () => {
         setIsRemember(!isRemember);
@@ -51,13 +63,9 @@ function Login() {
         },
     });
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
     // redirect to dashboard if already logged in
     useEffect(() => {
         if (authStatus) navigate('/dashboard')
-
     }, []);
 
     useEffect(() => {
@@ -128,14 +136,7 @@ function Login() {
                             <Typography.Link onClick={() => navigate('/dashboard')}>Forgot password</Typography.Link>
                         </div>
                         <Button
-                            onClick={async () => {
-                                const res = await dispatch(login({ username, password }));
-
-                                if (res.payload?.token) {
-                                    navigate('/')
-                                }
-                                console.log("Signing here ", res);
-                            }}
+                            onClick={() => handleLogin()}
                             size={'large'} className='sign-in-btn' type="primary">Sign in</Button>
                         <div className='other-auth-opt'>
                             <span className='line'></span>
