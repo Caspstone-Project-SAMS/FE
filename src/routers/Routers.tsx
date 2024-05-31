@@ -5,7 +5,7 @@ import routeConfig from './RouterConfig';
 const Routers: React.FC = () => {
   return (
     <Routes>
-      {routeConfig.map((route, index) => (
+      {routeConfig.lecture.map((route, index) => (
         <Route key={index} path={route.path} element={route.element} />
       ))}
     </Routes>

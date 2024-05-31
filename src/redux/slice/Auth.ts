@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { GoogleLogin_OnSuccess } from '../../models/auth/GoogleResponse';
 import { UserInfo } from '../../models/UserInfo';
-import authService from '../../hooks/Auth';
+import AuthService from '../../hooks/Auth';
 
 // import { history } from '../../hooks/helpers/history';
 
@@ -23,7 +23,7 @@ const login = createAsyncThunk(
   'auth/login',
   async (arg: { username: string; password: string }) => {
     const { username, password } = arg;
-    const result = await authService.login(username, password);
+    const result = await AuthService.login(username, password);
     return result;
   },
 );
@@ -31,7 +31,14 @@ const login = createAsyncThunk(
 const AuthSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.authStatus = false;
+      state.loadingStatus = false;
+      state.googleAuth = undefined;
+      state.userDetail = undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(login.pending, (state) => ({
       ...state,
@@ -64,5 +71,6 @@ const AuthSlice = createSlice({
 });
 
 export { login };
+export const { logout } = AuthSlice.actions;
 
 export default AuthSlice.reducer;

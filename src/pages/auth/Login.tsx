@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from "react-router-dom"
 import useDispatch from '../../redux/UseDispatch';
@@ -19,8 +18,7 @@ import { TokenResponse, GGUserInfo } from '../../models/auth/GoogleResponse';
 //antd
 import { Input, Checkbox, Typography, Button } from 'antd';
 import Icon, { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, MailOutlined } from '@ant-design/icons';
-import { UserInfo } from '../../models/UserInfo';
-
+import AuthService from '../../hooks/Auth';
 
 const initialVal = {
     access_token: '',
@@ -35,6 +33,7 @@ function Login() {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [isRemember, setIsRemember] = useState(false);
+    //Google login info
     const [userCode, setUserCode] = useState<TokenResponse>(initialVal);
     const [userInfo, setUserInfo] = useState<GGUserInfo | null>(null);
 
@@ -48,16 +47,12 @@ function Login() {
         const res = await dispatch(login({ username, password }));
 
         if (res.payload != null) {
-            const userDetail: UserInfo = res.payload
-            // const role = userDetail.result?.roles[0].name === 'lecture'
-
             navigate('/')
         }
     }
 
     const onChange = () => {
         setIsRemember(!isRemember);
-        console.log("user -----------------", userInfo);
     }
 
     const loginGG = useGoogleLogin({
@@ -73,18 +68,14 @@ function Login() {
     }, []);
 
     useEffect(() => {
-        axios
-            .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${userCode.access_token}`, {
-                headers: {
-                    Authorization: `Bearer ${userCode.access_token}`,
-                    Accept: 'application/json'
-                }
-            })
-            .then((res) => {
-                console.log("User detail response: ", res);
-                setUserInfo(res.data);
-            })
-            .catch((err) => console.log(err));
+        if (userCode.access_token) {
+            AuthService.getGGInfo(userCode.access_token)
+                .then(data => {
+                    setUserInfo(data)
+                    console.log("User detail when login gg: ", data, userInfo);
+                })
+                .catch(err => console.log(err));
+        }
     }, [userCode])
 
     // const logOut = () => {
@@ -137,7 +128,7 @@ function Login() {
                         </div>
                         <div className='additional-opt'>
                             <Checkbox onChange={onChange}>Remember me</Checkbox>
-                            <Typography.Link onClick={() => navigate('/dashboard')}>Forgot password</Typography.Link>
+                            <Typography.Link>Forgot password</Typography.Link>
                         </div>
                         <Button
                             onClick={() => handleLogin()}
@@ -148,10 +139,13 @@ function Login() {
                             <span className='line'></span>
                         </div>
                         <Button
-                            onClick={() => {
-                                loginGG();
-                            }}
-                            className='gg-login-btn' size='large' icon={<Icon component={() => <img className='gg-icon' src={ggIcon} alt='Gg' />} />}>Google</Button>
+                            onClick={() => loginGG()}
+                            className='gg-login-btn'
+                            size='large'
+                            icon={<Icon component={() => <img className='gg-icon' src={ggIcon} alt='Gg' />} />}
+                        >
+                            Google
+                        </Button>
                         <div className='signUpTxt'>
                             Don't have an account? {'  '}
                             <Link className='nav-link' to={'/register'}>
@@ -166,3 +160,20 @@ function Login() {
 }
 
 export default Login
+
+
+
+//Error note feature
+// const [isError, setIsError] = useState(false);
+// {
+//     isError ? (
+//         <motion.div
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             transition={{ duration: 1.4 }}
+//         >
+//             <Typography.Text >Error mate</Typography.Text>
+//         </motion.div>
+//     ) : ('')
+// }
+// onClick={() => setIsError(!isError)}

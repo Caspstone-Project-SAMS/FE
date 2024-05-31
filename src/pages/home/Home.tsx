@@ -8,8 +8,15 @@ import { GoPeople } from "react-icons/go";
 import { SiGoogleclassroom } from "react-icons/si";
 import { Content } from "antd/es/layout/layout";
 import HomeCalendar from "../../components/calendar/HomeCalendar";
+import { logout } from "../../redux/slice/Auth";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import useDispatch from "../../redux/UseDispatch";
 
 const Home: React.FC = () => {
+  const auth = useSelector((state: RootState) => state.auth)
+  const dispatch = useDispatch();
+
   return (
     <Content className="home">
       <Space direction="horizontal" className="spaces-container">
@@ -19,7 +26,12 @@ const Home: React.FC = () => {
             <Space direction="vertical">
               <Typography.Title level={4}>Lecturer Dashboard</Typography.Title>
               <Typography.Text>Current / Upcoming class</Typography.Text>
-              <Button className="class-info">
+              <Button
+                onClick={() => {
+                  dispatch(logout())
+                  console.log("Auth ", auth);
+                }}
+                className="class-info">
                 <Space>
                   <IoPeopleOutline />
                   <Space direction="vertical">

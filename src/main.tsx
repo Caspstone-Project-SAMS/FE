@@ -12,15 +12,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <GoogleOAuthProvider clientId={ggClientID}>
     <React.StrictMode>
       <BrowserRouter>
-        <ConfigProvider
+        {/* <ConfigProvider
           theme={{
             token: {
               colorPrimary: "#2123bf",
             },
           }}
-        >
-          <App />
-        </ConfigProvider>
+        > */}
+        <App />
+        {/* </ConfigProvider> */}
       </BrowserRouter>
     </React.StrictMode>
   </GoogleOAuthProvider>

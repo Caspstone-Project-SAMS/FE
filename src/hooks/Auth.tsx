@@ -15,16 +15,17 @@ const login = async (username: string, password: string): Promise<UserInfo> => {
 const getGGInfo = async (access_token: string): Promise<GGUserInfo> => {
     const response = await axios.get(GET_GG_USER_INFO + access_token, {
         headers: {
-            Authorization: `Bearer ${access_token}`
+            Authorization: `Bearer ${access_token}`,
+            Accept: 'application/json'
         }
     })
 
     return response.data as GGUserInfo
 }
 
-const authService = {
+const AuthService = {
     login,
     getGGInfo
 }
 
-export default authService
+export default AuthService
