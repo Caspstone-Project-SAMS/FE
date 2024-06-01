@@ -24,7 +24,9 @@ const Home: React.FC = () => {
         <Card className="card-content">
           <div className="card-header">
             <Space direction="vertical">
-              <Typography.Title level={4}>Lecturer Dashboard</Typography.Title>
+              <Typography.Title onClick={() => {
+                console.log('In the dashboard - Auth: ', auth);
+              }} level={4}>Lecturer Dashboard</Typography.Title>
               <Typography.Text>Current / Upcoming class</Typography.Text>
               <Button
                 onClick={() => {

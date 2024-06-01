@@ -40,12 +40,12 @@ function Login() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const Auth = useSelector((state: RootState) => state.auth);
     const authStatus = useSelector((state: RootState) => state.auth.authStatus);
 
     //Havent authorize for lecture or admin
     const handleLogin = async () => {
         const res = await dispatch(login({ username, password }));
-
         if (res.payload != null) {
             navigate('/')
         }
@@ -53,6 +53,7 @@ function Login() {
 
     const onChange = () => {
         setIsRemember(!isRemember);
+        console.log("Auth ----", Auth);
     }
 
     const loginGG = useGoogleLogin({
