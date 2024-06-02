@@ -1,16 +1,17 @@
-import { Button, Card, Space, Typography } from "antd";
-import React from "react";
-import { IoPeopleOutline } from "react-icons/io5";
 import "./Home.css";
-import { RightOutlined } from "@ant-design/icons";
-import { FaSwatchbook } from "react-icons/fa6";
+import React from "react";
+import { Button, Card, Space, Typography } from "antd";
 import { GoPeople } from "react-icons/go";
+import { FaSwatchbook } from "react-icons/fa6";
+import { IoPeopleOutline } from "react-icons/io5";
 import { SiGoogleclassroom } from "react-icons/si";
+import { RightOutlined } from "@ant-design/icons";
 import { Content } from "antd/es/layout/layout";
 import HomeCalendar from "../../components/calendar/HomeCalendar";
-import { logout } from "../../redux/slice/Auth";
+
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
+import { logout } from "../../redux/slice/Auth";
 import useDispatch from "../../redux/UseDispatch";
 
 const Home: React.FC = () => {

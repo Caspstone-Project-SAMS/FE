@@ -1,12 +1,14 @@
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RootState } from '../redux/Store';
+import { useSelector } from 'react-redux';
+
+import { Layout } from 'antd';
+
 import Sidebar from '../components/sidebar/Sidebar';
 import Headers from '../components/header/Header';
 import routeConfig from './RouterConfig';
 import ErrorPage from '../pages/ErrorPage';
-import { Layout } from 'antd';
-import React, { useEffect } from 'react';
 
 const ProtectedRoute = () => {
     const Auth = useSelector((state: RootState) => state.auth);
@@ -19,7 +21,6 @@ const ProtectedRoute = () => {
     if (!Auth.authStatus) {
         return <Navigate to="/login" />;
     }
-
 
     return (
         <Layout className="container">

@@ -11,21 +11,21 @@ import { Header } from "antd/es/layout/layout";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
-    <Sider style={{backgroundColor:"white"}}>
-      <Header style={{backgroundColor:"white"}}/>
+    <Sider style={{ backgroundColor: "white" }}>
+      <Header style={{ backgroundColor: "white" }} />
       <Menu
-      onClick={(item) => {
-        navigate(item.key)
-      }}
+        onClick={(item) => {
+          navigate(item.key)
+        }}
         mode="inline"
         items={[
           {
             label: "Home",
             key: "/",
             icon: <IoHomeOutline />,
-            
+
           },
           {
             label: "Class",
@@ -40,16 +40,16 @@ const Sidebar: React.FC = () => {
           {
             label: "Calendar",
             key: "/calendar",
-            children: [
-              {
-                label: "1",
-                key: "1",
-              },
-              {
-                label: "2",
-                key: "2",
-              },
-            ],
+            // children: [
+            //   {
+            //     label: "1",
+            //     key: "1",
+            //   },
+            //   {
+            //     label: "2",
+            //     key: "2",
+            //   },
+            // ],
             icon: <CiCalendar />,
           },
           {
