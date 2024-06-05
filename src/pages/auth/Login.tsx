@@ -147,11 +147,9 @@ function Login() {
                         >
                             Google
                         </Button>
-                        <div className='signUpTxt'>
-                            Don't have an account? {'  '}
-                            <Link className='nav-link' to={'/register'}>
-                                Sign Up
-                            </Link>
+                        <div className='sign-up-txt'>
+                            Don't have an account? {' '}
+                            <a className='nav-link' href="mailto:ducnhhse161458@fpt.edu.vn">Contact Us!</a>
                         </div>
                     </div>
                 </div>

@@ -3,8 +3,10 @@ import moment from 'moment'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import './MyCalendar.less'
 import 'react-big-calendar/lib/sass/styles.scss'
-import events from './events'
-import { slots } from './RawData'
+import events from './data/events'
+import CustomEvent from './items/events/CustomEvent'
+import CustomWeekEvent from './items/events/CustomEventWeek'
+// import { slots } from './data/RawData'
 
 const localizer = momentLocalizer(moment)
 
@@ -16,22 +18,40 @@ const backgroundEvents = [
         end: new Date(2024, 6, 2, 18),
     },
 ]
-console.log(events);
 
-const slotSample = slots;
+// const slotSample = slots;
 
 function MyCalendar() {
+    const today = new Date();
+    const startHour = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        6
+    )
+    const endHour = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        22
+    )
+
     return (
-        <>
-            <Calendar
-                localizer={localizer}
-                backgroundEvents={backgroundEvents}
-                events={events}
-                popup
-            // startAccessor="start"
-            // endAccessor="end"
-            />
-        </>
+        <Calendar
+            localizer={localizer}
+            backgroundEvents={backgroundEvents}
+            events={events}
+            popup
+            components={{
+                event: CustomEvent,
+                week: {
+                    event: CustomWeekEvent
+                }
+            }}
+            min={startHour}
+            max={endHour}
+            style={{ backgroundColor: '#FFF', padding: '10px', borderRadius: '4px' }}
+        />
     )
 }
 

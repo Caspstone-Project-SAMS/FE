@@ -7,12 +7,13 @@ import { IoPeopleOutline } from "react-icons/io5";
 import { SiGoogleclassroom } from "react-icons/si";
 import { RightOutlined } from "@ant-design/icons";
 import { Content } from "antd/es/layout/layout";
-import HomeCalendar from "../../components/calendar/HomeCalendar";
+// import HomeCalendar from "../../components/calendar/HomeCalendar";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { logout } from "../../redux/slice/Auth";
 import useDispatch from "../../redux/UseDispatch";
+import MyCalendar from "../../components/calendar/MyCalendar";
 
 const Home: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth)
@@ -114,7 +115,7 @@ const Home: React.FC = () => {
         </Card>
         {/* </Space> */}
       </Space>
-      <HomeCalendar />
+      <MyCalendar />
     </Content>
   );
 };

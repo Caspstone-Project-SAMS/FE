@@ -4,7 +4,8 @@ import Class from "../pages/class/Class";
 import Student from "../pages/student/Student";
 import Account from "../pages/account/Account";
 import Admin from '../pages/admin/Admin';
-import MyCalendar from '../components/calendar/MyCalendar';
+import HomeCalendar from '../components/calendar/HomeCalendar';
+// import MyCalendar from '../components/calendar/MyCalendar';
 
 const lecture = [
   {
@@ -25,7 +26,7 @@ const lecture = [
   },
   {
     path: '/calendar',
-    element: <MyCalendar />
+    element: <HomeCalendar />
   }
 ];
 

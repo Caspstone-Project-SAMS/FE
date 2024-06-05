@@ -1,4 +1,4 @@
-import { Slot } from '../../models/calendar/Slot';
+import { Slot } from '../../../models/calendar/Slot';
 
 export const slots: Slot[] = [
   {
