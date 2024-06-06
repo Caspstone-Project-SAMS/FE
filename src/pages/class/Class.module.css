@@ -1,8 +1,36 @@
 .content {
     margin-left: 20px;
     margin-top: 20px;
+    margin-right: 20px;
 }
 
 .text-class {
     font-weight: bold;
 }
+
+.class-details-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-fap {
+    width: 250px;
+    height: 50px;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+}
+
+.hr-line {
+    height: 50px;
+    border-width: 1.5px;
+    border-color: gray;
+}
+
+.btn-text {
+    margin-inline: 20px;
+    font-size: medium;
+    font-weight: 400;
+}
+
+

@@ -1,121 +1,139 @@
-import "./Home.css";
-import React from "react";
-import { Button, Card, Space, Typography } from "antd";
-import { GoPeople } from "react-icons/go";
-import { FaSwatchbook } from "react-icons/fa6";
-import { IoPeopleOutline } from "react-icons/io5";
-import { SiGoogleclassroom } from "react-icons/si";
-import { RightOutlined } from "@ant-design/icons";
-import { Content } from "antd/es/layout/layout";
-// import HomeCalendar from "../../components/calendar/HomeCalendar";
-
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
-import { logout } from "../../redux/slice/Auth";
-import useDispatch from "../../redux/UseDispatch";
-import MyCalendar from "../../components/calendar/MyCalendar";
+import { Button, Card, Layout, Space, Typography } from 'antd';
+import React from 'react';
+import { IoPeopleOutline } from 'react-icons/io5';
+import './Home.css';
+import { RightOutlined } from '@ant-design/icons';
+import { FaSwatchbook } from 'react-icons/fa6';
+import { GoPeople } from 'react-icons/go';
+import { SiGoogleclassroom } from 'react-icons/si';
+import { Content } from 'antd/es/layout/layout';
+import HomeCalendar from '../../components/calendar/HomeCalendar';
 
 const Home: React.FC = () => {
-  const auth = useSelector((state: RootState) => state.auth)
-  const dispatch = useDispatch();
 
   return (
     <Content className="home">
-      <Space direction="horizontal" className="spaces-container">
-        {/* <Space className="card-container"> */}
-        <Card className="card-content">
-          <div className="card-header">
-            <Space direction="vertical">
-              <Typography.Title onClick={() => {
-                console.log('In the dashboard - Auth: ', auth);
-              }} level={4}>Lecturer Dashboard</Typography.Title>
-              <Typography.Text>Current / Upcoming class</Typography.Text>
-              <Button
-                onClick={() => {
-                  dispatch(logout())
-                  console.log("Auth ", auth);
-                }}
-                className="class-info">
-                <Space>
-                  <IoPeopleOutline />
-                  <Space direction="vertical">
-                    <Space className="info">
-                      <Typography.Text>Room: </Typography.Text>
-                      <Typography.Text>NHV - 309</Typography.Text>
-                    </Space>
-                    <Space className="info">
-                      <Typography.Text>Slot 1: </Typography.Text>
-                      <Typography.Text>7:00 - 9:30</Typography.Text>
-                    </Space>
-                    <Space className="info">
-                      <Typography.Text>Subject: </Typography.Text>
-                      <Typography.Text>MLN131</Typography.Text>
-                    </Space>
-                    <Space className="info">
-                      <Typography.Text>Class: </Typography.Text>
-                      <Typography.Text>NET1601</Typography.Text>
-                    </Space>
+      <Layout style={{ marginRight: '20px', marginLeft: '20px' }}>
+        <Content>
+          <Space direction="vertical" className="home-space-card">
+            <Space direction="horizontal" className="home-card">
+              <Card className="home-parent-card1">
+                <Content style={{ width: '645px' }}>
+                  <Space direction="horizontal" className="home-info">
+                    <div className="card-header">
+                      <Space direction="vertical">
+                        <Typography.Title level={4}>
+                          Lecturer Dashboard
+                        </Typography.Title>
+                        <Typography.Text>
+                          Current / Upcoming class
+                        </Typography.Text>
+                        <Button className="class-info">
+                          <Space>
+                            <IoPeopleOutline size={60} />
+                            <Space direction="vertical">
+                              <Space className="info">
+                                <Typography.Text>Room: </Typography.Text>
+                                <Typography.Text>NHV - 309</Typography.Text>
+                              </Space>
+                              <Space className="info">
+                                <Typography.Text>Slot 1: </Typography.Text>
+                                <Typography.Text>7:00 - 9:30</Typography.Text>
+                              </Space>
+                              <Space className="info">
+                                <Typography.Text>Subject: </Typography.Text>
+                                <Typography.Text>MLN131</Typography.Text>
+                              </Space>
+                              <Space className="info">
+                                <Typography.Text>Class: </Typography.Text>
+                                <Typography.Text>NET1601</Typography.Text>
+                              </Space>
+                            </Space>
+                          </Space>
+                          <RightOutlined />
+                        </Button>
+                      </Space>
+                      <Space direction="vertical" style={{}}>
+                        <Typography.Text style={{}}>
+                          Tuesday, May 14, 2024
+                        </Typography.Text>
+                      </Space>
+                    </div>
                   </Space>
-                </Space>
-                <RightOutlined />
-              </Button>
-            </Space>
-            <Space direction="vertical">
-              <Typography.Text>Tuesday, May 14, 2024</Typography.Text>
-            </Space>
-          </div>
-        </Card>
-        {/* </Space> */}
-
-        {/* <Space className="card-container1"> */}
-        <Card className="card-content1">
-          <Space direction="horizontal" className="two-card">
-            <Space direction="vertical">
-              <Card className="card1" style={{ backgroundColor: "#f1e7ff" }}>
-                <div className="icon-container">
-                  <Space direction="horizontal">
-                    <Space direction="vertical">
-                      <Typography.Text>Upcoming class</Typography.Text>
-                      <Typography.Title level={2}>SWT301</Typography.Title>
-                    </Space>
-                    <Space direction="vertical">
-                      <GoPeople className="upcome-icon" />
-                    </Space>
-                  </Space>
-                </div>
+                </Content>
               </Card>
-              <Card className="card3" style={{ backgroundColor: "#e5f5ff" }}>
-                <div className="icon-container">
-                  <Space direction="horizontal">
+              <Card className="home-parent-card2">
+                <Content>
+                  <Space
+                    direction="horizontal"
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                    }}
+                  >
                     <Space direction="vertical">
-                      <Typography.Text>Today class</Typography.Text>
-                      <Typography.Title level={2}>5</Typography.Title>
+                      <Card style={{ backgroundColor: '#f1e7ff' }}>
+                        <Space direction="horizontal" className="home-card-1">
+                          <Space
+                            direction="vertical"
+                            style={{ width: '150px' }}
+                          >
+                            <text className="status-card">Upcoming class</text>
+                            <text className="classcode">SWT301</text>
+                          </Space>
+                          <Space>
+                            <GoPeople size={'40px'} />
+                          </Space>
+                        </Space>
+                      </Card>
+                      <Card style={{ backgroundColor: '#e5f5ff' }}>
+                        <Space direction="horizontal" className="home-card-1">
+                          <Space direction="vertical" style={{}}>
+                            <text className="status-card">Today class</text>
+                            <text className="classcode">3/5</text>
+                          </Space>
+                          <Space>
+                            <SiGoogleclassroom size={'40px'} />
+                          </Space>
+                        </Space>
+                      </Card>
                     </Space>
-                    <Space direction="vertical">
-                      <SiGoogleclassroom className="today-icon" />
+                    <Space>
+                      <Card
+                        style={{
+                          backgroundColor: '#ebfdef',
+                          height: '230px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Space direction="horizontal" className="home-card-2">
+                          <Space
+                            direction="vertical"
+                            style={{ width: '130px' }}
+                          >
+                            <text className="status-card">Subject prepare</text>
+                            <text className="classcode">SWT301</text>
+                            <text className="classcode">EXE201</text>
+                            <text className="classcode">MLN131</text>
+                          </Space>
+                          <Space>
+                            <FaSwatchbook size={'40px'} />
+                          </Space>
+                        </Space>
+                      </Card>
                     </Space>
                   </Space>
-                </div>
+                </Content>
               </Card>
             </Space>
-            <Card className="card2">
-              <Space className="space-container" direction="horizontal">
-                <Space direction="vertical">
-                  <Typography.Text>Subject Prepare</Typography.Text>
-                  <Typography.Title level={2}>SWT301</Typography.Title>
-                  <Typography.Title level={2}>EXE101</Typography.Title>
-                  <Typography.Title level={2}>MLN131</Typography.Title>
-                </Space>
-                <Space direction="vertical">
-                  <FaSwatchbook className="book-icon" />
-                </Space>
-              </Space>
-            </Card>
           </Space>
-        </Card>
-        {/* </Space> */}
-      </Space>
-      <MyCalendar />
+        </Content>
+      </Layout>
+
+      <HomeCalendar />
     </Content>
   );
 };

@@ -9,7 +9,7 @@ import { FaListCheck } from "react-icons/fa6";
 import { Image, Menu } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { useNavigate } from "react-router-dom";
-
+import './Sidebar.css'; // Import the CSS file
 import './Sidebar.less'
 import Logo from '../../assets/imgs/logo_sider.png';
 import Logo_Cutted from '../../assets/imgs/logo_cut.png';
@@ -50,19 +50,19 @@ const Sidebar: React.FC = () => {
         mode="inline"
         items={[
           {
-            label: "Home",
-            key: "/",
+            label: 'Home',
+            key: '/',
             icon: <IoHomeOutline />,
 
           },
           {
-            label: "Class",
-            key: "/class",
+            label: 'Class',
+            key: '/class',
             icon: <GiBookshelf />,
           },
           {
-            label: "Students",
-            key: "/student",
+            label: 'Students',
+            key: '/student',
             icon: <PiStudent />,
           },
           {
@@ -81,13 +81,13 @@ const Sidebar: React.FC = () => {
             icon: <CiCalendar />,
           },
           {
-            label: "Account",
-            key: "/account",
+            label: 'Account',
+            key: '/account',
             icon: <MdOutlineManageAccounts />,
           },
           {
-            label: "Attendance",
-            key: "/attendance",
+            label: 'Attendance',
+            key: '/attendance',
             icon: <FaListCheck />,
           },
         ]}

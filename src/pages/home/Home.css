@@ -1,5 +1,5 @@
 .card-content {
-  width: 125%; /* Ensure the card takes full width */
+  width: 120%; /* Ensure the card takes full width */
   margin-top: 30px;
   margin-left: 18px;
   height: 270px;
@@ -12,7 +12,7 @@
 }
 
 .class-info {
-  height: 120px;
+  height: 100%;
   width: 400px;
   display: flex;
   justify-content: space-between; /* Distribute space between elements */
@@ -31,12 +31,10 @@
 }
 
 .card-content1 {
-  /* padding-bottom: 220px; */
-  margin-left: 170px;
-  /* height: 230px; */
   margin-top: 30px;
   height: 270px;
-  margin-right: 15px;
+  width: 79%;
+  margin-left: 140px;
 }
 
 .card-header1 {
@@ -116,9 +114,90 @@
 
 .spaces-container {
   margin-top: -20px;
+  display: flex;
+  justify-content: wrap;
 }
 
-/* .home {
-  max-height: 700px; /* Adjust the height as needed /
+.home {
   overflow-y: auto;
-} */
+}
+
+.home-space-card {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.home-card {
+  display: flex;
+  justify-content: space-between;
+}
+
+.home-parent-card1 {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 19px;
+  padding-top: 19px;
+}
+
+.home-parent-card2 {
+  width: 100%;
+}
+
+.home-info {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap to the next line */
+  justify-content: flex-start; /* Align items to the start of the line */
+}
+
+.home-card-1 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.home-card-2 {
+  display: flex;
+}
+
+.status-card {
+  color: gray;
+  font-size: 15px;
+}
+
+.classcode {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1200px) {
+  .home-parent-card1 {
+    width: 80%;
+  }
+  .home-parent-card2 {
+    width: 80%;
+  }
+}
+
+@media (max-width: 992px) {
+  .home-parent-card1 {
+    width: 100%;
+  }
+  .home-parent-card2 {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-parent-card1,
+  .home-parent-card2 {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .home-space-card {
+    flex-direction: column;
+    align-items: center;
+  }
+}
