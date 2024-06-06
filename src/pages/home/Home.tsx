@@ -10,6 +10,7 @@ import { Content } from 'antd/es/layout/layout';
 import HomeCalendar from '../../components/calendar/HomeCalendar';
 
 const Home: React.FC = () => {
+
   return (
     <Content className="home">
       <Layout style={{ marginRight: '20px', marginLeft: '20px' }}>

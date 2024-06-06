@@ -189,7 +189,8 @@
 }
 
 @media (max-width: 768px) {
-  .home-parent-card1, .home-parent-card2 {
+  .home-parent-card1,
+  .home-parent-card2 {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
