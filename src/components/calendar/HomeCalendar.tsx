@@ -1,15 +1,21 @@
 import React from "react";
-import "./HomeCalendar.less";
+import styles from "./HomeCalendar.module.less";
 
 import ContentHeader from "../header/contentHeader/ContentHeader";
 import MyCalendar from "./MyCalendar";
+import CustomToolBar from "./items/CustomToolBar";
 
 const HomeCalendar: React.FC = () => {
 
   return (
-    <div className="home-calendar-ctn">
-      <ContentHeader contentTitle='Calendar' previousBreadcrumb={undefined} currentBreadcrumb={undefined} />
-      <div className="calendar-ctn">
+    <div className={styles.homeCalendarCtn}>
+      <ContentHeader
+        contentTitle='Calendar'
+        previousBreadcrumb={undefined}
+        currentBreadcrumb={undefined}
+      />
+      <CustomToolBar />
+      <div className={styles.calendarCtn}>
         <MyCalendar />
       </div>
     </div>

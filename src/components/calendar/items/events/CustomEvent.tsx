@@ -14,7 +14,9 @@ const CustomEvent: React.FC<EventProps<RBC_Event>> = ({ event }) => {
             <div className='event-title'>
                 <div className='circle-status item-justify-center' style={{ backgroundColor: statusColor }}>
                     {isActive ? (
-                        <div className='wave' style={{ backgroundColor: statusColor }}></div>
+                        <div className='wave' style={{
+                            backgroundColor: statusColor,
+                        }}></div>
                     ) : ('')}
                 </div>
                 <div className='title_txt'>

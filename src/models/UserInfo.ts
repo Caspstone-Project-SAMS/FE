@@ -20,7 +20,7 @@ interface UserDetail {
   lockoutEnabled: string;
   filePath?: string;
   displayName?: string;
-  roles: Role[];
+  role: Role;
   createdBy?: string;
   createdAt: Date;
 }

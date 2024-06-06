@@ -12,7 +12,7 @@ import ErrorPage from '../pages/ErrorPage';
 
 const ProtectedRoute = () => {
     const Auth = useSelector((state: RootState) => state.auth);
-    const role = Auth.userDetail?.result?.roles[0].name
+    const role = Auth.userDetail?.result?.role.name
     // const errs = Auth.userDetail?.errors?.length;
     useEffect(() => {
         console.log('helloo role ', role);

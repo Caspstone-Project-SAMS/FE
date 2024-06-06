@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { GoogleLogin_OnSuccess } from '../../models/auth/GoogleResponse';
 import { UserInfo } from '../../models/UserInfo';
 import AuthService from '../../hooks/Auth';
@@ -20,6 +20,8 @@ const initialState: AuthState = {
   userDetail: undefined,
   loadingStatus: false,
 };
+
+const fakeLogin = createAction('auth/fakeLogin');
 
 const login = createAsyncThunk(
   'auth/login',
@@ -81,10 +83,18 @@ const AuthSlice = createSlice({
         loadingStatus: false,
       };
     });
+    builder.addCase(fakeLogin, (state) => {
+      // let result = state.userDetail?.result?.roles[0].name;
+      // result = 'Lecturer';
+      // const detail = { ...state.userDetail, result };
+      state.authStatus = true;
+      state.loadingStatus = false;
+      state.userDetail.result.roles = 'Lecturer';
+    });
   },
 });
 
-export { login };
+export { login, fakeLogin };
 export const { logout } = AuthSlice.actions;
 
 export default AuthSlice.reducer;
