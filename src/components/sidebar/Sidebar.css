@@ -1,0 +1,18 @@
+/* styles.css */
+
+.custom-menu .ant-menu-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .custom-menu .ant-menu-item .anticon {
+    font-size: 20px; /* Adjust the icon size */
+    color: #1890ff; /* Adjust the icon color */
+  }
+  
+  .custom-menu .ant-menu-item .ant-menu-title-content {
+    font-size: 16px; /* Adjust the label font size */
+    color: #333; /* Adjust the label color */
+    margin-left: 10px; /* Adjust the spacing between icon and label */
+  }
+  

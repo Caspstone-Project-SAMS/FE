@@ -3,6 +3,7 @@ import Home from "../pages/home/Home";
 import Class from "../pages/class/Class";
 import Student from "../pages/student/Student";
 import Account from "../pages/account/Account";
+import ClassDetails from '../pages/class/classdetails/ClassDetails';
 
 const routeConfig = [
   {
@@ -20,6 +21,10 @@ const routeConfig = [
   {
     path: '/account',
     element: <Account />
+  },
+  {
+    path: '/class/classdetails',
+    element: <ClassDetails />
   }
 ];
 
