@@ -1,66 +1,65 @@
-import React from 'react'
-import './index.less'
+import React, { useState } from 'react'
+import styles from './index.module.less'
 import { CalendarOutlined, DownOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Dropdown, MenuProps, Space } from 'antd'
+import { Button, Dropdown, MenuProps, Space, Typography } from 'antd'
+import Search from 'antd/es/input/Search'
 
 const CustomToolBar: React.FC = () => {
+    const [selectedView, setSelectedView] = useState<string>('Week');
+
     const items: MenuProps['items'] = [
         {
-            label: '1st menu item',
             key: '1',
-            icon: <UserOutlined />,
+            label: 'Month',
         },
         {
-            label: '2nd menu item',
             key: '2',
-            icon: <UserOutlined />,
+            label: 'Week',
         },
         {
-            label: '3rd menu item',
             key: '3',
-            icon: <UserOutlined />,
-            danger: true,
-        },
-        {
-            label: '4rd menu item',
-            key: '4',
-            icon: <UserOutlined />,
-            danger: true,
-            disabled: true,
+            label: 'Day',
         },
     ];
 
 
-    const handleMenuClick: MenuProps['onClick'] = (e) => {
-        message.info('Click on menu item.');
-        console.log('click', e);
-    };
-    const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        message.info('Click on left button.');
-        console.log('click left button', e);
-    };
-    const menuProps = {
-        items,
-        onClick: handleMenuClick,
-    };
     return (
-        <div className='toolbar-ctn'>
-            <div className='left'>
-                <CalendarOutlined />
-                <div>
+        <div className={styles.toolbarCtn}>
+            <div className={styles.left}>
+                <CalendarOutlined
+                    className={styles.calendarIcon}
+                    style={{ fontSize: '24px' }}
+                />
+                <div className={styles.date}>
                     <b>May</b> 2024
                 </div>
-                <Dropdown menu={menuProps}>
+                <Dropdown menu={{
+                    items,
+                    selectable: true,
+                    defaultSelectedKeys: ['2'],
+                    onSelect: (info) => {
+                        const key = Number(info.key)
+                        // setSelectedView(items[key])
+                    }
+                }}
+                >
                     <Button>
                         <Space>
-                            Button
+                            Selectable
                             <DownOutlined />
                         </Space>
                     </Button>
                 </Dropdown>
             </div>
-            <div className='right'>
-
+            <div className={styles.right}>
+                <Search
+                    placeholder="Search"
+                    allowClear
+                    // onSearch={onSearch}
+                    style={{
+                        width: 200,
+                    }}
+                />
             </div>
         </div>
     )

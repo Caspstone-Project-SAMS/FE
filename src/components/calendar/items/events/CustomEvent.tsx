@@ -1,5 +1,5 @@
 import { EventProps } from 'react-big-calendar'
-import '../index.less'
+import styles from '../index.module.less'
 import '../../../../assets/styles/styles.less'
 import React from 'react'
 import { CustomEvent as RBC_Event } from '../../../../models/calendar/CustomEvent';
@@ -10,21 +10,21 @@ const CustomEvent: React.FC<EventProps<RBC_Event>> = ({ event }) => {
     const isActive = event.status === 'current';
 
     return (
-        <div className='event-ctn-item'>
-            <div className='event-title'>
-                <div className='circle-status item-justify-center' style={{ backgroundColor: statusColor }}>
+        <div className={styles.eventCtnItem}>
+            <div className={styles.eventTitle}>
+                <div className={`${styles.circleStatus} item-justify-center`} style={{ backgroundColor: statusColor }}>
                     {isActive ? (
-                        <div className='wave' style={{
+                        <div className={styles.wave} style={{
                             backgroundColor: statusColor,
                         }}></div>
                     ) : ('')}
                 </div>
-                <div className='title_txt'>
+                <div className={styles.titleTxt}>
                     {classDetail[0]} <br />
                     {classDetail[1]}
                 </div>
             </div>
-            <div className='event-time'>{event.slot}</div>
+            <div className={styles.eventTime}>{event.slot}</div>
         </div>
     )
 }

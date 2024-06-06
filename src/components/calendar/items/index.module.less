@@ -91,4 +91,37 @@
 }
 
 //Custom toolbar
-.toolbar-ctn {}
+.toolbarCtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFF;
+    border-radius: 2px;
+    padding: 10px;
+    margin-bottom: 10px;
+
+    .left,
+    .right {
+        width: 100%;
+    }
+
+    .left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .calendarIcon {
+            font-size: 24;
+        }
+
+        .date {
+            color: @grey-font-color;
+            font-size: @title-font-size;
+        }
+    }
+
+    .right {
+        display: flex;
+        justify-content: end;
+    }
+}
