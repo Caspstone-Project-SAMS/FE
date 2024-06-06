@@ -1,15 +1,24 @@
-import { Button, Card, Space, Typography } from "antd";
-import React from "react";
-import { IoPeopleOutline } from "react-icons/io5";
 import "./Home.css";
-import { RightOutlined } from "@ant-design/icons";
-import { FaSwatchbook } from "react-icons/fa6";
+import React from "react";
+import { Button, Card, Space, Typography } from "antd";
 import { GoPeople } from "react-icons/go";
+import { FaSwatchbook } from "react-icons/fa6";
+import { IoPeopleOutline } from "react-icons/io5";
 import { SiGoogleclassroom } from "react-icons/si";
+import { RightOutlined } from "@ant-design/icons";
 import { Content } from "antd/es/layout/layout";
-import HomeCalendar from "../../components/calendar/HomeCalendar";
+// import HomeCalendar from "../../components/calendar/HomeCalendar";
+
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import { logout } from "../../redux/slice/Auth";
+import useDispatch from "../../redux/UseDispatch";
+import MyCalendar from "../../components/calendar/MyCalendar";
 
 const Home: React.FC = () => {
+  const auth = useSelector((state: RootState) => state.auth)
+  const dispatch = useDispatch();
+
   return (
     <Content className="home">
       <Space direction="horizontal" className="spaces-container">
@@ -17,9 +26,16 @@ const Home: React.FC = () => {
         <Card className="card-content">
           <div className="card-header">
             <Space direction="vertical">
-              <Typography.Title level={4}>Lecturer Dashboard</Typography.Title>
+              <Typography.Title onClick={() => {
+                console.log('In the dashboard - Auth: ', auth);
+              }} level={4}>Lecturer Dashboard</Typography.Title>
               <Typography.Text>Current / Upcoming class</Typography.Text>
-              <Button className="class-info">
+              <Button
+                onClick={() => {
+                  dispatch(logout())
+                  console.log("Auth ", auth);
+                }}
+                className="class-info">
                 <Space>
                   <IoPeopleOutline />
                   <Space direction="vertical">
@@ -99,7 +115,7 @@ const Home: React.FC = () => {
         </Card>
         {/* </Space> */}
       </Space>
-      <HomeCalendar />
+      <MyCalendar />
     </Content>
   );
 };
