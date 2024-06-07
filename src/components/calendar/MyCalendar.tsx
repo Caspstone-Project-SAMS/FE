@@ -6,6 +6,7 @@ import 'react-big-calendar/lib/sass/styles.scss'
 import events from './data/events'
 import CustomEvent from './items/events/CustomEvent'
 import CustomWeekEvent from './items/events/CustomEventWeek'
+import CustomToolBar from './items/CustomToolBar'
 // import { slots } from './data/RawData'
 
 const localizer = momentLocalizer(moment)
@@ -46,8 +47,10 @@ function MyCalendar() {
                 event: CustomEvent,
                 week: {
                     event: CustomWeekEvent
-                }
+                },
+                toolbar: CustomToolBar
             }}
+            // toolbar={<CustomToolBar />}
             min={startHour}
             max={endHour}
             style={{ backgroundColor: '#FFF', padding: '10px', borderRadius: '4px' }}

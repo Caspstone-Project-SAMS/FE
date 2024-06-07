@@ -14,7 +14,7 @@ const HomeCalendar: React.FC = () => {
         previousBreadcrumb={undefined}
         currentBreadcrumb={undefined}
       />
-      <CustomToolBar />
+      {/* <CustomToolBar /> */}
       <div className={styles.calendarCtn}>
         <MyCalendar />
       </div>
