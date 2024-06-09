@@ -4,10 +4,19 @@ import { CalendarOutlined, CaretLeftOutlined, CaretRightOutlined, DownOutlined }
 import { Button, Dropdown, MenuProps, Space } from 'antd'
 import Search from 'antd/es/input/Search'
 import { ToolbarProps, Views } from 'react-big-calendar'
+import useDispatch from '../../../redux/UseDispatch'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../redux/Store'
+import { getScheduleByID } from '../../../redux/slice/Calendar'
 
 const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     const [selectedView, setSelectedView] = useState<string>('Week');
     const [dateTitle, setDateTitle] = useState<string>();
+
+    const calendar = useSelector((state: RootState) => state.calendar)
+    const userDetail = useSelector((state: RootState) => state.auth.userDetail);
+
+    const dispatch = useDispatch();
 
     const { onView } = toolbar
     console.log("toolbar props: ", toolbar);
@@ -44,7 +53,12 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     };
 
     const onSearch = (value: string) => {
-        console.log("searching ", value);
+        // console.log("searching ", value);
+        const lecturerID = userDetail?.result?.id;
+        if (lecturerID) {
+            const arg = { lecturerID: lecturerID, semesterID: '2' };
+            dispatch(getScheduleByID(arg))
+        }
     }
 
     const updateDateTitle = () => {
@@ -72,7 +86,6 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
                 />
                 <div className={styles.date}>
                     {dateTitle}
-                    {/* <b>May</b> 2024 */}
                 </div>
                 <Dropdown menu={{
                     items,
@@ -93,6 +106,9 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
                 <Search
                     placeholder="Search"
                     allowClear
+                    onChange={() => {
+                        console.log("calendar state ", calendar);
+                    }}
                     onSearch={onSearch}
                     style={{
                         width: 200,

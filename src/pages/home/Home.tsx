@@ -8,8 +8,11 @@ import { GoPeople } from 'react-icons/go';
 import { SiGoogleclassroom } from 'react-icons/si';
 import { Content } from 'antd/es/layout/layout';
 import HomeCalendar from '../../components/calendar/HomeCalendar';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 const Home: React.FC = () => {
+  const auth = useSelector((state: RootState) => state.auth)
 
   return (
     <Content className="home">
@@ -28,7 +31,12 @@ const Home: React.FC = () => {
                         <Typography.Text>
                           Current / Upcoming class
                         </Typography.Text>
-                        <Button className="class-info">
+                        <Button
+                          onClick={() => {
+
+                            console.log("Auth: ", auth);
+                          }}
+                          className="class-info">
                           <Space>
                             <IoPeopleOutline size={60} />
                             <Space direction="vertical">
