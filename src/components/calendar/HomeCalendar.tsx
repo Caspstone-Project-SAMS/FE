@@ -3,7 +3,6 @@ import styles from "./HomeCalendar.module.less";
 
 import ContentHeader from "../header/contentHeader/ContentHeader";
 import MyCalendar from "./MyCalendar";
-import CustomToolBar from "./items/CustomToolBar";
 
 const HomeCalendar: React.FC = () => {
 
@@ -14,7 +13,6 @@ const HomeCalendar: React.FC = () => {
         previousBreadcrumb={undefined}
         currentBreadcrumb={undefined}
       />
-      <CustomToolBar />
       <div className={styles.calendarCtn}>
         <MyCalendar />
       </div>

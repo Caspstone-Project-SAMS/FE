@@ -91,7 +91,7 @@ const Home: React.FC = () => {
                   </Row>
                 </Button>
               </Col>
-              <Col style={{display:'flex', alignItems:'center', justifyContent:'center'}} span={10}>
+              <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} span={10}>
                 <h1>{formatTime(time)}</h1>
               </Col>
             </Row>

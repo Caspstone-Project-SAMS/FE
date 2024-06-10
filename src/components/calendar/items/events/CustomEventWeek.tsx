@@ -15,7 +15,7 @@ const CustomWeekEvent: React.FC<EventProps<RBC_Event>> = ({ event }) => {
                 <div className={styles.titleTxt}>
                     {classDetail[0]} <br />
                     {classDetail[1]} <br />
-                    {event.class}
+                    {event.classCode}
                 </div>
                 <div className={styles.eventSub}>
                     <div className={`${styles.circleStatus} item-justify-center`} style={{ backgroundColor: statusColor }}>

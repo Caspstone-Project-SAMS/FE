@@ -3,6 +3,7 @@ import { GoogleLogin_OnSuccess } from '../../models/auth/GoogleResponse';
 import { UserInfo } from '../../models/UserInfo';
 import AuthService from '../../hooks/Auth';
 import toast from 'react-hot-toast';
+import axios, { AxiosError } from 'axios';
 // import axios, { Axios, AxiosError } from 'axios';
 
 // import { history } from '../../hooks/helpers/history';
@@ -39,6 +40,10 @@ const login = createAsyncThunk(
       const result = await loginPromise;
       return result;
     } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('hi error here ', error);
+        throw new AxiosError(error.response);
+      }
       return rejectWithValue(error.message.data);
     }
   },
@@ -63,7 +68,7 @@ const AuthSlice = createSlice({
       };
     });
     builder.addCase(login.fulfilled, (state, action) => {
-      console.log('In the case fulfilled, ', action);
+      // console.log('In the case fulfilled, ', action);
       const { payload } = action;
       return {
         ...state,
@@ -89,7 +94,7 @@ const AuthSlice = createSlice({
       // const detail = { ...state.userDetail, result };
       state.authStatus = true;
       state.loadingStatus = false;
-      state.userDetail.result.roles = 'Lecturer';
+      state.userDetail.result.role = 'Lecturer';
     });
   },
 });

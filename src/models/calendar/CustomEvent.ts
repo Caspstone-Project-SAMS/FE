@@ -9,6 +9,8 @@ export interface CustomEvent {
   des?: string;
   slot?: string;
   status?: 'past' | 'current' | 'future';
-  class?: string;
-  // color?: string,
+  room?: string;
+  classCode?: string;
+  scheduleID?: number;
+  subjectCode?: string;
 }
