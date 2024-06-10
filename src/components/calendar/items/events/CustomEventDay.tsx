@@ -27,7 +27,7 @@ const CustomEventDay: React.FC<EventProps<RBC_Event>> = ({ event }) => {
                 </div>
                 <div className={styles.titleTxtDay}>
                     <div>Subject: {detail.subject}</div>
-                    <div>Class: {event.class}</div>
+                    <div>Class: {event.classCode}</div>
                     <div>Room: {detail.room}</div>
                 </div>
             </div>

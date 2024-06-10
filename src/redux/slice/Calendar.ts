@@ -20,10 +20,9 @@ const initialSemester: Semester = {
   startDate: '',
   endDate: '',
 };
-
 const initialState = {
-  schedule: initialScheduleState,
-  semester: initialSemester,
+  schedule: [initialScheduleState],
+  semester: [initialSemester],
   loadingStatus: false,
 };
 
@@ -58,7 +57,17 @@ const CalendarSlice = createSlice({
     });
     builder.addCase(getScheduleByID.fulfilled, (state, action) => {
       const { payload } = action;
-      console.log('in the getScheduleByID calendar slice ', payload);
+      return {
+        ...state,
+        loadingStatus: false,
+        schedule: payload,
+      };
+    });
+    builder.addCase(getScheduleByID.rejected, (state) => {
+      return {
+        ...state,
+        loadingStatus: false,
+      };
     });
   },
 });

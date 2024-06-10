@@ -18,8 +18,8 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
 
     const dispatch = useDispatch();
 
-    const { onView } = toolbar
-    console.log("toolbar props: ", toolbar);
+    const { onView, view } = toolbar
+    // console.log("toolbar props: ", toolbar);
     const items = [
         {
             key: '1',
@@ -44,7 +44,7 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     ];
 
     const handleMenuClick: MenuProps['onClick'] = (e) => {
-        const selectedItem = items.find(item => item?.key === e.key);
+        const selectedItem = items.find(item => item.key === e.key);
         if (selectedItem) {
             const label = selectedItem.label;
             toolbar.onView(selectedItem.id);
@@ -72,10 +72,10 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     }, [])
 
     useEffect(() => {
+        const fmtTxt = view.replace(/^\w/, char => char.toUpperCase())
+        setSelectedView(fmtTxt)
         updateDateTitle()
-    }, [selectedView, toolbar])
-
-
+    }, [toolbar])
 
     return (
         <div className={styles.toolbarCtn}>
@@ -91,7 +91,8 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
                     items,
                     selectable: true,
                     defaultSelectedKeys: ['2'],
-                    onSelect: (e) => handleMenuClick(e)
+                    selectedKeys: [selectedView],
+                    onSelect: (e) => handleMenuClick(e),
                 }}
                 >
                     <Button>
