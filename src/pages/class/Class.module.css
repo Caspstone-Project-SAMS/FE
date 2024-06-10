@@ -24,13 +24,18 @@
 .hr-line {
     height: 50px;
     border-width: 1.5px;
-    border-color: gray;
+    border-color: #fffbfb;
 }
 
 .btn-text {
     margin-inline: 20px;
     font-size: medium;
     font-weight: 400;
+}
+
+.fpt-logo {
+    display: flex;
+    margin-left: 5px;
 }
 
 

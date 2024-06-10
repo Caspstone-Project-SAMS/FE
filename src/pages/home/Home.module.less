@@ -1,5 +1,5 @@
-.card-content {
-  width: 120%; /* Ensure the card takes full width */
+/* .card-content {
+  width: 120%; 
   margin-top: 30px;
   margin-left: 18px;
   height: 270px;
@@ -7,25 +7,25 @@
 
 .card-header {
   display: flex;
-  justify-content: space-between; /* Distribute space between elements */
-  align-items: center; /* Center items vertically */
+  justify-content: space-between; 
+  align-items: center; 
 }
 
 .class-info {
   height: 100%;
   width: 400px;
   display: flex;
-  justify-content: space-between; /* Distribute space between elements */
-  align-items: center; /* Center items vertically */
+  justify-content: space-between;
+  align-items: center; 
 }
 
 .info {
   width: 100%;
-  justify-content: flex-start; /* Aligns text to the left */
+  justify-content: flex-start; 
 }
 
 .card-container {
-  width: 100%; /* Ensure the container takes full width */
+  width: 100%;
   padding-top: 20px;
   padding-left: 10px;
 }
@@ -39,39 +39,39 @@
 
 .card-header1 {
   display: flex;
-  justify-content: space-between; /* Distribute space between elements */
-  align-items: center; /* Center items vertically */
+  justify-content: space-between; 
+  align-items: center; 
 }
 
 .card1 {
   width: 200px;
   height: 100px;
   display: flex;
-  justify-content: space-between; /* Center the contents horizontally if needed */
-  align-items: center; /* Center the contents vertically */
+  justify-content: space-between; 
+  align-items: center; 
 }
 
 .card3 {
   width: 200px;
   height: 100px;
   display: flex;
-  justify-content: space-between; /* Center the contents horizontally if needed */
-  align-items: center; /* Center the contents vertically */
+  justify-content: space-between; 
+  align-items: center; 
 }
 
 .card2 {
   width: 230px;
   height: 209px;
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center; 
+  align-items: center; 
   background-color: #ebfdef;
   margin-top: 8px;
 }
 
 .icon-col {
   display: flex;
-  align-items: center; /* Center the icon vertically */
+  align-items: center; 
   margin-bottom: 20px;
   margin-left: 15px;
 }
@@ -79,8 +79,8 @@
 .space-container {
   width: 100%;
   display: flex;
-  justify-content: space-between; /* Ensure spaces are spread out horizontally */
-  align-items: center; /* Center items vertically */
+  justify-content: space-between; 
+  align-items: center; 
 }
 
 .book-icon {
@@ -91,7 +91,7 @@
 .upcome-icon {
   font-size: 30px;
   position: absolute;
-  right: -40px; /* Adjust these values to position the icon */
+  right: -40px; 
   top: 50%;
   transform: translateY(-50%);
 }
@@ -99,7 +99,7 @@
 .today-icon {
   font-size: 30px;
   position: absolute;
-  right: -77px; /* Adjust these values to position the icon */
+  right: -77px; 
   top: 50%;
   transform: translateY(-50%);
 }
@@ -146,8 +146,8 @@
 
 .home-info {
   display: flex;
-  flex-wrap: wrap; /* Allow items to wrap to the next line */
-  justify-content: flex-start; /* Align items to the start of the line */
+  flex-wrap: wrap; 
+  justify-content: flex-start; 
 }
 
 .home-card-1 {
@@ -169,7 +169,6 @@
   font-size: 20px;
 }
 
-/* Media queries for responsive design */
 @media (max-width: 1200px) {
   .home-parent-card1 {
     width: 80%;
@@ -199,5 +198,80 @@
   .home-space-card {
     flex-direction: column;
     align-items: center;
+  }
+} */
+
+
+.home {
+  overflow-y: auto;
+  margin-top: 15px;
+  .first-card-title {
+    font-weight: bold;
+    font-size: x-large;
+  }
+  .btn-class {
+    
+    height: 110%;
+    .people-icon {
+      display: flex;
+      align-items: center;
+    }
+    .arrow-icon {
+      display: flex;
+      align-items: center;
+      margin-left: 100px;
+    }
+    .class-title {
+      font-weight: 500;
+      font-size: 15px;
+      .class-detail {
+        font-weight: 400;
+      }
+    }
+  }
+  .date {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.upcome-class {
+  margin-bottom: 5px;
+  background-color: #f0e6fe;
+  .up-title {
+    color: #808080;
+  }
+  .up-detail {
+    color: #252c58;
+    font-weight: bold;
+    font-size: 25px;
+  }
+}
+
+.today-class {
+  background-color: #e1f0fa;
+  .to-title {
+    color: #808080;
+  }
+  .to-detail {
+    color: #252c58;
+    font-weight: bold;
+    font-size: 25px;
+  }
+}
+
+
+.sub-prepare {
+  background-color: #ebfdef;
+  padding-top: 19px;
+  padding-bottom: 19px;
+  .sub-title {
+    color: #808080;
+  }
+  .sub-detail {
+    color: #252c58;
+    font-weight: bold;
+    font-size: 25px;
   }
 }
