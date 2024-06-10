@@ -156,7 +156,7 @@ function MyCalendar() {
 
     return (
         <>
-            <Button onClick={() => { }}>Check</Button>
+            {/* <Button onClick={() => { }}>Check</Button> */}
             <Calendar
                 localizer={localizer}
                 events={scheduleEvent}
