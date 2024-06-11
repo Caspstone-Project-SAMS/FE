@@ -67,7 +67,7 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     }
 
     useEffect(() => {
-        onView('week');
+        // onView('week');
         updateDateTitle()
     }, [])
 
