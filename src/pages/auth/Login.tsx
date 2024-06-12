@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import useDispatch from '../../redux/UseDispatch';
-import { useGoogleLogin } from '@react-oauth/google';
+import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { fakeLogin, login } from '../../redux/slice/Auth';
@@ -80,10 +80,10 @@ function Login() {
         }
     }, [userCode])
 
-    // const logOut = () => {
-    //     googleLogout();
-    //     setUserInfo(null);
-    // };
+    const logOut = () => {
+        googleLogout();
+        setUserInfo(null);
+    };
 
     return (
         <>
@@ -130,7 +130,7 @@ function Login() {
                         </div>
                         <div className={styles.additionalOpt}>
                             <Checkbox onChange={onChange}>Remember me</Checkbox>
-                            <Typography.Link>Forgot password</Typography.Link>
+                            <Typography.Link onClick={() => { logOut() }}>Forgot password</Typography.Link>
                         </div>
                         <Button
                             onClick={() => handleLogin()}

@@ -248,7 +248,9 @@ const ClassDetail: React.FC = () => {
           </Row>
         </Card>
       </Col>
+
       <ClassDetailTable />
+
     </Row>
   );
 };

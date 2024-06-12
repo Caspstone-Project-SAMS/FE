@@ -1,11 +1,9 @@
 import './MyCalendar.less'
 import 'react-big-calendar/lib/sass/styles.scss'
+
 import moment from 'moment'
-import { Button } from 'antd'
 import toast from 'react-hot-toast'
 import React, { useCallback, useEffect, useState } from 'react'
-
-import events from './data/events'
 import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
 
 import { useSelector } from 'react-redux'
@@ -19,7 +17,7 @@ import CustomWeekEvent from './items/events/CustomEventWeek'
 import CustomToolBar from './items/CustomToolBar'
 import { Schedule } from '../../models/calendar/Schedule'
 import { CustomEvent as RBC_Custom_Event } from '../../models/calendar/CustomEvent'
-// import { slots } from './data/RawData'
+// import events from './data/events'
 
 moment.locale('ko', {
     week: {
@@ -29,8 +27,6 @@ moment.locale('ko', {
 })
 const localizer = momentLocalizer(moment)
 
-
-// const slotSample = slots;
 type RBC_Event = {
     id: number,
     title: string,
@@ -73,9 +69,14 @@ function MyCalendar() {
     }, []);
 
     const handleSelectEvent = useCallback((event: RBC_Event) => {
+        // console.log("selectedView: ", selectedView);
+        // if (selectedView === Views.DAY) {
+        //     navigate('/class/classdetails')
+        // } else {
         setDate(new Date(event.start))
         setSelectedView(Views.DAY);
-    }, [setSelectedView]);
+        // }
+    }, [selectedView]);
 
     const validateStatusSchedule = (startTime: Date, endTime: Date): scheduleStatus => {
         const currentTime = new Date();
@@ -92,8 +93,6 @@ function MyCalendar() {
 
     const fmtSchedule = (schedules: Schedule[]): RBC_Custom_Event[] => {
         try {
-            // const defaultData = events;
-
             const fmtData = schedules.map((item, i) => {
                 const dateArr = item.date.split('-');
                 const startArr = item.startTime.split(':')
@@ -101,8 +100,8 @@ function MyCalendar() {
 
                 const fmtDate = {
                     year: Number(dateArr[0]),
-                    day: Number(dateArr[1]),
-                    month: Number(dateArr[2])
+                    month: Number(dateArr[1]),
+                    day: Number(dateArr[2]),
                 }
                 const fmtTime = {
                     startHour: Number(startArr[0]),
@@ -116,9 +115,9 @@ function MyCalendar() {
                 )
                 return {
                     id: i,
-                    title: `${item.classCode} - ${item.roomName}`,
-                    start: new Date(fmtDate.year, fmtDate.month, fmtDate.day, fmtTime.startHour, fmtTime.startMin),
-                    end: new Date(fmtDate.year, fmtDate.month, fmtDate.day, fmtTime.endHour, fmtTime.endMin),
+                    title: `${item.subjectCode} - ${item.roomName}`,
+                    start: new Date(fmtDate.year, fmtDate.month - 1, fmtDate.day, fmtTime.startHour, fmtTime.startMin),
+                    end: new Date(fmtDate.year, fmtDate.month - 1, fmtDate.day, fmtTime.endHour, fmtTime.endMin),
                     slot: `Slot ${item.slotNumber}`,
                     room: item.roomName,
                     classCode: item.classCode,
@@ -127,7 +126,7 @@ function MyCalendar() {
                     status: status
                 }
             })
-            // defaultData.push(...fmtData)
+
             // console.log("This is fmtData ", defaultData);
             return fmtData
         } catch (error) {
@@ -147,45 +146,40 @@ function MyCalendar() {
 
     useEffect(() => {
         const formatted = fmtSchedule(schedule);
+        // console.log("Schedule API: ", schedule);
         setScheduleEvent(formatted)
-
-        // const mergedArr = [...events, ...formatted]
-        // console.log("Format here ", mergedArr);
     }, [userDetail, schedule])
 
 
     return (
-        <>
-            {/* <Button onClick={() => { }}>Check</Button> */}
-            <Calendar
-                localizer={localizer}
-                events={scheduleEvent}
-                min={startHour}
-                max={endHour}
-                popup
-                components={{
-                    event: CustomEvent,
-                    week: {
-                        event: CustomWeekEvent,
-                    },
-                    day: {
-                        event: CustomEventDay
-                    },
-                    toolbar: CustomToolBar
-                }}
-                date={date}
-                view={selectedView}
-                views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
-                onView={handleViewChange}
-                onNavigate={handleNavigate}
-                onSelectEvent={handleSelectEvent}
-                style={{
-                    backgroundColor: '#FFF',
-                    padding: '10px',
-                    borderRadius: '4px'
-                }}
-            />
-        </>
+        <Calendar
+            localizer={localizer}
+            events={scheduleEvent}
+            min={startHour}
+            max={endHour}
+            popup
+            components={{
+                event: CustomEvent,
+                week: {
+                    event: CustomWeekEvent,
+                },
+                day: {
+                    event: CustomEventDay
+                },
+                toolbar: CustomToolBar
+            }}
+            date={date}
+            view={selectedView}
+            views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
+            onView={handleViewChange}
+            onNavigate={handleNavigate}
+            onSelectEvent={handleSelectEvent}
+            style={{
+                backgroundColor: '#FFF',
+                padding: '10px',
+                borderRadius: '4px'
+            }}
+        />
     )
 }
 

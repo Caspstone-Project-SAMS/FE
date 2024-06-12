@@ -8,9 +8,12 @@ import { Content } from 'antd/es/layout/layout';
 import HomeCalendar from '../../components/calendar/HomeCalendar';
 import styles from './Home.module.less';
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 const Home: React.FC = () => {
   const [time, setTime] = useState(new Date());
+  const auth = useSelector((state: RootState) => state.auth)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,7 +52,9 @@ const Home: React.FC = () => {
             </Row>
             <Row gutter={[16, 16]}>
               <Col span={14}>
-                <Button className={styles.btnClass}>
+                <Button
+                  onClick={() => { console.log(auth); }}
+                  className={styles.btnClass}>
                   <Row>
                     <Col className={styles.peopleIcon}>
                       <IoPeopleOutline size={60} />

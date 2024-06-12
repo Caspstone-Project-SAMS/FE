@@ -21,6 +21,31 @@ const initialState: AuthState = {
   userDetail: undefined,
   loadingStatus: false,
 };
+const curDate = new Date();
+const fakeUser = {
+  token: '1233333',
+  result: {
+    id: 'string',
+    email: 'string',
+    normalizedEmail: 'string',
+    emailConfirmed: true,
+    phoneNumber: 'string',
+    phoneNumberConfirmed: 'string',
+    twoFactorEnabled: 'string',
+    lockoutEnd: 'string',
+    lockoutEnabled: 'string',
+    filePath: 'string',
+    displayName: 'string',
+    role: {
+      id: 'string',
+      name: 'Lecturer',
+      createdBy: 'string',
+      createdAt: curDate,
+    },
+    createdBy: 'string',
+    createdAt: curDate,
+  },
+};
 
 const fakeLogin = createAction('auth/fakeLogin');
 
@@ -94,7 +119,7 @@ const AuthSlice = createSlice({
       // const detail = { ...state.userDetail, result };
       state.authStatus = true;
       state.loadingStatus = false;
-      state.userDetail.result.role = 'Lecturer';
+      state.userDetail = fakeUser;
     });
   },
 });

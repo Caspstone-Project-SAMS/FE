@@ -3,11 +3,12 @@ import styles from "./HomeCalendar.module.less";
 
 import ContentHeader from "../header/contentHeader/ContentHeader";
 import MyCalendar from "./MyCalendar";
+import { Content } from "antd/es/layout/layout";
 
 const HomeCalendar: React.FC = () => {
 
   return (
-    <div className={styles.homeCalendarCtn}>
+    <Content className={styles.homeCalendarCtn}>
       <ContentHeader
         contentTitle='Calendar'
         previousBreadcrumb={undefined}
@@ -16,7 +17,7 @@ const HomeCalendar: React.FC = () => {
       <div className={styles.calendarCtn}>
         <MyCalendar />
       </div>
-    </div>
+    </Content>
   );
 };
 

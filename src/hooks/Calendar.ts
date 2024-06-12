@@ -23,7 +23,6 @@ const getScheduleByLecturer = async (
       semesterId: semesterID,
     },
   });
-
   return response.data;
 };
 

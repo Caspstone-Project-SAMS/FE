@@ -20,6 +20,7 @@ const initialSemester: Semester = {
   startDate: '',
   endDate: '',
 };
+
 const initialState = {
   schedule: [initialScheduleState],
   semester: [initialSemester],

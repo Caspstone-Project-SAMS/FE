@@ -3,6 +3,7 @@ import styles from '../index.module.less'
 import '../../../../assets/styles/styles.less'
 import React from 'react'
 import { CustomEvent as RBC_Event } from '../../../../models/calendar/CustomEvent';
+import { Link } from 'react-router-dom';
 
 
 const CustomEventDay: React.FC<EventProps<RBC_Event>> = ({ event }) => {
@@ -16,7 +17,7 @@ const CustomEventDay: React.FC<EventProps<RBC_Event>> = ({ event }) => {
     }
 
     return (
-        <div className={styles.eventCtnItem}>
+        <Link to={'/class/classdetails'} state={{ event }} className={styles.eventCtnItem}>
             <div className={styles.eventTitleDay}>
                 <div className={`${styles.circleStatus} item-justify-center`} style={{ backgroundColor: statusColor }}>
                     {isActive ? (
@@ -32,7 +33,7 @@ const CustomEventDay: React.FC<EventProps<RBC_Event>> = ({ event }) => {
                 </div>
             </div>
             <div className={styles.eventTimeDay}>{event.slot}</div>
-        </div>
+        </Link>
     )
 }
 
