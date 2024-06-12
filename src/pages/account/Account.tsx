@@ -7,28 +7,26 @@ import { RxAvatar } from 'react-icons/rx';
 import useDispatch from '../../redux/UseDispatch';
 import { logout } from '../../redux/slice/Auth';
 import ContentHeader from '../../components/header/contentHeader/ContentHeader';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { UserInfo } from '../../models/UserInfo';
 
-const teacherDetails = [
-  { label: 'First Name', value: 'John' },
-  { label: 'Last Name', value: 'Doe' },
-  { label: 'Father Name', value: 'Robert Anderson' },
-  { label: 'Mother Name', value: 'Sarah Anderson' },
-  { label: 'Father Occupation', value: 'Engineer' },
-  { label: 'Mother Occupation', value: 'Burse' },
-  { label: 'Date of Birth', value: '14-02-1986' },
-  { label: 'Religion', value: 'Christian' },
-  { label: 'Class', value: 'Five' },
-  { label: 'Subject', value: 'English' },
-  { label: 'Id Number', value: 'TCH12345' },
-  { label: 'Joining Date', value: '03-05-2012' },
-];
+
 
 const Account: React.FC = () => {
+
+  const userDetail: UserInfo | undefined = useSelector((state: RootState) => state.auth.userDetail)
+  console.log("test:" ,userDetail?.result)
   const dispatch = useDispatch();
   const handleLogout = async () => {
     console.log('test');
     dispatch(logout());
   };
+  const teacherDetails = [
+    { label: 'Name', value: userDetail?.result?.displayName },
+    { label: 'Email', value: userDetail?.result?.email },
+    { label: 'Phone', value: userDetail?.result?.phoneNumber },
+  ];
   return (
     <Content className={styles.content}>
       {/* <Typography.Title level={3}>Teacher Details</Typography.Title>
@@ -94,7 +92,7 @@ const Account: React.FC = () => {
             </Space>
             <Space style={{ width: '100%', justifyContent: 'end', paddingRight: 40, paddingBottom: 30, paddingTop: 20 }}>
               <Button className={styles.btn}>Edit</Button>
-              <Button className={styles.btn} onClick={() => handleLogout()}>Log out</Button>
+              <Button className={styles.btnLog} onClick={() => handleLogout()}>Log out</Button>
             </Space>
           </Space>
         </Content>

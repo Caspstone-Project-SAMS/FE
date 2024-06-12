@@ -39,10 +39,10 @@ const ClassDetail: React.FC = () => {
 
               <Row className={styles.rowDetails}>
                 <Col span={10}>
-                  <text>{detail.label}</text>
+                  <text style={{fontSize:20}}>{detail.label}</text>
                 </Col>
                 <Col>
-                  <text style={{ fontWeight: 500, color: '#667085' }}>
+                  <text style={{ fontWeight: 500, color: '#667085', fontSize:20 }}>
                     {detail.value}
                   </text>
                 </Col>
@@ -59,10 +59,10 @@ const ClassDetail: React.FC = () => {
 
             <Row className={styles.rowDetails}>
               <Col span={10}>
-                <text>Class status</text>
+                <text style={{fontSize:20}} >Class status</text>
               </Col>
               <Col>
-                <text style={{ color: 'green', fontWeight: 500 }}>
+                <text style={{ color: 'green', fontWeight: 500, fontSize:20 }}>
                   On going
                 </text>
               </Col>
@@ -197,10 +197,10 @@ const ClassDetail: React.FC = () => {
                 }}
               >
                 <Button className={styles.btnConnect}>
-                  <text>Connect</text>
+                  <text style={{fontWeight:500, fontSize:20}}>Connect</text>
                 </Button>
                 <Button className={styles.btnDisconnect}>
-                  <text>Disconnect</text>
+                  <text style={{fontWeight:500, fontSize:20}}>Disconnect</text>
                 </Button>
               </Col>
               <Col style={{ display: 'flex', justifyContent: 'center' }}>
