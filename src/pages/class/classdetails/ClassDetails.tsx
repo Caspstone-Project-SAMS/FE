@@ -1,5 +1,6 @@
 import styles from '../Class.module.less';
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
 import { Content } from 'antd/es/layout/layout';
 import { Button, Card, Col, Row, Space, Typography } from 'antd';
@@ -10,7 +11,7 @@ import module from '../../../assets/imgs/module.png'
 import fptimg from '../../../assets/imgs/FPT-Logo-PNG.png'
 
 import ClassDetailTable from '../../../components/classdetails/ClassDetailTable';
-import toast from 'react-hot-toast';
+import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 
 const ClassDetails: React.FC = () => {
   const location = useLocation();
@@ -18,10 +19,6 @@ const ClassDetails: React.FC = () => {
   const { scheduleID, classCode, room, slot, start, end, status, subjectCode } = event || {}
 
   const [classInfo, setClassInfo] = useState<{ label: string, value: string }[]>([]);
-
-
-  // console.log("Hi im in the class detail ", location);
-  // console.log("Hi im in the class detail ", event);
 
   const checkingStatus = (status: string) => {
     switch (status) {
@@ -38,7 +35,7 @@ const ClassDetails: React.FC = () => {
 
   useEffect(() => {
     try {
-      const date = start.getDate() + '/' + start.getMonth() + '/' + start.getFullYear();
+      const date = start.getDate() + '/' + (start.getMonth() + 1) + '/' + start.getFullYear();
       const startTime = start.getHours().toString().padStart(2, '0') + ":" + start.getMinutes().toString().padStart(2, '0')
       const endTime = end.getHours().toString().padStart(2, '0') + ":" + end.getMinutes().toString().padStart(2, '0')
       const slotTime = slot.charAt(slot.length - 1) + " / " + startTime + ' - ' + endTime
@@ -61,13 +58,12 @@ const ClassDetails: React.FC = () => {
   return (
     <Content className={styles.content}>
       <Space className={styles.classDetailsHeader}>
-        <Space direction="vertical">
-          <Typography.Title level={3}>Class</Typography.Title>
-          <Space direction="horizontal" style={{ marginBottom: 15 }}>
-            <text>Home / </text>
-            <text className={styles.textClass}>Class / {subjectCode}_Room.{room}</text>
-          </Space>
-        </Space>
+        <ContentHeader
+          contentTitle='Class'
+          previousBreadcrumb='Home / Class / '
+          currentBreadcrumb={`${subjectCode}_Room.${room}`}
+          key={'class-details-header'}
+        />
 
         <Space>
           <Button className={styles.btnFap}>

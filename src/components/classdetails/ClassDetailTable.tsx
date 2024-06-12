@@ -2,40 +2,106 @@ import styles from './ClassDetail.module.less';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-import { Layout, Table, Typography, Skeleton, Avatar, Image } from 'antd';
+import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input } from 'antd';
 import Search from 'antd/es/input/Search';
 import { Content } from 'antd/es/layout/layout';
 import { EditOutlined } from '@ant-design/icons';
 import { IoIosCheckmark } from 'react-icons/io';
 import { RxCross2 } from 'react-icons/rx';
 import { LiaFingerprintSolid } from 'react-icons/lia';
+import { BiCalendarEdit } from "react-icons/bi";
 
 import DetailClassTable from './data/DetailClassTable';
 import { AttendanceService } from '../../hooks/Attendance';
 import { ClassDetail } from '../../models/ClassDetail';
 import { Attendance } from '../../models/attendance/Attendance';
+import type { TableProps } from 'antd';
 
 const { Header: AntHeader } = Layout;
 
 type props = {
   scheduleID: string
 }
+let socket
 
 const attendanceStatus = {
   0: 'Not yet',
   1: 'Attended',
   2: 'Absent'
 }
+type ColumnsType<T> = TableProps<T>['columns'];
 
 const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
+
+  //web socket
+  const [information, setInformation] = useState("Ready to connect");
+  const [change, setChange] = useState('any');
+  const [close, setClose] = useState(false);
+
+  //student table
   const [studentList, setStudentList] = useState<Attendance[]>([])
   const [loadingState, setLoadingState] = useState<boolean>(false);
 
-  const [pageSize, setPageSize] = useState<number>(15);
   const [dataSource] = useState<ClassDetail[]>(DetailClassTable());
+  const [pageSize, setPageSize] = useState<number>(15);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isUpdate, setIsUpdate] = useState(true);
 
-  const columns = [
+
+  const toggleUpdateAttendance = () => {
+    setIsUpdate(!isUpdate);
+  };
+
+  function activeWebSocket() {
+    socket = new WebSocket("http://35.221.168.89/ws");
+    socket.onopen = function (event) {
+      console.log('Connecteed');
+      // setInformation("Connected");
+    };
+
+    socket.onclose = function (event) {
+      console.log("Connection closed");
+      console.log(event);
+    };
+
+    socket.onmessage = function (event) {
+      console.log("env--------", event);
+      console.log("env.data", event.data);
+      const message = JSON.parse(event.data);
+      console.log("mess message event*", message.Event);
+      console.log("mess message Data*", message.Data);
+      switch (message.Event) {
+        case "statusChange":
+          {
+            const data = JSON.parse(message.Data);
+            console.log("case status change", data.studentID, data.status)
+            // console.log(typeof (message.data));
+            // console.log("mess data ", message.data);
+
+            const elementId = `attendanceStatus-${data.studentID}`;
+            const element = document.getElementById(`attendanceStatus-${data.studentID}`);
+
+            if (element) {
+              element.innerHTML = 'Attended'
+              element.style.color = 'green'
+            }
+
+            const newOne = studentList.map(item => {
+              if (item.studentID == data.studentID) {
+                item.attendanceStatus = data.status
+                return item
+              }
+              return item
+            })
+            console.log("The prev one ", studentList);
+            console.log("The Edited one ", newOne);
+          }
+          break;
+      }
+    };
+  }
+
+  const columns: ColumnsType<Attendance> = [
     {
       key: '1',
       title: 'Student name',
@@ -66,36 +132,37 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     {
       key: '4',
       title: 'Status',
-      dataIndex: 'attendanceStatus',
-      render: (statusIndex: number) => (
+      // dataIndex: 'attendanceStatus',
+      render: (record: Attendance) => (
         <span
+          id={`attendanceStatus-${record.studentID}`}
           style={{
             color:
-              statusIndex === 0
+              record.attendanceStatus === 0
                 ? '#fbbf24'
-                : statusIndex === 1
+                : record.attendanceStatus === 1
                   ? 'green'
                   : 'red',
           }}
         >
-          {statusIndex === 0 ? 'Not yet' : (statusIndex === 1 ? 'Attended' : 'Absent')}
+          {record.attendanceStatus === 0 ? 'Not yet' : (record.attendanceStatus === 1 ? 'Attended' : 'Absent')}
         </span>
       ),
-      // filters: [
-      //   {
-      //     text: 'Not yet',
-      //     value: 0,
-      //   },
-      //   {
-      //     text: 'Attended',
-      //     value: 1,
-      //   },
-      //   {
-      //     text: 'Absent',
-      //     value: 2,
-      //   },
-      // ],
-      // onFilter: (value, record) => record.statusIndex.indexOf(value) === 0,
+      filters: [
+        {
+          text: 'Not yet',
+          value: 0,
+        },
+        {
+          text: 'Attended',
+          value: 1,
+        },
+        {
+          text: 'Absent',
+          value: 2,
+        },
+      ],
+      onFilter: (value, record) => record.attendanceStatus === value,
     },
     {
       key: '5',
@@ -121,14 +188,18 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
         },
       ],
       onFilter: (value, record) => record.isAuthenticated === value,
+      width: '5%'
     },
     {
       key: '6',
       title: 'Check attendance',
-      render: (record: ClassDetail) => {
+      render: (text, record: Attendance, index: number) => {
         return (
           <>
-            <LiaFingerprintSolid style={{ fontSize: '24px' }} />
+            <Radio.Group key={`radio_${index}`} name="radiogroup" defaultValue={1}>
+              <Radio value={1}>Attended</Radio>
+              <Radio value={2}>Absent</Radio>
+            </Radio.Group>
           </>
         );
       },
@@ -136,10 +207,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     {
       key: '7',
       title: 'Comment',
-      render: (record: ClassDetail) => {
+      render: (text, record: Attendance, index: number) => {
         return (
           <>
-            {record.fingerprintstatus === 'unauthenticated' && <EditOutlined />}
+            <Input key={`cmt-${index}`} name='comment' />
           </>
         );
       },
@@ -160,9 +231,13 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   useEffect(() => {
-    console.log("scheduleID ", scheduleID);
+    console.log("Change in detrail ", change);
+  }, [change])
+
+  useEffect(() => {
     const response = AttendanceService.getAttendanceByScheduleID(scheduleID);
     setLoadingState(true);
+
     response.then(data => {
       setLoadingState(false);
       setStudentList(data);
@@ -174,22 +249,43 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     })
   }, [])
 
+  useEffect(() => {
+    activeWebSocket();
+
+    return () => {
+      socket.close();
+    };
+  }, [])
+
   return (
     <Content className={styles.classDetailContent}>
-
       <AntHeader className={styles.classDetailHeader}>
         <Typography.Title level={3} style={{ marginTop: 5 }}>
           Student
         </Typography.Title>
-        <Search
-          placeholder="input search text"
-          allowClear
-          style={{
-            width: 200,
-            display: 'flex',
-          }}
-        />
+        <div className={styles.studentTableCtn}>
+          <Search
+            placeholder="Search by name or student code"
+            allowClear
+            style={{
+              width: 200,
+              display: 'flex',
+            }}
+            onChange={() => console.log("StudentList ", studentList)}
+            onSearch={() => {
+              console.log("close here");
+              socket.close()
+            }}
+          />
+          <Button
+            onClick={() => toggleUpdateAttendance()}
+            type={isUpdate ? 'primary' : 'dashed'}
+            shape="default"
+            icon={<BiCalendarEdit />}
+          />
+        </div>
       </AntHeader>
+
       <Table
         columns={columns}
         dataSource={studentList}

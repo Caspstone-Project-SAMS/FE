@@ -6,6 +6,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { RxAvatar } from 'react-icons/rx';
 import useDispatch from '../../redux/UseDispatch';
 import { logout } from '../../redux/slice/Auth';
+import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 
 const teacherDetails = [
   { label: 'First Name', value: 'John' },
@@ -30,11 +31,13 @@ const Account: React.FC = () => {
   };
   return (
     <Content className={styles.content}>
-      <Typography.Title level={3}>Teacher Details</Typography.Title>
+      {/* <Typography.Title level={3}>Teacher Details</Typography.Title>
       <Space direction="horizontal">
         <text>Teachers / </text>
         <text className={styles.textAccount}>Teachers details</text>
-      </Space>
+      </Space> */}
+      <ContentHeader contentTitle='Account Details' previousBreadcrumb='Teachers / ' currentBreadcrumb='Teachers details' key={'account-header'} />
+
       <Layout style={{ backgroundColor: 'white', marginRight: '20px' }}>
         <Header className={styles.accountHeader}>
           <Space direction="horizontal">
@@ -89,7 +92,7 @@ const Account: React.FC = () => {
                 </Content>
               </Card>
             </Space>
-            <Space style={{ width: '100%', justifyContent: 'end', paddingRight:40, paddingBottom:30, paddingTop:20 }}>
+            <Space style={{ width: '100%', justifyContent: 'end', paddingRight: 40, paddingBottom: 30, paddingTop: 20 }}>
               <Button className={styles.btn}>Edit</Button>
               <Button className={styles.btn} onClick={() => handleLogout()}>Log out</Button>
             </Space>
