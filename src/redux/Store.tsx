@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import Auth from "./slice/Auth";
+import Calendar from './slice/Calendar';
 
 const Store = configureStore({
     reducer: {
-        auth: Auth
+        auth: Auth,
+        calendar: Calendar
     },
 })
 

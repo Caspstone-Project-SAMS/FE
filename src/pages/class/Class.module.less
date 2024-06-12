@@ -1,0 +1,122 @@
+@import '../../assets/styles/variables.less';
+
+.content {
+    margin-left: 20px;
+    margin-top: 20px;
+    margin-right: 20px;
+
+    .class-details-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .text-class {
+            font-weight: bold;
+        }
+
+        .btn-fap {
+            width: 250px;
+            height: 50px;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+
+            .btn-text {
+                margin-inline: 20px;
+                font-size: medium;
+                font-weight: 400;
+            }
+
+            .hr-line {
+                height: 50px;
+                border-width: 1.5px;
+                border-color: #fffbfb;
+            }
+
+            .fpt-logo {
+                display: flex;
+                margin-left: 5px;
+            }
+        }
+    }
+
+    .class-detail-header {
+        .card-parent1 {
+            .card-1 {
+                height: 100%;
+
+                .details-header {
+                    font-weight: 500;
+                }
+
+                .row-details {
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+
+                    .pastStatus {
+                        color: @past-status;
+                    }
+
+                    .currentStatus {
+                        color: @current-status;
+                    }
+
+                    .futureStatus {
+                        color: @future-status;
+                    }
+
+                    .normalTxt {
+                        color: #e6e7e9
+                    }
+                }
+            }
+        }
+
+        .card-parent2 {
+            .card-2 {
+                height: 100%;
+
+                .btn-group {
+                    display: flex;
+                    align-items: center;
+                    flex-direction: column;
+                }
+
+                .hr-vertical {
+                    height: 264px;
+                    margin-right: 15px;
+                }
+
+                .module-text {
+                    font-weight: 500;
+                    font-size: 25px;
+                }
+
+                .btn-connect {
+                    background-color: #0087fe;
+                    color: white;
+                    width: 100%;
+                    height: 50px;
+                    margin-right: 20px;
+
+                }
+
+                .btn-disconnect {
+                    background-color: #ff7b7b;
+                    color: #7e7283;
+                    width: 100%;
+                    height: 50px;
+                }
+
+                .module-detail {
+                    font-weight: 500;
+                }
+
+                .module-details {
+                    font-weight: 400;
+                }
+            }
+        }
+    }
+
+}

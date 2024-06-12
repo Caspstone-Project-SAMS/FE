@@ -3,22 +3,21 @@ import styles from "./HomeCalendar.module.less";
 
 import ContentHeader from "../header/contentHeader/ContentHeader";
 import MyCalendar from "./MyCalendar";
-import CustomToolBar from "./items/CustomToolBar";
+import { Content } from "antd/es/layout/layout";
 
 const HomeCalendar: React.FC = () => {
 
   return (
-    <div className={styles.homeCalendarCtn}>
+    <Content className={styles.homeCalendarCtn}>
       <ContentHeader
         contentTitle='Calendar'
         previousBreadcrumb={undefined}
         currentBreadcrumb={undefined}
       />
-      <CustomToolBar />
       <div className={styles.calendarCtn}>
         <MyCalendar />
       </div>
-    </div>
+    </Content>
   );
 };
 

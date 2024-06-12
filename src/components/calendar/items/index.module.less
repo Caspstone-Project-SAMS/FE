@@ -29,6 +29,32 @@
         font-size: @smaller-font-size;
         color: #000;
     }
+
+    //Day view
+    .eventTitleDay {
+        margin-top: 2px;
+        display: inline-flex;
+        // align-items: center;
+        gap: 10px;
+
+        .circle-status {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+        }
+
+        .titleTxtDay {
+            font-weight: 400;
+            line-height: 1.2;
+            font-size: @small-font-size;
+            color: @grey-font-color;
+        }
+    }
+
+    .eventTimeDay {
+        font-size: @regular-font-size;
+        color: @grey-font-color;
+    }
 }
 
 //Event - week view
@@ -123,5 +149,16 @@
     .right {
         display: flex;
         justify-content: end;
+        align-items: center;
+
+        .prevBtn {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0
+        }
+
+        .nextBtn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
     }
 }

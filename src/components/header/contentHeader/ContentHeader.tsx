@@ -1,6 +1,6 @@
 import { Space, Typography } from 'antd'
 import React from 'react'
-import './index.less'
+import styles from './index.module.less'
 
 interface Props {
     contentTitle: string,
@@ -12,14 +12,16 @@ const ContentHeader: React.FC<Props> = (props) => {
     const { contentTitle, previousBreadcrumb, currentBreadcrumb } = props;
 
     return (
-        <div className='content-header'>
-            <Typography.Title level={2}>{contentTitle}</Typography.Title>
+        <div className={styles.contentHeader}>
+            <Typography.Title style={{ marginBottom: '10px' }} className={styles.contentTitle}>
+                {contentTitle}
+            </Typography.Title>
             {
                 (previousBreadcrumb || currentBreadcrumb) ? (
-                    <Space size={'small'} className='breadcrumb-ctn' direction="horizontal">
+                    <div className={styles.breadcrumbCtn}>
                         <span className='previousBreadcrumb'>{previousBreadcrumb}</span>
                         <b className="currentBreadcrumb">{currentBreadcrumb}</b>
-                    </Space>
+                    </div>
                 ) : ('')
             }
         </div>

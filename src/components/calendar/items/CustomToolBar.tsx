@@ -1,27 +1,81 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './index.module.less'
-import { CalendarOutlined, DownOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Dropdown, MenuProps, Space, Typography } from 'antd'
+import { CalendarOutlined, CaretLeftOutlined, CaretRightOutlined, DownOutlined } from '@ant-design/icons'
+import { Button, Dropdown, MenuProps, Space } from 'antd'
 import Search from 'antd/es/input/Search'
+import { ToolbarProps, Views } from 'react-big-calendar'
+import useDispatch from '../../../redux/UseDispatch'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../redux/Store'
+import { getScheduleByID } from '../../../redux/slice/Calendar'
 
-const CustomToolBar: React.FC = () => {
+const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     const [selectedView, setSelectedView] = useState<string>('Week');
+    const [dateTitle, setDateTitle] = useState<string>();
 
-    const items: MenuProps['items'] = [
+    const calendar = useSelector((state: RootState) => state.calendar)
+    const userDetail = useSelector((state: RootState) => state.auth.userDetail);
+
+    const dispatch = useDispatch();
+
+    const { onView, view } = toolbar
+    // console.log("toolbar props: ", toolbar);
+    const items = [
         {
             key: '1',
+            id: Views.MONTH,
             label: 'Month',
         },
         {
             key: '2',
+            id: Views.WEEK,
             label: 'Week',
         },
         {
             key: '3',
+            id: Views.DAY,
             label: 'Day',
+        },
+        {
+            key: '4',
+            id: Views.AGENDA,
+            label: 'Agenda',
         },
     ];
 
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        const selectedItem = items.find(item => item.key === e.key);
+        if (selectedItem) {
+            const label = selectedItem.label;
+            toolbar.onView(selectedItem.id);
+            setSelectedView(label as string);
+        }
+    };
+
+    const onSearch = (value: string) => {
+        // console.log("searching ", value);
+        const lecturerID = userDetail?.result?.id;
+        if (lecturerID) {
+            const arg = { lecturerID: lecturerID, semesterID: '2' };
+            dispatch(getScheduleByID(arg))
+        }
+    }
+
+    const updateDateTitle = () => {
+        const label = toolbar.label
+        setDateTitle(label);
+    }
+
+    useEffect(() => {
+        // onView('week');
+        updateDateTitle()
+    }, [])
+
+    useEffect(() => {
+        const fmtTxt = view.replace(/^\w/, char => char.toUpperCase())
+        setSelectedView(fmtTxt)
+        updateDateTitle()
+    }, [toolbar])
 
     return (
         <div className={styles.toolbarCtn}>
@@ -31,21 +85,19 @@ const CustomToolBar: React.FC = () => {
                     style={{ fontSize: '24px' }}
                 />
                 <div className={styles.date}>
-                    <b>May</b> 2024
+                    {dateTitle}
                 </div>
                 <Dropdown menu={{
                     items,
                     selectable: true,
                     defaultSelectedKeys: ['2'],
-                    onSelect: (info) => {
-                        const key = Number(info.key)
-                        // setSelectedView(items[key])
-                    }
+                    selectedKeys: [selectedView],
+                    onSelect: (e) => handleMenuClick(e),
                 }}
                 >
                     <Button>
                         <Space>
-                            Selectable
+                            {selectedView}
                             <DownOutlined />
                         </Space>
                     </Button>
@@ -55,11 +107,33 @@ const CustomToolBar: React.FC = () => {
                 <Search
                     placeholder="Search"
                     allowClear
-                    // onSearch={onSearch}
+                    onChange={() => {
+                        console.log("calendar state ", calendar);
+                    }}
+                    onSearch={onSearch}
                     style={{
                         width: 200,
+                        marginRight: '8px'
                     }}
                 />
+                <Button
+                    type="default"
+                    icon={<CaretLeftOutlined />}
+                    size={'middle'}
+                    onClick={() => toolbar.onNavigate("PREV")}
+                    className={styles.prevBtn}
+                >
+                    Prev
+                </Button>
+                <Button
+                    type="default"
+                    icon={<CaretRightOutlined />}
+                    iconPosition='end' size={'middle'}
+                    onClick={() => toolbar.onNavigate("NEXT")}
+                    className={styles.nextBtn}
+                >
+                    Next
+                </Button>
             </div>
         </div>
     )

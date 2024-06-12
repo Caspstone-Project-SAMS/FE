@@ -1,32 +1,128 @@
-import React, { useState } from 'react';
-import { Layout, Table, Typography } from 'antd';
 import styles from './ClassDetail.module.less';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+
+import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input } from 'antd';
 import Search from 'antd/es/input/Search';
 import { Content } from 'antd/es/layout/layout';
 import { EditOutlined } from '@ant-design/icons';
-import { ClassDetail } from '../../models/ClassDetail'; // Adjust the path as needed
-import DetailClassTable from './data/DetailClassTable';
 import { IoIosCheckmark } from 'react-icons/io';
 import { RxCross2 } from 'react-icons/rx';
 import { LiaFingerprintSolid } from 'react-icons/lia';
+import { BiCalendarEdit } from "react-icons/bi";
+
+import DetailClassTable from './data/DetailClassTable';
+import { AttendanceService } from '../../hooks/Attendance';
+import { ClassDetail } from '../../models/ClassDetail';
+import { Attendance } from '../../models/attendance/Attendance';
+import type { TableProps } from 'antd';
 
 const { Header: AntHeader } = Layout;
 
-const ClassDetailTable: React.FC = () => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [dataSource] = useState<ClassDetail[]>(DetailClassTable());
-  const [pageSize, setPageSize] = useState<number>(10); // Default page size
+type props = {
+  scheduleID: string
+}
+let socket
 
-  const columns = [
+const attendanceStatus = {
+  0: 'Not yet',
+  1: 'Attended',
+  2: 'Absent'
+}
+type ColumnsType<T> = TableProps<T>['columns'];
+
+const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
+
+  //web socket
+  const [information, setInformation] = useState("Ready to connect");
+  const [change, setChange] = useState('any');
+  const [close, setClose] = useState(false);
+
+  //student table
+  const [studentList, setStudentList] = useState<Attendance[]>([])
+  const [loadingState, setLoadingState] = useState<boolean>(false);
+
+  const [dataSource] = useState<ClassDetail[]>(DetailClassTable());
+  const [pageSize, setPageSize] = useState<number>(15);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isUpdate, setIsUpdate] = useState(true);
+
+
+  const toggleUpdateAttendance = () => {
+    setIsUpdate(!isUpdate);
+  };
+
+  function activeWebSocket() {
+    socket = new WebSocket("http://35.221.168.89/ws");
+    socket.onopen = function (event) {
+      console.log('Connecteed');
+      // setInformation("Connected");
+    };
+
+    socket.onclose = function (event) {
+      console.log("Connection closed");
+      console.log(event);
+    };
+
+    socket.onmessage = function (event) {
+      console.log("env--------", event);
+      console.log("env.data", event.data);
+      const message = JSON.parse(event.data);
+      console.log("mess message event*", message.Event);
+      console.log("mess message Data*", message.Data);
+      switch (message.Event) {
+        case "statusChange":
+          {
+            const data = JSON.parse(message.Data);
+            console.log("case status change", data.studentID, data.status)
+            // console.log(typeof (message.data));
+            // console.log("mess data ", message.data);
+
+            const elementId = `attendanceStatus-${data.studentID}`;
+            const element = document.getElementById(`attendanceStatus-${data.studentID}`);
+
+            if (element) {
+              element.innerHTML = 'Attended'
+              element.style.color = 'green'
+            }
+
+            const newOne = studentList.map(item => {
+              if (item.studentID == data.studentID) {
+                item.attendanceStatus = data.status
+                return item
+              }
+              return item
+            })
+            console.log("The prev one ", studentList);
+            console.log("The Edited one ", newOne);
+          }
+          break;
+      }
+    };
+  }
+
+  const columns: ColumnsType<Attendance> = [
     {
       key: '1',
       title: 'Student name',
-      dataIndex: 'studentname',
+      render: ((record: Attendance) => {
+        return (
+          <div>
+            <Avatar src={
+              <Image
+                // width={300}
+                src={record.avatar ? record.avatar : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
+              />}
+            />
+            {record.studentName}
+          </div>
+        )
+      }),
     },
     {
       key: '2',
       title: 'Student code',
-      dataIndex: 'studentcode',
+      dataIndex: 'studentCode',
     },
     {
       key: '3',
@@ -36,44 +132,45 @@ const ClassDetailTable: React.FC = () => {
     {
       key: '4',
       title: 'Status',
-      dataIndex: 'status',
-      render: (text: string) => (
+      // dataIndex: 'attendanceStatus',
+      render: (record: Attendance) => (
         <span
+          id={`attendanceStatus-${record.studentID}`}
           style={{
             color:
-              text === 'Not yet'
+              record.attendanceStatus === 0
                 ? '#fbbf24'
-                : text === 'Attended'
-                ? 'green'
-                : 'red',
+                : record.attendanceStatus === 1
+                  ? 'green'
+                  : 'red',
           }}
         >
-          {text}
+          {record.attendanceStatus === 0 ? 'Not yet' : (record.attendanceStatus === 1 ? 'Attended' : 'Absent')}
         </span>
       ),
       filters: [
         {
           text: 'Not yet',
-          value: 'Not yet',
+          value: 0,
         },
         {
           text: 'Attended',
-          value: 'Attended',
+          value: 1,
         },
         {
           text: 'Absent',
-          value: 'Absent',
+          value: 2,
         },
       ],
-      onFilter: (value, record) => record.status.indexOf(value) === 0,
+      onFilter: (value, record) => record.attendanceStatus === value,
     },
     {
       key: '5',
       title: 'Fingerprint status',
-      dataIndex: 'fingerprintstatus',
-      render: (text: string) => (
-        <span style={{ color: text === 'authenticated' ? 'green' : 'red' }}>
-          {text === 'authenticated' ? (
+      dataIndex: 'isAuthenticated',
+      render: (isAuthenticated: boolean) => (
+        <span style={{ color: isAuthenticated ? 'green' : 'red' }}>
+          {isAuthenticated ? (
             <IoIosCheckmark style={{ fontSize: '30px' }} />
           ) : (
             <RxCross2 style={{ color: 'red', fontSize: '24px' }} />
@@ -82,34 +179,38 @@ const ClassDetailTable: React.FC = () => {
       ),
       filters: [
         {
-          text: 'authenticated',
-          value: 'authenticated',
+          text: 'Authenticated',
+          value: true,
         },
         {
-          text: 'unauthenticated',
-          value: 'unauthenticated',
+          text: 'Unauthenticated',
+          value: false,
         },
       ],
-      onFilter: (value, record) => record.fingerprintstatus.indexOf(value) === 0,
+      onFilter: (value, record) => record.isAuthenticated === value,
+      width: '5%'
     },
     {
       key: '6',
       title: 'Check attendance',
-      render: (record: ClassDetail) => {
+      render: (text, record: Attendance, index: number) => {
         return (
           <>
-            <LiaFingerprintSolid style={{ fontSize: '24px' }} />
+            <Radio.Group key={`radio_${index}`} name="radiogroup" defaultValue={1}>
+              <Radio value={1}>Attended</Radio>
+              <Radio value={2}>Absent</Radio>
+            </Radio.Group>
           </>
         );
       },
     },
     {
       key: '7',
-      title: 'Register',
-      render: (record: ClassDetail) => {
+      title: 'Comment',
+      render: (text, record: Attendance, index: number) => {
         return (
           <>
-            {record.fingerprintstatus === 'unauthenticated' && <EditOutlined />}
+            <Input key={`cmt-${index}`} name='comment' />
           </>
         );
       },
@@ -129,35 +230,76 @@ const ClassDetailTable: React.FC = () => {
     setPageSize(size);
   };
 
+  useEffect(() => {
+    console.log("Change in detrail ", change);
+  }, [change])
+
+  useEffect(() => {
+    const response = AttendanceService.getAttendanceByScheduleID(scheduleID);
+    setLoadingState(true);
+
+    response.then(data => {
+      setLoadingState(false);
+      setStudentList(data);
+      console.log("data attendance ", data);
+    }).catch(err => {
+      toast.error('Error at get student attendance info')
+      setLoadingState(false)
+      console.log(err);
+    })
+  }, [])
+
+  useEffect(() => {
+    activeWebSocket();
+
+    return () => {
+      socket.close();
+    };
+  }, [])
+
   return (
     <Content className={styles.classDetailContent}>
       <AntHeader className={styles.classDetailHeader}>
         <Typography.Title level={3} style={{ marginTop: 5 }}>
           Student
         </Typography.Title>
-        <Search
-          placeholder="input search text"
-          allowClear
-          style={{
-            width: 200,
-            display: 'flex',
-          }}
-        />
+        <div className={styles.studentTableCtn}>
+          <Search
+            placeholder="Search by name or student code"
+            allowClear
+            style={{
+              width: 200,
+              display: 'flex',
+            }}
+            onChange={() => console.log("StudentList ", studentList)}
+            onSearch={() => {
+              console.log("close here");
+              socket.close()
+            }}
+          />
+          <Button
+            onClick={() => toggleUpdateAttendance()}
+            type={isUpdate ? 'primary' : 'dashed'}
+            shape="default"
+            icon={<BiCalendarEdit />}
+          />
+        </div>
       </AntHeader>
+
       <Table
         columns={columns}
-        dataSource={dataSource}
+        dataSource={studentList}
         pagination={{
           pageSize: pageSize,
           showSizeChanger: true,
           onShowSizeChange: handlePageSizeChange,
-          pageSizeOptions: ['5', '10', '15', '20'],
-          className: 'pagination-center', // Apply custom class here
+          pageSizeOptions: ['5', '15', '35'],
+          className: 'pagination-center',
         }}
         showSorterTooltip={{
           target: 'sorter-icon',
         }}
-        // rowSelection={rowSelection}
+      // rowSelection={rowSelection}
       ></Table>
     </Content>
   );

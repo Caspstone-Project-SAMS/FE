@@ -15,7 +15,7 @@ const ProtectedRoute = () => {
     const role = Auth.userDetail?.result?.role.name
     // const errs = Auth.userDetail?.errors?.length;
     useEffect(() => {
-        console.log('helloo role ', role);
+        // console.log('helloo role ', role);
     }, [])
 
     if (!Auth.authStatus) {
