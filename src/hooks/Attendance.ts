@@ -1,6 +1,14 @@
 import axios from 'axios';
 import { ATTENDANCE_API } from '.';
-import { Attendance } from '../models/attendance/Attendance';
+import {
+  Attendance,
+  UpdateListAttendance,
+} from '../models/attendance/Attendance';
+
+// const headers = {
+//   'Content-Type': 'application/json',
+//   'Access-Control-Allow-Origin': '*',
+// };
 
 const getAttendanceByScheduleID = async (
   scheduleID: string,
@@ -20,7 +28,7 @@ const updateAttendance = async (
   studentID: string,
 ) => {
   const response = await axios.put(
-    ATTENDANCE_API + 'update-attendance-status',
+    ATTENDANCE_API + '/update-attendance-status',
     {
       params: {
         scheduleID,
@@ -33,7 +41,23 @@ const updateAttendance = async (
   return response.data;
 };
 
+const updateListAttendance = async (data: UpdateListAttendance[]) => {
+  console.log('Data in', Array(data), 'Type of data is ', typeof data);
+  const response = await axios.put(
+    ATTENDANCE_API + '/update-list-student-status',
+    data,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+
+  return response.data;
+};
+
 export const AttendanceService = {
   getAttendanceByScheduleID,
   updateAttendance,
+  updateListAttendance,
 };

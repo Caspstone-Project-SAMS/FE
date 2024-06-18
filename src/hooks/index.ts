@@ -1,4 +1,4 @@
-const server = 'http://35.221.168.89/api';
+const server = 'http://34.81.224.196/api';
 
 //Auth
 export const USER_AUTH_API = `${server}/Auth`;

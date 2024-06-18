@@ -55,7 +55,7 @@ const Headers: React.FC = () => {
   ];
 
   return (
-    <AntHeader color="white" className="header">
+    <AntHeader style={{ padding: '0 20px' }} color="white" className="header">
       <Typography.Title level={3}>
         Student Attendance Management System
       </Typography.Title>
