@@ -1,51 +1,40 @@
 import styles from './ClassDetail.module.less';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-
-import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input } from 'antd';
+import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
 import Search from 'antd/es/input/Search';
 import { Content } from 'antd/es/layout/layout';
-import { EditOutlined } from '@ant-design/icons';
 import { IoIosCheckmark } from 'react-icons/io';
 import { RxCross2 } from 'react-icons/rx';
-import { LiaFingerprintSolid } from 'react-icons/lia';
 import { BiCalendarEdit } from "react-icons/bi";
 
-import DetailClassTable from './data/DetailClassTable';
+
 import { AttendanceService } from '../../hooks/Attendance';
-import { ClassDetail } from '../../models/ClassDetail';
-import { Attendance } from '../../models/attendance/Attendance';
-import type { TableProps } from 'antd';
+import { Attendance, UpdateListAttendance } from '../../models/attendance/Attendance';
+import type { RadioChangeEvent, TableProps } from 'antd';
 
 const { Header: AntHeader } = Layout;
 
 type props = {
   scheduleID: string
 }
-let socket
-
-const attendanceStatus = {
-  0: 'Not yet',
-  1: 'Attended',
-  2: 'Absent'
-}
 type ColumnsType<T> = TableProps<T>['columns'];
+
+let socket
 
 const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
 
   //web socket
-  const [information, setInformation] = useState("Ready to connect");
   const [change, setChange] = useState('any');
   const [close, setClose] = useState(false);
 
   //student table
   const [studentList, setStudentList] = useState<Attendance[]>([])
-  const [loadingState, setLoadingState] = useState<boolean>(false);
+  const [updatedList, setUpdatedList] = useState<Attendance[]>([])
 
-  const [dataSource] = useState<ClassDetail[]>(DetailClassTable());
-  const [pageSize, setPageSize] = useState<number>(15);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [isUpdate, setIsUpdate] = useState(true);
+  const [loadingState, setLoadingState] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(35);
+  const [isUpdate, setIsUpdate] = useState(false);
 
 
   const toggleUpdateAttendance = () => {
@@ -65,8 +54,6 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     };
 
     socket.onmessage = function (event) {
-      console.log("env--------", event);
-      console.log("env.data", event.data);
       const message = JSON.parse(event.data);
       console.log("mess message event*", message.Event);
       console.log("mess message Data*", message.Data);
@@ -75,8 +62,6 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
           {
             const data = JSON.parse(message.Data);
             console.log("case status change", data.studentID, data.status)
-            // console.log(typeof (message.data));
-            // console.log("mess data ", message.data);
 
             const elementId = `attendanceStatus-${data.studentID}`;
             const element = document.getElementById(`attendanceStatus-${data.studentID}`);
@@ -99,6 +84,51 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
           break;
       }
     };
+  }
+
+  const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {
+    setUpdatedList((studentList) =>
+      studentList.map((item) =>
+        item.studentCode === studentCode ? { ...item, attendanceStatus: e.target.value } : item
+      )
+    );
+  };
+
+  const handleCmtChange = (comment: string, studentCode: string) => {
+    setUpdatedList((studentList) =>
+      studentList.map((item) =>
+        item.studentCode === studentCode ? { ...item, comments: comment } : item
+      )
+    );
+  };
+
+  const handleSubmit = () => {
+    const currentTime = new Date().toISOString()
+    const fmtUpdatedList: UpdateListAttendance[] = updatedList.map(item => {
+      const { comments, studentID, attendanceStatus } = item;
+      if (studentID && attendanceStatus) {
+        return {
+          // comments: comments, 
+          studentID: studentID,
+          scheduleID: Number(scheduleID),
+          attendanceTime: currentTime,
+          attendanceStatus: attendanceStatus
+        }
+      }
+    }).filter(item => item !== undefined);
+
+    const response = AttendanceService.updateListAttendance(fmtUpdatedList);
+    response.then(data => {
+      setIsUpdate(false);
+      setStudentList(updatedList)
+      toast.success('Update Attendance Successfully!')
+    }).catch(err => {
+      toast.error('Something went wrong, please try again later');
+    })
+  }
+  const handleCancel = () => {
+    setIsUpdate(false)
+    setUpdatedList(studentList);
   }
 
   const columns: ColumnsType<Attendance> = [
@@ -196,7 +226,18 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       render: (text, record: Attendance, index: number) => {
         return (
           <>
-            <Radio.Group key={`radio_${index}`} name="radiogroup" defaultValue={1}>
+            <Radio.Group
+              key={`radio_${index}`}
+              name="radiogroup"
+              onChange={e => handleRadioChange(e, record.studentCode!)}
+              value={record.attendanceStatus}
+              disabled={!isUpdate}
+            // defaultValue={
+            //   record.attendanceStatus !== 0 ? (
+            //     record.attendanceStatus === 1 ? (1) : (2)
+            //   ) : (undefined)
+            // }
+            >
               <Radio value={1}>Attended</Radio>
               <Radio value={2}>Absent</Radio>
             </Radio.Group>
@@ -210,21 +251,19 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       render: (text, record: Attendance, index: number) => {
         return (
           <>
-            <Input key={`cmt-${index}`} name='comment' />
+            <Input
+              key={`cmt-${index}`}
+              name='comment'
+              maxLength={100}
+              value={!isUpdate ? record.comments : undefined}
+              onBlur={(e) => { handleCmtChange(e.target.value, record.studentCode!) }}
+              disabled={!isUpdate}
+            />
           </>
         );
       },
     },
   ];
-
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
 
   const handlePageSizeChange = (current: number, size: number) => {
     setPageSize(size);
@@ -241,6 +280,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     response.then(data => {
       setLoadingState(false);
       setStudentList(data);
+      setUpdatedList(data);
       console.log("data attendance ", data);
     }).catch(err => {
       toast.error('Error at get student attendance info')
@@ -250,11 +290,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   }, [])
 
   useEffect(() => {
-    activeWebSocket();
+    // activeWebSocket();
 
-    return () => {
-      socket.close();
-    };
+    // return () => {
+    //   socket.close();
+    // };
   }, [])
 
   return (
@@ -273,22 +313,23 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
             }}
             onChange={() => console.log("StudentList ", studentList)}
             onSearch={() => {
-              console.log("close here");
-              socket.close()
+              console.log("This is studentlist ", studentList);
             }}
           />
-          <Button
-            onClick={() => toggleUpdateAttendance()}
-            type={isUpdate ? 'primary' : 'dashed'}
-            shape="default"
-            icon={<BiCalendarEdit />}
-          />
+          <Tooltip placement="top" title={'Update Attendance'}>
+            <Button
+              onClick={() => setIsUpdate(true)}
+              type={isUpdate ? 'primary' : 'dashed'}
+              shape="default"
+              icon={<BiCalendarEdit />}
+            />
+          </Tooltip>
         </div>
       </AntHeader>
 
       <Table
         columns={columns}
-        dataSource={studentList}
+        dataSource={!isUpdate ? studentList : updatedList}
         pagination={{
           pageSize: pageSize,
           showSizeChanger: true,
@@ -298,6 +339,25 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
         }}
         showSorterTooltip={{
           target: 'sorter-icon',
+        }}
+        footer={() => {
+          if (isUpdate) {
+            return (
+              <>
+                <Button
+                  type='dashed'
+                  size='large'
+                  danger
+                  onClick={() => handleCancel()}
+                  style={{ marginRight: '10px' }}>Cancel</Button>
+                <Button type='primary' size='large'
+                  onClick={() => handleSubmit()}
+                >Submit</Button>
+              </>
+            )
+          } else {
+            return undefined
+          }
         }}
       // rowSelection={rowSelection}
       ></Table>

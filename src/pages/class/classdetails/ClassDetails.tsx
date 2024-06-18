@@ -35,6 +35,8 @@ const ClassDetails: React.FC = () => {
 
   useEffect(() => {
     try {
+      console.log("ScheduleID ", scheduleID);
+
       const date = start.getDate() + '/' + (start.getMonth() + 1) + '/' + start.getFullYear();
       const startTime = start.getHours().toString().padStart(2, '0') + ":" + start.getMinutes().toString().padStart(2, '0')
       const endTime = end.getHours().toString().padStart(2, '0') + ":" + end.getMinutes().toString().padStart(2, '0')
@@ -68,7 +70,7 @@ const ClassDetails: React.FC = () => {
         <Space>
           <Button className={styles.btnFap}>
             <Space direction='horizontal'>
-              <Typography.Text className={styles.btnText}>Check on FAP</Typography.Text>
+              <Typography.Text className={styles.btnText} onClick={() => { }}>Check on FAP</Typography.Text>
               <hr className={styles.hrLine}></hr>
               <img className={styles.fptLogo} style={{ width: 60, height: 40 }} src={fptimg} alt='fpt logo' />
             </Space>
