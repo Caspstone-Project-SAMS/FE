@@ -11,3 +11,11 @@ export interface Attendance {
   isAuthenticated: boolean;
   comments?: string;
 }
+
+export interface UpdateListAttendance {
+  scheduleID: number;
+  attendanceStatus: number;
+  attendanceTime: string; //ISO string format
+  studentID: string;
+  comments?: string;
+}

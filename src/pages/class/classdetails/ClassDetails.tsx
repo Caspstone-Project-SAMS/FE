@@ -5,13 +5,14 @@ import { useLocation } from 'react-router-dom';
 import { Content } from 'antd/es/layout/layout';
 import { Button, Card, Col, Row, Space, Typography } from 'antd';
 
-import { VscChecklist } from 'react-icons/vsc';
-import { IoIosFingerPrint } from 'react-icons/io';
 import module from '../../../assets/imgs/module.png'
+import fingerprintIcon from '../../../assets/icons/fingerprint.png'
+import reportIcon from '../../../assets/icons/Report.png'
 import fptimg from '../../../assets/imgs/FPT-Logo-PNG.png'
 
 import ClassDetailTable from '../../../components/classdetails/ClassDetailTable';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
+import BtnDecoration from '../../../components/global/BtnDecoration';
 
 const ClassDetails: React.FC = () => {
   const location = useLocation();
@@ -35,6 +36,8 @@ const ClassDetails: React.FC = () => {
 
   useEffect(() => {
     try {
+      console.log("ScheduleID ", scheduleID);
+
       const date = start.getDate() + '/' + (start.getMonth() + 1) + '/' + start.getFullYear();
       const startTime = start.getHours().toString().padStart(2, '0') + ":" + start.getMinutes().toString().padStart(2, '0')
       const endTime = end.getHours().toString().padStart(2, '0') + ":" + end.getMinutes().toString().padStart(2, '0')
@@ -68,7 +71,7 @@ const ClassDetails: React.FC = () => {
         <Space>
           <Button className={styles.btnFap}>
             <Space direction='horizontal'>
-              <Typography.Text className={styles.btnText}>Check on FAP</Typography.Text>
+              <Typography.Text className={styles.btnText} onClick={() => { }}>Check on FAP</Typography.Text>
               <hr className={styles.hrLine}></hr>
               <img className={styles.fptLogo} style={{ width: 60, height: 40 }} src={fptimg} alt='fpt logo' />
             </Space>
@@ -129,9 +132,49 @@ const ClassDetails: React.FC = () => {
           className={styles.cardParent2}
         >
           <Card className={styles.card2}>
-            <Row>
+            <Row style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Col span={11}>
+                <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                  <text className={styles.moduleText}>Modules</text>
+                </Col>
+                <Col
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginBottom: 15,
+                  }}
+                >
+                  <Button className={styles.btnConnect}>
+                    <text>Connect</text>
+                  </Button>
+                  <Button className={styles.btnDisconnect}>
+                    <text>Disconnect</text>
+                  </Button>
+                </Col>
+                <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div className={styles.moduleCard}>
+                    <div className={styles.moduleImgCtn}>
+                      <img src={module} alt='Module image' className={styles.moduleImg} />
+                    </div>
+                    <div className={styles.moduleInfo}>
+                      <span>
+                        <b>ID: </b>M1_khoald
+                      </span>
+                      <span>
+                        <b>Status: </b>Not connected
+                      </span>
+                      <span>
+                        <b>ID: </b>24/02/2022
+                      </span>
+                    </div>
+                  </div>
+                </Col>
+              </Col>
+
+              <hr className={styles.hrVertical} />
+
               <Col
-                span={11}
+                span={10}
                 style={{
                   marginRight: 10,
                   display: 'flex',
@@ -139,8 +182,13 @@ const ClassDetails: React.FC = () => {
                   alignItems: 'center',
                 }}
               >
-                <Row className={styles.btnGroup} gutter={[16, 16]}>
-                  <Col
+                <Row className={styles.btnGroup}>
+
+                  <div style={{ marginBottom: '10px', width: '100%' }}>
+                    <BtnDecoration btnFuncName='Import templates' btnTitle='Fingerprint' imgDecor={fingerprintIcon} key={'fingerprintImport'} />
+                  </div>
+                  <BtnDecoration btnFuncName='Start session' btnTitle='Attendance' imgDecor={reportIcon} key={'fingerprintImport'} />
+                  {/* <Col
                     xs={240}
                     sm={120}
                     md={120}
@@ -184,8 +232,8 @@ const ClassDetails: React.FC = () => {
                         </Col>
                       </Row>
                     </Button>
-                  </Col>
-                  <Col
+                  </Col> */}
+                  {/* <Col
                     xs={240}
                     sm={120}
                     md={120}
@@ -230,71 +278,10 @@ const ClassDetails: React.FC = () => {
                         </Col>
                       </Row>
                     </Button>
-                  </Col>
+                  </Col> */}
                 </Row>
               </Col>
 
-              <hr className={styles.hrVertical}></hr>
-              <Col span={12} style={{ marginLeft: 'auto', marginRight: 'auto' }}>
-                <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                  <text className={styles.moduleText}>Modules</text>
-                </Col>
-                <Col
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginBottom: 15,
-                  }}
-                >
-                  <Button className={styles.btnConnect}>
-                    <text>Connect</text>
-                  </Button>
-                  <Button className={styles.btnDisconnect}>
-                    <text>Disconnect</text>
-                  </Button>
-                </Col>
-                <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Card>
-                    <Row>
-                      <Col
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          marginRight: 5,
-                          marginLeft: -10,
-                        }}
-                      >
-                        <img src={module} alt="module" />
-                      </Col>
-                      <Col
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <text className={styles.moduleDetail}>
-                          ID:{' '}
-                          <span className={styles.moduleDetails}>M1_khoald</span>
-                        </text>
-                        <br />
-                        <text className={styles.moduleDetail}>
-                          Status:{' '}
-                          <span className={styles.moduleDetails}>
-                            Not connected
-                          </span>
-                        </text>
-                        <br />
-                        <text className={styles.moduleDetail}>
-                          Received date:{' '}
-                          <span className={styles.moduleDetails}>24/02/2022</span>
-                        </text>
-                      </Col>
-                    </Row>
-                  </Card>
-                </Col>
-              </Col>
             </Row>
           </Card>
         </Col>
@@ -302,7 +289,7 @@ const ClassDetails: React.FC = () => {
         <ClassDetailTable scheduleID={scheduleID} />
 
       </Row>
-    </Content>
+    </Content >
   );
 };
 
