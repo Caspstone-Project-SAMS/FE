@@ -58,7 +58,7 @@ const Headers: React.FC = () => {
     <AntHeader style={{ padding: '0 20px' }} color="white" className="header">
       <Typography.Title level={3}>
         Student Attendance Management System
-      </Typography.Title>
+      </Typography.Text>
       <Space wrap size="middle">
         <Badge count={10}>
           <Dropdown
@@ -74,14 +74,7 @@ const Headers: React.FC = () => {
           </Dropdown>
         </Badge>
         <Avatar
-          size={{
-            xs: 24,
-            sm: 32,
-            md: 10,
-            lg: 14,
-            xl: 40,
-            xxl: 10,
-          }}
+          size={40}
           icon={<CiBellOn />}
         />
         <Space direction="vertical">

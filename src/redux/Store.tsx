@@ -2,11 +2,13 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import Auth from "./slice/Auth";
 import Calendar from './slice/Calendar';
+import Student from './slice/Student'
 
 const Store = configureStore({
     reducer: {
         auth: Auth,
-        calendar: Calendar
+        calendar: Calendar,
+        student: Student,
     },
 })
 
