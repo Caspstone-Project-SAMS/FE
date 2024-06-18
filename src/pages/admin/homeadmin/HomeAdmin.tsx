@@ -3,10 +3,8 @@ import React from 'react';
 import styles from './HomeAdmin.module.less';
 import { Card, Col, Row, Typography } from 'antd';
 import { GoPeople } from 'react-icons/go';
-import { PiStudent } from "react-icons/pi";
-import { GiTeacher } from "react-icons/gi";
-
-
+import { PiStudent } from 'react-icons/pi';
+import { GiTeacher } from 'react-icons/gi';
 
 const HomeAdmin: React.FC = () => {
   return (
@@ -20,7 +18,7 @@ const HomeAdmin: React.FC = () => {
               </Typography.Text>
             </Row>
             <Row gutter={[16, 16]}>
-              <Col span={6}>
+              <Col xs={24} sm={24} md={12} lg={6} xl={6}>
                 <Card>
                   <Row>
                     <Col span={17}>
@@ -41,7 +39,7 @@ const HomeAdmin: React.FC = () => {
                   </Row>
                 </Card>
               </Col>
-              <Col span={6}>
+              <Col xs={24} sm={24} md={12} lg={6} xl={6}>
                 <Card>
                   <Row>
                     <Col span={17}>
@@ -62,7 +60,7 @@ const HomeAdmin: React.FC = () => {
                   </Row>
                 </Card>
               </Col>
-              <Col span={6}>
+              <Col xs={24} sm={24} md={12} lg={6} xl={6}>
                 <Card>
                   <Row>
                     <Col span={17}>
@@ -83,7 +81,7 @@ const HomeAdmin: React.FC = () => {
                   </Row>
                 </Card>
               </Col>
-              <Col span={6}>
+              <Col xs={24} sm={24} md={12} lg={6} xl={6}>
                 <Card>
                   <Row>
                     <Col span={17}>
