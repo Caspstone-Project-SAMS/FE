@@ -7,6 +7,9 @@ import Admin from '../pages/admin/Admin';
 import HomeCalendar from '../components/calendar/HomeCalendar';
 // import MyCalendar from '../components/calendar/MyCalendar';
 import ClassDetails from '../pages/class/classdetails/ClassDetails';
+import HomeAdmin from '../pages/admin/homeadmin/HomeAdmin';
+import AccountStudents from '../pages/admin/account/accountstudents/AccountStudents';
+import AccountTeachers from '../pages/admin/account/accountteachers/AccountTeachers';
 
 const lecture = [
   {
@@ -37,6 +40,10 @@ const lecture = [
 
 const admin = [
   {
+    path: '/homeadmin',
+    element: <HomeAdmin />
+  },
+  {
     path: '/subject',
     element: <Admin />
   },
@@ -47,6 +54,14 @@ const admin = [
   {
     path: '/attendance',
     element: <Admin />
+  },
+  {
+    path: '/accountadmin/student',
+    element: <AccountStudents />
+  },
+  {
+    path: '/accountadmin/teacher',
+    element: <AccountTeachers />
   },
 ]
 const routeConfig = {
