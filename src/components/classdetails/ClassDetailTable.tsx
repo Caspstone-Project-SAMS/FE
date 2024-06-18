@@ -1,6 +1,7 @@
 import styles from './ClassDetail.module.less';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import type { RadioChangeEvent, TableProps } from 'antd';
 import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
 import Search from 'antd/es/input/Search';
 import { Content } from 'antd/es/layout/layout';
@@ -11,7 +12,6 @@ import { BiCalendarEdit } from "react-icons/bi";
 
 import { AttendanceService } from '../../hooks/Attendance';
 import { Attendance, UpdateListAttendance } from '../../models/attendance/Attendance';
-import type { RadioChangeEvent, TableProps } from 'antd';
 
 const { Header: AntHeader } = Layout;
 
@@ -95,11 +95,13 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   const handleCmtChange = (comment: string, studentCode: string) => {
-    setUpdatedList((studentList) =>
-      studentList.map((item) =>
-        item.studentCode === studentCode ? { ...item, comments: comment } : item
-      )
-    );
+    if (comment.length >= 1) {
+      setUpdatedList((studentList) =>
+        studentList.map((item) =>
+          item.studentCode === studentCode ? { ...item, comments: comment } : item
+        )
+      );
+    }
   };
 
   const handleSubmit = () => {
@@ -108,7 +110,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       const { comments, studentID, attendanceStatus } = item;
       if (studentID && attendanceStatus) {
         return {
-          // comments: comments, 
+          comments: comments,
           studentID: studentID,
           scheduleID: Number(scheduleID),
           attendanceTime: currentTime,
@@ -255,6 +257,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
               key={`cmt-${index}`}
               name='comment'
               maxLength={100}
+              placeholder={isUpdate ? record.comments : ''}
               value={!isUpdate ? record.comments : undefined}
               onBlur={(e) => { handleCmtChange(e.target.value, record.studentCode!) }}
               disabled={!isUpdate}
