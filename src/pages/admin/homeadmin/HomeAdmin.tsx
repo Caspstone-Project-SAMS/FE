@@ -19,7 +19,7 @@ const HomeAdmin: React.FC = () => {
             </Row>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card>
+                <Card style={{backgroundColor:'#f1e7ff'}}>
                   <Row>
                     <Col span={17}>
                       <Typography.Text className={styles.studentTitle}>
@@ -40,7 +40,7 @@ const HomeAdmin: React.FC = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card>
+                <Card style={{backgroundColor:'#e5f5ff'}}>
                   <Row>
                     <Col span={17}>
                       <Typography.Text className={styles.studentTitle}>
@@ -61,7 +61,7 @@ const HomeAdmin: React.FC = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card>
+                <Card style={{backgroundColor:'#ffefe7'}}>
                   <Row>
                     <Col span={17}>
                       <Typography.Text className={styles.studentTitle}>
@@ -82,7 +82,7 @@ const HomeAdmin: React.FC = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card>
+                <Card style={{backgroundColor:'#ebfdef'}}>
                   <Row>
                     <Col span={17}>
                       <Typography.Text className={styles.studentTitle}>
