@@ -94,10 +94,10 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
         </div>
         <Space className={styles.headerRight}>
           <Button onClick={showModal} className={styles.centeredButton}>
-            <FaPlus style={{ fontSize: 25 }} />
-            <Typography.Text className={styles.btnText}>
+            <FaPlus style={{ fontSize: 15 }} />
+            <p className={styles.btnText}>
               Import Excel
-            </Typography.Text>
+            </p>
           </Button>
           <Modal
             open={open}
