@@ -42,7 +42,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   function activeWebSocket() {
-    socket = new WebSocket("http://35.221.168.89/ws");
+    socket = new WebSocket("http://34.81.224.196/ws");
     socket.onopen = function (event) {
       console.log('Connecteed');
       // setInformation("Connected");
@@ -251,6 +251,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
             //   ) : (undefined)
             // }
             >
+              {/* <Radio value={0}>Not yet</Radio> */}
               <Radio value={1}>Attended</Radio>
               <Radio value={2}>Absent</Radio>
             </Radio.Group>
@@ -304,11 +305,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   }, [])
 
   useEffect(() => {
-    // activeWebSocket();
+    activeWebSocket();
 
-    // return () => {
-    //   socket.close();
-    // };
+    return () => {
+      socket.close();
+    };
   }, [])
 
   return (
@@ -325,7 +326,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
               width: 200,
               display: 'flex',
             }}
-            onSearch={(text) => { handleSearch(text) }}
+            onSearch={(text) => {
+              handleSearch(text);
+              socket.close();
+            }}
           // onChange={() => console.log("StudentList ", studentList)}
           // onSearch={() => {
           //   console.log("This is studentlist ", studentList);
