@@ -8,6 +8,8 @@ import { CiCalendar } from 'react-icons/ci';
 
 const { Header: AntHeader } = Layout;
 
+
+
 const AdminTableHeader: React.FC = () => {
   return (
     <Card>
@@ -22,13 +24,13 @@ const AdminTableHeader: React.FC = () => {
                 variant="filled"
               ></Input>
             </Col>
-            <Col>
+            {/* <Col>
               <Input
                 prefix={<CiCalendar />}
                 suffix={<IoMdArrowDropdown />}
                 variant="filled"
               ></Input>
-            </Col>
+            </Col> */}
           </Row>
         </AntHeader>
       </Content>

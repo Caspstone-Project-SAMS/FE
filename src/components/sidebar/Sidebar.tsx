@@ -9,7 +9,7 @@ import { FaListCheck } from 'react-icons/fa6';
 import { Image, Menu } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { useNavigate } from 'react-router-dom';
-import './Sidebar.css'; // Import the CSS file
+import './Sidebar.css';
 import './Sidebar.less';
 import Logo from '../../assets/imgs/logo_sider.png';
 import Logo_Cutted from '../../assets/imgs/logo_cut.png';
@@ -17,6 +17,9 @@ import { RootState } from '../../redux/Store';
 import { useSelector } from 'react-redux';
 import useDispatch from '../../redux/UseDispatch';
 import { getAllStudent } from '../../redux/slice/Student';
+import { MdManageAccounts } from "react-icons/md";
+import { FaBookOpen } from "react-icons/fa";
+import { IoCalendar } from "react-icons/io5";
 
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -129,22 +132,32 @@ const Sidebar: React.FC = () => {
                     key: '/accountadmin/teacher',
                   },
                 ],
-                icon: <CiCalendar />,
+                icon: <MdManageAccounts />,
               },
               {
                 label: 'Subject',
-                key: '/subject',
-                icon: <IoHomeOutline />,
+                key: '/adminsubject',
+                icon: <FaBookOpen />,
               },
-              {
-                label: 'Teacher',
-                key: '/teacher',
-                icon: <IoHomeOutline />,
-              },
+              // {
+              //   label: 'Teacher',
+              //   key: '/teacher',
+              //   icon: <IoHomeOutline />,
+              // },
               {
                 label: 'Attendance',
-                key: '/attendance',
-                icon: <IoHomeOutline />,
+                key: '/adminattendance',
+                icon: <FaListCheck />,
+              },
+              {
+                label: 'Semester',
+                key: '/semester',
+                icon: <IoCalendar />,
+              },
+              {
+                label: 'Class',
+                key: '/adminclass',
+                icon: <GiBookshelf />,
               },
             ]
             : [

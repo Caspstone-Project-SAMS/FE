@@ -5,6 +5,7 @@ import { Card, Col, Row, Typography } from 'antd';
 import { GoPeople } from 'react-icons/go';
 import { PiStudent } from 'react-icons/pi';
 import { GiTeacher } from 'react-icons/gi';
+import HomeCalendar from '../../../components/calendar/HomeCalendar';
 
 const HomeAdmin: React.FC = () => {
   return (
@@ -107,7 +108,7 @@ const HomeAdmin: React.FC = () => {
         </Col>
       </Row>
       <Row>
-        <Col>s</Col>
+        <HomeCalendar />
       </Row>
     </Content>
   );

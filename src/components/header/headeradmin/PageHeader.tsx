@@ -76,34 +76,69 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
                 ? 'Student'
                 : title === 'teacher'
                 ? 'Teacher'
+                : title === 'semester'
+                ? 'Semester'
+                : title === 'class'
+                ? 'Class'
+                : title === 'attendance'
+                ? 'Attendance'
+                : title === 'subject'
+                ? 'Subject'
                 : null}
             </Typography.Text>
           </Row>
           <Row>
             <Typography.Text className={styles.text}>
-              Home / Account /{' '}
+              Home
+              {title === 'student'
+                ? ' / Account'
+                : title === 'teacher'
+                ? ' / Account'
+                : null}{' '}
+              /{' '}
               <Typography.Text className={styles.pageTextPosition}>
                 {title === 'student'
                   ? 'Student'
                   : title === 'teacher'
                   ? 'Teacher'
+                  : title === 'semester'
+                  ? 'Semester'
+                  : title === 'class'
+                  ? 'Class'
+                  : title === 'attendance'
+                  ? 'Attendance'
+                  : title === 'subject'
+                  ? 'Subject'
                   : null}
               </Typography.Text>
             </Typography.Text>
           </Row>
         </div>
         <Space className={styles.headerRight}>
-          <Button onClick={showModal} className={styles.centeredButton}>
-            <FaPlus style={{ fontSize: 25 }} />
-            <Typography.Text className={styles.btnText}>
-              Import Excel
-            </Typography.Text>
-          </Button>
+          {title === 'attendance' ? (
+            <div></div>
+          ) : (
+            <Button onClick={showModal} className={styles.centeredButton}>
+              <FaPlus style={{ fontSize: 15 }} />
+              <p className={styles.btnText}>Import Excel</p>
+            </Button>
+          )}
+
           <Modal
             open={open}
             title={
               <div className={styles.firstTitle}>
-                {title === 'student' ? 'Student' : title === 'teacher' ? 'Teacher' : null}
+                {title === 'student'
+                  ? 'Student'
+                  : title === 'teacher'
+                  ? 'Teacher'
+                  : title === 'semester'
+                  ? 'Semester'
+                  : title === 'class'
+                  ? 'Class'
+                  : title === 'subject'
+                  ? 'Subject'
+                  : null}
               </div>
             }
             onOk={handleOk}
@@ -132,10 +167,10 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
               // </Button>,
             ]}
           >
-            <Row style={{marginBottom:20, marginTop:20}}>
+            <Row style={{ marginBottom: 20, marginTop: 20 }}>
               <p className={styles.modalTitle}>Title</p>
               <br />
-              <Input placeholder='Name the file'></Input>
+              <Input placeholder="Name the file"></Input>
             </Row>
             <p className={styles.modalTitle}>Excel</p>
             <Dragger {...props}>
