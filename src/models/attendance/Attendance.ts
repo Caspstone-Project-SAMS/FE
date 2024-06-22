@@ -6,6 +6,7 @@ export interface Attendance {
   attendanceStatus?: number;
   email?: null;
   avatar?: string;
+  image?: string;
   studentCode?: string;
   studentName?: string;
   isAuthenticated: boolean;
