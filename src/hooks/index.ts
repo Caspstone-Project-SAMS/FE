@@ -13,6 +13,7 @@ export const SEMESTER_API = `${server}/Semester`;
 //Student
 export const STUDENT_API = `${server}/Student`;
 
+
 //Google
 export const GET_GG_USER_INFO =
   'https://www.googleapis.com/oauth2/v1/userinfo?access_token=';
