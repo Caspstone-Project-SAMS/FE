@@ -51,7 +51,6 @@ function Login() {
   //get role
   const role = Auth.userDetail?.result?.role.name;
 
-  //Havent authorize for lecture or admin
   const handleLogin = async () => {
     await dispatch(login({ username, password }));
     // const res = await dispatch(login({ username, password }));
@@ -157,7 +156,8 @@ function Login() {
               <Checkbox onChange={onChange}>Remember me</Checkbox>
               <Typography.Link
                 onClick={() => {
-                  logOut();
+                  // logOut();
+                  navigate('/excel-test')
                 }}
               >
                 Forgot password
