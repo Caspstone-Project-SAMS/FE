@@ -110,85 +110,75 @@ const Sidebar: React.FC = () => {
         items={
           role === 'Admin'
             ? [
-                {
-                  label: 'Home',
-                  key: '/homeadmin',
-                  icon: <IoHomeOutline />,
-                },
-                {
-                  label: 'Account',
-                  key: '/accountadmin',
-                  children: [
-                    {
-                      label: 'Student',
-                      key: '/accountadmin/student',
-                      onClick: handleStudent
-                    },
-                    {
-                      label: 'Teacher',
-                      key: '/accountadmin/teacher',
-                    },
-                  ],
-                  icon: <CiCalendar />,
-                },
-                {
-                  label: 'Subject',
-                  key: '/subject',
-                  icon: <IoHomeOutline />,
-                },
-                {
-                  label: 'Teacher',
-                  key: '/teacher',
-                  icon: <IoHomeOutline />,
-                },
-                {
-                  label: 'Attendance',
-                  key: '/attendance',
-                  icon: <IoHomeOutline />,
-                },
-              ]
+              {
+                label: 'Home',
+                key: '/homeadmin',
+                icon: <IoHomeOutline />,
+              },
+              {
+                label: 'Account',
+                key: '/accountadmin',
+                children: [
+                  {
+                    label: 'Student',
+                    key: '/accountadmin/student',
+                    onClick: handleStudent
+                  },
+                  {
+                    label: 'Teacher',
+                    key: '/accountadmin/teacher',
+                  },
+                ],
+                icon: <CiCalendar />,
+              },
+              {
+                label: 'Subject',
+                key: '/subject',
+                icon: <IoHomeOutline />,
+              },
+              {
+                label: 'Teacher',
+                key: '/teacher',
+                icon: <IoHomeOutline />,
+              },
+              {
+                label: 'Attendance',
+                key: '/attendance',
+                icon: <IoHomeOutline />,
+              },
+            ]
             : [
-                {
-                  label: 'Home',
-                  key: '/',
-                  icon: <IoHomeOutline />,
-                },
-                {
-                  label: 'Class',
-                  key: '/class',
-                  icon: <GiBookshelf />,
-                },
-                {
-                  label: 'Students',
-                  key: '/student',
-                  icon: <PiStudent />,
-                },
-                {
-                  label: 'Calendar',
-                  key: '/calendar',
-                  children: [
-                    {
-                      label: '1',
-                      key: '1',
-                    },
-                    {
-                      label: '2',
-                      key: '2',
-                    },
-                  ],
-                  icon: <CiCalendar />,
-                },
-                {
-                  label: 'Account',
-                  key: '/account',
-                  icon: <MdOutlineManageAccounts />,
-                },
-                {
-                  label: 'Attendance',
-                  key: '/attendance',
-                  icon: <FaListCheck />,
-                },
-              ]
+              {
+                label: 'Home',
+                key: '/',
+                icon: <IoHomeOutline />,
+              },
+              {
+                label: 'Class',
+                key: '/class',
+                icon: <GiBookshelf />,
+              },
+              {
+                label: 'Students',
+                key: '/student',
+                icon: <PiStudent />,
+              },
+              {
+                label: 'Calendar',
+                key: '/calendar',
+                icon: <CiCalendar />,
+              },
+              {
+                label: 'Account',
+                key: '/account',
+                icon: <MdOutlineManageAccounts />,
+              },
+              // {
+              //   label: 'Attendance',
+              //   key: '/attendance',
+              //   icon: <FaListCheck />,
+              // },
+            ]
         }
       />
     </Sider>

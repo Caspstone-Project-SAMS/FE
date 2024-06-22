@@ -42,7 +42,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   function activeWebSocket() {
-    socket = new WebSocket("http://35.221.168.89/ws");
+    socket = new WebSocket("http://34.81.224.196/ws");
     socket.onopen = function (event) {
       console.log('Connecteed');
       // setInformation("Connected");
@@ -132,18 +132,25 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     setIsUpdate(false)
     setUpdatedList(studentList);
   }
+  const handleSearch = (value: string) => {
+    const filtered = studentList.filter((item) =>
+      item.studentCode!.toLowerCase().includes(value.toLowerCase()) ||
+      item.studentName!.toLowerCase().includes(value.toLowerCase())
+    );
+    setUpdatedList(filtered);
+  };
 
   const columns: ColumnsType<Attendance> = [
     {
       key: '1',
       title: 'Student name',
-      render: ((record: Attendance) => {
+      render: ((value, record: Attendance, index: number) => {
         return (
-          <div>
+          <div key={`avar_${index}`}>
             <Avatar src={
               <Image
                 // width={300}
-                src={record.avatar ? record.avatar : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
+                src={record.image ? record.image : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
               />}
             />
             {record.studentName}
@@ -165,8 +172,9 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       key: '4',
       title: 'Status',
       // dataIndex: 'attendanceStatus',
-      render: (record: Attendance) => (
+      render: (value, record: Attendance, i: number) => (
         <span
+          key={`attendanceStatus_${i}`}
           id={`attendanceStatus-${record.studentID}`}
           style={{
             color:
@@ -200,9 +208,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       key: '5',
       title: 'Fingerprint status',
       dataIndex: 'isAuthenticated',
-      render: (isAuthenticated: boolean) => (
-        <span style={{ color: isAuthenticated ? 'green' : 'red' }}>
-          {isAuthenticated ? (
+      render: (value, record: Attendance, i) => (
+        <span
+          style={{ color: record.isAuthenticated ? 'green' : 'red' }}
+          key={`isAuthenticated_${i}`}
+        >
+          {record.isAuthenticated ? (
             <IoIosCheckmark style={{ fontSize: '30px' }} />
           ) : (
             <RxCross2 style={{ color: 'red', fontSize: '24px' }} />
@@ -240,6 +251,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
             //   ) : (undefined)
             // }
             >
+              {/* <Radio value={0}>Not yet</Radio> */}
               <Radio value={1}>Attended</Radio>
               <Radio value={2}>Absent</Radio>
             </Radio.Group>
@@ -293,11 +305,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   }, [])
 
   useEffect(() => {
-    // activeWebSocket();
+    activeWebSocket();
 
-    // return () => {
-    //   socket.close();
-    // };
+    return () => {
+      socket.close();
+    };
   }, [])
 
   return (
@@ -314,10 +326,14 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
               width: 200,
               display: 'flex',
             }}
-            onChange={() => console.log("StudentList ", studentList)}
-            onSearch={() => {
-              console.log("This is studentlist ", studentList);
+            onSearch={(text) => {
+              handleSearch(text);
+              socket.close();
             }}
+          // onChange={() => console.log("StudentList ", studentList)}
+          // onSearch={() => {
+          //   console.log("This is studentlist ", studentList);
+          // }}
           />
           <Tooltip placement="top" title={'Update Attendance'}>
             <Button
@@ -332,7 +348,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
 
       <Table
         columns={columns}
-        dataSource={!isUpdate ? studentList : updatedList}
+        dataSource={
+          // !isUpdate ? filteredList : updatedList
+          updatedList
+        }
         pagination={{
           pageSize: pageSize,
           showSizeChanger: true,
