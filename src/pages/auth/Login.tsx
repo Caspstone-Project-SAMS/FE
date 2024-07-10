@@ -82,7 +82,7 @@ function Login() {
     if (role === 'Lecturer') {
       navigate('/');
     } else if (role === 'Admin') {
-      navigate('/homeadmin');
+      navigate('/home-admin');
     }
   }, [role]);
 

@@ -13,6 +13,11 @@ export const SEMESTER_API = `${server}/Semester`;
 //Student
 export const STUDENT_API = `${server}/Student`;
 
+//Room
+export const ROOM_API = `${server}/Room`;
+
+//Subject
+export const SUBJECT_API = `${server}/Subject`;
 
 //Google
 export const GET_GG_USER_INFO =

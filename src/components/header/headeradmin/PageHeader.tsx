@@ -7,25 +7,6 @@ import { InboxOutlined } from '@ant-design/icons';
 import Dragger from 'antd/es/upload/Dragger';
 import type { UploadProps } from 'antd';
 
-// const props = {
-//   name: 'file',
-//   multiple: true,
-//   action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-//   onChange(info) {
-//     const { status } = info.file;
-//     if (status !== 'uploading') {
-//       console.log(info.file, info.fileList);
-//     }
-//     if (status === 'done') {
-//       message.success(`${info.file.name} file uploaded successfully.`);
-//     } else if (status === 'error') {
-//       message.error(`${info.file.name} file upload failed.`);
-//     }
-//   },
-//   onDrop(e) {
-//     console.log('Dropped files', e.dataTransfer.files);
-//   },
-// };
 const props: UploadProps = {
   name: 'file',
   multiple: true,
@@ -72,19 +53,7 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
         <div>
           <Row>
             <Typography.Text className={styles.textHeader}>
-              {title === 'student'
-                ? 'Student'
-                : title === 'teacher'
-                ? 'Teacher'
-                : title === 'semester'
-                ? 'Semester'
-                : title === 'class'
-                ? 'Class'
-                : title === 'attendance'
-                ? 'Attendance'
-                : title === 'subject'
-                ? 'Subject'
-                : null}
+              {title}
             </Typography.Text>
           </Row>
           <Row>
@@ -97,19 +66,7 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
                 : null}{' '}
               /{' '}
               <Typography.Text className={styles.pageTextPosition}>
-                {title === 'student'
-                  ? 'Student'
-                  : title === 'teacher'
-                  ? 'Teacher'
-                  : title === 'semester'
-                  ? 'Semester'
-                  : title === 'class'
-                  ? 'Class'
-                  : title === 'attendance'
-                  ? 'Attendance'
-                  : title === 'subject'
-                  ? 'Subject'
-                  : null}
+                {title}
               </Typography.Text>
             </Typography.Text>
           </Row>
@@ -128,17 +85,7 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
             open={open}
             title={
               <div className={styles.firstTitle}>
-                {title === 'student'
-                  ? 'Student'
-                  : title === 'teacher'
-                  ? 'Teacher'
-                  : title === 'semester'
-                  ? 'Semester'
-                  : title === 'class'
-                  ? 'Class'
-                  : title === 'subject'
-                  ? 'Subject'
-                  : null}
+                {title}
               </div>
             }
             onOk={handleOk}
@@ -156,15 +103,6 @@ const PageHeaderAdmin: React.FC<PageHeaderAdminProps> = ({ title }) => {
               >
                 Save
               </Button>,
-              // <Button
-              //   key="link"
-              //   href="https://google.com"
-              //   type="primary"
-              //   loading={loading}
-              //   onClick={handleOk}
-              // >
-              //   Search on Google
-              // </Button>,
             ]}
           >
             <Row style={{ marginBottom: 20, marginTop: 20 }}>
