@@ -63,7 +63,7 @@ const login = createAsyncThunk(
       });
 
       const result = await loginPromise;
-      // console.log('User result here ', result);
+      console.log('User result here ', result);
       return result;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {

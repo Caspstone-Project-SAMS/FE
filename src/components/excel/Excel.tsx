@@ -1,44 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
-import { Button, message, Modal, Steps, Typography, Upload, UploadProps } from 'antd'
-import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined } from '@ant-design/icons'
+import { Button, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined, LoadingOutlined } from '@ant-design/icons'
 import MessageCard from './messageCard/MessageCard'
-import { FileService } from './helpers/FileService'
+import { FileHelper } from './helpers/FileHelper'
 import { RcFile } from 'antd/es/upload'
 import styles from './index.module.less';
 import '../../assets/styles/styles.less'
+import { StudentService } from '../../hooks/StudentList'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/Store'
 
-type validateFmt = {
+import SuccessIcon from '../../assets/icons/success_icon.png'
+import ErrorIcon from '../../assets/icons/cancel_icon.png'
+
+type ValidateFmt = {
     result?: any[];
     errors: Message[];
 };
+type ServerResult = {
+    status: boolean;
+    data: string
+    errors: string[]
+};
 type Message = {
     message: string
-    type: 'warning' | 'error',
-}
-
-const props: UploadProps = {
-    progress: {
-        strokeColor: {
-            '0%': '#108ee9',
-            '100%': '#87d068',
-        },
-        strokeWidth: 3,
-        format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-    },
+    type: 'warning' | 'error' | 'success',
 }
 
 const Excel = () => {
+    const userInfo = useSelector((state: RootState) => state.auth.userDetail);
     const [current, setCurrent] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
 
     //havent has api - not modelling data yet
-    const [excelResult, setExcelResult] = useState<validateFmt>();
+    const [excelResult, setExcelResult] = useState<ValidateFmt>();
     const [errLogs, setErrLogs] = useState<Message[]>([]);
     const [warningLogs, setWarningLogs] = useState<Message[]>([]);
+    const [successLogs, setSuccessLogs] = useState<Message[]>([]);
 
     const [onValidateExcel, setOnValidateExcel] = useState(false);
     const [onValidateServer, setOnValidateServer] = useState(false);
+    const [validateSvResult, setValidateSvResult] = useState<ServerResult | undefined>();
 
     function formatBytes(bytes: number) {
         const kb = 1024;
@@ -58,13 +61,14 @@ const Excel = () => {
     const handleExcel = async (file: RcFile) => {
         try {
             //15,728,640
-            console.log("file size: ", file.size)
             if (file.size >= 15728640) {
                 message.error('File size exceed 15MB!', 1.5)
                 return false;
             }
             const workbook = new ExcelJS.Workbook();
-            const excelData = await FileService.handleImportSemester(file, workbook)
+            // const excelData = await FileHelper.handleImportSemester(file, workbook)
+            // const userID = userInfo!.result!.id
+            const excelData = await FileHelper.handleImportStudent(file, workbook, 'a829c0b5-78dc-4194-a424-08dc8640e68a')
             console.log("import data here", excelData);
             setExcelResult(excelData)
             setOnValidateExcel(true);
@@ -72,6 +76,74 @@ const Excel = () => {
         } catch (error) {
             console.log("Error when receive excel file ", error);
             return false
+        }
+    }
+
+    const handleSubmit = async () => {
+        const studentList = excelResult?.result;
+        if (studentList && studentList.length > 0) {
+            setOnValidateServer(true)
+            const response = StudentService.importExcelStudent(studentList);
+
+            response.then(data => {
+                setOnValidateServer(false)
+                setOnValidateExcel(false)
+                //Ktra fail 90%, 1 record dung -> Show những record đã dc tạo, in lỗi những record sai
+                const createdListArr = data.data.result.map(item => (item.studentCode))
+                if (createdListArr) {
+                    const createdTxt = `Created ${createdListArr.join(', ')}`
+                    setSuccessLogs([{
+                        type: 'success',
+                        message: createdTxt
+                    }])
+                    console.log("createdTxt ", createdTxt);
+                }
+                const errList = data.data.errors
+                if (errList.length > 0) {
+                    const fmtLogs: Message[] = errList.map(err => ({
+                        type: 'error',
+                        message: err
+                    }))
+                    setErrLogs(fmtLogs)
+                }
+
+                const fmtData: ServerResult = {
+                    status: true,
+                    data: data.data.result,
+                    errors: data.data.errors
+                }
+
+                setValidateSvResult(fmtData);
+
+
+                console.log("After call api ", data);
+                console.log("here is fmt Data ", fmtData);
+                console.log("createdList ", createdListArr);
+                console.log("errList ", errList);
+
+            }).catch(err => {
+                setOnValidateServer(false)
+                setOnValidateExcel(false)
+                console.log("errors handling import ", err)
+                const errResponses = err.response.data.errors;
+                if (errResponses && Array.isArray(errResponses)) {
+                    const errData: ServerResult = {
+                        status: false,
+                        data: '',
+                        errors: errResponses
+                    }
+                    const fmtLogs: Message[] = errResponses.map(err => ({
+                        type: 'error',
+                        message: err
+                    }))
+
+                    setWarningLogs([])
+                    setErrLogs(fmtLogs);
+                    setValidateSvResult(errData)
+                }
+            })
+        } else {
+            message.warning('No data found in excel')
         }
     }
 
@@ -89,7 +161,7 @@ const Excel = () => {
                     <DeleteOutlined
                         className={styles.fileIconDelete}
                         onClick={() => {
-                            handleClearExcel();
+                            handleClear();
                             actions.remove(file)
                         }} style={{ fontSize: 16 }}
                     />
@@ -98,14 +170,15 @@ const Excel = () => {
         );
     };
 
-    const handleClearExcel = () => {
+    const handleClear = () => {
         setOnValidateExcel(false);
         setExcelResult({
             result: [],
             errors: []
-        })
-        setErrLogs([])
-        setWarningLogs([])
+        });
+        setErrLogs([]);
+        setWarningLogs([]);
+        setCurrent(0);
     }
 
     useEffect(() => {
@@ -122,7 +195,6 @@ const Excel = () => {
                     break;
             }
         })
-        // console.log("Changed ", excelResult);
     }, [excelResult])
 
     return (
@@ -134,63 +206,129 @@ const Excel = () => {
                 title="Import Excel Document"
                 centered
                 open={modalOpen}
-                onOk={() => setModalOpen(false)}
-                onCancel={() => setModalOpen(false)}
+                maskClosable={false}
+                onCancel={() => {
+                    setModalOpen(false)
+                    handleClear();
+                }}
+                closable={true}
+                footer={[
+                    <Button
+                        key="back"
+                        onClick={() => {
+                            setModalOpen(false)
+                            handleClear();
+                        }}
+                    >
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={() => {
+                        console.log("on the submit btn");
+                        handleSubmit();
+                        setCurrent(1);
+                    }}>
+                        Submit
+                    </Button>,
+                ]}
             >
                 <div
                     style={{ minHeight: '70vh' }}
                 >
                     <Steps
                         current={current}
+                        style={{ marginBottom: '10px' }}
                         items={[
                             {
                                 title: 'Validate Excel',
-                                description: 'hehe',
+                                // description: 'Handle input',
                                 // icon: onValidateExcel ? <LoadingOutlined /> : <FileExcelOutlined />
                             },
                             {
                                 title: 'Checking on server',
-                                description: 'hehe',
-                                // icon: onValidateServer ? <LoadingOutlined /> : <CloudServerOutlined />
+                                // description: 'Is meet requirements',
+                                icon: onValidateServer && <LoadingOutlined />
                             },
                         ]}
                     />
-                    <Upload.Dragger
-                        name='file'
-                        beforeUpload={(file) => handleExcel(file)}
-                        action={''}
-                        maxCount={1}
-                        {...props}
-                        itemRender={customItemRender}
-                    // accept={'.xlsx'}
-                    //  onChange={(file) => handleExcel(file)}
-                    >
-                        <p className="ant-upload-drag-icon">
-                            <CloudUploadOutlined />
-                        </p>
-                        <p className="ant-upload-text">
-                            <b style={{ color: '#2563EB' }}>Choose a file</b>{' '}
-                            or drop it here</p>
-                        <p className="ant-upload-hint">
-                            File receive: .xlsx <br />
-                            Max file size: 15MB
-                        </p>
-                    </Upload.Dragger>
                     {
-                        onValidateExcel ? (
-                            <>
-                                <Typography.Text># Those record will be ignored, please consider again before continue</Typography.Text>
+                        current === 0 && (
+                            <div className='upload-excel'>
+                                <Upload.Dragger
+                                    // {...props}
+                                    name='file'
+                                    beforeUpload={(file) => handleExcel(file)}
+                                    action={''}
+                                    maxCount={1}
+                                    itemRender={customItemRender}
+                                >
+                                    <p className="ant-upload-drag-icon">
+                                        <CloudUploadOutlined />
+                                    </p>
+                                    <p className="ant-upload-text">
+                                        <b style={{ color: '#2563EB' }}>Choose a file</b>{' '}
+                                        or drop it here</p>
+                                    <p className="ant-upload-hint">
+                                        File receive: .xlsx <br />
+                                        Max file size: 15MB
+                                    </p>
+                                </Upload.Dragger>
                                 {
-                                    (errLogs.length > 0) ? (<MessageCard props={errLogs} isSuccess={false} />) : ('')
+                                    onValidateExcel && (
+                                        <>
+                                            {
+                                                (warningLogs.length === 0 && errLogs.length === 0) ? (<MessageCard props={[]} />) : (
+                                                    <>
+                                                        <Typography.Text># Those record will be ignored, please consider again before continue</Typography.Text>
+                                                        {
+                                                            (errLogs.length > 0) && (<MessageCard props={errLogs} />)
+                                                        }
+                                                        {
+                                                            (warningLogs.length > 0) && (<MessageCard props={warningLogs} />)
+                                                        }
+                                                    </>
+                                                )
+                                            }
+
+                                        </>
+                                    )
                                 }
-                                {
-                                    (warningLogs.length > 0) ? (<MessageCard props={warningLogs} isSuccess={false} />) : ('')
-                                }
-                                {
-                                    (warningLogs.length === 0 && errLogs.length === 0) ? (<MessageCard props={[]} isSuccess={true} />) : ('')
-                                }
-                            </>
-                        ) : ('')
+                            </div>
+                        )
+                    }
+                    {/* --------------------- Validate server --------------------- */}
+                    {
+                        current === 1 && (
+                            onValidateServer ? <Skeleton active /> : (
+                                <div className={styles.validateServer}>
+                                    <div className={styles.validateSvResult}>
+                                        {
+                                            validateSvResult && (
+                                                <>
+                                                    <Image
+                                                        width={60}
+                                                        src={validateSvResult.status ? SuccessIcon : ErrorIcon}
+                                                        preview={false}
+                                                        style={{ margin: '10px 0' }}
+                                                    />
+                                                    <Typography.Title level={2}>
+                                                        {
+                                                            validateSvResult.status ? ('Create successfully') : ('Create Failed')
+                                                        }
+                                                    </Typography.Title>
+                                                </>
+                                            )
+                                        }
+                                    </div>
+
+                                    {
+                                        validateSvResult && validateSvResult.data && <MessageCard props={successLogs} />
+                                    }
+                                    {
+                                        errLogs.length > 0 && <MessageCard props={errLogs} />
+                                    }
+                                </div>
+                            )
+                        )
                     }
                 </div>
             </Modal>
@@ -214,4 +352,22 @@ export default Excel
 //                 });
 //             });
 //         });
+// }
+
+//Ok response
+// {
+//     "isSuccess": true,
+//     "title": "Create Students Result",
+//     "errors": [
+//         "StudentCode TEST_CHARACTER_VALID is already taken",
+//         "StudentCode SAMS is already taken"
+//     ],
+//     "result": [
+//         {
+//             "studentCode": "The_Flash",
+//             "displayName": "Ordinary scientist",
+//             "email": "anything_you-got@gotgel.org",
+//             "createBy": "Yamj"
+//         }
+//     ]
 // }

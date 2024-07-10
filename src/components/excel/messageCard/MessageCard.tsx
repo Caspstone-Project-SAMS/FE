@@ -11,13 +11,13 @@ type InfoLog = {
 
 type Message = {
     message: string
-    type: 'warning' | 'error',
+    type: 'warning' | 'error' | 'success',
 }
 
-const MessageCard: React.FC<{ props: Message[], isSuccess: boolean }> = ({ props, isSuccess }) => {
+const MessageCard: React.FC<{ props: Message[] }> = ({ props }) => {
     const [isOpen, setIsOpen] = useState(false);
     const msgLength = props.length
-    const type = props[0]?.type || 'error';
+    const type = props[0]?.type || 'success';
 
     const handleChangeLog = () => {
         setIsOpen(!isOpen)
@@ -28,7 +28,7 @@ const MessageCard: React.FC<{ props: Message[], isSuccess: boolean }> = ({ props
             message: 'Excel file good to go!',
             icon: <CheckCircleOutlined size={20} />,
             color: '#24D164',
-            bgColor: '#24D164'
+            bgColor: '#FFF'
         },
         warning: {
             message: 'Excel file should adjust a few point',
@@ -47,44 +47,78 @@ const MessageCard: React.FC<{ props: Message[], isSuccess: boolean }> = ({ props
     return (
         <div className={styles.msgCardCtn}>
             {
-                isSuccess ? (
-                    <div className={styles.msgTitle}
-                        style={{
-                            // backgroundColor: msgType.success.bgColor,
-                            color: msgType.success.color,
-                            border: `1px solid ${msgType.success.color}`
-                        }}>
-                        <div className={'flex item-center'} >
-                            <span className={styles.msgIcon}>{msgType.success.icon}</span>
-                            Excel file good to go!
-                        </div>
-                    </div>
-                ) : (
-                    <div className={styles.msgTitle}
-                        style={{
-                            backgroundColor: msgType[type].bgColor,
-                            color: msgType[type].color,
-                            border: `1px solid ${msgType[type].color}`
-                        }}>
-                        <div className={'flex item-center'} >
-                            <span className={styles.msgIcon}>{msgType[type].icon}</span>
-                            {
-                                type === 'error' ? (
-                                    `${msgLength} errors has occurred`
-                                ) : (
-                                    `${msgLength} warning, adjust file for better result`
-                                )
-                            }
-                        </div>
-                        <motion.div
-                            whileInView={{
-                                rotate: isOpen ? (0) : (-90),
-                            }}
-                        >
-                            <DownOutlined onClick={() => handleChangeLog()} style={{ color: 'black' }} color='#FFFFFF' />
-                        </motion.div>
-                    </div>
-                )
+                // isSuccess ? (
+                //     // Success message
+                //     <div className={styles.msgTitle}
+                //         style={{
+                //             color: msgType.success.color,
+                //             border: `1px solid ${msgType.success.color}`
+                //         }}>
+                //         {
+                //             msgLength > 0 ? (
+                //                 <>
+                //                     <div className={'flex item-center'}>
+                //                         <span className={styles.msgIcon}>{msgType.success.icon}</span>
+                //                         Created successfully
+                //                     </div>
+                //                     <motion.div
+                //                         whileInView={{
+                //                             rotate: isOpen ? (0) : (-90),
+                //                         }}
+                //                     >
+                //                         <DownOutlined onClick={() => handleChangeLog()} style={{ color: 'black' }} color='#FFFFFF' />
+                //                     </motion.div>
+                //                 </>
+                //             ) : (
+                //                 <div className={'flex item-center'} >
+                //                     <span className={styles.msgIcon}>{msgType.success.icon}</span>
+                //                     Excel file good to go!
+                //                 </div>
+                //             )
+                //         }
+                //     </div>
+                // ) : (
+                // Warning and error message
+                <div className={styles.msgTitle}
+                    style={{
+                        backgroundColor: msgType[type].bgColor,
+                        color: msgType[type].color,
+                        border: `1px solid ${msgType[type].color}`
+                    }}>
+                    {
+                        msgLength > 0 ? (
+                            <>
+                                <div className={'flex item-center'} >
+                                    <span className={styles.msgIcon}>{msgType[type].icon}</span>
+                                    {
+                                        type === 'error' ? (
+                                            `${msgLength} errors has occurred`
+                                        ) : (
+                                            type === 'warning' ? (
+                                                `${msgLength} warning, adjust file for better result`
+                                            ) : (
+                                                msgLength > 0 ? ('Created successfully') : ('Excel file good to go!')
+                                            )
+                                        )
+                                    }
+                                </div>
+                                <motion.div
+                                    whileInView={{
+                                        rotate: isOpen ? (0) : (-90),
+                                    }}
+                                >
+                                    <DownOutlined onClick={() => handleChangeLog()} style={{ color: 'black' }} color='#FFFFFF' />
+                                </motion.div>
+                            </>
+                        ) : (
+                            <div className={'flex item-center'} >
+                                <span className={styles.msgIcon}>{msgType[type].icon}</span>
+                                Excel file good to go!
+                            </div>
+                        )
+                    }
+                </div>
+                // )
             }
 
             <AnimatePresence>
@@ -115,13 +149,13 @@ const MsgRecord: React.FC<InfoLog> = ({ messages, type }) => {
     const msgType = {
         success: {
             color: '#24D164',
-            backgroundColor: ''
+            backgroundColor: '#daffe7',
+            border: '1px solid #24D164'
         },
         warning: {
             color: '#EAAD0D',
             backgroundColor: '#FFF9EA',
             border: '1px solid #FBBF24'
-
         },
         error: {
             color: '#FD3D3E',
