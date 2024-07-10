@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
 import { Button, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
-import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined, LoadingOutlined } from '@ant-design/icons'
+import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
 import MessageCard from './messageCard/MessageCard'
 import { FileHelper } from './helpers/FileHelper'
 import { RcFile } from 'antd/es/upload'
@@ -27,8 +27,14 @@ type Message = {
     message: string
     type: 'warning' | 'error' | 'success',
 }
+type FolderType = {
+    fileType: 'student' | 'class' | 'schedule'
+}
 
-const Excel = () => {
+//Nhận file -> Quét Excel file (theo format riêng) - return ValidateFmt
+// HandleSubmit -> Trả về lỗi || thành công
+
+const Excel: React.FC<FolderType> = ({ fileType }) => {
     const userInfo = useSelector((state: RootState) => state.auth.userDetail);
     const [current, setCurrent] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
@@ -68,9 +74,31 @@ const Excel = () => {
             const workbook = new ExcelJS.Workbook();
             // const excelData = await FileHelper.handleImportSemester(file, workbook)
             // const userID = userInfo!.result!.id
-            const excelData = await FileHelper.handleImportStudent(file, workbook, 'a829c0b5-78dc-4194-a424-08dc8640e68a')
-            console.log("import data here", excelData);
-            setExcelResult(excelData)
+            let excelData: ValidateFmt
+            switch (fileType) {
+                case 'student':
+                    {
+                        const userID = userInfo?.result?.id;
+                        if (userID) {
+                            excelData = await FileHelper.handleImportStudent(file, workbook, userID)
+                            setExcelResult(excelData)
+                        } else {
+                            message.warning('ID not exist!')
+                        }
+                    }
+                    break;
+                case 'class':
+                    // code block
+                    break;
+                case 'schedule':
+                    // code block
+                    break;
+                default:
+                    message.info('Excel file not supported!')
+            }
+
+            // console.log("import data here", excelData);
+            // setExcelResult(excelData)
             setOnValidateExcel(true);
             return false
         } catch (error) {
@@ -114,13 +142,6 @@ const Excel = () => {
                 }
 
                 setValidateSvResult(fmtData);
-
-
-                console.log("After call api ", data);
-                console.log("here is fmt Data ", fmtData);
-                console.log("createdList ", createdListArr);
-                console.log("errList ", errList);
-
             }).catch(err => {
                 setOnValidateServer(false)
                 setOnValidateExcel(false)
@@ -178,6 +199,7 @@ const Excel = () => {
         });
         setErrLogs([]);
         setWarningLogs([]);
+        setSuccessLogs([]);
         setCurrent(0);
     }
 
@@ -199,8 +221,13 @@ const Excel = () => {
 
     return (
         <div className={styles.excelValidateCtn}>
-            <Button type="primary" onClick={() => setModalOpen(true)}>
-                Display a modal
+            <Button
+                size='large'
+                onClick={() => setModalOpen(true)}
+                className={styles.importExcelBtn}
+                icon={<FolderAddOutlined />}
+            >
+                Import Excel
             </Button>
             <Modal
                 title="Import Excel Document"
@@ -212,31 +239,43 @@ const Excel = () => {
                     handleClear();
                 }}
                 closable={true}
-                footer={[
-                    <Button
-                        key="back"
-                        onClick={() => {
-                            setModalOpen(false)
-                            handleClear();
-                        }}
-                    >
-                        Cancel
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={() => {
-                        console.log("on the submit btn");
-                        handleSubmit();
-                        setCurrent(1);
-                    }}>
-                        Submit
-                    </Button>,
-                ]}
+                footer={
+                    <>
+                        <Button
+                            key="back"
+                            onClick={() => {
+                                setModalOpen(false)
+                                handleClear();
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        {
+                            current === 1 ? (
+                                <Button key="submit" type="primary" onClick={() => {
+                                    handleClear();
+                                    setCurrent(0);
+                                }}>
+                                    Retry
+                                </Button>
+                            ) : (
+                                <Button key="submit" type="primary" onClick={() => {
+                                    handleSubmit();
+                                    setCurrent(1);
+                                }}>
+                                    Submit
+                                </Button>
+                            )
+                        }
+                    </>
+                }
             >
                 <div
                     style={{ minHeight: '70vh' }}
                 >
                     <Steps
                         current={current}
-                        style={{ marginBottom: '10px' }}
+                        style={{ margin: '12px 0' }}
                         items={[
                             {
                                 title: 'Validate Excel',
@@ -254,7 +293,6 @@ const Excel = () => {
                         current === 0 && (
                             <div className='upload-excel'>
                                 <Upload.Dragger
-                                    // {...props}
                                     name='file'
                                     beforeUpload={(file) => handleExcel(file)}
                                     action={''}
@@ -298,7 +336,14 @@ const Excel = () => {
                     {/* --------------------- Validate server --------------------- */}
                     {
                         current === 1 && (
-                            onValidateServer ? <Skeleton active /> : (
+                            onValidateServer ? (
+                                <>
+                                    <Typography.Title level={2}>
+                                        Validating...
+                                    </Typography.Title>
+                                    <Skeleton active />
+                                </>
+                            ) : (
                                 <div className={styles.validateServer}>
                                     <div className={styles.validateSvResult}>
                                         {
