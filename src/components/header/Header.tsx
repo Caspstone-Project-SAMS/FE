@@ -7,19 +7,32 @@ import {
   Badge,
   Layout,
   Dropdown,
+  Menu,
 } from "antd";
 import { CiBellOn } from "react-icons/ci";
 import "./Header.css";
 import { IoIosArrowDown } from "react-icons/io";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
+import { UserInfo } from "../../models/UserInfo";
+import { logout } from "../../redux/slice/Auth";
 
 const { Header: AntHeader } = Layout;
 
 const Headers: React.FC = () => {
-  const auth = useSelector((state: RootState) => state.auth.userDetail)
+  const auth = useSelector((state: RootState) => state.auth.userDetail);
+  const userDetail: UserInfo | undefined = useSelector((state: RootState) => state.auth.userDetail);
+  const name = userDetail?.result?.displayName;
+  const dispatch = useDispatch();
 
-  const items = [
+  const handleLogout = async () => {
+    console.log('test');
+    dispatch(logout());
+  };
+
+  console.log('test', userDetail?.result);
+
+  const notificationItems = [
     {
       key: "1",
       label: (
@@ -58,17 +71,22 @@ const Headers: React.FC = () => {
     },
   ];
 
+  const dropdownMenu = (
+    <Menu onClick={handleLogout}>
+      <Menu.Item key="1">Logout</Menu.Item>
+    </Menu>
+  );
+
   return (
     <AntHeader style={{ padding: '0 20px' }} color="white" className="header">
-      <Typography.Title level={3} onClick={() => { console.log("Auth ", auth); }}>
+      {/* <Typography.Title level={3} onClick={() => { console.log("Auth ", auth); }}>
         Student Attendance Management System
-      </Typography.Title>
+      </Typography.Title> */}
+      <p className="headerTitle">Student Attendance Management System</p>
       <Space wrap size="middle">
         <Badge count={10}>
           <Dropdown
-            menu={{
-              items,
-            }}
+            overlay={<Menu items={notificationItems} />}
             placement="bottomRight"
             arrow
           >
@@ -86,15 +104,23 @@ const Headers: React.FC = () => {
             xl: 40,
             xxl: 10,
           }}
-        // icon={}
+          // icon={}
         />
         <Space direction="vertical">
           <Typography.Title level={5} className="narrowTypography">
-            abc
+            {name ? userDetail?.result?.displayName : 'Name'}
           </Typography.Title>
-          <Typography.Text className="narrowTypography">abc</Typography.Text>
+          <Typography.Text className="narrowTypography">{userDetail?.result?.role.name}</Typography.Text>
         </Space>
-        <IoIosArrowDown size={25} className="down-arrow" />
+        <Dropdown
+          overlay={dropdownMenu}
+          placement="bottomRight"
+          arrow
+        >
+          <Button shape="circle" className="btnDrop">
+            <IoIosArrowDown size={25} className="down-arrow" />
+          </Button>
+        </Dropdown>
       </Space>
     </AntHeader>
   );

@@ -1,24 +1,24 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import PageHeaderAdmin from '../../../../components/header/headeradmin/PageHeader';
 import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
 import { StudentService } from '../../../../hooks/StudentList';
 import { CiSearch } from 'react-icons/ci';
 import { FaFingerprint } from 'react-icons/fa';
+import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../redux/Store';
 
 const { Header: AntHeader } = Layout;
 
 const AccountStudents: React.FC = () => {
-  const [title] = useState('student');
+  const response = useSelector((state: RootState) => state.student.initialStudent)
   const [student, setStudent] = useState<Student[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudents, setFilteredStudents] = useState<Student[]>(student);
   const [isUpdate, setIsUpdate] = useState(false);
-  // const studentInfo : Student[] | undefined = useSelector((state: RootState) => state.student.studentDetail);
-  console.log('student', filteredStudents);
-
+  console.log("message: ", response);
   const columns = [
     {
       key: '1',
@@ -54,7 +54,7 @@ const AccountStudents: React.FC = () => {
       });
   }, []);
 
-  console.log('aaaaa', student);
+
   const handleSearchStudent = (value: string) => {
     setSearchInput(value);
     const filtered = student.filter(
@@ -69,7 +69,13 @@ const AccountStudents: React.FC = () => {
   };
   return (
     <Content className={styles.accountStudentContent}>
-      <PageHeaderAdmin title={title} />
+      {/* <PageHeaderAdmin title={title} /> */}
+      <ContentHeader
+        contentTitle="Student"
+        previousBreadcrumb={'Home / Account / '}
+        currentBreadcrumb={'Student'}
+        key={''}
+      />
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>

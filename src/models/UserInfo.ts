@@ -8,7 +8,7 @@ export interface UserInfo {
   errors?: string[];
 }
 
-interface UserDetail {
+export interface UserDetail {
   id: string;
   email?: string;
   normalizedEmail?: string;
