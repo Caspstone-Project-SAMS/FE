@@ -15,8 +15,6 @@ import Logo from '../../assets/imgs/logo_sider.png';
 import Logo_Cutted from '../../assets/imgs/logo_cut.png';
 import { RootState } from '../../redux/Store';
 import { useSelector } from 'react-redux';
-import useDispatch from '../../redux/UseDispatch';
-import { getAllStudent } from '../../redux/slice/Student';
 import { MdManageAccounts } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import { IoCalendar } from "react-icons/io5";
@@ -26,10 +24,6 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const Auth = useSelector((state: RootState) => state.auth);
   const role = Auth.userDetail?.result?.role.name;
-  const dispatch = useDispatch();
-  const handleStudent = async () => {
-    dispatch(getAllStudent());
-  }
   return (
     <Sider
       collapsible
@@ -115,28 +109,28 @@ const Sidebar: React.FC = () => {
             ? [
               {
                 label: 'Home',
-                key: '/homeadmin',
+                key: '/home-admin',
                 icon: <IoHomeOutline />,
               },
               {
                 label: 'Account',
-                key: '/accountadmin',
+                key: '/account-admin',
                 children: [
                   {
                     label: 'Student',
-                    key: '/accountadmin/student',
-                    onClick: handleStudent
+                    key: '/account-admin/student',
+                  
                   },
                   {
                     label: 'Teacher',
-                    key: '/accountadmin/teacher',
+                    key: '/account-admin/teacher',
                   },
                 ],
                 icon: <MdManageAccounts />,
               },
               {
                 label: 'Subject',
-                key: '/adminsubject',
+                key: '/admin-subject',
                 icon: <FaBookOpen />,
               },
               // {
@@ -146,7 +140,7 @@ const Sidebar: React.FC = () => {
               // },
               {
                 label: 'Attendance',
-                key: '/adminattendance',
+                key: '/admin-attendance',
                 icon: <FaListCheck />,
               },
               {
@@ -156,7 +150,12 @@ const Sidebar: React.FC = () => {
               },
               {
                 label: 'Class',
-                key: '/adminclass',
+                key: '/admin-class',
+                icon: <GiBookshelf />,
+              },
+              {
+                label: 'Room',
+                key: '/room',
                 icon: <GiBookshelf />,
               },
             ]

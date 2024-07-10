@@ -23,7 +23,7 @@ const ProtectedRoute = () => {
     }
 
     return (
-        <Layout className="container">
+        <Layout style={{height:'100%'}}>
             <Sidebar />
             <Layout>
                 <Headers />
