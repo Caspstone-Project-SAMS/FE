@@ -11,7 +11,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import Excel from '../../../../components/excel/Excel';
 import '../../../../assets/styles/styles.less'
-import { DownloadOutlined } from '@ant-design/icons';
 
 const { Header: AntHeader } = Layout;
 

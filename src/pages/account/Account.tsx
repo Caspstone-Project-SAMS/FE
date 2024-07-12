@@ -11,15 +11,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { UserInfo } from '../../models/UserInfo';
 
-
-
 const Account: React.FC = () => {
 
   const userDetail: UserInfo | undefined = useSelector((state: RootState) => state.auth.userDetail)
-  console.log("test:" ,userDetail?.result)
+  console.log("test:", userDetail?.result)
   const dispatch = useDispatch();
   const handleLogout = async () => {
-    console.log('test');
     dispatch(logout());
   };
   const teacherDetails = [
@@ -29,21 +26,21 @@ const Account: React.FC = () => {
   ];
   return (
     <Content className={styles.content}>
-      {/* <Typography.Title level={3}>Teacher Details</Typography.Title>
-      <Space direction="horizontal">
-        <text>Teachers / </text>
-        <text className={styles.textAccount}>Teachers details</text>
-      </Space> */}
       <ContentHeader contentTitle='Account Details' previousBreadcrumb='Teachers / ' currentBreadcrumb='Teachers details' key={'account-header'} />
 
       <Layout style={{ backgroundColor: 'white', marginRight: '20px' }}>
-        <Header className={styles.accountHeader}>
+        <Header
+          style={{
+            paddingLeft: '20px',
+            paddingRight: '20px'
+          }}
+          className={styles.accountHeader}>
           <Space direction="horizontal">
             <Typography.Title level={3}>About Me</Typography.Title>
           </Space>
-          <Button shape="circle">
+          {/* <Button shape="circle">
             <BsThreeDotsVertical />
-          </Button>
+          </Button> */}
         </Header>
         <Content>
           <Space direction="vertical" className={styles.spaceCard}>

@@ -33,10 +33,11 @@ const Home: React.FC = () => {
   return (
     <Content className={styles.home}>
       <Row
-        style={{ marginRight: '20px', marginLeft: '20px' }}
-        gutter={[16, 16]}
+        style={{ marginRight: '14px', marginLeft: '14px' }}
+        gutter={12}
+        justify={'space-between'}
       >
-        <Col xs={24} sm={24} md={24} lg={24} xl={14}>
+        <Col style={{ padding: 0 }} xs={24} sm={24} md={24} lg={24} xl={14}>
           <Card style={{ height: '100%' }}>
             <Row>
               <Col style={{ marginBottom: 25 }} span={14}>
@@ -102,7 +103,7 @@ const Home: React.FC = () => {
             </Row>
           </Card>
         </Col>
-        <Col xs={24} sm={24} md={24} lg={24} xl={10}>
+        <Col style={{ padding: 0 }} xs={24} sm={24} md={24} lg={24} xl={10}>
           <Card style={{ backgroundColor: 'white' }}>
             <Row gutter={[5, 10]}>
               <Col span={12}>

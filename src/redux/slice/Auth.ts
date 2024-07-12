@@ -58,7 +58,11 @@ const login = createAsyncThunk(
       const loginPromise = AuthService.login(username, password);
       toast.promise(loginPromise, {
         success: 'Login successfully',
-        error: 'Invalid credentials',
+        error: (err) => {
+          if (err.message.includes('Network Error')) {
+            return 'Server is busy right now. Please try again later.';
+          } else return 'Invalid Credentials';
+        },
         loading: 'Loading...',
       });
 
