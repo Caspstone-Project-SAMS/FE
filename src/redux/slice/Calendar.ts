@@ -37,7 +37,6 @@ const getScheduleByID = createAsyncThunk(
         lecturerID,
         semesterID,
       );
-
       return schedulePromise;
     } catch (error) {
       console.log('Error in the calendar slice schedule ', error);

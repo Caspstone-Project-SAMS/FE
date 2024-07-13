@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { MdManageAccounts } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import { IoCalendar } from "react-icons/io5";
+import { GrSchedules } from 'react-icons/gr';
 
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -119,7 +120,7 @@ const Sidebar: React.FC = () => {
                   {
                     label: 'Student',
                     key: '/account-admin/student',
-                  
+
                   },
                   {
                     label: 'Teacher',
@@ -157,6 +158,11 @@ const Sidebar: React.FC = () => {
                 label: 'Room',
                 key: '/room',
                 icon: <GiBookshelf />,
+              },
+              {
+                label: 'Schedule',
+                key: '/schedule',
+                icon: <GrSchedules />,
               },
             ]
             : [

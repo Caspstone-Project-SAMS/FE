@@ -88,9 +88,14 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     }
                     break;
                 case 'class':
+                    message.info('Class Excel file not supported yet! Its functionality not working as expect')
                     // code block
                     break;
                 case 'schedule':
+                    {
+                        const excelData = await FileHelper.handleImportSchedule(file, workbook);
+                        setExcelResult(excelData)
+                    }
                     // code block
                     break;
                 default:

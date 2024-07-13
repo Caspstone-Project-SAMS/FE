@@ -21,8 +21,20 @@ const emailChecker = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
+const formatScheduleExcel = (text: string) => {
+  const regex = /(?<classCode>.+?)\s*at\s+(?<room>P\.?\s*\d+)/;
+  const match = text.match(regex);
+  if (match && match.groups) {
+    const classCode = match.groups.classCode.replace(' ', ''); // SE1611- PRJ => SE1611-PRJ
+    const room = match.groups.room.replace(' ', '');
+    return { classCode, room };
+  }
+  return {};
+};
+
 export const ValidateHelper = {
   dateChecker,
   emojiChecker,
   emailChecker,
+  formatScheduleExcel,
 };
