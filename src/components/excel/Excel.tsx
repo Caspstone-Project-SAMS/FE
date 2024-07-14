@@ -13,6 +13,7 @@ import { RootState } from '../../redux/Store'
 
 import SuccessIcon from '../../assets/icons/success_icon.png'
 import ErrorIcon from '../../assets/icons/cancel_icon.png'
+import { RequestHelpers } from './helpers/RequestHelper'
 
 type ValidateFmt = {
     result?: any[];
@@ -89,14 +90,12 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'class':
                     message.info('Class Excel file not supported yet! Its functionality not working as expect')
-                    // code block
                     break;
                 case 'schedule':
                     {
                         const excelData = await FileHelper.handleImportSchedule(file, workbook);
                         setExcelResult(excelData)
                     }
-                    // code block
                     break;
                 default:
                     message.info('Excel file not supported!')
@@ -112,62 +111,128 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         }
     }
 
+    const saveInfo = (input) => {
+        const { errorLogs, successLogs, warningLogs, data } = input;
+
+        setOnValidateServer(false)
+        setOnValidateExcel(false)
+
+        setSuccessLogs(successLogs ? successLogs : [])
+        setErrLogs(errorLogs ? errorLogs : [])
+        setWarningLogs(warningLogs ? warningLogs : [])
+
+        if (data) {
+            setValidateSvResult(data)
+        }
+    }
+
     const handleSubmit = async () => {
-        const studentList = excelResult?.result;
-        if (studentList && studentList.length > 0) {
+        const excelData = excelResult?.result;
+        if (excelData && excelData.length > 0) {
             setOnValidateServer(true)
-            const response = StudentService.importExcelStudent(studentList);
+            switch (fileType) {
+                case 'student':
+                    {
+                        const result = RequestHelpers.postExcelStudent(excelData);
+                        result.then(response => {
+                            console.log("After merge success, data: ", response);
+                            const { errorLogs, successLogs, warningLogs, data } = response;
+                            setOnValidateServer(false)
+                            setOnValidateExcel(false)
 
-            response.then(data => {
-                setOnValidateServer(false)
-                setOnValidateExcel(false)
-                //Ktra fail 90%, 1 record dung -> Show những record đã dc tạo, in lỗi những record sai
-                const createdListArr = data.data.result.map(item => (item.studentCode))
-                if (createdListArr) {
-                    const createdTxt = `Created ${createdListArr.join(', ')}`
-                    setSuccessLogs([{
-                        type: 'success',
-                        message: createdTxt
-                    }])
-                    console.log("createdTxt ", createdTxt);
-                }
-                const errList = data.data.errors
-                if (errList.length > 0) {
-                    const fmtLogs: Message[] = errList.map(err => ({
-                        type: 'error',
-                        message: err
-                    }))
-                    setErrLogs(fmtLogs)
-                }
+                            setSuccessLogs(successLogs)
+                            setErrLogs(errorLogs)
+                            setWarningLogs(warningLogs)
 
-                const fmtData: ServerResult = {
-                    status: true,
-                    data: data.data.result,
-                    errors: data.data.errors
-                }
+                            if (data) {
+                                setValidateSvResult(data)
+                            }
+                        }).catch(err => {
+                            console.log("Err here after merge ", err);
+                            const { errorLogs, warningLogs, data } = err;
+                            setOnValidateServer(false)
+                            setOnValidateExcel(false)
 
-                setValidateSvResult(fmtData);
-            }).catch(err => {
-                setOnValidateServer(false)
-                setOnValidateExcel(false)
-                console.log("errors handling import ", err)
-                const errResponses = err.response.data.errors;
-                if (errResponses && Array.isArray(errResponses)) {
-                    const errData: ServerResult = {
-                        status: false,
-                        data: '',
-                        errors: errResponses
+                            setErrLogs(errorLogs)
+                            setWarningLogs(warningLogs)
+                            if (data) {
+                                setValidateSvResult(data)
+                            }
+                        })
                     }
-                    const fmtLogs: Message[] = errResponses.map(err => ({
-                        type: 'error',
-                        message: err
-                    }))
+                    break;
+                case 'class':
 
-                    setWarningLogs([])
-                    setErrLogs(fmtLogs);
-                    setValidateSvResult(errData)
-                }
-            })
+                    break;
+                case 'schedule':
+                    {
+                        console.log("This is input ", excelData);
+                        const result = RequestHelpers.postExcelSchedule(excelData);
+
+                        result.then(data => {
+                            console.log("Post schedule success ", data);
+                            saveInfo(data)
+                        }).catch(err => {
+                            console.log("Post schedule error ", err);
+                            saveInfo(err)
+                        })
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            // const response = StudentService.importExcelStudent(studentList);
+            // response.then(data => {
+            //     setOnValidateServer(false)
+            //     setOnValidateExcel(false)
+            //     //Ktra fail 90%, 1 record dung -> Show những record đã dc tạo, in lỗi những record sai
+            //     const createdListArr = data.data.result.map(item => (item.studentCode))
+            //     if (createdListArr) {
+            //         const createdTxt = `Created ${createdListArr.join(', ')}`
+            //         setSuccessLogs([{
+            //             type: 'success',
+            //             message: createdTxt
+            //         }])
+            //         console.log("createdTxt ", createdTxt);
+            //     }
+            //     const errList = data.data.errors
+            //     if (errList.length > 0) {
+            //         const fmtLogs: Message[] = errList.map(err => ({
+            //             type: 'error',
+            //             message: err
+            //         }))
+            //         setErrLogs(fmtLogs)
+            //     }
+
+            //     const fmtData: ServerResult = {
+            //         status: true,
+            //         data: data.data.result,
+            //         errors: data.data.errors
+            //     }
+
+            //     setValidateSvResult(fmtData);
+            // }).catch(err => {
+            //     setOnValidateServer(false)
+            //     setOnValidateExcel(false)
+            //     console.log("errors handling import ", err)
+            //     const errResponses = err.response.data.errors;
+            //     if (errResponses && Array.isArray(errResponses)) {
+            //         const errData: ServerResult = {
+            //             status: false,
+            //             data: '',
+            //             errors: errResponses
+            //         }
+            //         const fmtLogs: Message[] = errResponses.map(err => ({
+            //             type: 'error',
+            //             message: err
+            //         }))
+
+            //         setWarningLogs([])
+            //         setErrLogs(fmtLogs);
+            //         setValidateSvResult(errData)
+            //     }
+            // })
         } else {
             message.warning('No data found in excel')
         }
@@ -261,7 +326,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     handleClear();
                                     setCurrent(0);
                                 }}>
-                                    Retry
+                                    Import again
                                 </Button>
                             ) : (
                                 <Button key="submit" type="primary" onClick={() => {

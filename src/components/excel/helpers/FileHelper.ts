@@ -368,9 +368,30 @@ const handleImportSchedule = (
         const cell = worksheet1!.getCell(`${col.index}2`);
         //Check if null value allowed (no -> not noted)
         if ((cell.value === null) === col.isNull) {
-          // rowData[col.param] = cell.value;
+          let date = '';
+          const dateVal = String(cell.value);
+          const isMonthFmt = moment(dateVal, 'DD/MM', true).isValid();
+          const isYearFmt = moment(dateVal, 'DD/MM/YYYY', true).isValid();
+
+          if (isMonthFmt) {
+            const dateFormatted = moment(dateVal, 'DD/MM', true).format(
+              'YYYY-MM-DD',
+            );
+            date = dateFormatted;
+          } else if (isYearFmt) {
+            const dateFormatted = moment(dateVal, 'DD/MM/YYYY', true).format(
+              'YYYY-MM-DD',
+            );
+            date = dateFormatted;
+          } else {
+            createMsgLog({
+              type: 'error',
+              message: `Unvalid date format at cell ${col.index}2 in table 1`,
+            });
+          }
+
           const day = col.param;
-          const date = cell.value;
+          // const date = cell.value;
           sample.push({ [day]: date });
         }
       });
@@ -385,6 +406,7 @@ const handleImportSchedule = (
 
     //Scan for slot schedule
     if (worksheet2) {
+      console.log('im in sheet2');
       const startRow2 = 1;
       const endRow2 = 8;
       const columns2 = [
@@ -445,17 +467,24 @@ const handleImportSchedule = (
         columns2.forEach((col) => {
           const cellData: any = {};
           const cell = worksheet2!.getCell(`${col.index}${i}`);
+          const cellValue = String(cell.value);
+
           //Check if null value allowed (no -> not noted)
-          if ((cell.value === null) === col.isNull && cell.value !== '-') {
+          if (
+            (cellValue === null) === col.isNull &&
+            cellValue !== '-' &&
+            cellValue.length > 0
+          ) {
             // Ktra cot A thi format slot number
             if (col.index === 'A') {
-              const slot = String(cell.value).split(' ');
+              const slot = String(cellValue).split(' ');
               const slotNumber = slot[1];
               currentSlot = slotNumber;
             } else {
+              console.log('Value  existed', cellValue);
               //Ktra tung cell, slot roi format
               const fmtObj = ValidateHelper.formatScheduleExcel(
-                String(cell.value),
+                String(cellValue),
               );
               const { classCode, room } = fmtObj;
 
@@ -465,10 +494,12 @@ const handleImportSchedule = (
                 cellData['date'] = col.param;
               } else {
                 //Error when format regex
-                createMsgLog({
-                  type: 'warning',
-                  message: `Unvalid value at cell ${col.index}${i}`,
-                });
+                if (!cellValue) {
+                  createMsgLog({
+                    type: 'warning',
+                    message: `Unvalid value at cell ${col.index}${i}`,
+                  });
+                }
               }
             }
 
@@ -491,22 +522,12 @@ const handleImportSchedule = (
     const updatedSchedule = sample2.map((item) => {
       const newItem = { ...item };
       if (dayMap[newItem.date]) {
-        const date = dayMap[newItem.date];
-        console.log('here in the date ', dayMap[newItem.date]);
-        //
-        // if(moment(date, 'DD/MM', true).isValid()){
-        //   const show = moment(date, 'DD/MM', true).format('YYYY/MM/DD');
-        // } else if(moment(date, 'DD/MM/YYYY', true).isValid()){
-        //   console.log("object");
-        // } else{
-
-        // }
-
         newItem.date = dayMap[newItem.date];
       }
       return newItem;
     });
     console.log('Formateed here ', updatedSchedule);
+    return updatedSchedule;
   });
 
   return promise
