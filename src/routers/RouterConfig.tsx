@@ -15,6 +15,7 @@ import AdminClass from '../pages/admin/class/AdminClass';
 import Subject from '../pages/admin/subject/Subject';
 import AdminAttendance from '../pages/admin/attendance/AdminAttendance';
 import Room from '../pages/admin/room/Room';
+import AdminSchedule from '../pages/admin/schedule/AdminSchedule';
 
 const lecture = [
   {
@@ -87,6 +88,10 @@ const admin = [
   {
     path: '/room',
     element: <Room />
+  },
+  {
+    path: '/schedule',
+    element: <AdminSchedule />
   },
 ]
 const routeConfig = {

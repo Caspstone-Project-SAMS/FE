@@ -13,7 +13,7 @@ const Router = () => {
         <ProtectedRoute />
       } />
       <Route path="/login" element={<Login />} />
-      <Route path="/excel-test" element={<Excel />} />
+      <Route path="/excel-test" element={<Excel fileType='student' />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   )

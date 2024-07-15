@@ -1,6 +1,15 @@
 import axios from 'axios';
 import { STUDENT_API } from '.';
 import { Student } from '../models/student/Student';
+import toast from 'react-hot-toast';
+import { HelperService } from './helpers/helperFunc';
+
+type StudentList = {
+  studentCode: string;
+  displayName: string;
+  email: string;
+  createBy: string;
+};
 
 const getAllStudent = async (): Promise<Student[] | null> => {
   try {
@@ -10,6 +19,10 @@ const getAllStudent = async (): Promise<Student[] | null> => {
     console.log(error);
     return null;
   }
+};
+
+const importExcelStudent = async (studentList: StudentList[]) => {
+  return await axios.post(STUDENT_API, studentList);
 };
 
 const createStudent = async (StudentCode: string, CreateBy: string) => {
@@ -24,17 +37,32 @@ const createStudent = async (StudentCode: string, CreateBy: string) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
-    console.log(response.data)
+    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.error("Error on create new student: ", error);
+    console.error('Error on create new student: ', error);
     return null;
+  }
+};
+
+const downloadTemplateExcel = async () => {
+  try {
+    const response = await axios(`${STUDENT_API}/download-excel-template`, {
+      responseType: 'blob',
+    });
+    const blobFile = response.data;
+    HelperService.downloadFile(blobFile, 'template_student');
+  } catch (error) {
+    console.log('Error when download template_student');
+    toast.error('Unknown error occured, please try again later');
   }
 };
 
 export const StudentService = {
   getAllStudent,
+  importExcelStudent,
   createStudent,
+  downloadTemplateExcel,
 };

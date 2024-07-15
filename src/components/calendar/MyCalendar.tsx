@@ -127,7 +127,7 @@ function MyCalendar() {
                 }
             })
 
-            // console.log("This is fmtData ", defaultData);
+            // console.log("This is fmtData ", fmtData);
             return fmtData
         } catch (error) {
             toast.error("An error occure when getting schedule!!!")

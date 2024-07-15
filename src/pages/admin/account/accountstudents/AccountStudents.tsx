@@ -9,6 +9,8 @@ import { FaFingerprint } from 'react-icons/fa';
 import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
+import Excel from '../../../../components/excel/Excel';
+import '../../../../assets/styles/styles.less'
 
 const { Header: AntHeader } = Layout;
 
@@ -70,12 +72,22 @@ const AccountStudents: React.FC = () => {
   return (
     <Content className={styles.accountStudentContent}>
       {/* <PageHeaderAdmin title={title} /> */}
-      <ContentHeader
-        contentTitle="Student"
-        previousBreadcrumb={'Home / Account / '}
-        currentBreadcrumb={'Student'}
-        key={''}
-      />
+      <div
+        className='align-center-between'
+      >
+        <ContentHeader
+          contentTitle="Student"
+          previousBreadcrumb={'Home / Account / '}
+          currentBreadcrumb={'Student'}
+          key={''}
+        />
+        {/* <Button size='large' style={{ marginRight: "10px" }}
+            icon={<DownloadOutlined />}
+            onClick={() => {
+            }}
+          >Download Template</Button> */}
+        <Excel fileType='student' />
+      </div>
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>
