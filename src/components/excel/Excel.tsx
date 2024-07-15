@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import ExcelJS from 'exceljs'
-import { Button, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
-import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
-import MessageCard from './messageCard/MessageCard'
-import { FileHelper } from './helpers/FileHelper'
-import { RcFile } from 'antd/es/upload'
 import styles from './index.module.less';
 import '../../assets/styles/styles.less'
-import { StudentService } from '../../hooks/StudentList'
+
+import React, { useEffect, useState } from 'react'
+import ExcelJS from 'exceljs'
+import { RcFile } from 'antd/es/upload'
+import { Button, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { CloudUploadOutlined, DeleteOutlined, FileExcelOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
 
+import { FileHelper } from './helpers/FileHelper'
+import { RequestHelpers } from './helpers/RequestHelper'
+import { HelperService } from '../../hooks/helpers/helperFunc'
 import SuccessIcon from '../../assets/icons/success_icon.png'
 import ErrorIcon from '../../assets/icons/cancel_icon.png'
-import { RequestHelpers } from './helpers/RequestHelper'
+import MessageCard from './messageCard/MessageCard'
+import { StudentService } from '../../hooks/StudentList';
 
 type ValidateFmt = {
     result?: any[];
@@ -34,6 +36,8 @@ type FolderType = {
 
 //Nhận file -> Quét Excel file (theo format riêng) - return ValidateFmt
 // HandleSubmit -> Trả về lỗi || thành công
+
+const { Text, Title } = Typography
 
 const Excel: React.FC<FolderType> = ({ fileType }) => {
     const userInfo = useSelector((state: RootState) => state.auth.userDetail);
@@ -65,6 +69,23 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         }
     }
 
+    const handleDownloadTemplate = () => {
+        switch (fileType) {
+            case 'student':
+                StudentService.downloadTemplateExcel();
+                break;
+            case 'class':
+
+                break;
+            case 'schedule':
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
     const handleExcel = async (file: RcFile) => {
         try {
             //15,728,640
@@ -84,7 +105,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                             excelData = await FileHelper.handleImportStudent(file, workbook, userID)
                             setExcelResult(excelData)
                         } else {
-                            message.warning('ID not exist!')
+                            errLogs.push({
+                                type: 'error',
+                                message: 'Login are required to use this function',
+                            });
                         }
                     }
                     break;
@@ -181,58 +205,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 default:
                     break;
             }
-
-            // const response = StudentService.importExcelStudent(studentList);
-            // response.then(data => {
-            //     setOnValidateServer(false)
-            //     setOnValidateExcel(false)
-            //     //Ktra fail 90%, 1 record dung -> Show những record đã dc tạo, in lỗi những record sai
-            //     const createdListArr = data.data.result.map(item => (item.studentCode))
-            //     if (createdListArr) {
-            //         const createdTxt = `Created ${createdListArr.join(', ')}`
-            //         setSuccessLogs([{
-            //             type: 'success',
-            //             message: createdTxt
-            //         }])
-            //         console.log("createdTxt ", createdTxt);
-            //     }
-            //     const errList = data.data.errors
-            //     if (errList.length > 0) {
-            //         const fmtLogs: Message[] = errList.map(err => ({
-            //             type: 'error',
-            //             message: err
-            //         }))
-            //         setErrLogs(fmtLogs)
-            //     }
-
-            //     const fmtData: ServerResult = {
-            //         status: true,
-            //         data: data.data.result,
-            //         errors: data.data.errors
-            //     }
-
-            //     setValidateSvResult(fmtData);
-            // }).catch(err => {
-            //     setOnValidateServer(false)
-            //     setOnValidateExcel(false)
-            //     console.log("errors handling import ", err)
-            //     const errResponses = err.response.data.errors;
-            //     if (errResponses && Array.isArray(errResponses)) {
-            //         const errData: ServerResult = {
-            //             status: false,
-            //             data: '',
-            //             errors: errResponses
-            //         }
-            //         const fmtLogs: Message[] = errResponses.map(err => ({
-            //             type: 'error',
-            //             message: err
-            //         }))
-
-            //         setWarningLogs([])
-            //         setErrLogs(fmtLogs);
-            //         setValidateSvResult(errData)
-            //     }
-            // })
         } else {
             message.warning('No data found in excel')
         }
@@ -243,7 +215,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             <div className={styles.fileItem}>
                 <div className={`flex item-center ${styles.itemBody}`}>
                     <FileTextOutlined style={{ fontSize: 20, marginRight: '10px' }} />
-                    <div className={`flex-column`}>
+                    <div className={`flex-column`} style={{ width: '100%' }}>
                         <span className={styles.fileName}>{file.name}</span>
                         File size: {formatBytes(Number(file.size))}
                     </div>
@@ -262,15 +234,20 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     };
 
     const handleClear = () => {
+        setErrLogs([]);
+        setWarningLogs([]);
+        setSuccessLogs([]);
+
+        setCurrent(0);
+
         setOnValidateExcel(false);
         setExcelResult({
             result: [],
             errors: []
         });
-        setErrLogs([]);
-        setWarningLogs([]);
-        setSuccessLogs([]);
-        setCurrent(0);
+
+        setOnValidateServer(false)
+        setValidateSvResult(undefined)
     }
 
     useEffect(() => {
@@ -300,10 +277,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 Import Excel
             </Button>
             <Modal
-                title="Import Excel Document"
+                title={`Import ${HelperService.capitalizeFirstLetter(fileType)} Excel Document`}
                 centered
                 open={modalOpen}
                 maskClosable={false}
+                className={styles.excelModal}
                 onCancel={() => {
                     setModalOpen(false)
                     handleClear();
@@ -349,12 +327,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         items={[
                             {
                                 title: 'Validate Excel',
-                                // description: 'Handle input',
                                 // icon: onValidateExcel ? <LoadingOutlined /> : <FileExcelOutlined />
                             },
                             {
                                 title: 'Checking on server',
-                                // description: 'Is meet requirements',
                                 icon: onValidateServer && <LoadingOutlined />
                             },
                         ]}
@@ -362,6 +338,14 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     {
                         current === 0 && (
                             <div className='upload-excel'>
+                                <div className={styles.templateSection}>
+                                    <Button
+                                        size='large'
+                                        icon={<FileExcelOutlined />}
+                                        onClick={() => handleDownloadTemplate()}
+                                    >Download template file</Button>
+                                </div>
+
                                 <Upload.Dragger
                                     name='file'
                                     beforeUpload={(file) => handleExcel(file)}
@@ -386,7 +370,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                             {
                                                 (warningLogs.length === 0 && errLogs.length === 0) ? (<MessageCard props={[]} />) : (
                                                     <>
-                                                        <Typography.Text># Those record will be ignored, please consider again before continue</Typography.Text>
+                                                        <Text># Those record will be ignored, please consider again before continue</Text>
                                                         {
                                                             (errLogs.length > 0) && (<MessageCard props={errLogs} />)
                                                         }
@@ -408,9 +392,9 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         current === 1 && (
                             onValidateServer ? (
                                 <>
-                                    <Typography.Title level={2}>
+                                    <Title level={2}>
                                         Validating...
-                                    </Typography.Title>
+                                    </Title>
                                     <Skeleton active />
                                 </>
                             ) : (
@@ -425,11 +409,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                         preview={false}
                                                         style={{ margin: '10px 0' }}
                                                     />
-                                                    <Typography.Title level={2}>
+                                                    <Title level={2}>
                                                         {
                                                             validateSvResult.status ? ('Create successfully') : ('Create Failed')
                                                         }
-                                                    </Typography.Title>
+                                                    </Title>
                                                 </>
                                             )
                                         }

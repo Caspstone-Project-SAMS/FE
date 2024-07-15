@@ -406,7 +406,6 @@ const handleImportSchedule = (
 
     //Scan for slot schedule
     if (worksheet2) {
-      console.log('im in sheet2');
       const startRow2 = 1;
       const endRow2 = 8;
       const columns2 = [
@@ -481,7 +480,6 @@ const handleImportSchedule = (
               const slotNumber = slot[1];
               currentSlot = slotNumber;
             } else {
-              console.log('Value  existed', cellValue);
               //Ktra tung cell, slot roi format
               const fmtObj = ValidateHelper.formatScheduleExcel(
                 String(cellValue),
