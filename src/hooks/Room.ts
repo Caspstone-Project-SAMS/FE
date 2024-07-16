@@ -69,9 +69,12 @@ const updateRoom = async (
     );
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on update Room: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 

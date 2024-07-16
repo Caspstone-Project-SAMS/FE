@@ -1,25 +1,31 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { SubjectService } from '../../hooks/Subject';
 import { SubjectMessage } from '../../models/subject/Subject';
+import { AxiosError } from 'axios';
 
 interface SubjectState {
+  message: string | undefined;
   subjectDetail?: SubjectMessage;
   loading: boolean;
 }
 
 const initialState: SubjectState = {
+  message: '',
   subjectDetail: undefined,
   loading: false,
 };
 
 const createSubject = createAsyncThunk(
   'subject/create',
-  async (arg: {
-    SubjectCode: string;
-    SubjectName: string;
-    SubjectStatus: boolean;
-    CreateBy: string;
-  }) => {
+  async (
+    arg: {
+      SubjectCode: string;
+      SubjectName: string;
+      SubjectStatus: boolean;
+      CreateBy: string;
+    },
+    { rejectWithValue },
+  ) => {
     try {
       const { SubjectCode, SubjectName, SubjectStatus, CreateBy } = arg;
       const createSubjectResponse = await SubjectService.createSubject(
@@ -28,27 +34,38 @@ const createSubject = createAsyncThunk(
         SubjectStatus,
         CreateBy,
       );
-      console.log("subject test ", createSubjectResponse);
-      // if (!createSubjectResponse.isSuccess) {
-      //   throw new Error(createSubjectResponse.title || 'Create Subject failed');
-      // }
+      console.log('subject test ', createSubjectResponse);
       return createSubjectResponse;
     } catch (error) {
-      console.log('Error in create subject ', error);
+      if (error instanceof AxiosError) {
+        console.error('Error in create subject', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
     }
   },
 );
 
 const updateSubject = createAsyncThunk(
   'subject/update',
-  async (arg: {
-    subjectID: number;
-    SubjectCode: string;
-    SubjectName: string;
-    // SubjectStatus: boolean;
-  }) => {
+  async (
+    arg: {
+      subjectID: number;
+      SubjectCode: string;
+      SubjectName: string;
+      // SubjectStatus: boolean;
+    },
+    { rejectWithValue },
+  ) => {
     try {
-      const {subjectID, SubjectCode, SubjectName } = arg;
+      const { subjectID, SubjectCode, SubjectName } = arg;
       const updateSubjectResponse = await SubjectService.updateSubject(
         subjectID,
         SubjectCode,
@@ -57,7 +74,18 @@ const updateSubject = createAsyncThunk(
       );
       return updateSubjectResponse;
     } catch (error) {
-      console.log('Error in update subject ', error);
+      if (error instanceof AxiosError) {
+        console.error('Error in update subject', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
     }
   },
 );
@@ -65,7 +93,12 @@ const updateSubject = createAsyncThunk(
 const SubjectSlice = createSlice({
   name: 'subject',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSubjectMessages: (state) => {
+      state.subjectDetail = undefined;
+      state.message = undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(createSubject.pending, (state) => {
       return {
@@ -78,13 +111,16 @@ const SubjectSlice = createSlice({
       return {
         ...state,
         loading: false,
-        subjectDetail: payload,
+        subjectDetail: undefined,
+        message: payload,
       };
     });
-    builder.addCase(createSubject.rejected, (state) => {
+    builder.addCase(createSubject.rejected, (state, action) => {
       return {
         ...state,
         loading: false,
+        subjectDetail: { data: action.payload || 'Failed to create subject' },
+        message: undefined,
       };
     });
     builder.addCase(updateSubject.pending, (state) => {
@@ -98,17 +134,21 @@ const SubjectSlice = createSlice({
       return {
         ...state,
         loading: false,
-        subjectDetail: payload,
+        subjectDetail: undefined,
+        message: payload,
       };
     });
-    builder.addCase(updateSubject.rejected, (state) => {
+    builder.addCase(updateSubject.rejected, (state, action) => {
       return {
         ...state,
         loading: false,
+        subjectDetail: { data: action.payload || 'Failed to update subject' },
+        message: undefined,
       };
     });
   },
 });
 
+export const { clearSubjectMessages } = SubjectSlice.actions;
 export { createSubject, updateSubject };
 export default SubjectSlice.reducer;

@@ -11,6 +11,7 @@ export interface UserInfo {
 export interface UserDetail {
   id: string;
   email?: string;
+  employeeID: string;
   normalizedEmail?: string;
   emailConfirmed: boolean;
   phoneNumber?: string;

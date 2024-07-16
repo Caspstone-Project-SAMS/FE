@@ -15,6 +15,9 @@ import AdminClass from '../pages/admin/class/AdminClass';
 import Subject from '../pages/admin/subject/Subject';
 import AdminAttendance from '../pages/admin/attendance/AdminAttendance';
 import Room from '../pages/admin/room/Room';
+import AccountStudentsDetail from '../pages/admin/account/accountstudents/AccountStudentsDetail';
+import SemesterDetail from '../pages/admin/semester/SemesterDetail';
+import Slot from '../pages/admin/slot/Slot';
 
 const lecture = [
   {
@@ -65,12 +68,20 @@ const admin = [
     element: <AccountStudents />
   },
   {
+    path: '/account-admin/student/student-detail',
+    element: <AccountStudentsDetail />
+  },
+  {
     path: '/account-admin/teacher',
     element: <AccountTeachers />
   },
   {
     path: '/semester',
     element: <Semester />
+  },
+  {
+    path: '/semester/semester-detail',
+    element: <SemesterDetail />
   },
   {
     path: '/admin-class',
@@ -87,6 +98,10 @@ const admin = [
   {
     path: '/room',
     element: <Room />
+  },
+  {
+    path: '/slot',
+    element: <Slot />
   },
 ]
 const routeConfig = {

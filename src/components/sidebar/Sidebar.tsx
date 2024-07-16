@@ -158,6 +158,11 @@ const Sidebar: React.FC = () => {
                 key: '/room',
                 icon: <GiBookshelf />,
               },
+              {
+                label: 'Slot',
+                key: '/slot',
+                icon: <GiBookshelf />,
+              },
             ]
             : [
               {

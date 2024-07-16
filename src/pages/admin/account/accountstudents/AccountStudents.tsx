@@ -1,24 +1,31 @@
+
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
+import { Card, Col, Input, Layout, Row, Table } from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
 import { StudentService } from '../../../../hooks/StudentList';
 import { CiSearch } from 'react-icons/ci';
-import { FaFingerprint } from 'react-icons/fa';
 import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
+import { useNavigate } from 'react-router-dom';
 
 const { Header: AntHeader } = Layout;
 
 const AccountStudents: React.FC = () => {
-  const response = useSelector((state: RootState) => state.student.initialStudent)
+  const response = useSelector((state: RootState) => state.student.initialStudent);
   const [student, setStudent] = useState<Student[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudents, setFilteredStudents] = useState<Student[]>(student);
   const [isUpdate, setIsUpdate] = useState(false);
-  console.log("message: ", response);
+  const navigate = useNavigate();
+
+  const handleRowClick = (studentID: number, isAuthenticated: boolean) => {
+    navigate(`/account-admin/student/student-detail`, { state: { studentID: studentID, isAuthenticated: isAuthenticated } });
+  };
+  
+
   const columns = [
     {
       key: '1',
@@ -34,26 +41,50 @@ const AccountStudents: React.FC = () => {
       key: '3',
       title: 'Authenticated',
       dataIndex: 'isAuthenticated',
+      render: (isAuthenticated: boolean) => (
+        <div>
+          <p style={{ color: isAuthenticated ? 'green' : 'red' }}>
+            {isAuthenticated ? 'true' : 'false'}
+          </p>
+        </div>
+      ),
     },
-    {
-      key: '4',
-      title: 'Register',
-      dataIndex: 'register',
-    },
+    // {
+    //   key: '4',
+    //   title: 'Register',
+    //   dataIndex: 'register',
+    //   render: (_: any, record: Student) => (
+    //     <div>
+    //       {record.isAuthenticated ? (
+    //         <Button
+    //           shape="circle"
+    //           style={{ border: 'none', backgroundColor: 'white' }}
+    //           disabled
+    //         >
+    //           <FaFingerprint size={20} />
+    //         </Button>
+    //       ) : (
+    //         <Button shape="circle" style={{ border: 'none' }}>
+    //           <FaFingerprint size={20} />
+    //         </Button>
+    //       )}
+    //     </div>
+    //   ),
+    // },
   ];
+
   useEffect(() => {
     const response = StudentService.getAllStudent();
 
     response
       .then((data) => {
         setStudent(data || []);
-        // setFilteredStudents(data || []);
+        setFilteredStudents(data || []);
       })
       .catch((error) => {
         console.log('get student error: ', error);
       });
   }, []);
-
 
   const handleSearchStudent = (value: string) => {
     setSearchInput(value);
@@ -67,9 +98,9 @@ const AccountStudents: React.FC = () => {
     setFilteredStudents(filtered);
     setIsUpdate(true);
   };
+
   return (
     <Content className={styles.accountStudentContent}>
-      {/* <PageHeaderAdmin title={title} /> */}
       <ContentHeader
         contentTitle="Student"
         previousBreadcrumb={'Home / Account / '}
@@ -101,41 +132,21 @@ const AccountStudents: React.FC = () => {
             key: index,
             studentname: (
               <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <img src={item.image} alt="Student" className={styles.img} />
+                <img src={item.avatar} alt="Student" className={styles.img} />
                 <p className={styles.studentName}>{item.studentName}</p>
               </div>
             ),
             studentcode: item.studentCode,
-            isAuthenticated: (
-              <div>
-                <p style={{ color: item.isAuthenticated ? 'green' : 'red' }}>
-                  {item.isAuthenticated ? 'true' : 'false'}
-                </p>
-              </div>
-            ),
-            register: (
-              <div>
-                {item.isAuthenticated ? (
-                  <Button
-                    shape="circle"
-                    style={{ border: 'none', backgroundColor: 'white' }}
-                    disabled
-                  >
-                    <FaFingerprint size={20} />
-                  </Button>
-                ) : (
-                  <Button shape="circle" style={{ border: 'none' }}>
-                    <FaFingerprint size={20} />
-                  </Button>
-                )}
-                {/* <FaFingerprint style={{color: item.isAuthenticated ? 'green' : 'red'}}/> */}
-              </div>
-            ),
+            isAuthenticated: item.isAuthenticated,
+            ID: item.studentID,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record.ID, record.isAuthenticated),
+        })}
       ></Table>
     </Content>
   );
