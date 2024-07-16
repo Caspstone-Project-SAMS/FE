@@ -97,11 +97,8 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
         setSelectedView(fmtTxt)
         updateDateTitle()
 
-        console.log("Toolbar ", toolbar);
         const day = toolbar.date;
-        console.log("Day: ", day);
         console.log("formated: ", getWeekFromDate(day));
-        console.log("Date title ", dateTitle);
     }, [toolbar, view, updateDateTitle])
 
     return (

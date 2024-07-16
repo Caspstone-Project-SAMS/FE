@@ -95,9 +95,10 @@ const postExcelClass = async (classList): Promise<Result> => {
   return response
     .then((response) => {
       console.log('SUCCESS when add to class ', response);
-      const createdListArr = response.data.result.map(
-        (item) => item.studentCode,
-      );
+      const createdListArr = response.result.map((item) => {
+        console.log('Im in each item ', item);
+        return item.studentCode;
+      });
       console.log('List arr ', createdListArr);
       if (createdListArr) {
         const createdTxt = `Created ${createdListArr.join(', ')}`;
@@ -108,7 +109,7 @@ const postExcelClass = async (classList): Promise<Result> => {
           },
         ];
       }
-      const errList = response.data.errors;
+      const errList = response.errors;
       console.log('err list arr ', errList);
       if (errList.length > 0) {
         result.errorLogs = errList.map((err) => ({
@@ -119,8 +120,8 @@ const postExcelClass = async (classList): Promise<Result> => {
 
       result.data = {
         status: true,
-        data: response.data.result,
-        errors: response.data.errors,
+        data: response.result,
+        errors: response.errors,
       };
 
       return result;
