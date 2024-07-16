@@ -7,11 +7,14 @@ export const USER_AUTH_API = `${server}/Auth`;
 export const ATTENDANCE_API = `${server}/Attendance`;
 
 //Calendar
-export const LECTURER_SCHEDULE_API = `${server}/Schedule`;
+export const SCHEDULE_API = `${server}/Schedule`;
 export const SEMESTER_API = `${server}/Semester`;
 
 //Student
 export const STUDENT_API = `${server}/Student`;
+
+//Class
+export const CLASS_API = `${server}/Class`;
 
 //Room
 export const ROOM_API = `${server}/Room`;

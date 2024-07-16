@@ -252,7 +252,6 @@ const handleImportStudent = (
           Object.keys(rowData).length < 4 &&
           Object.keys(rowData).length > 1
         ) {
-          console.log('Err her,', rowData);
           createMsgLog({
             type: 'warning',
             message: `Unvalid record at row ${i}`,
@@ -268,6 +267,123 @@ const handleImportStudent = (
         message: 'Worksheet name not match, please do not change sheet name',
       });
     }
+  });
+
+  return promise
+    .then((data) => {
+      result.result = data;
+      return result;
+    })
+    .catch((e) => {
+      createMsgLog({
+        type: 'error',
+        message: 'File unvalid, only accept .xlsx file',
+      });
+      return result;
+    });
+};
+
+const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
+  const result: validateFmt = {
+    result: undefined,
+    errors: [],
+  };
+
+  const createMsgLog = (log: validateError) => {
+    const { message, type } = log;
+    result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+  const promise = workbook.xlsx.load(excelFile).then((workbook) => {
+    const worksheet = workbook.getWorksheet('Import-Class');
+    const sample: any[] = [];
+
+    //Check worksheet exist
+    if (worksheet === undefined) {
+      console.log('notfound');
+      createMsgLog({
+        type: 'error',
+        message:
+          'Worksheet name not match, please do not change sheet name and make sure it has name Import-Class',
+      });
+      return [];
+    }
+
+    if (worksheet) {
+      const startRow = 4;
+      const endRow = 38;
+      const columns = [
+        {
+          index: 'B',
+          name: '#', // For visualize
+          param: 'index',
+          isNull: false,
+        },
+        {
+          index: 'C',
+          name: 'Class Code',
+          param: 'classCode',
+          isNull: false,
+        },
+        {
+          index: 'D',
+          name: 'Student Code',
+          param: 'studentCode',
+          isNull: false,
+        },
+      ];
+      for (let i = startRow; i <= endRow; i++) {
+        let isValidRecord = true;
+        const rowData: any = {};
+        //Validate and admit record
+        columns.forEach((col) => {
+          const cell = worksheet!.getCell(`${col.index}${i}`);
+          //Check if null value allowed (no -> not noted)
+          if ((cell.value === null) === col.isNull) {
+            if (col.index === 'C') {
+              rowData[col.param] = cell.value;
+            }
+
+            if (col.index === 'D') {
+              const mssv = cell.value;
+              const isDuplicated = sample.filter(
+                (item) =>
+                  item['studentCode'] === mssv &&
+                  item['classCode'] === rowData['classCode'],
+              );
+              if (isDuplicated.length > 0) {
+                isValidRecord = false;
+                createMsgLog({
+                  type: 'warning',
+                  message: `Duplicate value at row ${i}`,
+                });
+              } else {
+                rowData[col.param] = cell.value;
+              }
+            }
+          } else {
+            isValidRecord = false;
+          }
+        });
+        if (isValidRecord) {
+          sample.push(rowData);
+        } else if (
+          //Collumn subjectCode, mssv
+          Object.keys(rowData).length < 4 &&
+          Object.keys(rowData).length > 1
+        ) {
+          createMsgLog({
+            type: 'warning',
+            message: `Unvalid record at row ${i}`,
+          });
+        }
+      }
+      console.log('sample ', sample);
+    }
+
+    return sample;
   });
 
   return promise
@@ -545,5 +661,6 @@ const handleImportSchedule = (
 export const FileHelper = {
   handleImportSemester,
   handleImportStudent,
+  handleImportClass,
   handleImportSchedule,
 };

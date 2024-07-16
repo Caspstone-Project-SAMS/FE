@@ -16,6 +16,8 @@ import SuccessIcon from '../../assets/icons/success_icon.png'
 import ErrorIcon from '../../assets/icons/cancel_icon.png'
 import MessageCard from './messageCard/MessageCard'
 import { StudentService } from '../../hooks/StudentList';
+import { CalendarService } from '../../hooks/Calendar';
+import { ClassService } from '../../hooks/Class';
 
 type ValidateFmt = {
     result?: any[];
@@ -75,12 +77,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 StudentService.downloadTemplateExcel();
                 break;
             case 'class':
-
+                ClassService.downloadTemplateExcel()
                 break;
             case 'schedule':
-
+                CalendarService.downloadTemplateExcel();
                 break;
-
             default:
                 break;
         }
@@ -94,8 +95,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 return false;
             }
             const workbook = new ExcelJS.Workbook();
-            // const excelData = await FileHelper.handleImportSemester(file, workbook)
-            // const userID = userInfo!.result!.id
             let excelData: ValidateFmt
             switch (fileType) {
                 case 'student':
@@ -113,7 +112,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     }
                     break;
                 case 'class':
-                    message.info('Class Excel file not supported yet! Its functionality not working as expect')
+                    {
+                        const excelData = await FileHelper.handleImportClass(file, workbook);
+                        setExcelResult(excelData)
+                    }
                     break;
                 case 'schedule':
                     {
@@ -124,9 +126,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 default:
                     message.info('Excel file not supported!')
             }
-
-            // console.log("import data here", excelData);
-            // setExcelResult(excelData)
             setOnValidateExcel(true);
             return false
         } catch (error) {
@@ -159,46 +158,34 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     {
                         const result = RequestHelpers.postExcelStudent(excelData);
                         result.then(response => {
-                            console.log("After merge success, data: ", response);
-                            const { errorLogs, successLogs, warningLogs, data } = response;
-                            setOnValidateServer(false)
-                            setOnValidateExcel(false)
-
-                            setSuccessLogs(successLogs)
-                            setErrLogs(errorLogs)
-                            setWarningLogs(warningLogs)
-
-                            if (data) {
-                                setValidateSvResult(data)
-                            }
+                            // console.log("After merge success, data: ", response);
+                            saveInfo(response)
                         }).catch(err => {
-                            console.log("Err here after merge ", err);
-                            const { errorLogs, warningLogs, data } = err;
-                            setOnValidateServer(false)
-                            setOnValidateExcel(false)
-
-                            setErrLogs(errorLogs)
-                            setWarningLogs(warningLogs)
-                            if (data) {
-                                setValidateSvResult(data)
-                            }
+                            // console.log("Err here after merge ", err);
+                            saveInfo(err)
                         })
                     }
                     break;
                 case 'class':
-
+                    {
+                        const result = RequestHelpers.postExcelClass(excelData);
+                        result.then(data => {
+                            saveInfo(data)
+                        }).catch(err => {
+                            saveInfo(err)
+                        })
+                    }
                     break;
                 case 'schedule':
                     {
-                        console.log("This is input ", excelData);
+                        // console.log("This is input ", excelData);
                         const result = RequestHelpers.postExcelSchedule(excelData);
-
                         result.then(data => {
-                            console.log("Post schedule success ", data);
+                            // console.log("Post schedule success ", data);
                             saveInfo(data)
                         }).catch(err => {
-                            console.log("Post schedule error ", err);
-                            saveInfo(err)
+                            // console.log("Post schedule error ", err);
+                            saveInfo(err)     //A bit dumb in this but i dont know how to improve ;v
                         })
                     }
                     break;

@@ -97,7 +97,7 @@ const Headers: React.FC = () => {
   ];
 
   useEffect(() => {
-    console.log("Changed ", onFilterNoti);
+    // console.log("Changed ", onFilterNoti);
   }, [onFilterNoti])
 
   const CustomDropdownMenu = () => {

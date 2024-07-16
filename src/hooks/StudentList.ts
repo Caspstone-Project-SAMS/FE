@@ -3,6 +3,7 @@ import { STUDENT_API } from '.';
 import { Student } from '../models/student/Student';
 import toast from 'react-hot-toast';
 import { HelperService } from './helpers/helperFunc';
+import { ExcelClassList } from '../models/Class';
 
 type StudentList = {
   studentCode: string;
@@ -23,6 +24,11 @@ const getAllStudent = async (): Promise<Student[] | null> => {
 
 const importExcelStudent = async (studentList: StudentList[]) => {
   return await axios.post(STUDENT_API, studentList);
+};
+
+const importExcelClass = async (data: ExcelClassList[]) => {
+  const res = await axios.post(`${STUDENT_API}/add-students-to-class`, data);
+  return res.data;
 };
 
 const createStudent = async (StudentCode: string, CreateBy: string) => {
@@ -65,4 +71,5 @@ export const StudentService = {
   importExcelStudent,
   createStudent,
   downloadTemplateExcel,
+  importExcelClass,
 };

@@ -83,6 +83,67 @@ const postExcelStudent = async (studentList): Promise<Result> => {
     });
 };
 
+const postExcelClass = async (classList): Promise<Result> => {
+  const response = StudentService.importExcelClass(classList);
+  const result: Result = {
+    successLogs: [],
+    errorLogs: [],
+    warningLogs: [],
+    data: undefined,
+  };
+
+  return response
+    .then((response) => {
+      console.log('SUCCESS when add to class ', response);
+      const createdListArr = response.data.result.map(
+        (item) => item.studentCode,
+      );
+      console.log('List arr ', createdListArr);
+      if (createdListArr) {
+        const createdTxt = `Created ${createdListArr.join(', ')}`;
+        result.successLogs = [
+          {
+            type: 'success',
+            message: createdTxt,
+          },
+        ];
+      }
+      const errList = response.data.errors;
+      console.log('err list arr ', errList);
+      if (errList.length > 0) {
+        result.errorLogs = errList.map((err) => ({
+          type: 'error',
+          message: err,
+        }));
+      }
+
+      result.data = {
+        status: true,
+        data: response.data.result,
+        errors: response.data.errors,
+      };
+
+      return result;
+    })
+    .catch((err) => {
+      console.log('Eror when add to class ', err);
+      const errResponses = err.response.data.errors;
+      if (errResponses && Array.isArray(errResponses)) {
+        result.errorLogs = errResponses.map((err) => ({
+          type: 'error',
+          message: err,
+        }));
+      }
+
+      result.data = {
+        status: false,
+        data: '',
+        errors: errResponses,
+      };
+      return result;
+    });
+};
+
 const postExcelSchedule = async (scheduleList): Promise<Result> => {
   const response = CalendarService.importExcelSchedule(scheduleList);
   const result: Result = {
@@ -93,9 +154,6 @@ const postExcelSchedule = async (scheduleList): Promise<Result> => {
   };
   return response
     .then((response) => {
-      //   const data: ScheduleResponse = response.data;
-
-      console.log('response success ', response);
       if (response.isSuccess) {
         result.successLogs = [
           {
@@ -120,7 +178,7 @@ const postExcelSchedule = async (scheduleList): Promise<Result> => {
       return result;
     })
     .catch((err) => {
-      console.log('Error occured in postexcelschedule', err);
+      // console.log('Error occured in postexcelschedule', err);
       const errResponses = err.response.data.errors;
       if (errResponses && Array.isArray(errResponses)) {
         result.errorLogs = errResponses.map((err) => ({
@@ -140,5 +198,6 @@ const postExcelSchedule = async (scheduleList): Promise<Result> => {
 
 export const RequestHelpers = {
   postExcelStudent,
+  postExcelClass,
   postExcelSchedule,
 };
