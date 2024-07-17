@@ -14,7 +14,13 @@ type StudentList = {
 
 const getAllStudent = async (): Promise<Student[] | null> => {
   try {
-    const response = await axios.get(STUDENT_API);
+    const response = await axios.get(STUDENT_API, {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+      },
+    });
     return response.data as Student[];
   } catch (error) {
     console.log(error);

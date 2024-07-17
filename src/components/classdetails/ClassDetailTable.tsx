@@ -110,7 +110,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       const { comments, studentID, attendanceStatus } = item;
       if (studentID && attendanceStatus) {
         return {
-          comments: comments,
+          comments: comments ? comments : '',
           studentID: studentID,
           scheduleID: Number(scheduleID),
           attendanceTime: currentTime,
@@ -311,6 +311,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       socket.close();
     };
   }, [])
+
+  // useEffect(() => {
+  //   console.log("Change ", updatedList);
+  // }, [updatedList])
+
 
   return (
     <Content className={styles.classDetailContent}>
