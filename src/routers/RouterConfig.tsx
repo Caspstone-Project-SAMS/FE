@@ -15,6 +15,7 @@ import AdminClass from '../pages/admin/class/AdminClass';
 import Subject from '../pages/admin/subject/Subject';
 import AdminAttendance from '../pages/admin/attendance/AdminAttendance';
 import Room from '../pages/admin/room/Room';
+import AdminSchedule from '../pages/admin/schedule/AdminSchedule';
 import AccountStudentsDetail from '../pages/admin/account/accountstudents/AccountStudentsDetail';
 import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
@@ -98,6 +99,10 @@ const admin = [
   {
     path: '/room',
     element: <Room />
+  },
+  {
+    path: '/schedule',
+    element: <AdminSchedule />
   },
   {
     path: '/slot',

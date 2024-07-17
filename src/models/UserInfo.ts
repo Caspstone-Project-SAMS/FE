@@ -24,6 +24,7 @@ export interface UserDetail {
   role: Role;
   createdBy?: string;
   createdAt: Date;
+  avatar?: string;
 }
 
 interface Role {

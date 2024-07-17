@@ -1,4 +1,4 @@
-import { Space, Typography } from 'antd'
+import { Typography } from 'antd'
 import React from 'react'
 import styles from './index.module.less'
 

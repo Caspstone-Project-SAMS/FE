@@ -1,155 +1,435 @@
-import React, { useState } from 'react'
+import styles from './index.module.less';
+import '../../assets/styles/styles.less'
+
+import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
-import { Button, message, Modal, Upload } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
-import { ValidateService } from './helpers/ValidateService'
+import { RcFile } from 'antd/es/upload'
+import { Button, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { CloudUploadOutlined, DeleteOutlined, FileExcelOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/Store'
 
-type validateFmt = {
-    result?: any,
-    errors: validateError[],
-}
+import { FileHelper } from './helpers/FileHelper'
+import { RequestHelpers } from './helpers/RequestHelper'
+import { HelperService } from '../../hooks/helpers/helperFunc'
+import SuccessIcon from '../../assets/icons/success_icon.png'
+import ErrorIcon from '../../assets/icons/cancel_icon.png'
+import MessageCard from './messageCard/MessageCard'
+import { StudentService } from '../../hooks/StudentList';
 
-type validateError = {
-    type: 'warning' | 'error',
+type ValidateFmt = {
+    result?: any[];
+    errors: Message[];
+};
+type ServerResult = {
+    status: boolean;
+    data: string
+    errors: string[]
+};
+type Message = {
     message: string
+    type: 'warning' | 'error' | 'success',
+}
+type FolderType = {
+    fileType: 'student' | 'class' | 'schedule'
 }
 
-// const props: UploadProps = {
-//     name: 'file',
-//     action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-//     headers: {
-//       authorization: 'authorization-text',
-//     },
-//     onChange(info) {
-//       if (info.file.status !== 'uploading') {
-//         console.log(info.file, info.fileList);
-//       }
-//       if (info.file.status === 'done') {
-//         message.success(`${info.file.name} file uploaded successfully`);
-//       } else if (info.file.status === 'error') {
-//         message.error(`${info.file.name} file upload failed.`);
-//       }
-//     },
-//   };
+//Nhận file -> Quét Excel file (theo format riêng) - return ValidateFmt
+// HandleSubmit -> Trả về lỗi || thành công
 
-const handleImportSemester = (excelFile, workbook: ExcelJS.Workbook) => {
-    const result: validateFmt = {
-        result: undefined,
-        errors: []
+const { Text, Title } = Typography
+
+const Excel: React.FC<FolderType> = ({ fileType }) => {
+    const userInfo = useSelector((state: RootState) => state.auth.userDetail);
+    const [current, setCurrent] = useState(0);
+    const [modalOpen, setModalOpen] = useState(false);
+
+    //havent has api - not modelling data yet
+    const [excelResult, setExcelResult] = useState<ValidateFmt>();
+    const [errLogs, setErrLogs] = useState<Message[]>([]);
+    const [warningLogs, setWarningLogs] = useState<Message[]>([]);
+    const [successLogs, setSuccessLogs] = useState<Message[]>([]);
+
+    const [onValidateExcel, setOnValidateExcel] = useState(false);
+    const [onValidateServer, setOnValidateServer] = useState(false);
+    const [validateSvResult, setValidateSvResult] = useState<ServerResult | undefined>();
+
+    function formatBytes(bytes: number) {
+        const kb = 1024;
+        const mb = kb * 1024;
+
+        if (bytes < kb) {
+            return `${bytes} Bytes`;
+        } else if (bytes < mb) {
+            const kilobytes = (bytes / kb).toFixed(2);
+            return `${kilobytes} KB`;
+        } else {
+            const megabytes = (bytes / mb).toFixed(2);
+            return `${megabytes} MB`;
+        }
     }
 
-    workbook.xlsx.load(excelFile)
-        .then(workbook => {
-            const worksheet = workbook.getWorksheet('Import-Semester')
+    const handleDownloadTemplate = () => {
+        switch (fileType) {
+            case 'student':
+                StudentService.downloadTemplateExcel();
+                break;
+            case 'class':
 
-            const startRow = 4;
-            const endRow = 38;
-            const columns = [
-                {
-                    index: 'B',
-                    name: '#',
-                    isNull: false
-                },
-                {
-                    index: 'C',
-                    name: 'Mã Kỳ',
-                    isNull: false
-                },
-                {
-                    index: 'D',
-                    name: 'Tình trạng kỳ',
-                    isNull: false
-                },
-                {
-                    index: 'E',
-                    name: 'Ngày bắt đầu',
-                    isNull: false
-                },
-                {
-                    index: 'F',
-                    name: 'Ngày kết thúc',
-                    isNull: false
-                },
-                {
-                    index: 'G',
-                    name: 'Tạo bởi',
-                    isNull: false
-                },];
+                break;
+            case 'schedule':
 
-            const sample = [];
-            for (let i = startRow; i <= endRow; i++) {
-                let isValidRecord = true;
-                const rowData: any = {};
-                columns.forEach((col) => {
-                    const cell = worksheet!.getCell(`${col.index}${i}`);
-                    //Check if null value allowed (no -> not noted)
-                    if ((cell.value === null) === col.isNull) {
-                        rowData[col.index] = cell.value;
+                break;
 
-                        if (col.index === 'E') {
-                            const isValid = ValidateService.DateChecker('DD/MM/YYYY', cell.value);
-                            if (!isValid && isValid !== undefined) {
-                                result.errors.push({
-                                    type: 'error',
-                                    message: `Wrong date format at cell ${col.index}${i}`
-                                })
-                            }
-                        }
-                    } else {
-                        isValidRecord = false
-                        result.errors.push({
-                            type: 'warning',
-                            message: `Missing value at cell ${col.index}${i}`
-                        });
-                        return;
-                    }
-                });
-                if (isValidRecord) {
-                    sample.push(rowData);
-                }
-            }
-            console.log("after, ", sample);
+            default:
+                break;
+        }
+    }
 
-            const isGud = result.errors.length > 0 ? result.errors : 'Succeed, no error here'
-            console.log("Result here ", ...isGud);
-        })
-}
-
-const Excel = () => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const wb = new ExcelJS.Workbook();
-
-    const handleExcel = (file) => {
+    const handleExcel = async (file: RcFile) => {
         try {
+            //15,728,640
+            if (file.size >= 15728640) {
+                message.error('File size exceed 15MB!', 1.5)
+                return false;
+            }
             const workbook = new ExcelJS.Workbook();
-            handleImportSemester(file, workbook);
+            // const excelData = await FileHelper.handleImportSemester(file, workbook)
+            // const userID = userInfo!.result!.id
+            let excelData: ValidateFmt
+            switch (fileType) {
+                case 'student':
+                    {
+                        const userID = userInfo?.result?.id;
+                        if (userID) {
+                            excelData = await FileHelper.handleImportStudent(file, workbook, userID)
+                            setExcelResult(excelData)
+                        } else {
+                            errLogs.push({
+                                type: 'error',
+                                message: 'Login are required to use this function',
+                            });
+                        }
+                    }
+                    break;
+                case 'class':
+                    message.info('Class Excel file not supported yet! Its functionality not working as expect')
+                    break;
+                case 'schedule':
+                    {
+                        const excelData = await FileHelper.handleImportSchedule(file, workbook);
+                        setExcelResult(excelData)
+                    }
+                    break;
+                default:
+                    message.info('Excel file not supported!')
+            }
+
+            // console.log("import data here", excelData);
+            // setExcelResult(excelData)
+            setOnValidateExcel(true);
             return false
         } catch (error) {
             console.log("Error when receive excel file ", error);
             return false
         }
-
     }
 
+    const saveInfo = (input) => {
+        const { errorLogs, successLogs, warningLogs, data } = input;
+
+        setOnValidateServer(false)
+        setOnValidateExcel(false)
+
+        setSuccessLogs(successLogs ? successLogs : [])
+        setErrLogs(errorLogs ? errorLogs : [])
+        setWarningLogs(warningLogs ? warningLogs : [])
+
+        if (data) {
+            setValidateSvResult(data)
+        }
+    }
+
+    const handleSubmit = async () => {
+        const excelData = excelResult?.result;
+        if (excelData && excelData.length > 0) {
+            setOnValidateServer(true)
+            switch (fileType) {
+                case 'student':
+                    {
+                        const result = RequestHelpers.postExcelStudent(excelData);
+                        result.then(response => {
+                            console.log("After merge success, data: ", response);
+                            const { errorLogs, successLogs, warningLogs, data } = response;
+                            setOnValidateServer(false)
+                            setOnValidateExcel(false)
+
+                            setSuccessLogs(successLogs)
+                            setErrLogs(errorLogs)
+                            setWarningLogs(warningLogs)
+
+                            if (data) {
+                                setValidateSvResult(data)
+                            }
+                        }).catch(err => {
+                            console.log("Err here after merge ", err);
+                            const { errorLogs, warningLogs, data } = err;
+                            setOnValidateServer(false)
+                            setOnValidateExcel(false)
+
+                            setErrLogs(errorLogs)
+                            setWarningLogs(warningLogs)
+                            if (data) {
+                                setValidateSvResult(data)
+                            }
+                        })
+                    }
+                    break;
+                case 'class':
+
+                    break;
+                case 'schedule':
+                    {
+                        console.log("This is input ", excelData);
+                        const result = RequestHelpers.postExcelSchedule(excelData);
+
+                        result.then(data => {
+                            console.log("Post schedule success ", data);
+                            saveInfo(data)
+                        }).catch(err => {
+                            console.log("Post schedule error ", err);
+                            saveInfo(err)
+                        })
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            message.warning('No data found in excel')
+        }
+    }
+
+    const customItemRender = (originNode, file, fileList, actions) => {
+        return (
+            <div className={styles.fileItem}>
+                <div className={`flex item-center ${styles.itemBody}`}>
+                    <FileTextOutlined style={{ fontSize: 20, marginRight: '10px' }} />
+                    <div className={`flex-column`} style={{ width: '100%' }}>
+                        <span className={styles.fileName}>{file.name}</span>
+                        File size: {formatBytes(Number(file.size))}
+                    </div>
+                </div>
+                <div>
+                    <DeleteOutlined
+                        className={styles.fileIconDelete}
+                        onClick={() => {
+                            handleClear();
+                            actions.remove(file)
+                        }} style={{ fontSize: 16 }}
+                    />
+                </div>
+            </div>
+        );
+    };
+
+    const handleClear = () => {
+        setErrLogs([]);
+        setWarningLogs([]);
+        setSuccessLogs([]);
+
+        setCurrent(0);
+
+        setOnValidateExcel(false);
+        setExcelResult({
+            result: [],
+            errors: []
+        });
+
+        setOnValidateServer(false)
+        setValidateSvResult(undefined)
+    }
+
+    useEffect(() => {
+        setErrLogs([]);
+        setWarningLogs([]);
+
+        excelResult?.errors.forEach(log => {
+            switch (log.type) {
+                case 'error':
+                    setErrLogs(prev => [...prev, log])
+                    break;
+                case 'warning':
+                    setWarningLogs(prev => [...prev, log])
+                    break;
+            }
+        })
+    }, [excelResult])
+
     return (
-        <div>
-            <Button type="primary" onClick={() => setModalOpen(true)}>
-                Display a modal
+        <div className={styles.excelValidateCtn}>
+            <Button
+                size='large'
+                onClick={() => setModalOpen(true)}
+                className={styles.importExcelBtn}
+                icon={<FolderAddOutlined />}
+            >
+                Import Excel
             </Button>
             <Modal
-                title="Import Excel Document"
+                title={`Import ${HelperService.capitalizeFirstLetter(fileType)} Excel Document`}
                 centered
                 open={modalOpen}
-                onOk={() => setModalOpen(false)}
-                onCancel={() => setModalOpen(false)}
+                maskClosable={false}
+                className={styles.excelModal}
+                onCancel={() => {
+                    setModalOpen(false)
+                    handleClear();
+                }}
+                closable={true}
+                footer={
+                    <>
+                        <Button
+                            key="back"
+                            onClick={() => {
+                                setModalOpen(false)
+                                handleClear();
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        {
+                            current === 1 ? (
+                                <Button key="submit" type="primary" onClick={() => {
+                                    handleClear();
+                                    setCurrent(0);
+                                }}>
+                                    Import again
+                                </Button>
+                            ) : (
+                                <Button key="submit" type="primary" onClick={() => {
+                                    handleSubmit();
+                                    setCurrent(1);
+                                }}>
+                                    Submit
+                                </Button>
+                            )
+                        }
+                    </>
+                }
             >
-                <Upload name='file'
-                    beforeUpload={(file) => handleExcel(file)}
-                    action={''}
-                //  onChange={(file) => handleExcel(file)}
+                <div
+                    style={{ minHeight: '70vh' }}
                 >
-                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                </Upload>
+                    <Steps
+                        current={current}
+                        style={{ margin: '12px 0' }}
+                        items={[
+                            {
+                                title: 'Validate Excel',
+                                // icon: onValidateExcel ? <LoadingOutlined /> : <FileExcelOutlined />
+                            },
+                            {
+                                title: 'Checking on server',
+                                icon: onValidateServer && <LoadingOutlined />
+                            },
+                        ]}
+                    />
+                    {
+                        current === 0 && (
+                            <div className='upload-excel'>
+                                <div className={styles.templateSection}>
+                                    <Button
+                                        size='large'
+                                        icon={<FileExcelOutlined />}
+                                        onClick={() => handleDownloadTemplate()}
+                                    >Download template file</Button>
+                                </div>
+
+                                <Upload.Dragger
+                                    name='file'
+                                    beforeUpload={(file) => handleExcel(file)}
+                                    action={''}
+                                    maxCount={1}
+                                    itemRender={customItemRender}
+                                >
+                                    <p className="ant-upload-drag-icon">
+                                        <CloudUploadOutlined />
+                                    </p>
+                                    <p className="ant-upload-text">
+                                        <b style={{ color: '#2563EB' }}>Choose a file</b>{' '}
+                                        or drop it here</p>
+                                    <p className="ant-upload-hint">
+                                        File receive: .xlsx <br />
+                                        Max file size: 15MB
+                                    </p>
+                                </Upload.Dragger>
+                                {
+                                    onValidateExcel && (
+                                        <>
+                                            {
+                                                (warningLogs.length === 0 && errLogs.length === 0) ? (<MessageCard props={[]} />) : (
+                                                    <>
+                                                        <Text># Those record will be ignored, please consider again before continue</Text>
+                                                        {
+                                                            (errLogs.length > 0) && (<MessageCard props={errLogs} />)
+                                                        }
+                                                        {
+                                                            (warningLogs.length > 0) && (<MessageCard props={warningLogs} />)
+                                                        }
+                                                    </>
+                                                )
+                                            }
+
+                                        </>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
+                    {/* --------------------- Validate server --------------------- */}
+                    {
+                        current === 1 && (
+                            onValidateServer ? (
+                                <>
+                                    <Title level={2}>
+                                        Validating...
+                                    </Title>
+                                    <Skeleton active />
+                                </>
+                            ) : (
+                                <div className={styles.validateServer}>
+                                    <div className={styles.validateSvResult}>
+                                        {
+                                            validateSvResult && (
+                                                <>
+                                                    <Image
+                                                        width={60}
+                                                        src={validateSvResult.status ? SuccessIcon : ErrorIcon}
+                                                        preview={false}
+                                                        style={{ margin: '10px 0' }}
+                                                    />
+                                                    <Title level={2}>
+                                                        {
+                                                            validateSvResult.status ? ('Create successfully') : ('Create Failed')
+                                                        }
+                                                    </Title>
+                                                </>
+                                            )
+                                        }
+                                    </div>
+
+                                    {
+                                        validateSvResult && validateSvResult.data && <MessageCard props={successLogs} />
+                                    }
+                                    {
+                                        errLogs.length > 0 && <MessageCard props={errLogs} />
+                                    }
+                                </div>
+                            )
+                        )
+                    }
+                </div>
             </Modal>
         </div>
     )
@@ -171,4 +451,22 @@ export default Excel
 //                 });
 //             });
 //         });
+// }
+
+//Ok response
+// {
+//     "isSuccess": true,
+//     "title": "Create Students Result",
+//     "errors": [
+//         "StudentCode TEST_CHARACTER_VALID is already taken",
+//         "StudentCode SAMS is already taken"
+//     ],
+//     "result": [
+//         {
+//             "studentCode": "The_Flash",
+//             "displayName": "Ordinary scientist",
+//             "email": "anything_you-got@gotgel.org",
+//             "createBy": "Yamj"
+//         }
+//     ]
 // }

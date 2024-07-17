@@ -9,6 +9,8 @@ import { CiSearch } from 'react-icons/ci';
 import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
+import Excel from '../../../../components/excel/Excel';
+import '../../../../assets/styles/styles.less'
 import { useNavigate } from 'react-router-dom';
 
 const { Header: AntHeader } = Layout;
@@ -24,7 +26,7 @@ const AccountStudents: React.FC = () => {
   const handleRowClick = (studentID: number, isAuthenticated: boolean) => {
     navigate(`/account-admin/student/student-detail`, { state: { studentID: studentID, isAuthenticated: isAuthenticated } });
   };
-  
+
 
   const columns = [
     {
@@ -101,12 +103,22 @@ const AccountStudents: React.FC = () => {
 
   return (
     <Content className={styles.accountStudentContent}>
-      <ContentHeader
-        contentTitle="Student"
-        previousBreadcrumb={'Home / Account / '}
-        currentBreadcrumb={'Student'}
-        key={''}
-      />
+      <div
+        className='align-center-between'
+      >
+        <ContentHeader
+          contentTitle="Student"
+          previousBreadcrumb={'Home / Account / '}
+          currentBreadcrumb={'Student'}
+          key={''}
+        />
+        {/* <Button size='large' style={{ marginRight: "10px" }}
+            icon={<DownloadOutlined />}
+            onClick={() => {
+            }}
+          >Download Template</Button> */}
+        <Excel fileType='student' />
+      </div>
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>

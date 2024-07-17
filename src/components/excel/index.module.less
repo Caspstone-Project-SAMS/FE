@@ -1,0 +1,108 @@
+@import '../../assets/styles/variables.less';
+
+//Excel
+.importExcelBtn {}
+
+.excelValidateCtn {
+
+
+    .validateServer {}
+}
+
+.excelModal {
+
+    .templateSection {
+        display: flex;
+        justify-content: end;
+        margin: 10px 0;
+    }
+}
+
+.validateSvResult {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.fileItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border: 1px solid #d6dfe6;
+    border-radius: 5px;
+    margin: 20px 0;
+
+    .itemBody {
+        width: 80%;
+    }
+
+    .fileName {
+        font-size: @small-font-size;
+        font-weight: 500;
+    }
+
+    .fileIconDelete {
+        padding: 4px;
+        border-radius: 5px;
+    }
+
+    .fileIconDelete:hover {
+        background-color: @gray-sp-light;
+        transition: 0.25s ease-in;
+    }
+}
+
+
+//MessageCard
+.msgCardCtn {
+    margin-bottom: 15px;
+
+    .msgTitle {
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 1;
+        position: relative;
+        justify-content: space-between;
+
+        .msgIcon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+    }
+
+    .msgContents {}
+}
+
+//Message record
+.msgRecordCtn {
+    display: flex;
+    flex-direction: column;
+    margin-top: -5px;
+    padding: 20px 20px 6px 20px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    .recordItem {
+        display: flex;
+        margin-bottom: 8px;
+
+        .msgRecordIcon {
+            font-size: 16px;
+            margin-top: -6px;
+            margin-right: 10px;
+            transform: scaleX(-1);
+        }
+
+        .msgRecordTxt {
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+        }
+    }
+}
