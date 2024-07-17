@@ -13,6 +13,7 @@ import fptimg from '../../../assets/imgs/FPT-Logo-PNG.png'
 import ClassDetailTable from '../../../components/classdetails/ClassDetailTable';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import BtnDecoration from '../../../components/global/BtnDecoration';
+import { HelperService } from '../../../hooks/helpers/HelperFunc';
 
 const ClassDetails: React.FC = () => {
   const location = useLocation();
@@ -69,9 +70,11 @@ const ClassDetails: React.FC = () => {
         />
 
         <Space>
-          <Button className={styles.btnFap}>
+          <Button
+            onClick={() => HelperService.navigateFAP()}
+            className={styles.btnFap}>
             <Space direction='horizontal'>
-              <Typography.Text className={styles.btnText} onClick={() => { }}>Check on FAP</Typography.Text>
+              <Typography.Text className={styles.btnText} >Check on FAP</Typography.Text>
               <hr className={styles.hrLine}></hr>
               <img className={styles.fptLogo} style={{ width: 60, height: 40 }} src={fptimg} alt='fpt logo' />
             </Space>

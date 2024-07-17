@@ -110,7 +110,7 @@ const Sidebar: React.FC = () => {
             ? [
               {
                 label: 'Home',
-                key: '/home-admin',
+                key: '/home',
                 icon: <IoHomeOutline />,
               },
               {
@@ -173,7 +173,7 @@ const Sidebar: React.FC = () => {
             : [
               {
                 label: 'Home',
-                key: '/',
+                key: '/home',
                 icon: <IoHomeOutline />,
               },
               {

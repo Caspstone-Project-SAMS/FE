@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ExcelClassList } from '../models/Class';
 import { CLASS_API } from '.';
-import { HelperService } from './helpers/helperFunc';
+import { HelperService } from './helpers/HelperFunc';
 import toast from 'react-hot-toast';
 
 const importExcelClass = async (data: ExcelClassList[]) => {

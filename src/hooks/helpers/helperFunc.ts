@@ -37,8 +37,13 @@ const getWeekFromDate = (inputDate: Date): WeekDay[] => {
   return week;
 };
 
+const navigateFAP = () => {
+  window.open('https://fap.fpt.edu.vn/', '_blank');
+};
+
 export const HelperService = {
   capitalizeFirstLetter,
   downloadFile,
   getWeekFromDate,
+  navigateFAP,
 };

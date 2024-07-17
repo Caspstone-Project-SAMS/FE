@@ -2,7 +2,7 @@ import axios from 'axios';
 import { STUDENT_API } from '.';
 import { Student, StudentDetail } from '../models/student/Student';
 import toast from 'react-hot-toast';
-import { HelperService } from './helpers/helperFunc';
+import { HelperService } from './helpers/HelperFunc';
 import { ExcelClassList } from '../models/Class';
 
 type StudentList = {

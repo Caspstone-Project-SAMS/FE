@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { SCHEDULE_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
-import { HelperService } from './helpers/helperFunc';
+import { HelperService } from './helpers/HelperFunc';
 import toast from 'react-hot-toast';
 
 type ScheduleList = {
