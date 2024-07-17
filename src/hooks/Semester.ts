@@ -1,5 +1,22 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { SEMESTER_API } from '.';
+import { isRejectedWithValue } from '@reduxjs/toolkit';
+import { Semester, SemesterDetail } from '../models/calendar/Semester';
+
+const getSemesterByID = async (semesterID: number): Promise<SemesterDetail | null> => {
+  console.log(typeof semesterID)
+  try {
+    const response = await axios.get(`${SEMESTER_API}/${semesterID}`, {
+      headers: {
+        'accept': '*/*'
+      }
+    });
+    return response.data as SemesterDetail;
+  } catch (error) {
+    console.error('Error on get Semester by ID: ', error);
+    return null;
+  }
+};
 
 const createSemester = async (
   SemesterCode: string,
@@ -26,9 +43,12 @@ const createSemester = async (
     );
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on create new Semester: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 
@@ -56,9 +76,12 @@ const updateSemester = async (
     );
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on update Semester: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 
@@ -74,6 +97,7 @@ const deleteSemester = async (semesterID: number) => {
 };
 
 export const SemesterService = {
+  getSemesterByID,
   createSemester,
   updateSemester,
   deleteSemester,

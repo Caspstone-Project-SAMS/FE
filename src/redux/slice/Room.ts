@@ -2,17 +2,16 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RoomService } from '../../hooks/Room';
 import { RoomMessage } from '../../models/room/Room';
 import { AxiosError } from 'axios';
-import { message } from 'antd';
 
 interface RoomState {
+  message: string | undefined;
   roomDetail?: RoomMessage;
-  message: string;
   loading: boolean;
 }
 
 const initialState: RoomState = {
+  message: '',
   roomDetail: undefined,
-  message: "",
   loading: false,
 };
 
@@ -55,13 +54,16 @@ const createRoom = createAsyncThunk(
 
 const updateRoom = createAsyncThunk(
   'room/update',
-  async (arg: {
-    RoomName: string;
-    RoomDescription: string;
-    RoomStatus: boolean;
-    // CreateBy: string;
-    roomID: number;
-  }) => {
+  async (
+    arg: {
+      RoomName: string;
+      RoomDescription: string;
+      RoomStatus: boolean;
+      // CreateBy: string;
+      roomID: number;
+    },
+    { rejectWithValue },
+  ) => {
     try {
       const { RoomName, RoomDescription, RoomStatus, roomID } = arg;
       const updateRoomResponse = await RoomService.updateRoom(
@@ -73,7 +75,18 @@ const updateRoom = createAsyncThunk(
       );
       return updateRoomResponse;
     } catch (error) {
-      console.log('Error in update room ', error);
+      if (error instanceof AxiosError) {
+        console.error('Error in update room', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
     }
   },
 );
@@ -81,7 +94,12 @@ const updateRoom = createAsyncThunk(
 const RoomSlice = createSlice({
   name: 'room',
   initialState,
-  reducers: {},
+  reducers: {
+    clearRoomMessages: (state) => {
+      state.roomDetail = undefined;
+      state.message = undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(createRoom.pending, (state) => {
       return {
@@ -95,6 +113,7 @@ const RoomSlice = createSlice({
       return {
         ...state,
         loading: false,
+        roomDetail: undefined,
         message: payload,
       };
     });
@@ -104,7 +123,7 @@ const RoomSlice = createSlice({
         ...state,
         loading: false,
         roomDetail: { data: action.payload || 'Failed to create room' },
-        // roomDetail: {data: action.payload, },
+        message: undefined,
       };
     });
     builder.addCase(updateRoom.pending, (state) => {
@@ -118,17 +137,21 @@ const RoomSlice = createSlice({
       return {
         ...state,
         loading: false,
-        roomDetail: payload,
+        roomDetail: undefined,
+        message: payload,
       };
     });
-    builder.addCase(updateRoom.rejected, (state) => {
+    builder.addCase(updateRoom.rejected, (state, action) => {
       return {
         ...state,
         loading: false,
+        roomDetail: { data: action.payload || 'Failed to update room' },
+        message: undefined,
       };
     });
   },
 });
 
+export const { clearRoomMessages } = RoomSlice.actions;
 export { createRoom, updateRoom };
 export default RoomSlice.reducer;

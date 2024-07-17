@@ -1,4 +1,5 @@
 .account-semester-content {
+  overflow-y: auto;
   margin: 20px 20px 20px 20px;
   .card-header {
     border-bottom-left-radius: 0;
@@ -19,6 +20,46 @@
   }
 }
 
+.table-header {
+  background-color: white;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: -15px;
+  .table-title {
+      font-size: 20px;
+      font-weight: 500;
+      margin-left: -40px;
+  }
+}
+
 .create-semester-title {
   font-weight: 500;
+}
+
+.semester-details-table {
+  width: 100%;
+  border-collapse: collapse;
+
+}
+
+.semester-details-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.semester-details-table td:first-child {
+  font-weight: bold;
+  background-color: #f2f2f2;
+}
+
+.card-header {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.card-header-detail {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  height: 100%;
 }
