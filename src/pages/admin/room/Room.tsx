@@ -12,7 +12,6 @@ import {
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useEffect, useState } from 'react';
-// import PageHeaderAdmin from '../../../components/header/headeradmin/PageHeader';
 import styles from './Room.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import type { Room } from '../../../models/room/Room';
@@ -21,21 +20,12 @@ import { CiSearch, CiEdit } from 'react-icons/ci';
 import { MdDeleteForever } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
-import { createRoom, updateRoom } from '../../../redux/slice/Room';
+import { clearRoomMessages, createRoom, updateRoom } from '../../../redux/slice/Room';
 import { PlusOutlined } from '@ant-design/icons';
-import { AxiosError } from 'axios';
 
 const { Header: AntHeader } = Layout;
 
 const Room: React.FC = () => {
-  const failMessage = useSelector(
-    (state: RootState) => state.room.roomDetail,
-  );
-  const successMessage = useSelector(
-    (state: RootState) => state.room.message,
-  );
-  console.log('message', failMessage?.data.data);
-  console.log('message', successMessage);
 
   const [room, setRoom] = useState<Room[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -54,6 +44,13 @@ const Room: React.FC = () => {
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
+  const failMessage = useSelector(
+    (state: RootState) => state.room.roomDetail,
+  );
+  const successMessage = useSelector(
+    (state: RootState) => state.room.message,
+  );
+
   useEffect(() => {
     const response = RoomService.getAllRoom();
 
@@ -67,7 +64,22 @@ const Room: React.FC = () => {
       });
   }, [reload]);
 
+  useEffect(() => {
+    if (successMessage) {
+      message.success(successMessage);
+      setReload((prevReload) => prevReload + 1);
+      setIsModalVisible(false);
+      resetModalFields();
+      dispatch(clearRoomMessages());
+    }
+    if (failMessage && failMessage.data) {
+      message.error(`${failMessage.data.data.data.errors}`);
+      dispatch(clearRoomMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
+
   const showModalUpdate = (item?: Room) => {
+    setIsCheck(true);
     if (item) {
       setRoomID(item.roomID!);
       setRoomName(item.roomName!);
@@ -76,7 +88,6 @@ const Room: React.FC = () => {
     } else {
       resetModalFields();
     }
-    setIsCheck(true);
     setIsModalVisible(true);
   };
 
@@ -92,7 +103,6 @@ const Room: React.FC = () => {
     setIsModalVisible(false);
     resetModalFields();
     setReload((prevReload) => prevReload + 1);
-    console.log('load2', reload);
   };
 
   const handleUpdate = async () => {
@@ -101,12 +111,6 @@ const Room: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    // console.log("a", roomID)
-    // console.log("b", RoomName)
-    // console.log("c", RoomDescription)
-    // console.log("d", RoomStatus)
-    // console.log("e", CreateBy)
-
     setReload((prevReload) => prevReload + 1);
   };
 
@@ -170,7 +174,6 @@ const Room: React.FC = () => {
       CreateBy: CreateBy,
     };
     await dispatch(createRoom(arg) as any);
-    message.success('Room created successfully');
     setIsCheck(false);
   };
 
@@ -191,8 +194,6 @@ const Room: React.FC = () => {
     setRoomDescription('');
     setRoomStatus(false);
     await dispatch(updateRoom(arg) as any);
-    message.success('Room updated successfully');
-    console.log('message', roomMessage);
   };
 
   const deleteRoom = async (roomID: number) => {
@@ -250,7 +251,7 @@ const Room: React.FC = () => {
           roomstatus: (
             <div>
               <p style={{ color: item.roomStatus ? 'green' : 'red' }}>
-                {item.roomStatus ? 'true' : 'false'}
+                {item.roomStatus ? 'active' : 'inactive'}
               </p>
             </div>
           ),
@@ -343,3 +344,4 @@ const Room: React.FC = () => {
 };
 
 export default Room;
+

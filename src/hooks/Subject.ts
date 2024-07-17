@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { SUBJECT_API } from '.';
 import { Subject, SubjectMessage } from '../models/subject/Subject';
+import { isRejectedWithValue } from '@reduxjs/toolkit';
 
 const getAllSubject = async (): Promise<Subject[] | null> => {
   try {
@@ -42,9 +43,12 @@ const createSubject = async (
       },
     );
     return response.data;
-  } catch (error) {
-    console.error('Error on create new Subject: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 
@@ -72,9 +76,12 @@ const updateSubject = async (
     );
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on update Subject: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 

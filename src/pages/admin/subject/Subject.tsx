@@ -17,9 +17,8 @@ import type { Subject } from '../../../models/subject/Subject';
 import { SubjectService } from '../../../hooks/Subject';
 import { CiSearch, CiEdit } from 'react-icons/ci';
 import { MdDeleteForever } from 'react-icons/md';
-import { createSubject, updateSubject } from '../../../redux/slice/Subject';
+import { clearSubjectMessages, createSubject, updateSubject } from '../../../redux/slice/Subject';
 import { useDispatch, useSelector } from 'react-redux';
-import { SubjectMessage } from '../../../models/subject/Subject';
 import { RootState } from '../../../redux/Store';
 import { message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -27,9 +26,6 @@ import { PlusOutlined } from '@ant-design/icons';
 const { Header: AntHeader } = Layout;
 
 const Subject: React.FC = () => {
-  const subjectMessage: SubjectMessage | undefined = useSelector(
-    (state: RootState) => state.subject.subjectDetail,
-  );
   const [subject, setSubject] = useState<Subject[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredSubject, setFilteredSubject] = useState<Subject[]>(subject);
@@ -45,10 +41,14 @@ const Subject: React.FC = () => {
 
   const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
-
   const dispatch = useDispatch();
 
-  console.log('name', SubjectName);
+  const failMessage = useSelector(
+    (state: RootState) => state.subject.subjectDetail,
+  );
+  const successMessage = useSelector(
+    (state: RootState) => state.subject.message,
+  );
 
   useEffect(() => {
     const response = SubjectService.getAllSubject();
@@ -61,14 +61,26 @@ const Subject: React.FC = () => {
       });
   }, [reload]);
 
+  useEffect(() => {
+    if (successMessage) {
+      message.success(successMessage);
+      setReload((prevReload) => prevReload + 1);
+      setIsModalVisible(false);
+      resetModalFields();
+      dispatch(clearSubjectMessages());
+    }
+    if (failMessage && failMessage.data) {
+      message.error(`${failMessage.data.data.data.errors}`);
+      dispatch(clearSubjectMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
+
   const showModalUpdate = (item?: Subject) => {
     setIsCheck(true);
     if (item) {
       setSubjectID(item.subjectID!);
       setSubjectCode(item.subjectCode!);
       setSubjectName(item.subjectName!);
-      console.log('code', SubjectCode);
-      console.log('name', SubjectName);
     } else {
       resetModalFields();
     }
@@ -87,7 +99,6 @@ const Subject: React.FC = () => {
     setIsModalVisible(false);
     resetModalFields();
     setReload((prevReload) => prevReload + 1);
-    console.log('load2', reload);
   };
 
   const handleUpdate = async () => {
@@ -144,24 +155,6 @@ const Subject: React.FC = () => {
     setIsUpdate(true);
   };
 
-  // const createNewSubject = async (
-  //   SubjectCode: string,
-  //   SubjectName: string,
-  //   SubjectStatus: boolean,
-  //   CreateBy: string,
-  // ) => {
-  //   const arg = {
-  //     SubjectCode: SubjectCode,
-  //     SubjectName: SubjectName,
-  //     SubjectStatus: SubjectStatus,
-  //     CreateBy: CreateBy,
-  //   };
-  //   await dispatch(createSubject(arg) as any);
-  //   message.success('Subject created successfully');
-  //   setIsCheck(false);
-  //   console.log('message', subjectMessage);
-  // };
-
   const createNewSubject = async (
     SubjectCode: string,
     SubjectName: string,
@@ -175,20 +168,8 @@ const Subject: React.FC = () => {
       CreateBy: CreateBy,
     };
 
-    try {
-      const response = await dispatch(createSubject(arg) as any);
-      if (response.fulfilled) {
-        message.success('Subject created successfully');
-      } else if (response.rejected) {
-        message.error('Failed to create subject');
-      }
-      console.log('API Response:', response);
-    } catch (error) {
-      message.error('An error occurred while creating the subject');
-      console.error('Error:', error);
-    }
+    await dispatch(createSubject(arg) as any);
     setIsCheck(false);
-    console.log('message', subjectMessage);
   };
 
   const updateExistingSubject = async (
@@ -206,8 +187,6 @@ const Subject: React.FC = () => {
     setSubjectCode('');
     setSubjectName('');
     await dispatch(updateSubject(arg) as any);
-    message.success('Subject updated successfully');
-    console.log('message', subjectMessage);
   };
 
   const deleteSubject = async (subjectID: number) => {
@@ -217,7 +196,7 @@ const Subject: React.FC = () => {
       onOk: async () => {
         await SubjectService.deleteSubject(subjectID);
         message.success('Subject deleted successfully');
-        setReload((prevReload) => prevReload + 1); 
+        setReload((prevReload) => prevReload + 1);
       },
     });
   };

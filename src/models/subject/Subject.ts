@@ -7,10 +7,17 @@ export interface Subject {
 }
 
 export interface SubjectMessage {
-  isSuccess?: boolean;
-  title?: string;
-  errors?: string[];
-  result?: SubjectDetail;
+  data: {
+    data: {
+      data: {
+        isSuccess?: boolean;
+        title?: string;
+        errors?: string[];
+        result?: null;
+      };
+      status: boolean;
+    };
+  };
 }
 
 interface SubjectDetail {

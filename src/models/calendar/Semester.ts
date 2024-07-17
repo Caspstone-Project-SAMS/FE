@@ -7,16 +7,32 @@ export interface Semester {
 }
 
 export interface SemesterMessage {
-  isSuccess?: boolean;
-  title?: string;
-  errors?: string[];
-  result?: SemesterDetail;
+  data: {
+    data: {
+      data: {
+        isSuccess?: boolean;
+        title?: string;
+        errors?: string[];
+        result?: null;
+      };
+      status: boolean;
+    };
+  };
 }
 
-interface SemesterDetail {
-  semesterID: number;
-  semesterCode: string;
-  semesterStatus: number;
-  startDate: string;
-  endDate: string;
+export interface SemesterDetail {
+  result: {
+    semesterID: number;
+    semesterCode: string;
+    semesterStatus: boolean;
+    startDate: string;
+    endDate: string;
+    classes: SemesterClass[]
+  }
+}
+
+export interface SemesterClass {
+  classID: number;
+  classCode: string;
+  classStatus: boolean;
 }
