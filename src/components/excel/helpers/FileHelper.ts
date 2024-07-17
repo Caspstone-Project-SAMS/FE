@@ -500,7 +500,9 @@ const handleImportFAPClass = (
           }
         });
         if (isValidRecord) {
-          sample.push(rowData);
+          if (sample.length <= 150) {
+            sample.push(rowData);
+          }
         } else if (
           //Collumn classCode, StudentCode
           Object.keys(rowData).length === 3
@@ -510,6 +512,12 @@ const handleImportFAPClass = (
             message: `Unvalid record at row ${i}`,
           });
         }
+      }
+      if (sample.length > 150) {
+        createMsgLog({
+          type: 'warning',
+          message: 'Maximum 150 records, exceeded records will be ignore.',
+        });
       }
     }
     console.log('Sample ', sample);
@@ -654,7 +662,9 @@ const handleImportFAPStudent = (
           }
         });
         if (isValidRecord) {
-          sample.push(rowData);
+          if (sample.length <= 150) {
+            sample.push(rowData);
+          }
         } else if (
           //Collumn classCode, StudentCode
           Object.keys(rowData).length === 3
@@ -664,6 +674,13 @@ const handleImportFAPStudent = (
             message: `Unvalid record at row ${i}`,
           });
         }
+      }
+
+      if (sample.length > 150) {
+        createMsgLog({
+          type: 'warning',
+          message: 'Maximum 150 records, exceeded records will be ignore.',
+        });
       }
     }
     console.log('Sample ', sample);
@@ -708,7 +725,7 @@ const handleImportSchedule = (
     const sample2: any[] = [];
 
     //Check worksheet exist
-    if (worksheet1 === undefined || worksheet2 === undefined) {
+    if (worksheet1 === undefined && worksheet2 === undefined) {
       console.log('notfound');
       createMsgLog({
         type: 'error',
@@ -717,101 +734,12 @@ const handleImportSchedule = (
       });
       return [];
     }
-    //Worksheet 1 - scan weekly time
-    const columns = [
-      {
-        index: 'A',
-        name: 'MON', // For visualize
-        param: 'mon',
-        isNull: false,
-      },
-      {
-        index: 'B',
-        name: 'TUE',
-        param: 'tue',
-        isNull: false,
-      },
-      {
-        index: 'C',
-        name: 'WED',
-        param: 'wed',
-        isNull: false,
-      },
-      {
-        index: 'D',
-        name: 'THU',
-        param: 'thu',
-        isNull: false,
-      },
-      {
-        index: 'E',
-        name: 'FRI',
-        param: 'fri',
-        isNull: false,
-      },
-      {
-        index: 'F',
-        name: 'SAT',
-        param: 'sat',
-        isNull: false,
-      },
-      {
-        index: 'G',
-        name: 'SUN',
-        param: 'sun',
-        isNull: false,
-      },
-    ];
-    if (worksheet1) {
-      //Validate and admit record in row 2
-      columns.forEach((col) => {
-        const cell = worksheet1!.getCell(`${col.index}2`);
-        //Check if null value allowed (no -> not noted)
-        if ((cell.value === null) === col.isNull) {
-          let date = '';
-          const dateVal = String(cell.value);
-          const isMonthFmt = moment(dateVal, 'DD/MM', true).isValid();
-          const isYearFmt = moment(dateVal, 'DD/MM/YYYY', true).isValid();
-
-          if (isMonthFmt) {
-            const dateFormatted = moment(dateVal, 'DD/MM', true).format(
-              'YYYY-MM-DD',
-            );
-            date = dateFormatted;
-          } else if (isYearFmt) {
-            const dateFormatted = moment(dateVal, 'DD/MM/YYYY', true).format(
-              'YYYY-MM-DD',
-            );
-            date = dateFormatted;
-          } else {
-            createMsgLog({
-              type: 'error',
-              message: `Unvalid date format at cell ${col.index}2 in table 1`,
-            });
-          }
-
-          const day = col.param;
-          // const date = cell.value;
-          sample.push({ [day]: date });
-        }
-      });
-      if (sample.length !== 7) {
-        createMsgLog({
-          type: 'error',
-          message: `Unvalid record at row 2`,
-        });
-      }
-      console.log('sample ', sample);
-    }
-
-    //Scan for slot schedule
-    if (worksheet2) {
-      const startRow2 = 1;
-      const endRow2 = 8;
-      const columns2 = [
+    //Laptop view
+    if (worksheet1 !== undefined && worksheet2 === undefined) {
+      const columns = [
         {
           index: 'A',
-          name: 'Slot', // For visualize
+          name: 'slot', // For visualize
           param: 'slotNumber',
           isNull: false,
         },
@@ -858,15 +786,16 @@ const handleImportSchedule = (
           isNull: false,
         },
       ];
+      const startRow = 1;
+      const endRow = 10;
 
-      //Validate and admit cell record
-      for (let i = startRow2; i <= endRow2; i++) {
+      for (let i = startRow; i <= endRow; i++) {
         let currentSlot: any;
 
-        columns2.forEach((col) => {
-          const cellData: any = {};
-          const cell = worksheet2!.getCell(`${col.index}${i}`);
+        columns.forEach((col) => {
+          const cell = worksheet1!.getCell(`${col.index}${i}`);
           const cellValue = String(cell.value);
+          const cellData: any = {};
 
           //Check if null value allowed (no -> not noted)
           if (
@@ -874,58 +803,308 @@ const handleImportSchedule = (
             cellValue !== '-' &&
             cellValue.length > 0
           ) {
-            // Ktra cot A thi format slot number
-            if (col.index === 'A') {
-              const slot = String(cellValue).split(' ');
-              const slotNumber = slot[1];
-              currentSlot = slotNumber;
-            } else {
-              //Ktra tung cell, slot roi format
-              const fmtObj = ValidateHelper.formatScheduleExcel(
-                String(cellValue),
-              );
-              const { classCode, room } = fmtObj;
+            //Format date
+            if (i === 2 && col.index !== 'A') {
+              let date = '';
+              const dateVal = String(cell.value);
+              const isMonthFmt = moment(dateVal, 'DD/MM', true).isValid();
+              const isYearFmt = moment(dateVal, 'DD/MM/YYYY', true).isValid();
 
-              if (classCode && room) {
-                cellData['classCode'] = classCode;
-                // cellData['roomName'] = room;
-                cellData['date'] = col.param;
+              if (isMonthFmt) {
+                const dateFormatted = moment(dateVal, 'DD/MM', true).format(
+                  'YYYY-MM-DD',
+                );
+                date = dateFormatted;
+              } else if (isYearFmt) {
+                const dateFormatted = moment(
+                  dateVal,
+                  'DD/MM/YYYY',
+                  true,
+                ).format('YYYY-MM-DD');
+                date = dateFormatted;
               } else {
-                //Error when format regex
-                if (!cellValue) {
-                  createMsgLog({
-                    type: 'warning',
-                    message: `Unvalid value at cell ${col.index}${i}`,
-                  });
-                }
+                createMsgLog({
+                  type: 'error',
+                  message: `Unvalid date format at cell ${col.index}2 in table 1`,
+                });
               }
+
+              const day = col.param;
+              // const date = cell.value;
+              sample.push({ [day]: date });
             }
 
-            if (Object.keys(cellData).length > 1) {
-              cellData['slotNumber'] = currentSlot;
-              sample2.push(cellData);
+            //Format schedule and slot
+            if (i >= 3) {
+              //Slot
+              if (col.index === 'A') {
+                const slot = String(cellValue).split(' ');
+                const slotNumber = slot[1];
+                currentSlot = slotNumber;
+              } else {
+                //Ktra tung cell, slot roi format
+                const fmtObj = ValidateHelper.formatScheduleExcel(
+                  String(cellValue),
+                );
+                const { classCode, room } = fmtObj;
+
+                if (classCode && room) {
+                  cellData['classCode'] = classCode;
+                  // cellData['roomName'] = room;
+                  cellData['date'] = col.param;
+                } else {
+                  //Error when format regex
+                  if (!cellValue) {
+                    createMsgLog({
+                      type: 'warning',
+                      message: `Unvalid value at cell ${col.index}${i}`,
+                    });
+                  }
+                }
+                if (Object.keys(cellData).length > 1) {
+                  cellData['slotNumber'] = currentSlot;
+                  sample2.push(cellData);
+                }
+              }
             }
           }
         });
       }
-      console.log('sample2, ', sample2);
-    }
-
-    const dayMap = sample.reduce((acc, day) => {
-      const [key, value] = Object.entries(day)[0];
-      acc[key] = value;
-      return acc;
-    }, {});
-
-    const updatedSchedule = sample2.map((item) => {
-      const newItem = { ...item };
-      if (dayMap[newItem.date]) {
-        newItem.date = dayMap[newItem.date];
+      if (sample.length !== 7) {
+        createMsgLog({
+          type: 'error',
+          message: `Unvalid record at row 2`,
+        });
       }
-      return newItem;
-    });
-    console.log('Formateed here ', updatedSchedule);
-    return updatedSchedule;
+      console.log('Sample ', sample);
+      console.log('Sample2 ', sample2);
+      const dayMap = sample.reduce((acc, day) => {
+        const [key, value] = Object.entries(day)[0];
+        acc[key] = value;
+        return acc;
+      }, {});
+
+      const updatedSchedule = sample2.map((item) => {
+        const newItem = { ...item };
+        if (dayMap[newItem.date]) {
+          newItem.date = dayMap[newItem.date];
+        }
+        return newItem;
+      });
+      console.log('Formateed here ', updatedSchedule);
+      return updatedSchedule;
+    } else {
+      //Mobile image, seperate 2 table
+      //Worksheet 1 - scan weekly time
+      const columns = [
+        {
+          index: 'A',
+          name: 'MON', // For visualize
+          param: 'mon',
+          isNull: false,
+        },
+        {
+          index: 'B',
+          name: 'TUE',
+          param: 'tue',
+          isNull: false,
+        },
+        {
+          index: 'C',
+          name: 'WED',
+          param: 'wed',
+          isNull: false,
+        },
+        {
+          index: 'D',
+          name: 'THU',
+          param: 'thu',
+          isNull: false,
+        },
+        {
+          index: 'E',
+          name: 'FRI',
+          param: 'fri',
+          isNull: false,
+        },
+        {
+          index: 'F',
+          name: 'SAT',
+          param: 'sat',
+          isNull: false,
+        },
+        {
+          index: 'G',
+          name: 'SUN',
+          param: 'sun',
+          isNull: false,
+        },
+      ];
+      if (worksheet1) {
+        //Validate and admit record in row 2
+        columns.forEach((col) => {
+          const cell = worksheet1!.getCell(`${col.index}2`);
+          //Check if null value allowed (no -> not noted)
+          if ((cell.value === null) === col.isNull) {
+            let date = '';
+            const dateVal = String(cell.value);
+            const isMonthFmt = moment(dateVal, 'DD/MM', true).isValid();
+            const isYearFmt = moment(dateVal, 'DD/MM/YYYY', true).isValid();
+
+            if (isMonthFmt) {
+              const dateFormatted = moment(dateVal, 'DD/MM', true).format(
+                'YYYY-MM-DD',
+              );
+              date = dateFormatted;
+            } else if (isYearFmt) {
+              const dateFormatted = moment(dateVal, 'DD/MM/YYYY', true).format(
+                'YYYY-MM-DD',
+              );
+              date = dateFormatted;
+            } else {
+              createMsgLog({
+                type: 'error',
+                message: `Unvalid date format at cell ${col.index}2 in table 1`,
+              });
+            }
+
+            const day = col.param;
+            // const date = cell.value;
+            sample.push({ [day]: date });
+          }
+        });
+        if (sample.length !== 7) {
+          createMsgLog({
+            type: 'error',
+            message: `Unvalid record at row 2`,
+          });
+        }
+        console.log('sample ', sample);
+      }
+
+      //Scan for slot schedule--------------------------------------------
+      if (worksheet2) {
+        const startRow2 = 1;
+        const endRow2 = 8;
+        const columns2 = [
+          {
+            index: 'A',
+            name: 'Slot', // For visualize
+            param: 'slotNumber',
+            isNull: false,
+          },
+          {
+            index: 'B',
+            name: 'MON',
+            param: 'mon',
+            isNull: false,
+          },
+          {
+            index: 'C',
+            name: 'TUE',
+            param: 'tue',
+            isNull: false,
+          },
+          {
+            index: 'D',
+            name: 'WED',
+            param: 'wed',
+            isNull: false,
+          },
+          {
+            index: 'E',
+            name: 'THU',
+            param: 'thu',
+            isNull: false,
+          },
+          {
+            index: 'F',
+            name: 'FRI',
+            param: 'fri',
+            isNull: false,
+          },
+          {
+            index: 'G',
+            name: 'SAT',
+            param: 'sat',
+            isNull: false,
+          },
+          {
+            index: 'H',
+            name: 'SUN',
+            param: 'sun',
+            isNull: false,
+          },
+        ];
+
+        //Validate and admit cell record
+        for (let i = startRow2; i <= endRow2; i++) {
+          let currentSlot: any;
+
+          columns2.forEach((col) => {
+            const cellData: any = {};
+            const cell = worksheet2!.getCell(`${col.index}${i}`);
+            const cellValue = String(cell.value);
+
+            //Check if null value allowed (no -> not noted)
+            if (
+              (cellValue === null) === col.isNull &&
+              cellValue !== '-' &&
+              cellValue.length > 0
+            ) {
+              // Ktra cot A thi format slot number
+              if (col.index === 'A') {
+                const slot = String(cellValue).split(' ');
+                const slotNumber = slot[1];
+                currentSlot = slotNumber;
+              } else {
+                //Ktra tung cell, slot roi format
+                const fmtObj = ValidateHelper.formatScheduleExcel(
+                  String(cellValue),
+                );
+                const { classCode, room } = fmtObj;
+
+                if (classCode && room) {
+                  cellData['classCode'] = classCode;
+                  // cellData['roomName'] = room;
+                  cellData['date'] = col.param;
+                } else {
+                  //Error when format regex
+                  if (!cellValue) {
+                    createMsgLog({
+                      type: 'warning',
+                      message: `Unvalid value at cell ${col.index}${i}`,
+                    });
+                  }
+                }
+              }
+
+              if (Object.keys(cellData).length > 1) {
+                cellData['slotNumber'] = currentSlot;
+                sample2.push(cellData);
+              }
+            }
+          });
+        }
+        console.log('sample2, ', sample2);
+      }
+
+      const dayMap = sample.reduce((acc, day) => {
+        const [key, value] = Object.entries(day)[0];
+        acc[key] = value;
+        return acc;
+      }, {});
+
+      const updatedSchedule = sample2.map((item) => {
+        const newItem = { ...item };
+        if (dayMap[newItem.date]) {
+          newItem.date = dayMap[newItem.date];
+        }
+        return newItem;
+      });
+      console.log('Formateed here ', updatedSchedule);
+      return updatedSchedule;
+    }
   });
 
   return promise
