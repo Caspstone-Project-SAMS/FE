@@ -31,4 +31,10 @@ export const slots: Slot[] = [
     timeStart: '17:30',
     timeEnd: '19:15',
   },
+  {
+    name: 'Slot_6',
+    duration: 135,
+    timeStart: '19:30',
+    timeEnd: '9:45',
+  },
 ];

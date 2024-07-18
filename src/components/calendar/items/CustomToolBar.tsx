@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from './index.module.less'
 import { CalendarOutlined, CaretLeftOutlined, CaretRightOutlined, DownOutlined } from '@ant-design/icons'
-import { Button, Dropdown, MenuProps, Space } from 'antd'
+import { Button, Dropdown, MenuProps, Space, Spin } from 'antd'
 import Search from 'antd/es/input/Search'
 import { ToolbarProps, Views } from 'react-big-calendar'
 import useDispatch from '../../../redux/UseDispatch'
@@ -15,7 +15,7 @@ interface WeekDay {
     date: string;
 }
 
-const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
+const CustomToolBar: React.FC<{ toolbar: ToolbarProps, loadingStatus: boolean }> = ({ toolbar, loadingStatus }) => {
     const [selectedView, setSelectedView] = useState<string>('Week');
     const [dateTitle, setDateTitle] = useState<string>();
 
@@ -97,8 +97,9 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
         setSelectedView(fmtTxt)
         updateDateTitle()
 
-        const day = toolbar.date;
-        console.log("formated: ", getWeekFromDate(day));
+        // const day = toolbar.date;
+        // console.log("toolbar ", toolbar);
+        // console.log("formated: ", getWeekFromDate(day));
     }, [toolbar, view, updateDateTitle])
 
     return (
@@ -140,24 +141,28 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
                         marginRight: '8px'
                     }}
                 />
-                <Button
-                    type="default"
-                    icon={<CaretLeftOutlined />}
-                    size={'middle'}
-                    onClick={() => toolbar.onNavigate("PREV")}
-                    className={styles.prevBtn}
-                >
-                    Prev
-                </Button>
-                <Button
-                    type="default"
-                    icon={<CaretRightOutlined />}
-                    iconPosition='end' size={'middle'}
-                    onClick={() => toolbar.onNavigate("NEXT")}
-                    className={styles.nextBtn}
-                >
-                    Next
-                </Button>
+                <Spin spinning={loadingStatus}>
+                    <Button
+                        type="default"
+                        icon={<CaretLeftOutlined />}
+                        size={'middle'}
+                        onClick={() => toolbar.onNavigate("PREV")}
+                        className={styles.prevBtn}
+                    >
+                        Prev
+                    </Button>
+                    <Button
+                        type="default"
+                        icon={<CaretRightOutlined />}
+                        iconPosition='end' size={'middle'}
+                        onClick={() => {
+                            toolbar.onNavigate("NEXT")
+                        }}
+                        className={styles.nextBtn}
+                    >
+                        Next
+                    </Button>
+                </Spin>
             </div>
         </div>
     )

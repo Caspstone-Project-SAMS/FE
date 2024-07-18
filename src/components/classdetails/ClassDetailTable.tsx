@@ -285,10 +285,6 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   useEffect(() => {
-    console.log("Change in detrail ", change);
-  }, [change])
-
-  useEffect(() => {
     const response = AttendanceService.getAttendanceByScheduleID(scheduleID);
     setLoadingState(true);
 

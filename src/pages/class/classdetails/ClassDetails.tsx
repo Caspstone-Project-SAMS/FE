@@ -97,8 +97,8 @@ const ClassDetails: React.FC = () => {
             <div style={{ marginBottom: 30 }}>
               <div className={styles.detailsHeader}>Details</div>
             </div>
-            {classInfo.map((detail) => (
-              <div>
+            {classInfo.map((detail, i) => (
+              <div key={`info_${i}`}>
                 <hr
                   style={{
                     borderColor: '#e6e7e9',

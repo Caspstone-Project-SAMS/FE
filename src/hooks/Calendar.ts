@@ -37,6 +37,25 @@ const getScheduleByLecturer = async (
   return response.data;
 };
 
+const getScheduleByWeek = async (
+  lecturerId: string,
+  semesterId: string,
+  quantity: number,
+  startDate: string,
+  endDate: string,
+) => {
+  const response = await axios.get(SCHEDULE_API, {
+    params: {
+      lecturerId,
+      semesterId,
+      quantity,
+      startDate,
+      endDate,
+    },
+  });
+  return response.data;
+};
+
 const importExcelSchedule = async (data: ScheduleList[]) => {
   const res = await axios.post(SCHEDULE_API, data);
   return res.data;
@@ -60,4 +79,5 @@ export const CalendarService = {
   getScheduleByLecturer,
   importExcelSchedule,
   downloadTemplateExcel,
+  getScheduleByWeek,
 };
