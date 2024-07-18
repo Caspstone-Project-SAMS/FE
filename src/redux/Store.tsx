@@ -6,6 +6,7 @@ import Student from './slice/Student';
 import Room from './slice/Room';
 import Semester from './slice/Semester';
 import Subject from './slice/Subject';
+import Class from './slice/Class';
 
 const Store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ const Store = configureStore({
     room: Room,
     semester: Semester,
     subject: Subject,
+    class: Class,
   },
 });
 
