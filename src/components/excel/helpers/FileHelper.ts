@@ -139,7 +139,7 @@ const handleImportSemester = (
 const handleImportStudent = (
   excelFile: RcFile,
   workbook: ExcelJS.Workbook,
-  creator: string, //adminID
+  // creator: string, //adminID
 ) => {
   const result: validateFmt = {
     result: undefined,
@@ -245,14 +245,12 @@ const handleImportStudent = (
           }
         });
         if (isValidRecord) {
-          rowData['CreateBy'] = creator;
+          // rowData['CreateBy'] = creator;
           sample.push(rowData);
         } else if (
           //Collumn mssv, ho ten, email
-          Object.keys(rowData).length < 4 &&
-          Object.keys(rowData).length > 1
+          Object.keys(rowData).length === 3
         ) {
-          console.log('Err her,', rowData);
           createMsgLog({
             type: 'warning',
             message: `Unvalid record at row ${i}`,
@@ -265,9 +263,411 @@ const handleImportStudent = (
     } else {
       createMsgLog({
         type: 'error',
-        message: 'Worksheet name not match, please do not change sheet name',
+        message:
+          'Worksheet name not match, make sure file sheet has name Import-Student',
       });
     }
+  });
+
+  return promise
+    .then((data) => {
+      result.result = data;
+      return result;
+    })
+    .catch((e) => {
+      createMsgLog({
+        type: 'error',
+        message: 'File unvalid, only accept .xlsx file',
+      });
+      return result;
+    });
+};
+
+const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
+  const result: validateFmt = {
+    result: undefined,
+    errors: [],
+  };
+
+  const createMsgLog = (log: validateError) => {
+    const { message, type } = log;
+    result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+  const promise = workbook.xlsx.load(excelFile).then((workbook) => {
+    const worksheet = workbook.getWorksheet('Import-Class');
+    const sample: any[] = [];
+
+    //Check worksheet exist
+    if (worksheet === undefined) {
+      console.log('notfound');
+      createMsgLog({
+        type: 'error',
+        message:
+          'Worksheet name not match, please do not change sheet name and make sure it has name Import-Class',
+      });
+      return [];
+    }
+
+    if (worksheet) {
+      const startRow = 4;
+      const endRow = 38;
+      const columns = [
+        {
+          index: 'B',
+          name: '#', // For visualize
+          param: 'index',
+          isNull: false,
+        },
+        {
+          index: 'C',
+          name: 'Class Code',
+          param: 'classCode',
+          isNull: false,
+        },
+        {
+          index: 'D',
+          name: 'Student Code',
+          param: 'studentCode',
+          isNull: false,
+        },
+      ];
+      for (let i = startRow; i <= endRow; i++) {
+        let isValidRecord = true;
+        const rowData: any = {};
+        //Validate and admit record
+        columns.forEach((col) => {
+          const cell = worksheet!.getCell(`${col.index}${i}`);
+          //Check if null value allowed (no -> not noted)
+          if ((cell.value === null) === col.isNull) {
+            if (col.index === 'C') {
+              rowData[col.param] = cell.value;
+            }
+
+            if (col.index === 'D') {
+              const mssv = cell.value;
+              const isDuplicated = sample.filter(
+                (item) =>
+                  item['studentCode'] === mssv &&
+                  item['classCode'] === rowData['classCode'],
+              );
+              if (isDuplicated.length > 0) {
+                isValidRecord = false;
+                createMsgLog({
+                  type: 'warning',
+                  message: `Duplicate value at row ${i}`,
+                });
+              } else {
+                rowData[col.param] = cell.value;
+              }
+            }
+          } else {
+            isValidRecord = false;
+          }
+        });
+        if (isValidRecord) {
+          sample.push(rowData);
+        } else if (
+          //Collumn subjectCode, mssv
+          Object.keys(rowData).length < 4 &&
+          Object.keys(rowData).length > 1
+        ) {
+          createMsgLog({
+            type: 'warning',
+            message: `Unvalid record at row ${i}`,
+          });
+        }
+      }
+      console.log('sample ', sample);
+    }
+
+    return sample;
+  });
+
+  return promise
+    .then((data) => {
+      result.result = data;
+      return result;
+    })
+    .catch((e) => {
+      createMsgLog({
+        type: 'error',
+        message: 'File unvalid, only accept .xlsx file',
+      });
+      return result;
+    });
+};
+
+const handleImportFAPClass = (
+  excelFile: RcFile,
+  workbook: ExcelJS.Workbook,
+) => {
+  const result: validateFmt = {
+    result: undefined,
+    errors: [],
+  };
+
+  const createMsgLog = (log: validateError) => {
+    const { message, type } = log;
+    result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+
+  const promise = workbook.xlsx.load(excelFile).then((workbook) => {
+    const worksheet = workbook.getWorksheet('Sheet1');
+    const sample: any[] = [];
+
+    //Check worksheet exist
+    if (worksheet === undefined) {
+      console.log('notfound');
+      createMsgLog({
+        type: 'error',
+        message:
+          'Worksheet name not match, please do not change sheet name and make sure it has name Sheet1',
+      });
+      return [];
+    }
+
+    if (worksheet) {
+      const startRow = 2;
+      const endRow = 151;
+      const columns = [
+        {
+          index: 'A',
+          name: 'Class', // For visualize
+          param: 'classCode',
+          isNull: false,
+        },
+        {
+          index: 'B',
+          name: 'Roll number', // For visualize
+          param: 'studentCode',
+          isNull: false,
+        },
+        {
+          index: 'C',
+          name: 'Email',
+          param: 'email',
+          isNull: false,
+        },
+        {
+          index: 'D',
+          name: 'Member Code',
+          param: 'memberCode',
+          isNull: false,
+        },
+        {
+          index: 'E',
+          name: 'Student name',
+          param: 'displayName',
+          isNull: false,
+        },
+      ];
+
+      for (let i = startRow; i <= endRow; i++) {
+        let isValidRecord = true;
+        const rowData: any = {};
+
+        //Validate and admit record
+        columns.forEach((col) => {
+          const cell = worksheet!.getCell(`${col.index}${i}`);
+          //Check if null value allowed (no -> not noted)
+          if ((cell.value === null) === col.isNull) {
+            if (col.index === 'A') {
+              rowData[col.param] = cell.value;
+            }
+            if (col.index === 'B') {
+              const studentCode = cell.value;
+              const isDuplicated = sample.filter(
+                (item) => item.B === studentCode,
+              );
+              if (isDuplicated.length > 0) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Student code duplicated at cell ${col.index}${i}`,
+                });
+                isValidRecord = false;
+              } else {
+                rowData[col.param] = cell.value;
+              }
+            }
+          } else {
+            isValidRecord = false;
+          }
+        });
+        if (isValidRecord) {
+          sample.push(rowData);
+        } else if (
+          //Collumn classCode, StudentCode
+          Object.keys(rowData).length === 3
+        ) {
+          createMsgLog({
+            type: 'warning',
+            message: `Unvalid record at row ${i}`,
+          });
+        }
+      }
+    }
+    console.log('Sample ', sample);
+    return sample;
+  });
+
+  return promise
+    .then((data) => {
+      result.result = data;
+      return result;
+    })
+    .catch((e) => {
+      createMsgLog({
+        type: 'error',
+        message: 'File unvalid, only accept .xlsx file',
+      });
+      return result;
+    });
+};
+
+const handleImportFAPStudent = (
+  excelFile: RcFile,
+  workbook: ExcelJS.Workbook,
+) => {
+  const result: validateFmt = {
+    result: undefined,
+    errors: [],
+  };
+
+  const createMsgLog = (log: validateError) => {
+    const { message, type } = log;
+    result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+
+  const promise = workbook.xlsx.load(excelFile).then((workbook) => {
+    const worksheet = workbook.getWorksheet('Sheet1');
+    const sample: any[] = [];
+
+    //Check worksheet exist
+    if (worksheet === undefined) {
+      console.log('notfound');
+      createMsgLog({
+        type: 'error',
+        message:
+          'Worksheet name not match, please do not change sheet name and make sure it has name Sheet1',
+      });
+      return [];
+    }
+
+    if (worksheet) {
+      const startRow = 2;
+      const endRow = 151;
+      const columns = [
+        {
+          index: 'A',
+          name: 'Class', // For visualize
+          param: 'classCode',
+          isNull: false,
+        },
+        {
+          index: 'B',
+          name: 'Roll number', // For visualize
+          param: 'studentCode',
+          isNull: false,
+        },
+        {
+          index: 'C',
+          name: 'Email',
+          param: 'email',
+          isNull: false,
+        },
+        {
+          index: 'D',
+          name: 'Member Code',
+          param: 'memberCode',
+          isNull: false,
+        },
+        {
+          index: 'E',
+          name: 'Student name',
+          param: 'displayName',
+          isNull: false,
+        },
+      ];
+
+      for (let i = startRow; i <= endRow; i++) {
+        let isValidRecord = true;
+        const rowData: any = {};
+
+        //Validate and admit record
+        columns.forEach((col) => {
+          const cell = worksheet!.getCell(`${col.index}${i}`);
+          //Check if null value allowed (no -> not noted)
+          if ((cell.value === null) === col.isNull) {
+            if (col.index === 'B' || col.index === 'C' || col.index === 'E') {
+              rowData[col.param] = cell.value;
+            }
+
+            //Check MSSV unique and not contain special char
+            if (col.index === 'B') {
+              const mssv = cell.value;
+
+              const isDuplicated = sample.filter((item) => item.B === mssv);
+
+              const isContainSpecialChar = ValidateHelper.emojiChecker(
+                String(mssv),
+              );
+              if (isDuplicated.length > 0) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Student code duplicated at cell ${col.index}${i}`,
+                });
+                isValidRecord = false;
+              }
+              if (isContainSpecialChar) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Student code at cell ${col.index}${i} contains special character`,
+                });
+                isValidRecord = false;
+              }
+            }
+
+            //Check email
+            if (col.index === 'C') {
+              const isValidEmail = ValidateHelper.emailChecker(
+                String(cell.value),
+              );
+              if (!isValidEmail) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Wrong email format at cell ${col.index}${i}`,
+                });
+                isValidRecord = false;
+              }
+            }
+          } else {
+            isValidRecord = false;
+          }
+        });
+        if (isValidRecord) {
+          sample.push(rowData);
+        } else if (
+          //Collumn classCode, StudentCode
+          Object.keys(rowData).length === 3
+        ) {
+          createMsgLog({
+            type: 'warning',
+            message: `Unvalid record at row ${i}`,
+          });
+        }
+      }
+    }
+    console.log('Sample ', sample);
+    return sample;
   });
 
   return promise
@@ -545,5 +945,37 @@ const handleImportSchedule = (
 export const FileHelper = {
   handleImportSemester,
   handleImportStudent,
+  handleImportClass,
   handleImportSchedule,
+  handleImportFAPClass,
+  handleImportFAPStudent,
 };
+
+// const readDataFromFile = (data: any) => {
+//   const workbook = new ExcelJS.Workbook();
+//   workbook.xlsx.load(data).then((workbook) => {
+//     console.log(workbook, 'workbook instance');
+
+//     workbook.eachSheet((sheet, id) => {
+//       sheet.eachRow((row, rowIndex) => {
+//         console.log('Row info, ', row);
+//         console.log(row.values, rowIndex);
+//         const rowData = row.values;
+
+//         // Check if the row has the columns A to E
+//         const colA = rowData[1];
+//         const colB = rowData[2];
+//         const colC = rowData[3];
+//         const colD = rowData[4];
+//         const colE = rowData[5];
+
+//         if (colA && colB && colC && colD && colE) {
+//           console.log('Cell val: ', row.values);
+//           // Example: Check if columns A to E are not empty
+//           console.log('All columns A to E are present and not empty');
+//         }
+//       });
+//     });
+//   });
+// };
+// readDataFromFile(excelFile);

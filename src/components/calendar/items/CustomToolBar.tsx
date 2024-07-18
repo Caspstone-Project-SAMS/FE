@@ -8,6 +8,12 @@ import useDispatch from '../../../redux/UseDispatch'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../redux/Store'
 import { getScheduleByID } from '../../../redux/slice/Calendar'
+import moment from 'moment'
+
+interface WeekDay {
+    weekday: string;
+    date: string;
+}
 
 const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
     const [selectedView, setSelectedView] = useState<string>('Week');
@@ -66,6 +72,21 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
         setDateTitle(label);
     }
 
+    const getWeekFromDate = (inputDate: Date): WeekDay[] => {
+        const startOfWeek = moment(inputDate).startOf('week');
+        const week: WeekDay[] = [];
+
+        for (let i = 0; i < 7; i++) {
+            const date = moment(startOfWeek).add(i, 'days').format('YYYY-MM-DD');
+            week.push({
+                weekday: moment(date).format('ddd'),
+                date: date,
+            });
+        }
+
+        return week;
+    };
+
     useEffect(() => {
         // onView('week');
         updateDateTitle()
@@ -75,7 +96,10 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
         const fmtTxt = view.replace(/^\w/, char => char.toUpperCase())
         setSelectedView(fmtTxt)
         updateDateTitle()
-    }, [toolbar])
+
+        const day = toolbar.date;
+        console.log("formated: ", getWeekFromDate(day));
+    }, [toolbar, view, updateDateTitle])
 
     return (
         <div className={styles.toolbarCtn}>

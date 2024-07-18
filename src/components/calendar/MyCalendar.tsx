@@ -19,7 +19,7 @@ import { Schedule } from '../../models/calendar/Schedule'
 import { CustomEvent as RBC_Custom_Event } from '../../models/calendar/CustomEvent'
 // import events from './data/events'
 
-moment.locale('ko', {
+moment.updateLocale('ko', {
     week: {
         dow: 1,
         doy: 1,
