@@ -1,25 +1,37 @@
 import axios, { AxiosError } from 'axios';
 import { CLASS_API } from '.';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
+import { Class } from '../models/Class';
+
+const getAllClass = async (): Promise<Class | null> => {
+  try {
+    const response = await axios.get(`${CLASS_API}?quantity=50`);
+
+    return response.data as Class;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 
 const createClass = async (
   ClassCode: string,
-  SemesterCode: string,
-  RoomName: string,
-  SubjectCode: string,
+  SemesterId: number,
+  RoomId: number,
+  SubjectId: number,
   LecturerID: string,
-  CreatedBy: string,
+  // CreatedBy: string,
 ) => {
   try {
     const response = await axios.post(
       CLASS_API,
       {
         ClassCode,
-        SemesterCode,
-        RoomName,
-        SubjectCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
         LecturerID,
-        CreatedBy,
+        // CreatedBy,
       },
       {
         headers: {
@@ -30,7 +42,7 @@ const createClass = async (
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('abc', error.message);
+      console.log('abccccccccc', error.message);
       throw new AxiosError(error.response);
     }
     return isRejectedWithValue(error.message);
@@ -38,5 +50,6 @@ const createClass = async (
 };
 
 export const ClassService = {
+  getAllClass,
   createClass,
 };

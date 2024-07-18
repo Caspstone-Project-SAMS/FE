@@ -1,16 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { ClassMessage } from '../../models/Class';
+import { Class, ClassFail } from '../../models/Class';
 import { ClassService } from '../../hooks/Class';
 import { AxiosError } from 'axios';
+import { message } from 'antd';
 
 interface ClassState {
-  message: string | undefined;
-  classDetail?: ClassMessage;
+  message?: ClassFail;
+  classDetail?: Class;
   loading: boolean;
 }
 
 const initialState: ClassState = {
-  message: '',
+  message: undefined,
   classDetail: undefined,
   loading: false,
 };
@@ -20,30 +21,30 @@ const createClass = createAsyncThunk(
   async (
     arg: {
       ClassCode: string;
-      SemesterCode: string;
-      RoomName: string;
-      SubjectCode: string;
+      SemesterId: number;
+      RoomId: number;
+      SubjectId: number;
       LecturerID: string;
-      CreatedBy: string;
+      // CreatedBy: string;
     },
     { rejectWithValue },
   ) => {
     try {
       const {
         ClassCode,
-        SemesterCode,
-        RoomName,
-        SubjectCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
         LecturerID,
-        CreatedBy,
+        // CreatedBy,
       } = arg;
       const createClassResponse = await ClassService.createClass(
         ClassCode,
-        SemesterCode,
-        RoomName,
-        SubjectCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
         LecturerID,
-        CreatedBy,
+        // CreatedBy,
       );
       return createClassResponse;
     } catch (error) {
@@ -81,21 +82,22 @@ const ClassSlice = createSlice({
     });
     builder.addCase(createClass.fulfilled, (state, action) => {
       const { payload } = action;
-      // message.success("Room created successfully");
+      // message.success("Class created successfully");
       return {
         ...state,
         loading: false,
-        roomDetail: undefined,
-        message: payload,
+        classDetail: payload,
+        message: undefined,
       };
     });
     builder.addCase(createClass.rejected, (state, action) => {
-      // message.error("Room created successfully");
+      // message.error("Class created successfully");
+      // const { payload } = action;
       return {
         ...state,
         loading: false,
-        roomDetail: { data: action.payload || 'Failed to create room' },
-        message: undefined,
+        classDetail: undefined,
+        message: { data: action.payload || 'Failed to create class' },
       };
     });
   },
