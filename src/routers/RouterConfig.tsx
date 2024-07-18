@@ -23,7 +23,7 @@ import SlotDetail from '../pages/admin/slot/SlotDetail';
 
 const lecture = [
   {
-    path: '/home',
+    path: '/',
     element: <Home />
   },
   {
@@ -50,7 +50,7 @@ const lecture = [
 
 const admin = [
   {
-    path: '/home',
+    path: '/home-admin',
     element: <HomeAdmin />
   },
   {

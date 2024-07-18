@@ -9,12 +9,6 @@ export interface DataType {
   groupsize: number;
 }
 
-
-export interface ExcelClassList {
-  classCode: string;
-  studentCode: string;
-}
-
 export interface ClassMessage {
   data: {
     data: {

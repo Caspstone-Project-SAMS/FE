@@ -36,7 +36,6 @@ const getScheduleByID = createAsyncThunk(
       const schedulePromise = await CalendarService.getScheduleByLecturer(
         lecturerID,
         semesterID,
-        50,
       );
       return schedulePromise;
     } catch (error) {
