@@ -18,6 +18,7 @@ import Room from '../pages/admin/room/Room';
 import AccountStudentsDetail from '../pages/admin/account/accountstudents/AccountStudentsDetail';
 import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
+import SlotDetail from '../pages/admin/slot/SlotDetail';
 
 const lecture = [
   {
@@ -102,6 +103,10 @@ const admin = [
   {
     path: '/slot',
     element: <Slot />
+  },
+  {
+    path: '/slot/slot-detail',
+    element: <SlotDetail />
   },
 ]
 const routeConfig = {
