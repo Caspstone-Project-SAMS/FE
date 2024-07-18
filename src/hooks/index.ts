@@ -28,6 +28,12 @@ export const MODULE_API = `${server}/Module`;
 //Slot
 export const SLOT_API = `${server}/Slot`;
 
+//Class
+export const CLASS_API = `${server}/Class`;
+
+//Class
+export const EMPLOYEE_API = `${server}/Employee`;
+
 //Google
 export const GET_GG_USER_INFO =
   'https://www.googleapis.com/oauth2/v1/userinfo?access_token=';
