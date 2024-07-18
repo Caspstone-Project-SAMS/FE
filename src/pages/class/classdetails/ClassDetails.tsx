@@ -183,102 +183,10 @@ const ClassDetails: React.FC = () => {
                 }}
               >
                 <Row className={styles.btnGroup}>
-
                   <div style={{ marginBottom: '10px', width: '100%' }}>
                     <BtnDecoration btnFuncName='Import templates' btnTitle='Fingerprint' imgDecor={fingerprintIcon} key={'fingerprintImport'} />
                   </div>
                   <BtnDecoration btnFuncName='Start session' btnTitle='Attendance' imgDecor={reportIcon} key={'fingerprintImport'} />
-                  {/* <Col
-                    xs={240}
-                    sm={120}
-                    md={120}
-                    lg={120}
-                    xl={120}
-                    style={{ marginBottom: '8px' }}
-                  >
-                    <Button style={{ height: '100%', width: '100%' }}>
-                      <Row>
-                        <Col
-                          span={20}
-                          style={{ paddingLeft: 0, paddingRight: 80 }}
-                        >
-                          <Row>
-                            <text style={{ fontWeight: 500, fontSize: 20 }}>
-                              FINGERPRINT
-                            </text>
-                          </Row>
-                          <Row>
-                            <text
-                              style={{
-                                fontWeight: 500,
-                                color: '#339ffe',
-                                fontSize: 25,
-                              }}
-                            >
-                              Import templates
-                            </text>
-                          </Row>
-                        </Col>
-                        <hr />
-                        <Col
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyItems: 'center',
-                            paddingLeft: 15,
-                          }}
-                        >
-                          <IoIosFingerPrint style={{ fontSize: '30px' }} />
-                        </Col>
-                      </Row>
-                    </Button>
-                  </Col> */}
-                  {/* <Col
-                    xs={240}
-                    sm={120}
-                    md={120}
-                    lg={120}
-                    xl={120}
-                    style={{ marginBottom: '8px' }}
-                  >
-                    <Button style={{ height: '100%', width: '100%' }}>
-                      <Row>
-                        <Col
-                          span={20}
-                          style={{ paddingLeft: 0, paddingRight: 80 }}
-                        >
-                          <Row>
-                            <text style={{ fontWeight: 500, fontSize: 20 }}>
-                              FINGERPRINT
-                            </text>
-                          </Row>
-                          <Row>
-                            <text
-                              style={{
-                                fontWeight: 500,
-                                color: '#339ffe',
-                                fontSize: 25,
-                              }}
-                            >
-                              Import templates
-                            </text>
-                          </Row>
-                        </Col>
-                        <hr />
-                        <Col
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyItems: 'center',
-                            paddingLeft: 20,
-                            paddingRight: 5,
-                          }}
-                        >
-                          <VscChecklist style={{ fontSize: '20px' }} />
-                        </Col>
-                      </Row>
-                    </Button>
-                  </Col> */}
                 </Row>
               </Col>
 

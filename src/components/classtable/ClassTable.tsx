@@ -92,12 +92,19 @@ const ClassTable: React.FC = () => {
 
   return (
     <Content className="class-content">
-      <AntHeader className="class-header">
+      <AntHeader
+        style={{
+          paddingLeft: '15px',
+          paddingRight: '15px',
+          borderTopLeftRadius: '6px',
+          borderTopRightRadius: '6px',
+        }}
+        className="class-header">
         <Typography.Title level={3} style={{ marginTop: 5 }}>
           Class
         </Typography.Title>
         <Search
-          placeholder="input search text"
+          placeholder="Input search text"
           allowClear
           style={{
             width: 200,
@@ -115,7 +122,7 @@ const ClassTable: React.FC = () => {
           pageSizeOptions: ['5', '10', '15', '20'],
           className: 'pagination-center', // Apply custom class here
         }}
-        // rowSelection={rowSelection}
+      // rowSelection={rowSelection}
       ></Table>
     </Content>
   );

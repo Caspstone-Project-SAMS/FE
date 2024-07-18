@@ -1,9 +1,9 @@
 import { Button, Card, Col, Input, Layout, Modal, Row } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useState } from 'react';
-// import PageHeaderAdmin from '../../../components/header/headeradmin/PageHeader';
 import styles from './AdminClass.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
+
 import { CiSearch } from 'react-icons/ci';
 import { PlusOutlined } from '@ant-design/icons';
 import { ClassDetail } from '../../../models/ClassDetail';
@@ -11,6 +11,10 @@ import { useDispatch } from 'react-redux';
 import { createClass } from '../../../redux/slice/Class';
 
 const { Header: AntHeader } = Layout;
+
+import Excel from '../../../components/excel/Excel';
+import '../../../assets/styles/styles.less'
+
 
 const AdminClass: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetail[]>([]);
@@ -90,12 +94,15 @@ const AdminClass: React.FC = () => {
 
   return (
     <Content className={styles.classContent}>
-      <ContentHeader
-        contentTitle="Class"
-        previousBreadcrumb={'Home / '}
-        currentBreadcrumb={'Class'}
-        key={''}
-      />
+      <div className='align-center-between'>
+        <ContentHeader
+          contentTitle="Class"
+          previousBreadcrumb={'Home / '}
+          currentBreadcrumb={'Class'}
+          key={''}
+        />
+        <Excel fileType='class' />
+      </div>
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>
