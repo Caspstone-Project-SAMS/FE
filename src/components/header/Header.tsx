@@ -17,7 +17,7 @@ import { UserInfo } from "../../models/UserInfo";
 import { logout } from "../../redux/slice/Auth";
 import NotificationItem from "./contentHeader/NotificationItem";
 import { PiBellBold } from "react-icons/pi";
-import { HelperService } from "../../hooks/helpers/HelperFunc";
+import { HelperService } from "../../hooks/helpers/helperFunc";
 
 const { Header: AntHeader } = Layout;
 
@@ -97,7 +97,7 @@ const Headers: React.FC = () => {
   ];
 
   useEffect(() => {
-    // console.log("Changed ", onFilterNoti);
+    console.log("Changed ", onFilterNoti);
   }, [onFilterNoti])
 
   const CustomDropdownMenu = () => {
@@ -202,7 +202,6 @@ const Headers: React.FC = () => {
           menu={{ items }}
           placement="bottomRight"
           arrow
-          trigger={['click']}
         >
           <Button shape="default" className="btnDrop">
             <IoIosArrowDown size={25} className="down-arrow" />

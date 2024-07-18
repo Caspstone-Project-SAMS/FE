@@ -1,8 +1,6 @@
 import axios from 'axios';
-import { SCHEDULE_API, SEMESTER_API } from '.';
+import { LECTURER_SCHEDULE_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
-import { HelperService } from './helpers/HelperFunc';
-import toast from 'react-hot-toast';
 
 type ScheduleList = {
   date: string;
@@ -25,39 +23,23 @@ const getAllSemester = async (): Promise<Semester[] | null> => {
 const getScheduleByLecturer = async (
   lecturerID: string,
   semesterID: string,
-  quantity: number,
 ) => {
-  const response = await axios.get(SCHEDULE_API, {
+  const response = await axios.get(LECTURER_SCHEDULE_API, {
     params: {
       lecturerId: lecturerID,
       semesterId: semesterID,
-      quantity: quantity,
     },
   });
   return response.data;
 };
 
 const importExcelSchedule = async (data: ScheduleList[]) => {
-  const res = await axios.post(SCHEDULE_API, data);
+  const res = await axios.post(LECTURER_SCHEDULE_API, data);
   return res.data;
-};
-
-const downloadTemplateExcel = async () => {
-  try {
-    const response = await axios(`${SCHEDULE_API}/download-excel-template`, {
-      responseType: 'blob',
-    });
-    const blobFile = response.data;
-    HelperService.downloadFile(blobFile, 'template_schedule');
-  } catch (error) {
-    console.log('Error when download template_schedule');
-    toast.error('Unknown error occured, please try again later');
-  }
 };
 
 export const CalendarService = {
   getAllSemester,
   getScheduleByLecturer,
   importExcelSchedule,
-  downloadTemplateExcel,
 };

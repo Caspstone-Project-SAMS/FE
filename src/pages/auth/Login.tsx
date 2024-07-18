@@ -80,9 +80,9 @@ function Login() {
   //after login, check role and then navigate
   useEffect(() => {
     if (role === 'Lecturer') {
-      navigate('/home');
+      navigate('/');
     } else if (role === 'Admin') {
-      navigate('/home');
+      navigate('/home-admin');
     }
   }, [role]);
 
