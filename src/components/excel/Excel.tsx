@@ -4,18 +4,20 @@ import '../../assets/styles/styles.less'
 import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
 import { RcFile } from 'antd/es/upload'
-import { Button, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { Button, Checkbox, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
 import { CloudUploadOutlined, DeleteOutlined, FileExcelOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
 
 import { FileHelper } from './helpers/FileHelper'
 import { RequestHelpers } from './helpers/RequestHelper'
-import { HelperService } from '../../hooks/helpers/helperFunc'
+import { HelperService } from '../../hooks/helpers/HelperFunc'
 import SuccessIcon from '../../assets/icons/success_icon.png'
 import ErrorIcon from '../../assets/icons/cancel_icon.png'
 import MessageCard from './messageCard/MessageCard'
 import { StudentService } from '../../hooks/StudentList';
+import { CalendarService } from '../../hooks/Calendar';
+import { ClassService } from '../../hooks/Class';
 
 type ValidateFmt = {
     result?: any[];
@@ -43,6 +45,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const userInfo = useSelector((state: RootState) => state.auth.userDetail);
     const [current, setCurrent] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
+    const [isFAPFile, setIsFAPFile] = useState<boolean>(false);
 
     //havent has api - not modelling data yet
     const [excelResult, setExcelResult] = useState<ValidateFmt>();
@@ -75,12 +78,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 StudentService.downloadTemplateExcel();
                 break;
             case 'class':
-
+                ClassService.downloadTemplateExcel()
                 break;
             case 'schedule':
-
+                CalendarService.downloadTemplateExcel();
                 break;
-
             default:
                 break;
         }
@@ -94,26 +96,37 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 return false;
             }
             const workbook = new ExcelJS.Workbook();
-            // const excelData = await FileHelper.handleImportSemester(file, workbook)
-            // const userID = userInfo!.result!.id
             let excelData: ValidateFmt
             switch (fileType) {
                 case 'student':
                     {
-                        const userID = userInfo?.result?.id;
-                        if (userID) {
-                            excelData = await FileHelper.handleImportStudent(file, workbook, userID)
+                        // const userID = userInfo?.result?.id;
+                        // if (userID) {
+                        if (isFAPFile) {
+                            excelData = await FileHelper.handleImportFAPStudent(file, workbook)
                             setExcelResult(excelData)
                         } else {
-                            errLogs.push({
-                                type: 'error',
-                                message: 'Login are required to use this function',
-                            });
+                            excelData = await FileHelper.handleImportStudent(file, workbook)
+                            setExcelResult(excelData)
                         }
+                        // } else {
+                        //     errLogs.push({
+                        //         type: 'error',
+                        //         message: 'Login are required to use this function',
+                        //     });
+                        // }
                     }
                     break;
                 case 'class':
-                    message.info('Class Excel file not supported yet! Its functionality not working as expect')
+                    {
+                        if (isFAPFile) {
+                            excelData = await FileHelper.handleImportFAPClass(file, workbook)
+                            setExcelResult(excelData)
+                        } else {
+                            excelData = await FileHelper.handleImportClass(file, workbook);
+                            setExcelResult(excelData)
+                        }
+                    }
                     break;
                 case 'schedule':
                     {
@@ -124,9 +137,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 default:
                     message.info('Excel file not supported!')
             }
-
-            // console.log("import data here", excelData);
-            // setExcelResult(excelData)
             setOnValidateExcel(true);
             return false
         } catch (error) {
@@ -159,45 +169,33 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     {
                         const result = RequestHelpers.postExcelStudent(excelData);
                         result.then(response => {
-                            console.log("After merge success, data: ", response);
-                            const { errorLogs, successLogs, warningLogs, data } = response;
-                            setOnValidateServer(false)
-                            setOnValidateExcel(false)
-
-                            setSuccessLogs(successLogs)
-                            setErrLogs(errorLogs)
-                            setWarningLogs(warningLogs)
-
-                            if (data) {
-                                setValidateSvResult(data)
-                            }
+                            // console.log("After merge success, data: ", response);
+                            saveInfo(response)
                         }).catch(err => {
-                            console.log("Err here after merge ", err);
-                            const { errorLogs, warningLogs, data } = err;
-                            setOnValidateServer(false)
-                            setOnValidateExcel(false)
-
-                            setErrLogs(errorLogs)
-                            setWarningLogs(warningLogs)
-                            if (data) {
-                                setValidateSvResult(data)
-                            }
+                            // console.log("Err here after merge ", err);
+                            saveInfo(err)
                         })
                     }
                     break;
                 case 'class':
-
+                    {
+                        const result = RequestHelpers.postExcelClass(excelData);
+                        result.then(data => {
+                            saveInfo(data)
+                        }).catch(err => {
+                            saveInfo(err)
+                        })
+                    }
                     break;
                 case 'schedule':
                     {
-                        console.log("This is input ", excelData);
+                        // console.log("This is input ", excelData);
                         const result = RequestHelpers.postExcelSchedule(excelData);
-
                         result.then(data => {
-                            console.log("Post schedule success ", data);
+                            // console.log("Post schedule success ", data);
                             saveInfo(data)
                         }).catch(err => {
-                            console.log("Post schedule error ", err);
+                            // console.log("Post schedule error ", err);
                             saveInfo(err)
                         })
                     }
@@ -339,6 +337,16 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         current === 0 && (
                             <div className='upload-excel'>
                                 <div className={styles.templateSection}>
+                                    {
+                                        (fileType === 'class' || fileType === 'student') && (
+                                            <Checkbox
+                                                onChange={() => { setIsFAPFile(!isFAPFile) }}
+                                                style={{ margin: '5px 0 10px' }}
+                                            >
+                                                FPT Excel
+                                            </Checkbox>
+                                        )
+                                    }
                                     <Button
                                         size='large'
                                         icon={<FileExcelOutlined />}
@@ -411,7 +419,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                     />
                                                     <Title level={2}>
                                                         {
-                                                            validateSvResult.status ? ('Create successfully') : ('Create Failed')
+                                                            validateSvResult.status ? ('Import successfully') : ('Import Failed')
                                                         }
                                                     </Title>
                                                 </>

@@ -19,10 +19,11 @@ import AdminSchedule from '../pages/admin/schedule/AdminSchedule';
 import AccountStudentsDetail from '../pages/admin/account/accountstudents/AccountStudentsDetail';
 import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
+import SlotDetail from '../pages/admin/slot/SlotDetail';
 
 const lecture = [
   {
-    path: '/',
+    path: '/home',
     element: <Home />
   },
   {
@@ -49,7 +50,7 @@ const lecture = [
 
 const admin = [
   {
-    path: '/home-admin',
+    path: '/home',
     element: <HomeAdmin />
   },
   {
@@ -107,6 +108,10 @@ const admin = [
   {
     path: '/slot',
     element: <Slot />
+  },
+  {
+    path: '/slot/slot-detail',
+    element: <SlotDetail />
   },
 ]
 const routeConfig = {

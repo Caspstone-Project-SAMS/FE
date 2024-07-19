@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import styles from './index.module.less'
 import { CalendarOutlined, CaretLeftOutlined, CaretRightOutlined, DownOutlined } from '@ant-design/icons'
-import { Button, Dropdown, MenuProps, Space } from 'antd'
+import { Button, Dropdown, MenuProps, Space, Spin } from 'antd'
 import Search from 'antd/es/input/Search'
 import { ToolbarProps, Views } from 'react-big-calendar'
 import useDispatch from '../../../redux/UseDispatch'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../redux/Store'
 import { getScheduleByID } from '../../../redux/slice/Calendar'
+import moment from 'moment'
 
-const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
+interface WeekDay {
+    weekday: string;
+    date: string;
+}
+
+const CustomToolBar: React.FC<{ toolbar: ToolbarProps, loadingStatus: boolean }> = ({ toolbar, loadingStatus }) => {
     const [selectedView, setSelectedView] = useState<string>('Week');
     const [dateTitle, setDateTitle] = useState<string>();
 
@@ -66,6 +72,21 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
         setDateTitle(label);
     }
 
+    const getWeekFromDate = (inputDate: Date): WeekDay[] => {
+        const startOfWeek = moment(inputDate).startOf('week');
+        const week: WeekDay[] = [];
+
+        for (let i = 0; i < 7; i++) {
+            const date = moment(startOfWeek).add(i, 'days').format('YYYY-MM-DD');
+            week.push({
+                weekday: moment(date).format('ddd'),
+                date: date,
+            });
+        }
+
+        return week;
+    };
+
     useEffect(() => {
         // onView('week');
         updateDateTitle()
@@ -75,7 +96,11 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
         const fmtTxt = view.replace(/^\w/, char => char.toUpperCase())
         setSelectedView(fmtTxt)
         updateDateTitle()
-    }, [toolbar])
+
+        // const day = toolbar.date;
+        // console.log("toolbar ", toolbar);
+        // console.log("formated: ", getWeekFromDate(day));
+    }, [toolbar, view, updateDateTitle])
 
     return (
         <div className={styles.toolbarCtn}>
@@ -116,24 +141,28 @@ const CustomToolBar: React.FC<ToolbarProps> = (toolbar) => {
                         marginRight: '8px'
                     }}
                 />
-                <Button
-                    type="default"
-                    icon={<CaretLeftOutlined />}
-                    size={'middle'}
-                    onClick={() => toolbar.onNavigate("PREV")}
-                    className={styles.prevBtn}
-                >
-                    Prev
-                </Button>
-                <Button
-                    type="default"
-                    icon={<CaretRightOutlined />}
-                    iconPosition='end' size={'middle'}
-                    onClick={() => toolbar.onNavigate("NEXT")}
-                    className={styles.nextBtn}
-                >
-                    Next
-                </Button>
+                <Spin spinning={loadingStatus}>
+                    <Button
+                        type="default"
+                        icon={<CaretLeftOutlined />}
+                        size={'middle'}
+                        onClick={() => toolbar.onNavigate("PREV")}
+                        className={styles.prevBtn}
+                    >
+                        Prev
+                    </Button>
+                    <Button
+                        type="default"
+                        icon={<CaretRightOutlined />}
+                        iconPosition='end' size={'middle'}
+                        onClick={() => {
+                            toolbar.onNavigate("NEXT")
+                        }}
+                        className={styles.nextBtn}
+                    >
+                        Next
+                    </Button>
+                </Spin>
             </div>
         </div>
     )

@@ -2,7 +2,8 @@ import axios from 'axios';
 import { STUDENT_API } from '.';
 import { Student, StudentDetail } from '../models/student/Student';
 import toast from 'react-hot-toast';
-import { HelperService } from './helpers/helperFunc';
+import { HelperService } from './helpers/HelperFunc';
+import { ExcelClassList } from '../models/Class';
 
 type StudentList = {
   studentCode: string;
@@ -13,7 +14,13 @@ type StudentList = {
 
 const getAllStudent = async (): Promise<Student[] | null> => {
   try {
-    const response = await axios.get(STUDENT_API);
+    const response = await axios.get(STUDENT_API, {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+      },
+    });
     return response.data as Student[];
   } catch (error) {
     console.log(error);
@@ -40,6 +47,11 @@ const getStudentByID = async (
 
 const importExcelStudent = async (studentList: StudentList[]) => {
   return await axios.post(STUDENT_API, studentList);
+};
+
+const importExcelClass = async (data: ExcelClassList[]) => {
+  const res = await axios.post(`${STUDENT_API}/add-students-to-class`, data);
+  return res.data;
 };
 
 const createStudent = async (StudentCode: string, CreateBy: string) => {
@@ -83,4 +95,5 @@ export const StudentService = {
   importExcelStudent,
   createStudent,
   downloadTemplateExcel,
+  importExcelClass,
 };
