@@ -68,48 +68,49 @@ const Home: React.FC = () => {
     }
     const schedules = calendar.schedule;
     const today = moment(new Date()).format('YYYY-MM-DD');
+    if (schedules.length > 0) {
+      //Current date
+      const todaySchedules = schedules.map(schedule => {
+        if (schedule.date === today) {
+          const startDateTime = new Date(`${schedule.date}T${schedule.startTime}`);
+          const endDateTime = new Date(`${schedule.date}T${schedule.endTime}`);
 
-    //Current date
-    const todaySchedules = schedules.map(schedule => {
-      if (schedule.date === today) {
-        const startDateTime = new Date(`${schedule.date}T${schedule.startTime}`);
-        const endDateTime = new Date(`${schedule.date}T${schedule.endTime}`);
-
-        const status = validateStatusSchedule(startDateTime, endDateTime);
-        if (status === 'current' || status === 'future') {
-          if (status === 'current') {
-            dashboardInfoVal.curUpClass = schedule;
-          } else {
-            dashboardInfoVal.curUpClass = schedule;
-            dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
+          const status = validateStatusSchedule(startDateTime, endDateTime);
+          if (status === 'current' || status === 'future') {
+            if (status === 'current') {
+              dashboardInfoVal.curUpClass = schedule;
+            } else {
+              dashboardInfoVal.curUpClass = schedule;
+              dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
+            }
+            hasEventToday = true;
           }
-          hasEventToday = true;
-        }
-        if (status === 'past') {
-          pastEvent++;
-        }
-        return { ...schedule, status }
-      }
-    }).filter(item => item !== undefined)
-    // calculate upcoming, class left, subject prepare, when time not the end of the day
-    if (hasEventToday) {
-      let isFirst = false;
-      //Subject prepare, upcomingtxt
-      todaySchedules.forEach(schedule => {
-        if (schedule.status === 'future') {
-          if (!isFirst) {
-            dashboardInfoVal.upcomingTxt = schedule.subjectCode;
-            isFirst = true;
+          if (status === 'past') {
+            pastEvent++;
           }
-          dashboardInfoVal.subjectPrepare.push(schedule.subjectCode);
+          return { ...schedule, status }
         }
-      })
-      if (pastEvent !== 0) {
-        dashboardInfoVal.todayClass = `${pastEvent}/${todaySchedules.length}`
-      } else {
-        dashboardInfoVal.todayClass = `${todaySchedules.length}/${todaySchedules.length}`
+      }).filter(item => item !== undefined)
+      // calculate upcoming, class left, subject prepare, when time not the end of the day
+      if (hasEventToday) {
+        let isFirst = false;
+        //Subject prepare, upcomingtxt
+        todaySchedules.forEach(schedule => {
+          if (schedule.status === 'future') {
+            if (!isFirst) {
+              dashboardInfoVal.upcomingTxt = schedule.subjectCode;
+              isFirst = true;
+            }
+            dashboardInfoVal.subjectPrepare.push(schedule.subjectCode);
+          }
+        })
+        if (pastEvent !== 0) {
+          dashboardInfoVal.todayClass = `${pastEvent}/${todaySchedules.length}`
+        } else {
+          dashboardInfoVal.todayClass = `${todaySchedules.length}/${todaySchedules.length}`
+        }
+        setDashboardInfo(dashboardInfoVal)
       }
-      setDashboardInfo(dashboardInfoVal)
     }
     // console.log("cateried ", todaySchedules);
     // console.log("dashboardInfo ", dashboardInfoVal);

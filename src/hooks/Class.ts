@@ -5,7 +5,7 @@ import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { Class } from '../models/Class';
 import { HelperService } from './helpers/HelperFunc';
 import toast from 'react-hot-toast';
-    
+
 const importExcelClass = async (data: ExcelClassList[]) => {
   const res = await axios.post(CLASS_API, data);
   return res.data;
@@ -21,7 +21,9 @@ const downloadTemplateExcel = async () => {
   } catch (error) {
     console.log('Error when download template_class');
     toast.error('Unknown error occured, please try again later');
-    
+  }
+};
+
 const getAllClass = async (): Promise<Class | null> => {
   try {
     const response = await axios.get(`${CLASS_API}?quantity=50`);
