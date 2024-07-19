@@ -284,8 +284,6 @@ const handleImportStudent = (
     });
 };
 
-<<<<<<< HEAD
-=======
 const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
   const result: validateFmt = {
     result: undefined,
@@ -704,7 +702,6 @@ const handleImportFAPStudent = (
     });
 };
 
->>>>>>> 97b3f8c3040ef4483297ebce9d74efabf251deb3
 const handleImportSchedule = (
   excelFile: RcFile,
   workbook: ExcelJS.Workbook,
