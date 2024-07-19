@@ -20,14 +20,14 @@ const HomeAdmin: React.FC = () => {
             </Row>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card style={{backgroundColor:'#f1e7ff'}}>
+                <Card style={{ backgroundColor: '#f1e7ff' }}>
                   <Row>
                     <Col span={17}>
-                      <Typography.Text className={styles.studentTitle}>
+                      <Typography.Text className={styles.subTitle}>
                         Students
                       </Typography.Text>
                       <br />
-                      <Typography.Text className={styles.studentSpec}>
+                      <Typography.Text className={styles.subInfo}>
                         12.0K
                       </Typography.Text>
                     </Col>
@@ -41,14 +41,14 @@ const HomeAdmin: React.FC = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card style={{backgroundColor:'#e5f5ff'}}>
+                <Card style={{ backgroundColor: '#e5f5ff' }}>
                   <Row>
                     <Col span={17}>
-                      <Typography.Text className={styles.studentTitle}>
+                      <Typography.Text className={styles.subTitle}>
                         Teachers
                       </Typography.Text>
                       <br />
-                      <Typography.Text className={styles.studentSpec}>
+                      <Typography.Text className={styles.subInfo}>
                         500
                       </Typography.Text>
                     </Col>
@@ -62,14 +62,14 @@ const HomeAdmin: React.FC = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card style={{backgroundColor:'#ffefe7'}}>
+                <Card style={{ backgroundColor: '#ffefe7' }}>
                   <Row>
                     <Col span={17}>
-                      <Typography.Text className={styles.studentTitle}>
+                      <Typography.Text className={styles.subTitle}>
                         Subjects
                       </Typography.Text>
                       <br />
-                      <Typography.Text className={styles.studentSpec}>
+                      <Typography.Text className={styles.subInfo}>
                         100
                       </Typography.Text>
                     </Col>
@@ -83,14 +83,14 @@ const HomeAdmin: React.FC = () => {
                 </Card>
               </Col>
               <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-                <Card style={{backgroundColor:'#ebfdef'}}>
+                <Card style={{ backgroundColor: '#ebfdef' }}>
                   <Row>
                     <Col span={17}>
-                      <Typography.Text className={styles.studentTitle}>
+                      <Typography.Text className={styles.subTitle}>
                         Class
                       </Typography.Text>
                       <br />
-                      <Typography.Text className={styles.studentSpec}>
+                      <Typography.Text className={styles.subInfo}>
                         20
                       </Typography.Text>
                     </Col>

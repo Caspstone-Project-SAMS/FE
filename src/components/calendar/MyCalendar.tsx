@@ -17,7 +17,7 @@ import CustomWeekEvent from './items/events/CustomEventWeek'
 import CustomToolBar from './items/CustomToolBar'
 import { Schedule } from '../../models/calendar/Schedule'
 import { CustomEvent as RBC_Custom_Event } from '../../models/calendar/CustomEvent'
-import { HelperService } from '../../hooks/helpers/HelperFunc'
+import { HelperService } from '../../hooks/helpers/helperFunc'
 // import events from './data/events'
 
 moment.updateLocale('ko', {
@@ -149,10 +149,13 @@ function MyCalendar() {
     }, [])
 
     useEffect(() => {
-        if (schedule && schedule.length > 0) {
+        if (userDetail && schedule && schedule.length > 0) {
             const formatted = fmtSchedule(schedule);
             // console.log("Schedule API: ", schedule);
             setScheduleEvent(formatted)
+        } else {
+            console.log("userDetail, schedule are undefined");
+            setScheduleEvent([])
         }
     }, [userDetail, schedule])
 

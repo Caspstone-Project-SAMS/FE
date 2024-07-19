@@ -17,7 +17,7 @@ import { UserInfo } from "../../models/UserInfo";
 import { logout } from "../../redux/slice/Auth";
 import NotificationItem from "./contentHeader/NotificationItem";
 import { PiBellBold } from "react-icons/pi";
-import { HelperService } from "../../hooks/helpers/HelperFunc";
+import { HelperService } from "../../hooks/helpers/helperFunc";
 
 const { Header: AntHeader } = Layout;
 

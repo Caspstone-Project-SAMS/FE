@@ -1,9 +1,9 @@
 import axios, { AxiosError } from 'axios';
-import { CLASS_API } from '.';
+import { CLASS_API, DOWNLOAD_TEMPLATE_API } from '.';
 import { ExcelClassList } from '../models/Class';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { Class } from '../models/Class';
-import { HelperService } from './helpers/HelperFunc';
+import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
 
 const importExcelClass = async (data: ExcelClassList[]) => {
@@ -13,9 +13,12 @@ const importExcelClass = async (data: ExcelClassList[]) => {
 
 const downloadTemplateExcel = async () => {
   try {
-    const response = await axios(`${CLASS_API}/download-excel-template`, {
-      responseType: 'blob',
-    });
+    const response = await axios(
+      `${DOWNLOAD_TEMPLATE_API}/download-excel-template-class`,
+      {
+        responseType: 'blob',
+      },
+    );
     const blobFile = response.data;
     HelperService.downloadFile(blobFile, 'template_class');
   } catch (error) {

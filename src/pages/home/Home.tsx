@@ -14,7 +14,6 @@ import { RootState } from '../../redux/Store';
 
 import HomeCalendar from '../../components/calendar/HomeCalendar';
 import { Schedule } from '../../models/calendar/Schedule';
-import { slots } from '../../components/calendar/data/RawData';
 
 type scheduleStatus = 'past' | 'current' | 'future';
 type Dashboard = {
@@ -31,7 +30,6 @@ const Home: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth)
   const calendar = useSelector((state: RootState) => state.calendar)
   const todayDate = moment().format('dddd, MMMM DD, YYYY');
-  const slotSample = slots;
 
   const validateStatusSchedule = (startTime: Date, endTime: Date): scheduleStatus => {
     const currentTime = new Date();
@@ -68,7 +66,7 @@ const Home: React.FC = () => {
     }
     const schedules = calendar.schedule;
     const today = moment(new Date()).format('YYYY-MM-DD');
-    if (schedules.length > 0) {
+    if (schedules && schedules.length > 0) {
       //Current date
       const todaySchedules = schedules.map(schedule => {
         if (schedule.date === today) {
@@ -104,10 +102,15 @@ const Home: React.FC = () => {
             dashboardInfoVal.subjectPrepare.push(schedule.subjectCode);
           }
         })
-        if (pastEvent !== 0) {
+        if (pastEvent !== 0) { // sau khi co tiet hoc ket thuc 
           dashboardInfoVal.todayClass = `${pastEvent}/${todaySchedules.length}`
-        } else {
-          dashboardInfoVal.todayClass = `${todaySchedules.length}/${todaySchedules.length}`
+        } else { // past event = 0, bat dau ngay
+          const futureEvents = todaySchedules.filter(item => item.status === 'future')
+          if (futureEvents.length > 0) { // chua bat dau tiet hoc
+            dashboardInfoVal.todayClass = `0/${todaySchedules.length}`
+          } else { // hoan thanh ngay
+            dashboardInfoVal.todayClass = `${todaySchedules.length}/${todaySchedules.length}`
+          }
         }
         setDashboardInfo(dashboardInfoVal)
       }
@@ -291,7 +294,7 @@ const Home: React.FC = () => {
               <Col span={12}>
                 <Card className={styles.subPrepare}>
                   <Row>
-                    <Col span={17}>
+                    <Col style={{ height: '100%', alignItems: 'center' }} span={17}>
                       <text className={styles.subTitle}>Subject Prepare</text>
                       <br />
                       {

@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { STUDENT_API } from '.';
+import { DOWNLOAD_TEMPLATE_API, STUDENT_API } from '.';
 import { Student, StudentDetail } from '../models/student/Student';
 import toast from 'react-hot-toast';
-import { HelperService } from './helpers/HelperFunc';
+import { HelperService } from './helpers/helperFunc';
 import { ExcelClassList } from '../models/Class';
 
 type StudentList = {
@@ -78,9 +78,12 @@ const createStudent = async (StudentCode: string, CreateBy: string) => {
 
 const downloadTemplateExcel = async () => {
   try {
-    const response = await axios(`${STUDENT_API}/download-excel-template`, {
-      responseType: 'blob',
-    });
+    const response = await axios(
+      `${DOWNLOAD_TEMPLATE_API}/download-excel-template-student`,
+      {
+        responseType: 'blob',
+      },
+    );
     const blobFile = response.data;
     HelperService.downloadFile(blobFile, 'template_student');
   } catch (error) {

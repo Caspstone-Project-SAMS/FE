@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { SCHEDULE_API, SEMESTER_API } from '.';
+import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
-import { HelperService } from './helpers/HelperFunc';
+import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
 
 type ScheduleList = {
@@ -63,9 +63,12 @@ const importExcelSchedule = async (data: ScheduleList[]) => {
 
 const downloadTemplateExcel = async () => {
   try {
-    const response = await axios(`${SCHEDULE_API}/download-excel-template`, {
-      responseType: 'blob',
-    });
+    const response = await axios(
+      `${DOWNLOAD_TEMPLATE_API}/download-excel-template-schedule`,
+      {
+        responseType: 'blob',
+      },
+    );
     const blobFile = response.data;
     HelperService.downloadFile(blobFile, 'template_schedule');
   } catch (error) {
