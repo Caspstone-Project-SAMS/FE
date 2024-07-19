@@ -8,7 +8,7 @@ import { Schedule } from '../../models/calendar/Schedule';
 import { CalendarService } from '../../hooks/Calendar';
 import { Semester } from '../../models/calendar/Semester';
 import moment from 'moment';
-import { HelperService } from '../../hooks/helpers/HelperFunc';
+import { HelperService } from '../../hooks/helpers/helperFunc';
 import axios from 'axios';
 
 //Functions

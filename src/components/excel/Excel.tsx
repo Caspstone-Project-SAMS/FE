@@ -11,7 +11,7 @@ import { RootState } from '../../redux/Store'
 
 import { FileHelper } from './helpers/FileHelper'
 import { RequestHelpers } from './helpers/RequestHelper'
-import { HelperService } from '../../hooks/helpers/HelperFunc'
+import { HelperService } from '../../hooks/helpers/helperFunc'
 import SuccessIcon from '../../assets/icons/success_icon.png'
 import ErrorIcon from '../../assets/icons/cancel_icon.png'
 import MessageCard from './messageCard/MessageCard'
@@ -275,7 +275,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 Import Excel
             </Button>
             <Modal
-                title={`Import ${HelperService.capitalizeFirstLetter(fileType)} Excel Document`}
+                title={
+                    <Text style={{ fontSize: '1.25rem' }}>
+                        Import {HelperService.capitalizeFirstLetter(fileType)}
+                    </Text>
+                }
                 centered
                 open={modalOpen}
                 maskClosable={false}

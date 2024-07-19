@@ -124,7 +124,7 @@ const AuthSlice = createSlice({
       // const detail = { ...state.userDetail, result };
       state.authStatus = true;
       state.loadingStatus = false;
-      state.userDetail = fakeUser;
+      // state.userDetail = fakeUser;
     });
   },
 });

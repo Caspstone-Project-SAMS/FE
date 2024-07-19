@@ -13,7 +13,7 @@ import fptimg from '../../../assets/imgs/FPT-Logo-PNG.png'
 import ClassDetailTable from '../../../components/classdetails/ClassDetailTable';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import BtnDecoration from '../../../components/global/BtnDecoration';
-import { HelperService } from '../../../hooks/helpers/HelperFunc';
+import { HelperService } from '../../../hooks/helpers/helperFunc';
 
 const ClassDetails: React.FC = () => {
   const location = useLocation();
