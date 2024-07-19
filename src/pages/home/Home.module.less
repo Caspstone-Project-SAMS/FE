@@ -205,30 +205,65 @@
 .home {
   overflow-y: auto;
   margin-top: 15px;
+
+  .dashboardCard {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+
+    .cardInfoCtn {
+      width: 90%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .cardInfo {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .iconNav {
+      // width: 20%;
+      justify-self: end;
+    }
+  }
+
   .first-card-title {
     font-weight: bold;
     font-size: x-large;
   }
+
   .btn-class {
-    
+
     height: 110%;
+
     .people-icon {
       display: flex;
       align-items: center;
     }
+
     .arrow-icon {
       display: flex;
       align-items: center;
       margin-left: 100px;
     }
+
     .class-title {
       font-weight: 500;
       font-size: 15px;
+
       .class-detail {
         font-weight: 400;
       }
     }
   }
+
   .date {
     display: flex;
     justify-content: center;
@@ -239,9 +274,11 @@
 .upcome-class {
   margin-bottom: 5px;
   background-color: #f0e6fe;
+
   .up-title {
     color: #808080;
   }
+
   .up-detail {
     color: #252c58;
     font-weight: bold;
@@ -251,9 +288,11 @@
 
 .today-class {
   background-color: #e1f0fa;
+
   .to-title {
     color: #808080;
   }
+
   .to-detail {
     color: #252c58;
     font-weight: bold;
@@ -266,9 +305,11 @@
   background-color: #ebfdef;
   padding-top: 19px;
   padding-bottom: 19px;
+
   .sub-title {
     color: #808080;
   }
+
   .sub-detail {
     color: #252c58;
     font-weight: bold;

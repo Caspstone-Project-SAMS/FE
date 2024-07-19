@@ -9,7 +9,7 @@ import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
 import useDispatch from '../../redux/UseDispatch'
-import { getScheduleByID } from '../../redux/slice/Calendar'
+import { getScheduleByID, getScheduleByWeek } from '../../redux/slice/Calendar'
 
 import CustomEvent from './items/events/CustomEvent'
 import CustomEventDay from './items/events/CustomEventDay'
@@ -17,6 +17,7 @@ import CustomWeekEvent from './items/events/CustomEventWeek'
 import CustomToolBar from './items/CustomToolBar'
 import { Schedule } from '../../models/calendar/Schedule'
 import { CustomEvent as RBC_Custom_Event } from '../../models/calendar/CustomEvent'
+import { HelperService } from '../../hooks/helpers/HelperFunc'
 // import events from './data/events'
 
 moment.locale('ko', {
@@ -40,9 +41,11 @@ function MyCalendar() {
     const [date, setDate] = useState(new Date());
     const [scheduleEvent, setScheduleEvent] = useState<RBC_Custom_Event[]>([]);
     const [selectedView, setSelectedView] = useState<View>(Views.WEEK)
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const schedule = useSelector((state: RootState) => state.calendar.schedule);
     const userDetail = useSelector((state: RootState) => state.auth.userDetail);
+    const schedule = useSelector((state: RootState) => state.calendar.schedule);
+    const timeLine = useSelector((state: RootState) => state.calendar.timeline);
     const dispatch = useDispatch();
 
     const today = new Date();
@@ -139,15 +142,18 @@ function MyCalendar() {
     useEffect(() => {
         const lecturerID = userDetail?.result?.id;
         if (lecturerID) {
-            const arg = { lecturerID: lecturerID, semesterID: '2' };
-            dispatch(getScheduleByID(arg))
+            const week: Date[] = HelperService.getWeekFromDate(today)
+            const arg = { lecturerID: lecturerID, semesterID: '2', week };
+            dispatch(getScheduleByWeek(arg))
         }
     }, [])
 
     useEffect(() => {
-        const formatted = fmtSchedule(schedule);
-        // console.log("Schedule API: ", schedule);
-        setScheduleEvent(formatted)
+        if (schedule && schedule.length > 0) {
+            const formatted = fmtSchedule(schedule);
+            // console.log("Schedule API: ", schedule);
+            setScheduleEvent(formatted)
+        }
     }, [userDetail, schedule])
 
 
@@ -158,6 +164,24 @@ function MyCalendar() {
             min={startHour}
             max={endHour}
             popup
+            onRangeChange={(range) => {
+                // console.log("range change,", range);
+                const lecturerID = userDetail?.result?.id;
+
+                //Havent do check contained date successful
+                if (selectedView === 'week' && Array.isArray(range) && lecturerID) {
+                    const randomDelay = HelperService.randomDelay();
+                    setLoading(true);
+                    setTimeout(() => {
+                        const isContainedTimeLine = HelperService.checkContainedDate(range, timeLine)
+                        if (!isContainedTimeLine) {
+                            const arg = { lecturerID: lecturerID, semesterID: '2', week: range };
+                            dispatch(getScheduleByWeek(arg))
+                        }
+                        setLoading(false)
+                    }, randomDelay)
+                }
+            }}
             components={{
                 event: CustomEvent,
                 week: {
@@ -166,7 +190,7 @@ function MyCalendar() {
                 day: {
                     event: CustomEventDay
                 },
-                toolbar: CustomToolBar
+                toolbar: (toolbar) => <CustomToolBar toolbar={toolbar} loadingStatus={loading} />
             }}
             date={date}
             view={selectedView}

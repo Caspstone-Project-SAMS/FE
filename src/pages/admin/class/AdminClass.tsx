@@ -62,6 +62,7 @@ const AdminClass: React.FC = () => {
   const [RoomId, setRoomId] = useState(0);
   const [SubjectId, setSubjectId] = useState(0);
   const [LecturerID, setLecturerID] = useState('');
+  const [SemesterCode, setSemesterCode] = useState('');
   // const [CreatedBy, setCreatedBy] = useState('');
 
   const failMessage = useSelector((state: RootState) => state.class.message);
@@ -158,6 +159,7 @@ const AdminClass: React.FC = () => {
     setSubjectId(0);
     setLecturerID('');
     setIsCheck(false);
+    setSemesterCode('');
   };
 
   const handleUpdate = async () => {};
@@ -201,6 +203,7 @@ const AdminClass: React.FC = () => {
   const getAllSmester = async () => {
     const response = await CalendarService.getAllSemester();
     setSemester(response || []);
+    setSemesterCode(response?.find((sem) => sem.semesterID === SemesterId)?.semesterCode || '');
   };
 
   const getAllRoom = async () => {
@@ -249,7 +252,7 @@ const AdminClass: React.FC = () => {
   ];
 
   useEffect(() => {
-    setClassCode(ClassName + '_' + SubjectCode);
+    setClassCode(ClassName + (SubjectCode ? '_' + SubjectCode : ''));
   }, [ClassName, SubjectCode])
 
   return (
@@ -340,12 +343,12 @@ const AdminClass: React.FC = () => {
         <p className={styles.createClassTitle}>Semester Code</p>
         <Select
           placeholder="Semester Code"
-          // value={SemesterId}
+          value={SemesterId}
           onChange={(value) => setSemesterId(value)}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {semester.map((sem) => (
-            <Select.Option key={sem.semesterID} value={sem.semesterID}>
+            <Select.Option key={sem.semesterID} value={sem.semesterID} >
               {sem.semesterCode}
             </Select.Option>
           ))}
