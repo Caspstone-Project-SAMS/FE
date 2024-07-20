@@ -4,7 +4,7 @@ import '../../assets/styles/styles.less'
 import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
 import { RcFile } from 'antd/es/upload'
-import { Button, Checkbox, Image, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { Button, Checkbox, Dropdown, Image, MenuProps, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
 import { CloudUploadOutlined, DeleteOutlined, FileExcelOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
@@ -18,6 +18,9 @@ import MessageCard from './messageCard/MessageCard'
 import { StudentService } from '../../hooks/StudentList';
 import { CalendarService } from '../../hooks/Calendar';
 import { ClassService } from '../../hooks/Class';
+import useDispatch from '../../redux/UseDispatch';
+import { getAllSemester } from '../../redux/slice/global/GlobalSemester';
+import { FaAngleDown } from 'react-icons/fa6';
 
 type ValidateFmt = {
     result?: any[];
@@ -42,7 +45,13 @@ type FolderType = {
 const { Text, Title } = Typography
 
 const Excel: React.FC<FolderType> = ({ fileType }) => {
+    const dispatch = useDispatch()
     const userInfo = useSelector((state: RootState) => state.auth.userDetail);
+    const semester = useSelector((state: RootState) => state.globalSemester.data);
+    const [semesterData, setSemesterData] = useState<MenuProps['items']>([]);
+    const [selectedSemester, setSelectedSemester] = useState<number>(0)
+    const [labelSemester, setLabelSemester] = useState<string>('')
+
     const [current, setCurrent] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
     const [isFAPFile, setIsFAPFile] = useState<boolean>(false);
@@ -179,7 +188,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'class':
                     {
-                        const result = RequestHelpers.postExcelClass(excelData);
+                        const result = RequestHelpers.postExcelClass(excelData, selectedSemester);
                         result.then(data => {
                             saveInfo(data)
                         }).catch(err => {
@@ -247,6 +256,52 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         setOnValidateServer(false)
         setValidateSvResult(undefined)
     }
+    // const getLabelByKey = (key: number): string => {
+    //     if (semesterData && semesterData.length > 0) {
+    //         const item = semesterData.find(item => item!.key === key);
+    //         // return item.label;
+    //     }
+    // };
+
+    const onClick: MenuProps['onClick'] = ({ key, domEvent }) => {
+        try {
+            setSelectedSemester(Number(key))
+            setLabelSemester(domEvent.target.innerHTML)
+        } catch (error) {
+            console.log("Err key type");
+        }
+    };
+
+    const handleFormatSemester = () => {
+        const menuData: MenuProps['items'] = []
+
+        if (semester && semester.length > 0) {
+            semester.forEach((item, i) => {
+                if (i === 0) {
+                    setSelectedSemester(item.semesterID);
+                    setLabelSemester(item.semesterCode)
+                }
+                menuData.push({
+                    key: item.semesterID,
+                    style: { padding: 0 },
+                    label: <Text style={{
+                        display: 'flex',
+                        width: '100%',
+                        padding: '6px',
+                    }}>{item.semesterCode}</Text>,
+                })
+            })
+            setSemesterData(menuData);
+        }
+    }
+
+    useEffect(() => {
+        if (semester && semester.length === 0) {
+            dispatch(getAllSemester())
+        } else {
+            handleFormatSemester()
+        }
+    }, [semester])
 
     useEffect(() => {
         setErrLogs([]);
@@ -341,21 +396,47 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         current === 0 && (
                             <div className='upload-excel'>
                                 <div className={styles.templateSection}>
-                                    {
-                                        (fileType === 'class' || fileType === 'student') && (
-                                            <Checkbox
-                                                onChange={() => { setIsFAPFile(!isFAPFile) }}
-                                                style={{ margin: '5px 0 10px' }}
-                                            >
-                                                FPT Excel
-                                            </Checkbox>
-                                        )
-                                    }
-                                    <Button
-                                        size='large'
-                                        icon={<FileExcelOutlined />}
-                                        onClick={() => handleDownloadTemplate()}
-                                    >Download template file</Button>
+                                    <div className={styles.templateSectionLeft}>
+                                        {fileType === 'class' && (
+                                            <>
+                                                <Text>Semester: </Text>
+                                                <Dropdown
+                                                    trigger={['click']}
+                                                    menu={{ items: semesterData, onClick }}>
+                                                    <Button
+                                                        icon={<FaAngleDown />}
+                                                        iconPosition='end'
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '5px',
+                                                        }}
+                                                    >
+                                                        <Text>
+                                                            {labelSemester}
+                                                        </Text>
+                                                    </Button>
+                                                </Dropdown>
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className={styles.templateSectionRight}>
+                                        {
+                                            (fileType === 'class' || fileType === 'student') && (
+                                                <Checkbox
+                                                    onChange={() => { setIsFAPFile(!isFAPFile) }}
+                                                    style={{ margin: '5px 0 10px' }}
+                                                >
+                                                    FPT Excel
+                                                </Checkbox>
+                                            )
+                                        }
+                                        <Button
+                                            size='large'
+                                            icon={<FileExcelOutlined />}
+                                            onClick={() => handleDownloadTemplate()}
+                                        >Download template file</Button>
+                                    </div>
                                 </div>
 
                                 <Upload.Dragger

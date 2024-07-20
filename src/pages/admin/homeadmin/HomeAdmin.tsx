@@ -1,13 +1,21 @@
 import { Content } from 'antd/es/layout/layout';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './HomeAdmin.module.less';
 import { Card, Col, Row, Typography } from 'antd';
 import { GoPeople } from 'react-icons/go';
 import { PiStudent } from 'react-icons/pi';
 import { GiTeacher } from 'react-icons/gi';
 import HomeCalendar from '../../../components/calendar/HomeCalendar';
+import useDispatch from '../../../redux/UseDispatch';
+import { getAllSemester } from '../../../redux/slice/global/GlobalSemester';
 
 const HomeAdmin: React.FC = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(getAllSemester());
+  }, [])
+
   return (
     <Content className={styles.homeAdminContent}>
       <Row gutter={[16, 16]}>
