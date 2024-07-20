@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { CLASS_API, DOWNLOAD_TEMPLATE_API } from '.';
-import { ExcelClassList } from '../models/Class';
+import { ClassDetail, Classes, ExcelClassList } from '../models/Class';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { Class } from '../models/Class';
 import { HelperService } from './helpers/helperFunc';
@@ -34,6 +34,27 @@ const getAllClass = async (): Promise<Class | null> => {
     return response.data as Class;
   } catch (error) {
     console.log(error);
+    return null;
+  }
+};
+
+const getClassByID = async (classID: number): Promise<ClassDetail | null> => {
+  // console.log(typeof classID)
+  try {
+    const response = await axios.get(`${CLASS_API}/${classID}`, {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+      },
+      headers: {
+        'accept': '*/*'
+      }
+    });
+    console.log("abcd: ", response.data)
+    return response.data as ClassDetail;
+  } catch (error) {
+    console.error('Error on get Class by ID: ', error);
     return null;
   }
 };
@@ -76,5 +97,6 @@ const createClass = async (
 export const ClassService = {
   downloadTemplateExcel,
   getAllClass,
+  getClassByID,
   createClass,
 };

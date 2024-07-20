@@ -6,7 +6,6 @@ import {
   Layout,
   message,
   Modal,
-  Radio,
   Row,
   Select,
   Table,
@@ -32,19 +31,19 @@ import { Room } from '../../../models/room/Room';
 import { SubjectService } from '../../../hooks/Subject';
 import { Subject } from '../../../models/subject/Subject';
 import { EmployeeService } from '../../../hooks/Employee';
-import { Employee, EmployeeDetail } from '../../../models/employee/Employee';
-import { ClassDetail } from '../../../models/Class';
+import { EmployeeDetail } from '../../../models/employee/Employee';
+import { ClassDetails } from '../../../models/Class';
 import { ClassService } from '../../../hooks/Class';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../../redux/Store';
 
 const AdminClass: React.FC = () => {
-  const [classes, setClasses] = useState<ClassDetail[]>([]);
+  const [classes, setClasses] = useState<ClassDetails[]>([]);
   const [semester, setSemester] = useState<Semester[]>([]);
   const [room, setRoom] = useState<Room[]>([]);
   const [subject, setSubject] = useState<Subject[]>([]);
   const [lecturer, setLecturer] = useState<EmployeeDetail[]>([]);
-  const [filteredClass, setFilteredClass] = useState<ClassDetail[]>(classes);
+  const [filteredClass, setFilteredClass] = useState<ClassDetails[]>(classes);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCheck, setIsCheck] = useState(false);
@@ -253,7 +252,7 @@ const AdminClass: React.FC = () => {
   }, [ClassName, SubjectCode])
 
   return (
-    <Content className={styles.classContent}>
+    <Content className={styles.accountClassContent}>
       <div className="align-center-between">
         <ContentHeader
           contentTitle="Class"

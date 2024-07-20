@@ -20,6 +20,7 @@ import AccountStudentsDetail from '../pages/admin/account/accountstudents/Accoun
 import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
 import SlotDetail from '../pages/admin/slot/SlotDetail';
+import AdminClassDetail from '../pages/admin/class/AdminClassDetail';
 
 const lecture = [
   {
@@ -113,9 +114,22 @@ const admin = [
     path: '/slot/slot-detail',
     element: <SlotDetail />
   },
+  {
+    path: '/admin-class/admin-class-detail',
+    element: <AdminClassDetail />
+  },
 ]
+
+const student = [
+  {
+    path: '/student',
+    element: <Student />
+  },
+]
+
 const routeConfig = {
   lecture,
-  admin
+  admin,
+  student,
 }
 export default routeConfig;

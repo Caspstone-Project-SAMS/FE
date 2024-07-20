@@ -30,7 +30,6 @@ import { RootState } from '../../../../redux/Store';
 import { StudentService } from '../../../../hooks/StudentList';
 import { CiSearch } from 'react-icons/ci';
 import personIcon from '../../../../assets/imgs/person-icon.jpg';
-import { IoIosFingerPrint } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
 
@@ -64,34 +63,6 @@ const AccountStudentsDetail: React.FC = () => {
       setStudentID(location.state.studentID);
     }
   }, [location.state]);
-
-  // function ConnectWebsocket() {
-  //   const ws = new WebSocket('ws://34.81.224.196/ws/client', [
-  //     'access_token',
-  //     token,
-  //   ]);
-  //   ws.onopen = () => {
-  //     console.log('WebSocket connection opened');
-
-  //   };
-
-  //   ws.onmessage = (message) => {
-  //     console.log('Message received:', message.data);
-
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log('WebSocket connection closed');
-
-  //   };
-
-  //   ws.onerror = (error) => {
-  //     console.error('WebSocket error:', error);
-
-  //   };
-  // }
-
-  // ConnectWebsocket()
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
