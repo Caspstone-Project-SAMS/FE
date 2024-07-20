@@ -83,8 +83,11 @@ const postExcelStudent = async (studentList): Promise<Result> => {
     });
 };
 
-const postExcelClass = async (classList): Promise<Result> => {
-  const response = StudentService.importExcelClass(classList);
+const postExcelClass = async (
+  classList,
+  semesterId: number,
+): Promise<Result> => {
+  const response = StudentService.importExcelClass(classList, semesterId);
   const result: Result = {
     successLogs: [],
     errorLogs: [],

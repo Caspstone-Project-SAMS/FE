@@ -1,18 +1,51 @@
 .adminScheduleCtn {
     padding: 20px;
 
-    .modalCtn {
+}
 
-        .searchBox {
 
-            .searchInput {
-                min-height: 50px;
-                font-size: 16px;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-radius: 0;
-            }
+.searchInput {
+    min-height: 50px;
+    font-size: 16px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+
+    border-radius: 0;
+}
+
+.searchInput:focus {
+    outline: 'none';
+    box-shadow: 'none';
+}
+
+.filterBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+
+    .filterItemTxt {
+        gap: 5px;
+        padding-left: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .filterLeftCtn {
+        width: 65%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .filterRightCtn {
+        width: 30%;
+
+        .filterBtn {
+            width: 100%;
+            height: auto;
         }
     }
 }
+
+.searchListCtn {}

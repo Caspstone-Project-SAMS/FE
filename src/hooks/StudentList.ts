@@ -49,8 +49,10 @@ const importExcelStudent = async (studentList: StudentList[]) => {
   return await axios.post(STUDENT_API, studentList);
 };
 
-const importExcelClass = async (data: ExcelClassList[]) => {
-  const res = await axios.post(`${STUDENT_API}/add-students-to-class`, data);
+const importExcelClass = async (data: ExcelClassList[], semesterId: number) => {
+  const res = await axios.post(`${STUDENT_API}/add-students-to-class`, data, {
+    params: { semesterId },
+  });
   return res.data;
 };
 
