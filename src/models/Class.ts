@@ -9,7 +9,6 @@ export interface DataType {
   groupsize: number;
 }
 
-
 export interface ExcelClassList {
   classCode: string;
   studentCode: string;
@@ -42,19 +41,32 @@ export interface ClassFail {
 
 export interface Class {
   title: string;
-  result: ClassDetail[];
+  result: ClassDetails[];
 }
 
-export interface ClassDetail {
+export interface ClassDetails {
   classID: number;
   classCode: string;
   classStatus: boolean;
   semester: Semester;
-  room: string;
-  subject: string;
+  room: Room;
+  subject: Subject;
   lecturer: Lecturer;
-  students: [];
-  schedules: [];
+  students: Student[];
+  schedules: Schedule[];
+}
+export interface ClassDetail {
+  result: {
+    classID: number;
+    classCode: string;
+    classStatus: boolean;
+    semester: Semester;
+    room: Room;
+    subject: Subject;
+    lecturer: Lecturer;
+    students: Student[];
+    schedules: Schedule[];
+  };
 }
 
 export interface Semester {
@@ -64,11 +76,40 @@ export interface Semester {
   startDate: string;
   endDate: string;
 }
+export interface Room {
+  roomID: number;
+  roomName: string;
+  roomDescription: string;
+  roomStatus: boolean;
+}
 
+export interface Subject {
+  subjectID: number;
+  subjectCode: string;
+  subjectName: string;
+  subjectStatus: number;
+}
 export interface Lecturer {
   id: string;
   displayName: string;
   avatar: string;
   email: string;
   department: string;
+}
+
+export interface Student {
+  id: string;
+  displayName: string;
+  avatar: string;
+  email: string;
+  studentCode: string;
+  absencePercentage: number;
+}
+
+export interface Schedule {
+  scheduleID: number;
+  date: string;
+  dateOfWeek: number;
+  scheduleStatus: boolean;
+  slot: null;
 }

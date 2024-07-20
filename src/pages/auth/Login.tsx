@@ -83,8 +83,10 @@ function Login() {
       navigate('/home');
     } else if (role === 'Admin') {
       navigate('/home');
+    } else if (role === 'Student') {
+      navigate('/student');
     }
-  }, [role]);
+  }, [role, navigate]);
 
   useEffect(() => {
     if (userCode.access_token) {

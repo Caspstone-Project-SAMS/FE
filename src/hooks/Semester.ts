@@ -11,6 +11,7 @@ const getSemesterByID = async (semesterID: number): Promise<SemesterDetail | nul
         'accept': '*/*'
       }
     });
+    console.log("swfv", response.data)
     return response.data as SemesterDetail;
   } catch (error) {
     console.error('Error on get Semester by ID: ', error);
