@@ -27,6 +27,8 @@ const getAllEmployee = async (): Promise<Employee | null> => {
   }
 };
 
+// const
+
 export const EmployeeService = {
-    getAllEmployee,
+  getAllEmployee,
 };

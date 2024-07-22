@@ -14,8 +14,22 @@
     .templateSection {
         display: flex;
         margin: 10px 0;
-        flex-direction: column;
-        align-items: flex-end;
+        flex-direction: row;
+        justify-content: space-between;
+        // align-items: center;
+
+        .templateSectionLeft {
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+        }
+
+        .templateSectionRight {
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+        }
     }
 }
 

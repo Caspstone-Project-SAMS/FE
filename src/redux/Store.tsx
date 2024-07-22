@@ -7,6 +7,7 @@ import Room from './slice/Room';
 import Semester from './slice/Semester';
 import Subject from './slice/Subject';
 import Class from './slice/Class';
+import GlobalSemester from './slice/global/GlobalSemester';
 import Module from './slice/Module';
 
 const Store = configureStore({
@@ -18,6 +19,7 @@ const Store = configureStore({
     semester: Semester,
     subject: Subject,
     class: Class,
+    globalSemester: GlobalSemester,
     module: Module,
   },
 });

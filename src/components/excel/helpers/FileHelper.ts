@@ -1121,6 +1121,29 @@ const handleImportSchedule = (
     });
 };
 
+const handleImportScheduleNew = (
+  excelFile: RcFile,
+  workbook: ExcelJS.Workbook,
+) => {
+  const result: validateFmt = {
+    result: undefined,
+    errors: [],
+  };
+
+  const createMsgLog = (log: validateError) => {
+    const { message, type } = log;
+    result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+
+  const promise = workbook.xlsx.load(excelFile).then((workbook) => {
+    const worksheet = workbook.getWorksheet('Sheet1');
+    const sample: any[] = [];
+  });
+};
+
 export const FileHelper = {
   handleImportSemester,
   handleImportStudent,
