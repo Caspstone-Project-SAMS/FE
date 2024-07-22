@@ -21,6 +21,8 @@ import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
 import SlotDetail from '../pages/admin/slot/SlotDetail';
 import AdminClassDetail from '../pages/admin/class/AdminClassDetail';
+import Module from '../pages/admin/module/Module';
+import ModuleDetail from '../pages/admin/module/ModuleDetail';
 
 const lecture = [
   {
@@ -117,6 +119,14 @@ const admin = [
   {
     path: '/admin-class/admin-class-detail',
     element: <AdminClassDetail />
+  },
+  {
+    path: '/module',
+    element: <Module />
+  },
+  {
+    path: '/module/module-detail',
+    element: <ModuleDetail />
   },
 ]
 

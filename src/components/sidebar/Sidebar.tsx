@@ -19,6 +19,7 @@ import { MdManageAccounts } from 'react-icons/md';
 import { FaBookOpen } from 'react-icons/fa';
 import { IoCalendar } from 'react-icons/io5';
 import { GrSchedules } from 'react-icons/gr';
+import { MdViewModule } from "react-icons/md";
 
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -113,6 +114,11 @@ const Sidebar: React.FC = () => {
                   label: 'Slot',
                   key: '/slot',
                   icon: <GiBookshelf />,
+                },
+                {
+                  label: 'Module',
+                  key: '/module',
+                  icon: <MdViewModule />,
                 },
               ]
             : role === 'Lecturer'
