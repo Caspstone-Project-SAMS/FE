@@ -183,7 +183,8 @@ const postExcelSchedule = async (scheduleList): Promise<Result> => {
       return result;
     })
     .catch((err) => {
-      // console.log('Error occured in postexcelschedule', err);
+      console.log('Error occured in postexcelschedule', err);
+
       const errResponses = err.response.data.errors;
       if (errResponses && Array.isArray(errResponses)) {
         result.errorLogs = errResponses.map((err) => ({
