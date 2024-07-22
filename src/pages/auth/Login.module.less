@@ -1,0 +1,126 @@
+@import '../../assets/styles/variables.less';
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  min-height: 100%;
+
+  .left {
+    padding-top: calc(100vh / 5);
+    position: relative;
+    width: 50%;
+    background-color: #0064E8;
+
+    .logo {
+      position: absolute;
+      top: 0;
+      left: 10px;
+
+      .logo-img {
+        width: 30%;
+      }
+    }
+
+    .decoration-ctn {
+      position: relative;
+      display: flex;
+      justify-content: center;
+
+      .box {
+        display: flex;
+        justify-content: center;
+      }
+
+      .decorateImg {
+        width: 65%;
+      }
+    }
+
+    .project-des {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #FFF;
+
+      .des {
+        text-align: center;
+      }
+    }
+  }
+
+  .right {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+    .login-box {
+      width: 64%;
+      display: flex;
+      flex-direction: column;
+
+      .login-form {
+        margin-top: 32px;
+
+        .input {
+          padding: 14px;
+          margin-bottom: 16px;
+        }
+      }
+    }
+
+    .additional-opt {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sign-in-btn {
+      margin-top: 20px;
+    }
+
+    .other-auth-opt {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row;
+      align-items: center;
+      margin: 20px 0;
+
+      .line {
+        border-top: 1px solid #E2E8F0;
+        width: 33%;
+      }
+    }
+
+    .gg-login-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gg-icon {
+      width: 25px;
+      height: 25px;
+    }
+
+    .sign-up-txt {
+      text-align: center;
+      margin-top: 26px;
+
+      .nav-link {
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: @antd-default-blue;
+      }
+    }
+  }
+
+}

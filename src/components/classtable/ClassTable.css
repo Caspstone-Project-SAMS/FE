@@ -1,0 +1,10 @@
+.class-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  margin-top: 20px;
+}
+
+.class-content {
+}
