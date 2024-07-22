@@ -14,7 +14,6 @@ const CustomEventDay: React.FC<EventProps<RBC_Event>> = ({ event }) => {
     const classDetail = event.title.split('-');
     const statusColor = event.status == 'past' ? '#64748B' : (event.status == 'current' ? '#24D164' : '#FBBF24');
     const isActive = event.status === 'current';
-    
 
     const detail = {
         subject: classDetail[0],

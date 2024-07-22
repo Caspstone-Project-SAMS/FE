@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/auth/Login';
 import ErrorPage from '../pages/ErrorPage';
 import ProtectedRoute from './ProtectedRoute';
-// import Excel from '../components/excel/Excel';
+import TestComponent from './TestComponent';
 
 const Router = () => {
 
@@ -13,7 +13,7 @@ const Router = () => {
         <ProtectedRoute />
       } />
       <Route path="/login" element={<Login />} />
-      {/* <Route path="/excel-test" element={<Excel fileType='class' />} /> */}
+      <Route path="/excel-test" element={<TestComponent />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   )

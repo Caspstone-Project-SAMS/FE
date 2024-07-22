@@ -159,7 +159,7 @@ const AdminClass: React.FC = () => {
     setIsCheck(false);
   };
 
-  const handleUpdate = async () => {};
+  const handleUpdate = async () => { };
 
   const handleCreate = async () => {
     setLoading(true);
@@ -259,10 +259,10 @@ const AdminClass: React.FC = () => {
       setClassCode('');
     }
   }, [ClassName, SubjectCode]);
-  
+
 
   console.log('code', ClassCode)
-  
+
 
   return (
     <Content className={styles.accountClassContent}>
@@ -335,13 +335,13 @@ const AdminClass: React.FC = () => {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-            // disabled={!isFormValid()}
+          // disabled={!isFormValid()}
           >
             Submit
           </Button>,
         ]}
       >
-        <p className={styles.createClassTitle}>Class Code: {ClassCode}</p>
+        <p className={styles.createClassTitle} style={{ fontSize: '1rem', margin: '5px 0px 10px' }}>Class Code: {ClassCode}</p>
         <p className={styles.createClassTitle}>Class Name</p>
         <Input
           placeholder="Class Name"

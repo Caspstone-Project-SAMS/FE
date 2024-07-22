@@ -38,9 +38,6 @@ const Account: React.FC = () => {
           <Space direction="horizontal">
             <Typography.Title level={3}>About Me</Typography.Title>
           </Space>
-          {/* <Button shape="circle">
-            <BsThreeDotsVertical />
-          </Button> */}
         </Header>
         <Content>
           <Space direction="vertical" className={styles.spaceCard}>
