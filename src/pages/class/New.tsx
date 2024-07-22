@@ -59,22 +59,25 @@ export default function New() {
     console.log('ssdsdc', successMessage)
 
     const handleRowClick = (classID: number) => {
-        navigate(`/admin-class/admin-class-detail`, {
+        navigate(`/class/detail`, {
             state: { classID: classID },
         });
     };
 
     useEffect(() => {
-        const response = ClassService.getAllClass();
+        if (lectureDetail?.id) {
+            const id = lectureDetail.id
+            const response = ClassService.getByClassLecturer(id);
 
-        response
-            .then((data) => {
-                setClasses(data?.result || []);
-                // setFilteredRoom(data || []);
-            })
-            .catch((error) => {
-                console.log('get class error: ', error);
-            });
+            response
+                .then((data) => {
+                    setClasses(data?.result || []);
+                    // setFilteredRoom(data || []);
+                })
+                .catch((error) => {
+                    console.log('get class error: ', error);
+                });
+        }
     }, [reload]);
 
     useEffect(() => {
