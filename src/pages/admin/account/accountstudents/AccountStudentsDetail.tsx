@@ -349,7 +349,6 @@ const AccountStudentsDetail: React.FC = () => {
   ];
 
   const showModal = () => {
-    console.log('module', moduleID);
     setIsModalVisible(true);
   };
 

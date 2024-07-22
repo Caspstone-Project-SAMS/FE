@@ -12,6 +12,10 @@ interface RegisterMode {
 //   ScheduleID: number;
 // }
 
+interface PrepareAttendance {
+  ScheduleID: number;
+}
+
 const getAllModule = async (): Promise<Module | null> => {
   try {
     const response = await axios.get(`${MODULE_API}`, {
@@ -106,6 +110,48 @@ const activeModuleMode = async (
   }
 };
 
+const activeModuleAttendance = async (
+  ModuleID: number,
+  SessionId: number,
+  Mode: number,
+  PrepareAttendance: PrepareAttendance,
+  token: string,
+  // StartAttendance: Schedule,
+  // StopAttendance: Schedule
+) => {
+  try {
+    console.log('ModuleID', ModuleID);
+    console.log('Mode', Mode);
+    console.log('PrepareAttendance', PrepareAttendance);
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        SessionId,
+        Mode,
+        PrepareAttendance,
+        // StartAttendance,
+        // StopAttendance
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('asddc', response);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error.message);
+      throw new Error(error.response.data);
+    }
+    console.log('Unexpected error:', error.message);
+    throw new Error(error.message);
+  }
+};
+
 const activeModule = async (
   ModuleID: number,
   Mode: number,
@@ -143,4 +189,5 @@ export const ModuleService = {
   getAllModule,
   getModuleByID,
   activeModule,
+  activeModuleAttendance,
 };
