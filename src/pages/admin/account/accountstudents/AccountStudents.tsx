@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import Excel from '../../../../components/excel/Excel';
 import personIcon from '../../../../assets/imgs/person-icon.jpg';
+import userIcon from '../../../../assets/imgs/users.png'
 import '../../../../assets/styles/styles.less'
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +25,7 @@ const AccountStudents: React.FC = () => {
   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
-  const handleRowClick = (studentID: number, isAuthenticated: boolean) => {
+  const handleRowClick = (studentID: string, isAuthenticated: boolean) => {
     navigate(`/account-admin/student/student-detail`, { state: { studentID: studentID, isAuthenticated: isAuthenticated } });
   };
 
@@ -145,7 +146,7 @@ const AccountStudents: React.FC = () => {
             key: index,
             studentname: (
               <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <img src={item.avatar || personIcon} alt="Student" className={styles.img} />
+                <img src={item.avatar || userIcon} alt="Student" className={styles.img} />
                 <p className={styles.studentName}>{item.studentName}</p>
               </div>
             ),

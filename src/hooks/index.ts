@@ -35,7 +35,10 @@ export const EMPLOYEE_API = `${server}/Employee`;
 export const DOWNLOAD_TEMPLATE_API = `${server}/DownloadTemplate`;
 
 //Student attendance
-export const STUDENT_ATTENDANCE = `${server}/Attendance/all`
+export const STUDENT_ATTENDANCE = `${server}/Attendance/all`;
+
+//Session
+export const SESSION_API = `${server}/Session`;
 
 //Google
 export const GET_GG_USER_INFO =

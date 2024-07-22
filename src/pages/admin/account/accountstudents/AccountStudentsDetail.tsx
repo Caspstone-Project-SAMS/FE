@@ -36,7 +36,7 @@ import {
   activeModule,
   clearModuleMessages,
 } from '../../../../redux/slice/Module';
-import { delay } from 'framer-motion';
+import { SessionServive } from '../../../../hooks/Session';
 
 const { Header: AntHeader } = Layout;
 
@@ -325,18 +325,6 @@ const AccountStudentsDetail: React.FC = () => {
   const showModal = () => {
     console.log('module', moduleID);
     setIsModalVisible(true);
-    // setTimeout(() => {
-    //   setProgressStep1(2);
-    // }, 2000);
-    // setTimeout(() => {
-    //   setProgressStep1(3);
-    // }, 4000);
-    // setTimeout(() => {
-    //   setProgressStep2(2);
-    // }, 6000);
-    // setTimeout(() => {
-    //   setProgressStep2(3);
-    // }, 8000);
   };
 
   const clearTimeouts = () => {
@@ -359,12 +347,10 @@ const AccountStudentsDetail: React.FC = () => {
   };
 
   const handleConfirmUpload = () => {
-    // Perform actions to confirm upload, e.g., save fingerprint data
     console.log('Fingerprint upload confirmed!');
-    // Optionally, close the modal
+    SessionServive.submitSession(sessionID, token);
     setIsModalVisible(false);
     setIsRegisterPressed(false);
-    // Reset progress steps
     setProgressStep1(0);
     setProgressStep2(0);
   };
