@@ -355,8 +355,8 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 maskClosable={false}
                 className={styles.excelModal}
                 onCancel={() => {
-                    setModalOpen(false)
                     handleClear();
+                    setModalOpen(false)
                 }}
                 closable={true}
                 footer={
@@ -364,18 +364,20 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         <Button
                             key="back"
                             onClick={() => {
-                                setModalOpen(false)
                                 handleClear();
+                                setModalOpen(false)
                             }}
                         >
                             Cancel
                         </Button>
                         {
                             current === 1 ? (
-                                <Button key="submit" type="primary" onClick={() => {
-                                    handleClear();
-                                    setCurrent(0);
-                                }}>
+                                <Button key="submit" type="primary"
+                                    disabled={onValidateServer}
+                                    onClick={() => {
+                                        handleClear();
+                                        setCurrent(0);
+                                    }}>
                                     Import again
                                 </Button>
                             ) : (
@@ -439,10 +441,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                         {
                                             (fileType === 'class' || fileType === 'student') && (
                                                 <Checkbox
+                                                    checked={isFAPFile}
                                                     onChange={() => { setIsFAPFile(!isFAPFile) }}
                                                     style={{ margin: '5px 0 10px' }}
                                                 >
-                                                    FPT Excel
+                                                    FAP Excel
                                                 </Checkbox>
                                             )
                                         }
