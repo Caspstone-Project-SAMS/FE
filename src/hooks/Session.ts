@@ -1,23 +1,19 @@
 import axios, { AxiosError } from 'axios';
 import { SESSION_API } from '.';
-import { isRejectedWithValue } from '@reduxjs/toolkit';
 
-const submitSession = async (sessionID: number, token: string) => {
+const submitSession = async (sessionId: number, token: string) => {
   try {
-    const response = await axios.post(
-      SESSION_API,
-      {
-        sessionID,
+    const auth = {
+      headers: { Authorization: 'Bearer ' + token },
+    };
+    const response = await axios.post(`${SESSION_API}?sessionId=${sessionId}`, {
+      headers: {
+        accept: '*/*',
+        Authorization: `Bearer ` + token,
       },
-      {
-        headers: {
-          accept: '*/*',
-          Authorization: `Bearer ` + token,
-        },
-      },
-    );
+    }, auth);
     return response.data;
-} catch (error: any) {
+  } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('Error:', error);
       throw error.response.data;
