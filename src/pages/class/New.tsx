@@ -50,6 +50,7 @@ export default function New() {
     const [LecturerID, setLecturerID] = useState<string | null>(null);
     // const [CreatedBy, setCreatedBy] = useState('');
 
+    const lectureDetail = useSelector((state: RootState) => state.auth.userDetail?.result);
     const failMessage = useSelector((state: RootState) => state.class.message);
     const successMessage = useSelector(
         (state: RootState) => state.class.classDetail?.title,

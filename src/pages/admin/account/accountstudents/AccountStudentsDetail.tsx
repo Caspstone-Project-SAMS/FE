@@ -36,7 +36,7 @@ import {
   activeModule,
   clearModuleMessages,
 } from '../../../../redux/slice/Module';
-import { delay } from 'framer-motion';
+import { SessionServive } from '../../../../hooks/Session';
 
 const { Header: AntHeader } = Layout;
 
@@ -77,7 +77,8 @@ const AccountStudentsDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
-  console.log('session', sessionID);
+  console.log('type',typeof moduleDetail);
+  
 
   useEffect(() => {
     if (successMessage) {
@@ -98,6 +99,29 @@ const AccountStudentsDetail: React.FC = () => {
       setStudentID(location.state.studentID);
     }
   }, [location.state]);
+
+  // const modifyModuleConnection = (moduleId: number, conenctionStatus: number) => {
+  //   console.log('0', moduleDetail)
+  //   const existedModule = moduleDetail.find(m => m.moduleID == moduleId);
+  //   console.log('1', moduleDetail)
+  //   if(existedModule){
+  //     existedModule.connectionStatus = conenctionStatus;
+  //   }
+  //   console.log('2', moduleDetail)
+  //   setModuleDetail(moduleDetail)
+  // }
+
+  const modifyModuleConnection = useCallback(
+    (moduleId: number, connectionStatus: number) => {
+      const existedModule = moduleDetail.find((m) => m.moduleID === moduleId);
+      if (existedModule) {
+        existedModule.connectionStatus = connectionStatus;
+      }
+      console.log('2', moduleDetail);
+    },
+    [moduleDetail]
+  );
+  
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -128,12 +152,12 @@ const AccountStudentsDetail: React.FC = () => {
           break;
         }
         case 'ModuleConnected': {
+          console.log('c', moduleDetail)
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
-
-          setModuleDetail(moduleDetail || []);
-          console.log('change module view')
+          setModuleDetail([...moduleDetail]);
+          console.log('connected')
 
 
           break;
@@ -142,13 +166,14 @@ const AccountStudentsDetail: React.FC = () => {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
-          setModuleDetail(moduleDetail || []);
+          setModuleDetail([...moduleDetail]);
+          console.log('disconnected')
 
-          setTimeout(() => {
-            50
-          }, 50);
+          // setTimeout(() => {
+          //   50
+          // }, 50);
 
-          setModuleDetail(moduleDetail || []);
+          // setModuleDetail(moduleDetail || []);
 
           break;
         }
@@ -170,14 +195,9 @@ const AccountStudentsDetail: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, studentID]);
+  }, [token, studentID, moduleDetail, modifyModuleConnection]);
 
-  const modifyModuleConnection = (moduleId: number, conenctionStatus: number) => {
-    const existedModule = moduleDetail.find(m => m.moduleID == moduleId);
-    if(existedModule){
-      existedModule.connectionStatus = conenctionStatus;
-    }
-  }
+
 
   useEffect(() => {
     ConnectWebsocket();
@@ -212,6 +232,7 @@ const AccountStudentsDetail: React.FC = () => {
         });
     }
   }, [studentID]);
+  
 
   useEffect(() => {
     const response = ModuleService.getModuleByEmployeeID(employeeID ?? '');
@@ -220,6 +241,8 @@ const AccountStudentsDetail: React.FC = () => {
       .then((data) => {
         setModule(data || undefined);
         setModuleDetail(data?.result || []);
+        console.log('detai', moduleDetail)
+        console.log('detail', data?.result)
       })
       .catch((error) => {
         console.log('get module by id error: ', error);
@@ -270,9 +293,11 @@ const AccountStudentsDetail: React.FC = () => {
   // };
 
   const handleModuleClick = async (moduleId: number) => {
+    setIsActiveModule(true);
     if (moduleID === moduleId) {
       setModuleID(0); // Unclick will set moduleID to 0
       setStatus('');
+      setIsActiveModule(false);
       dispatch(clearModuleMessages()); // Clear messages when unselecting
     } else {
       setModuleID(moduleId);
@@ -282,6 +307,7 @@ const AccountStudentsDetail: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
+      setIsActiveModule(false);
     }
   };
 
@@ -323,20 +349,7 @@ const AccountStudentsDetail: React.FC = () => {
   ];
 
   const showModal = () => {
-    console.log('module', moduleID);
     setIsModalVisible(true);
-    // setTimeout(() => {
-    //   setProgressStep1(2);
-    // }, 2000);
-    // setTimeout(() => {
-    //   setProgressStep1(3);
-    // }, 4000);
-    // setTimeout(() => {
-    //   setProgressStep2(2);
-    // }, 6000);
-    // setTimeout(() => {
-    //   setProgressStep2(3);
-    // }, 8000);
   };
 
   const clearTimeouts = () => {
@@ -359,12 +372,10 @@ const AccountStudentsDetail: React.FC = () => {
   };
 
   const handleConfirmUpload = () => {
-    // Perform actions to confirm upload, e.g., save fingerprint data
     console.log('Fingerprint upload confirmed!');
-    // Optionally, close the modal
+    SessionServive.submitSession(sessionID, token);
     setIsModalVisible(false);
     setIsRegisterPressed(false);
-    // Reset progress steps
     setProgressStep1(0);
     setProgressStep2(0);
   };

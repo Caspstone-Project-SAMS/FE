@@ -6,8 +6,6 @@ import New from "./New";
 const Class: React.FC = () => {
   return (
     <Content className={styles.content}>
-      {/* <ContentHeader contentTitle="Class" previousBreadcrumb="Home / " currentBreadcrumb="Class" key={'class-header'} /> */}
-
       <New />
     </Content>
   );

@@ -1,10 +1,14 @@
 import { Card, Row, Col, Button } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ClassDetail.module.less';
 import ClassDetailTable from './ClassDetailTable';
 import { IoIosFingerPrint } from 'react-icons/io';
 import { VscChecklist } from 'react-icons/vsc';
 import modules from '../../assets/imgs/module.png';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { ModuleDetail } from '../../models/module/Module';
+import { ModuleService } from '../../hooks/Module';
 
 const ClassDetail: React.FC = () => {
   const classDetails = [
@@ -13,6 +17,31 @@ const ClassDetail: React.FC = () => {
     { label: 'Room', value: '404' },
     { label: 'Slot / time', value: '1 / 8:00 am - 9:00 am' },
   ];
+
+  const [moduleDetail, setModuleDetail] = useState<ModuleDetail[]>([]);
+
+
+  const employeeID = useSelector(
+    (state: RootState) => state.auth.userDetail?.result?.employeeID,
+  );
+
+  const token = useSelector(
+    (state: RootState) => state.auth.userDetail?.token ?? '',
+  );
+
+  console.log('module', moduleDetail)
+
+  useEffect(() => {
+    const response = ModuleService.getModuleByEmployeeID(employeeID ?? '');
+
+    response
+      .then((data) => {
+        setModuleDetail(data?.result || []);
+      })
+      .catch((error) => {
+        console.log('get module by id error: ', error);
+      });
+  }, [employeeID]);
 
   return (
     <Row className={styles.classDetailsHeader} gutter={[16, 16]}>
