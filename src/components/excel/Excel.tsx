@@ -25,6 +25,7 @@ import { FaAngleDown } from 'react-icons/fa6';
 type ValidateFmt = {
     result?: any[];
     errors: Message[];
+    success: Message[];
 };
 type ServerResult = {
     status: boolean;
@@ -244,13 +245,15 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         setErrLogs([]);
         setWarningLogs([]);
         setSuccessLogs([]);
+        setIsFAPFile(false);
 
         setCurrent(0);
 
         setOnValidateExcel(false);
         setExcelResult({
             result: [],
-            errors: []
+            errors: [],
+            success: []
         });
 
         setOnValidateServer(false)
@@ -304,6 +307,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     }, [semester])
 
     useEffect(() => {
+        console.log("excel result changed", excelResult);
         setErrLogs([]);
         setWarningLogs([]);
 
@@ -314,6 +318,17 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'warning':
                     setWarningLogs(prev => [...prev, log])
+                    break;
+                default:
+                    break;
+            }
+        })
+        excelResult?.success.forEach(log => {
+            switch (log.type) {
+                case 'success':
+                    setSuccessLogs(prev => [...prev, log])
+                    break;
+                default:
                     break;
             }
         })
@@ -461,17 +476,23 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     onValidateExcel && (
                                         <>
                                             {
-                                                (warningLogs.length === 0 && errLogs.length === 0) ? (<MessageCard props={[]} />) : (
-                                                    <>
-                                                        <Text># Those record will be ignored, please consider again before continue</Text>
-                                                        {
-                                                            (errLogs.length > 0) && (<MessageCard props={errLogs} />)
-                                                        }
-                                                        {
-                                                            (warningLogs.length > 0) && (<MessageCard props={warningLogs} />)
-                                                        }
-                                                    </>
-                                                )
+                                                (warningLogs.length === 0 && errLogs.length === 0)
+                                                    ? (successLogs.length > 0 ? ( // show success logs for import schedule func
+                                                        <MessageCard props={successLogs} title='Excel file good to go' />
+                                                    ) : (
+                                                        <MessageCard props={[]} />
+                                                    ))
+                                                    : (
+                                                        <>
+                                                            <Text># Those record will be ignored, please consider again before continue</Text>
+                                                            {
+                                                                (errLogs.length > 0) && (<MessageCard props={errLogs} />)
+                                                            }
+                                                            {
+                                                                (warningLogs.length > 0) && (<MessageCard props={warningLogs} />)
+                                                            }
+                                                        </>
+                                                    )
                                             }
 
                                         </>

@@ -59,7 +59,7 @@ function MyCalendar() {
         today.getFullYear(),
         today.getMonth(),
         today.getDate(),
-        22
+        23
     )
 
     const handleViewChange = useCallback((view: View) => {

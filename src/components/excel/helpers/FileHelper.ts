@@ -5,12 +5,13 @@ import moment from 'moment';
 
 type validateFmt = {
   result?: any;
-  errors: validateError[];
+  errors: Message[];
+  success: Message[];
 };
 
-type validateError = {
-  type: 'warning' | 'error';
+type Message = {
   message: string;
+  type: 'warning' | 'error' | 'success';
 };
 
 const handleImportSemester = (
@@ -20,9 +21,10 @@ const handleImportSemester = (
   const result: validateFmt = {
     result: undefined,
     errors: [],
+    success: [],
   };
 
-  const createMsgLog = (log: validateError) => {
+  const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
       type: type,
@@ -144,9 +146,10 @@ const handleImportStudent = (
   const result: validateFmt = {
     result: undefined,
     errors: [],
+    success: [],
   };
 
-  const createMsgLog = (log: validateError) => {
+  const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
       type: type,
@@ -287,9 +290,10 @@ const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
   const result: validateFmt = {
     result: undefined,
     errors: [],
+    success: [],
   };
 
-  const createMsgLog = (log: validateError) => {
+  const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
       type: type,
@@ -407,9 +411,10 @@ const handleImportFAPClass = (
   const result: validateFmt = {
     result: undefined,
     errors: [],
+    success: [],
   };
 
-  const createMsgLog = (log: validateError) => {
+  const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
       type: type,
@@ -545,9 +550,10 @@ const handleImportFAPStudent = (
   const result: validateFmt = {
     result: undefined,
     errors: [],
+    success: [],
   };
 
-  const createMsgLog = (log: validateError) => {
+  const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
       type: type,
@@ -708,11 +714,20 @@ const handleImportSchedule = (
   const result: validateFmt = {
     result: undefined,
     errors: [],
+    success: [],
   };
 
-  const createMsgLog = (log: validateError) => {
+  const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+
+  const createSucceedLog = (log: Message) => {
+    const { message, type } = log;
+    result.success.push({
       type: type,
       message: message,
     });
@@ -734,7 +749,7 @@ const handleImportSchedule = (
       });
       return [];
     }
-    //Laptop view
+    //Laptop view - From extractedtable.com
     if (worksheet1 !== undefined && worksheet2 === undefined) {
       const columns = [
         {
@@ -787,7 +802,7 @@ const handleImportSchedule = (
         },
       ];
       const startRow = 1;
-      const endRow = 10;
+      const endRow = 30;
 
       for (let i = startRow; i <= endRow; i++) {
         let currentSlot: any;
@@ -894,7 +909,7 @@ const handleImportSchedule = (
       console.log('Formateed here ', updatedSchedule);
       return updatedSchedule;
     } else {
-      //Mobile image, seperate 2 table
+      //Mobile image, seperate 2 table - From extractedtable.com and copy direct table from FAP
       //Worksheet 1 - scan weekly time
       const columns = [
         {
@@ -985,7 +1000,7 @@ const handleImportSchedule = (
       //Scan for slot schedule--------------------------------------------
       if (worksheet2) {
         const startRow2 = 1;
-        const endRow2 = 8;
+        const endRow2 = 30;
         const columns2 = [
           {
             index: 'A',
@@ -1086,6 +1101,16 @@ const handleImportSchedule = (
             }
           });
         }
+        if (sample2.length > 0) {
+          createSucceedLog({
+            type: 'success',
+            message:
+              sample2.length === 1
+                ? '1 record has been successfully written'
+                : `${sample2.length} records have been successfully written`,
+          });
+        }
+        // 100 records have been successfully written
         console.log('sample2, ', sample2);
       }
 
@@ -1119,29 +1144,6 @@ const handleImportSchedule = (
       });
       return result;
     });
-};
-
-const handleImportScheduleNew = (
-  excelFile: RcFile,
-  workbook: ExcelJS.Workbook,
-) => {
-  const result: validateFmt = {
-    result: undefined,
-    errors: [],
-  };
-
-  const createMsgLog = (log: validateError) => {
-    const { message, type } = log;
-    result.errors.push({
-      type: type,
-      message: message,
-    });
-  };
-
-  const promise = workbook.xlsx.load(excelFile).then((workbook) => {
-    const worksheet = workbook.getWorksheet('Sheet1');
-    const sample: any[] = [];
-  });
 };
 
 export const FileHelper = {

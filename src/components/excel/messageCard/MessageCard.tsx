@@ -14,7 +14,7 @@ type Message = {
     type: 'warning' | 'error' | 'success',
 }
 
-const MessageCard: React.FC<{ props: Message[] }> = ({ props }) => {
+const MessageCard: React.FC<{ props: Message[], title?: string }> = ({ props, title }) => {
     const [isOpen, setIsOpen] = useState(false);
     const msgLength = props.length
     const type = props[0]?.type || 'success';
@@ -47,38 +47,6 @@ const MessageCard: React.FC<{ props: Message[] }> = ({ props }) => {
     return (
         <div className={styles.msgCardCtn}>
             {
-                // isSuccess ? (
-                //     // Success message
-                //     <div className={styles.msgTitle}
-                //         style={{
-                //             color: msgType.success.color,
-                //             border: `1px solid ${msgType.success.color}`
-                //         }}>
-                //         {
-                //             msgLength > 0 ? (
-                //                 <>
-                //                     <div className={'flex item-center'}>
-                //                         <span className={styles.msgIcon}>{msgType.success.icon}</span>
-                //                         Created successfully
-                //                     </div>
-                //                     <motion.div
-                //                         whileInView={{
-                //                             rotate: isOpen ? (0) : (-90),
-                //                         }}
-                //                     >
-                //                         <DownOutlined onClick={() => handleChangeLog()} style={{ color: 'black' }} color='#FFFFFF' />
-                //                     </motion.div>
-                //                 </>
-                //             ) : (
-                //                 <div className={'flex item-center'} >
-                //                     <span className={styles.msgIcon}>{msgType.success.icon}</span>
-                //                     Excel file good to go!
-                //                 </div>
-                //             )
-                //         }
-                //     </div>
-                // ) : (
-                // Warning and error message
                 <div className={styles.msgTitle}
                     style={{
                         backgroundColor: msgType[type].bgColor,
@@ -97,7 +65,9 @@ const MessageCard: React.FC<{ props: Message[] }> = ({ props }) => {
                                             type === 'warning' ? (
                                                 `${msgLength} warning, adjust file for better result`
                                             ) : (
-                                                msgLength > 0 ? ('Created successfully') : ('Excel file good to go!')
+                                                title ? (title) : (
+                                                    msgLength > 0 ? ('Created successfully') : ('Excel file good to go!')
+                                                )
                                             )
                                         )
                                     }

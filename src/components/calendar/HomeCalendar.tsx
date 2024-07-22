@@ -4,16 +4,20 @@ import styles from "./HomeCalendar.module.less";
 import ContentHeader from "../header/contentHeader/ContentHeader";
 import MyCalendar from "./MyCalendar";
 import { Content } from "antd/es/layout/layout";
+import Excel from "../excel/Excel";
 
 const HomeCalendar: React.FC = () => {
 
   return (
     <Content className={styles.homeCalendarCtn}>
-      <ContentHeader
-        contentTitle='Calendar'
-        previousBreadcrumb={undefined}
-        currentBreadcrumb={undefined}
-      />
+      <div className={styles.header}>
+        <ContentHeader
+          contentTitle='Calendar'
+          previousBreadcrumb={undefined}
+          currentBreadcrumb={undefined}
+        />
+        <Excel fileType="schedule" />
+      </div>
       <div className={styles.calendarCtn}>
         <MyCalendar />
       </div>
