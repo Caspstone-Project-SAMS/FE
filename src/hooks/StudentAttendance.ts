@@ -6,7 +6,7 @@ const getStudentAttendance = async (
 //   attendanceStatus: boolean,
 //   scheduleID: number,
   studentId: string,
-//   classId: number,
+  classId: number,
 ): Promise<StudentAttendance | null> => {
   try {
     const response = await axios.get(`${STUDENT_ATTENDANCE}`, {
@@ -17,7 +17,7 @@ const getStudentAttendance = async (
         // attendanceStatus: attendanceStatus,
         // scheduleID: scheduleID,
         studentId: studentId,
-        // classId: classId,
+        classId: classId,
       },
       headers: {
         accept: '*/*',

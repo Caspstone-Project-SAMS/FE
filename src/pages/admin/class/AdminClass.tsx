@@ -57,10 +57,10 @@ const AdminClass: React.FC = () => {
   const [ClassName, setClassName] = useState('');
   const [ClassCode, setClassCode] = useState('');
   const [SubjectCode, setSubjectCode] = useState('');
-  const [SemesterId, setSemesterId] = useState(0);
-  const [RoomId, setRoomId] = useState(0);
-  const [SubjectId, setSubjectId] = useState(0);
-  const [LecturerID, setLecturerID] = useState('');
+  const [SemesterId, setSemesterId] = useState<number | null>(null);
+  const [RoomId, setRoomId] = useState<number | null>(null);
+  const [SubjectId, setSubjectId] = useState<number | null>(null);
+  const [LecturerID, setLecturerID] = useState<string | null>(null);
   // const [CreatedBy, setCreatedBy] = useState('');
 
   const failMessage = useSelector((state: RootState) => state.class.message);
@@ -152,10 +152,10 @@ const AdminClass: React.FC = () => {
     setClassName('');
     setClassCode('');
     setSubjectCode('');
-    setRoomId(0);
-    setSemesterId(0);
-    setSubjectId(0);
-    setLecturerID('');
+    setRoomId(null);
+    setSemesterId(null);
+    setSubjectId(null);
+    setLecturerID(null);
     setIsCheck(false);
   };
 
@@ -165,10 +165,10 @@ const AdminClass: React.FC = () => {
     setLoading(true);
     await createNewClass(
       ClassCode,
-      SemesterId,
-      RoomId,
-      SubjectId,
-      LecturerID,
+      SemesterId ?? 0,
+      RoomId ?? 0,
+      SubjectId ?? 0,
+      LecturerID ?? '',
       // CreatedBy,
     );
     setLoading(false);
@@ -248,8 +248,21 @@ const AdminClass: React.FC = () => {
   ];
 
   useEffect(() => {
-    setClassCode(ClassName + '_' + SubjectCode);
-  }, [ClassName, SubjectCode])
+    if (ClassName) {
+      // If ClassName exists, construct ClassCode based on ClassName and SubjectCode
+      const newClassCode = SubjectCode
+        ? `${ClassName}-${SubjectCode}`
+        : ClassName;
+      setClassCode(newClassCode);
+    } else {
+      // If ClassName is empty or null, set ClassCode to an empty string
+      setClassCode('');
+    }
+  }, [ClassName, SubjectCode]);
+  
+
+  console.log('code', ClassCode)
+  
 
   return (
     <Content className={styles.accountClassContent}>
@@ -328,18 +341,19 @@ const AdminClass: React.FC = () => {
           </Button>,
         ]}
       >
-        <p className={styles.createClassTitle}>Class Code</p>
+        <p className={styles.createClassTitle}>Class Code: {ClassCode}</p>
+        <p className={styles.createClassTitle}>Class Name</p>
         <Input
-          placeholder="Class Code"
+          placeholder="Class Name"
           // value={SubjectCode ? `${ClassCode}_${SubjectCode}` : ClassCode}
-          value={ClassCode}
+          value={ClassName}
           onChange={(e) => setClassName(e.target.value)}
           style={{ marginBottom: '10px' }}
         />
         <p className={styles.createClassTitle}>Semester Code</p>
         <Select
           placeholder="Semester Code"
-          // value={SemesterId}
+          value={SemesterId}
           onChange={(value) => setSemesterId(value)}
           style={{ marginBottom: '10px', width: '100%' }}
         >
@@ -352,7 +366,7 @@ const AdminClass: React.FC = () => {
         <p className={styles.createClassTitle}>Room Name</p>
         <Select
           placeholder="Room Name"
-          // value={RoomId}
+          value={RoomId}
           onChange={(value) => setRoomId(value)}
           style={{ marginBottom: '10px', width: '100%' }}
         >
@@ -365,7 +379,7 @@ const AdminClass: React.FC = () => {
         <p className={styles.createClassTitle}>Subject Code</p>
         <Select
           placeholder="Subject Code"
-          // value={SubjectId}
+          value={SubjectId}
           onChange={(value) => {
             setSubjectId(value);
             setSubjectCode(
@@ -383,7 +397,7 @@ const AdminClass: React.FC = () => {
         <p className={styles.createClassTitle}>Lecturer</p>
         <Select
           placeholder="Lecturer"
-          // value={LecturerID}
+          value={LecturerID}
           onChange={(value) => setLecturerID(value)}
           style={{ marginBottom: '10px', width: '100%' }}
         >
@@ -405,9 +419,6 @@ const AdminClass: React.FC = () => {
           </>
         )} */}
       </Modal>
-      {/* {lecturer.map((lec, index) => (
-        <p key={index}>{lec.id}</p>
-      ))} */}
     </Content>
   );
 };

@@ -1,262 +1,258 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableColumnType, Layout } from 'antd';
 import styles from './Student.module.less'; // Adjust the import if necessary
-import { UserInfo } from '../../models/UserInfo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { StudentAttendanceService } from '../../hooks/StudentAttendance';
 import { StudentAttendance } from '../../models/student/StudentAttendance';
 import { CalendarService } from '../../hooks/Calendar';
+import { Content } from 'antd/es/layout/layout';
+import { ClassService } from '../../hooks/Class';
+import { ClassDetails, Semester } from '../../models/Class';
+import { Table, Collapse } from 'antd';
+import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 
-const { Content } = Layout;
-
-interface Slot {
-  slotID: number;
-  slotName: string;
-  date: string;
-  slotNumber: number;
-  room: string;
-  status: string;
-  startTime: string;
-  endTime: string;
-  classCode: string;
-  comments: string;
-}
-
-interface Course {
-  courseID: number;
-  courseName: string;
-  slots: Slot[];
-}
-
-interface Semester {
-  semesterID: number;
-  semesterCode: string;
-  courses: Course[];
-}
-
-const semestersData: Semester[] = [
-  {
-    semesterID: 1,
-    semesterCode: 'Spring 2023',
-    courses: [
-      {
-        courseID: 1,
-        courseName: 'Mathematics',
-        slots: [
-          {
-            slotID: 1,
-            slotName: 'Slot 1',
-            date: '2023-01-10',
-            slotNumber: 1,
-            room: 'Room 101',
-            status: 'Absent',
-            startTime: '09:00',
-            endTime: '10:30',
-            classCode: 'MATH101',
-            comments: 'Regular class',
-          },
-          {
-            slotID: 2,
-            slotName: 'Slot 2',
-            date: '2023-01-12',
-            slotNumber: 2,
-            room: 'Room 102',
-            status: 'Present',
-            startTime: '11:00',
-            endTime: '12:30',
-            classCode: 'MATH102',
-            comments: 'Regular class',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    semesterID: 2,
-    semesterCode: 'Fall 2023',
-    courses: [
-      {
-        courseID: 2,
-        courseName: 'Physics',
-        slots: [
-          {
-            slotID: 3,
-            slotName: 'Slot 1',
-            date: '2023-09-10',
-            slotNumber: 1,
-            room: 'Room 201',
-            status: 'Active',
-            startTime: '09:00',
-            endTime: '10:30',
-            classCode: 'PHYS101',
-            comments: 'Lab class',
-          },
-          {
-            slotID: 4,
-            slotName: 'Slot 2',
-            date: '2023-09-12',
-            slotNumber: 2,
-            room: 'Room 202',
-            status: 'Active',
-            startTime: '11:00',
-            endTime: '12:30',
-            classCode: 'PHYS102',
-            comments: 'Lab class',
-          },
-        ],
-      },
-    ],
-  },
-];
+const { Panel } = Collapse;
 
 const Student: React.FC = () => {
   const studentId = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id || '',
   );
+  const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [classes, setClasses] = useState<ClassDetails[]>([]);
   const [studentAttendance, setStudentAttendance] =
-    useState<StudentAttendance>();
-  const [semester, setSemester] = useState<Semester[]>([]);
-  const [attendanceStatus, setAttendanceStatus] = useState();
-  const [scheduleID, setScheduleID] = useState();
-  const [classId, setClassId] = useState();
+    useState<StudentAttendance | null>(null);
+  const [semesterID, setSemesterID] = useState<number | null>(null);
+  const [classId, setClassId] = useState<number | null>(null);
+  const [expandedClassRows, setExpandedClassRows] = useState<number[]>([]);
+  const [expandedSemester, setExpandedSemester] = useState<number | null>(null);
+  const [expandedClassRow, setExpandedClassRow] = useState<number | null>(null);
 
   useEffect(() => {
-    const response = CalendarService.getAllSemester();
+    const fetchSemesters = async () => {
+      try {
+        const data = await CalendarService.getAllSemester();
+        setSemesters(data || []);
+      } catch (error) {
+        console.error('Error fetching semesters:', error);
+      }
+    };
 
-    response
-      .then((data) => {
-        setSemester(data || []);
-        // setFilteredSemester(data || []);
-      })
-      .catch((error) => {
-        console.log('get semester error: ', error);
-      });
+    fetchSemesters();
   }, []);
 
   useEffect(() => {
-    if (attendanceStatus !== undefined) {
-      const response = StudentAttendanceService.getStudentAttendance(
-        // attendanceStatus,
-        // scheduleID,
-        studentId,
-        // classId,
-      );
+    if (semesterID !== null) {
+      const fetchClasses = async () => {
+        try {
+          const data = await ClassService.getClassBySemesterID(
+            semesterID,
+            studentId,
+          );
+          console.log('data', data)
+          setClasses(data?.result || []);
+        } catch (error) {
+          console.error('Error fetching classes:', error);
+        }
+      };
 
-      response
-        .then((data) => {
-          setStudentAttendance(data || undefined);
-        })
-        .catch((error) => {
-          console.log('get student attendance error: ', error);
-        });
+      fetchClasses();
     }
-  }, [studentId]);
+  }, [semesterID, studentId]);
 
-  console.log('attendace:', studentAttendance);
-  console.log('semester', semester)
+  useEffect(() => {
+    if (classId !== null) {
+      const fetchStudentAttendance = async () => {
+        try {
+          const data = await StudentAttendanceService.getStudentAttendance(
+            studentId,
+            classId,
+          );
+          setStudentAttendance(data || null);
+        } catch (error) {
+          console.error('Error fetching student attendance:', error);
+        }
+      };
 
-  const semesterColumns: TableColumnType<Semester>[] = [
+      fetchStudentAttendance();
+    }
+  }, [classId, studentId]);
+
+  console.log('attendance', studentAttendance)
+
+  const columns = [
     {
-      title: 'Semester',
-      dataIndex: 'semesterName',
-      key: 'semesterName',
-      render: (text: string, record: Semester) => <a>{text}</a>,
+      title: 'Semesters',
+      dataIndex: 'semesterCode',
+      key: 'code',
     },
   ];
 
-  const courseColumns: TableColumnType<Course>[] = [
+  const classColumns = [
     {
-      title: 'Course',
-      dataIndex: 'courseName',
-      key: 'courseName',
-      render: (text: string, record: Course) => <a>{text}</a>,
+      title: 'Class',
+      dataIndex: 'classCode',
+      key: 'name',
     },
   ];
 
-  const slotColumns: TableColumnType<Slot>[] = [
-    {
-      title: 'Slot ID',
-      dataIndex: 'slotID',
-      key: 'slotID',
-    },
+  const attendanceColumns = [
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
     },
     {
-      title: 'Slot',
-      dataIndex: 'slotNumber',
-      key: 'slotNumber',
-    },
-    {
-      title: 'Room',
-      dataIndex: 'room',
-      key: 'room',
-    },
-    {
-      title: 'Start Time',
-      dataIndex: 'startTime',
-      key: 'startTime',
-    },
-    {
-      title: 'End Time',
-      dataIndex: 'endTime',
-      key: 'endTime',
-    },
-    {
-      title: 'Class Code',
-      dataIndex: 'classCode',
-      key: 'classCode',
-    },
-    {
-      title: 'Attendance Status',
-      dataIndex: 'status',
+      title: 'Status',
+      dataIndex: 'attendanceStatus',
       key: 'status',
-    },
-    {
-      title: 'Comments',
-      dataIndex: 'comments',
-      key: 'comments',
+      render: (text: number) => {
+        return text === 0 ? (
+          <span style={{ color: 'red' }}>Absence</span>
+        ) : (
+          <span style={{ color: 'green' }}>Present</span>
+        );
+      },
     },
   ];
 
-  const expandedRowRender = (record: any) => {
-    if (record.courses) {
-      return (
-        <Table
-          columns={courseColumns}
-          dataSource={record.courses}
-          rowKey="courseID"
-          pagination={false}
-          expandable={{
-            expandedRowRender: (courseRecord) => (
-              <Table
-                columns={slotColumns}
-                dataSource={courseRecord.slots}
-                rowKey="slotID"
-                pagination={false}
-              />
-            ),
-            rowExpandable: (courseRecord) => courseRecord.slots.length > 0,
-          }}
-        />
-      );
+  // const handleClassRowClick = (record: ClassDetails) => {
+  //   setClassId(record.classID);
+  //   setStudentAttendance(null); // Reset attendance data when a new class is clicked
+  //   setExpandedClassRows((prevExpandedRows) => {
+  //     if (prevExpandedRows.includes(record.classID)) {
+  //       return prevExpandedRows.filter((id) => id !== record.classID);
+  //     } else {
+  //       return [...prevExpandedRows, record.classID];
+  //     }
+  //   });
+  // };
+  const handleClassRowClick = (record: ClassDetails) => {
+    if (expandedClassRow === record.classID) {
+      // Collapse the currently expanded class if it's clicked again
+      setExpandedClassRow(null);
+      setClassId(null);
+      setStudentAttendance(null);
+    } else {
+      // Collapse any previously expanded class and expand the new one
+      setExpandedClassRow(record.classID);
+      setClassId(record.classID);
+      setStudentAttendance(null); // Reset attendance data
     }
-    return null;
   };
+  
+
+  // const expandedRowRender = (semester: Semester) => {
+  //   const filteredClasses = classes.filter(
+  //     (cls) => cls.semester.semesterID === semester.semesterID,
+  //   );
+    
+  //   return (
+  //     <Collapse>
+  //       <Panel header="Classes" key="1">
+  //         <Table
+  //           columns={classColumns}
+  //           dataSource={filteredClasses}
+  //           rowKey="classID"
+  //           onRow={(record) => ({
+  //             onClick: () => handleClassRowClick(record),
+  //           })}
+  //           onExpand={(expanded, record) => {
+  //             if (expanded) {
+  //               setSemesterID(record.semester.semesterID);
+  //             }
+  //           }}
+  //           expandable={{
+  //             expandedRowRender: (record) =>
+  //               expandedClassRows.includes(record.classID) && (
+  //                 <Table
+  //                   columns={attendanceColumns}
+  //                   dataSource={
+  //                     studentAttendance?.result
+  //                   }
+  //                   rowKey="classID"
+  //                 />
+  //               ),
+  //             rowExpandable: (record) =>
+  //               expandedClassRows.includes(record.classID),
+  //           }}
+  //           expandedRowKeys={expandedClassRows}
+  //         />
+  //       </Panel>
+  //     </Collapse>
+  //   );
+  // };
+
+  const expandedRowRender = (semester: Semester) => {
+    const filteredClasses = classes.filter(
+      (cls) => cls.semester.semesterID === semester.semesterID,
+    );
+    
+    return (
+      <Collapse>
+        <Panel header="Classes" key="1">
+          <Table
+            columns={classColumns}
+            dataSource={filteredClasses}
+            rowKey="classID"
+            onRow={(record) => ({
+              onClick: () => handleClassRowClick(record),
+            })}
+            expandable={{
+              expandedRowRender: (record) =>
+                expandedClassRow === record.classID && (
+                  <Table
+                    columns={attendanceColumns}
+                    dataSource={
+                      studentAttendance?.result
+                    }
+                    rowKey="classID"
+                  />
+                ),
+              rowExpandable: (record) =>
+                true,
+            }}
+            expandedRowKeys={expandedClassRow ? [expandedClassRow] : []}
+          />
+        </Panel>
+      </Collapse>
+    );
+  };
+  
+
+  const handleSemesterExpand = (expanded: boolean, record: Semester) => {
+    if (expanded) {
+      setExpandedSemester(record.semesterID);
+      setSemesterID(record.semesterID); // Load classes for the selected semester
+    } else {
+      setExpandedSemester(null);
+      setSemesterID(null); // Clear classes when the semester is collapsed
+    }
+    setExpandedClassRows([]); // Reset expanded classes when semester changes
+  };
+
+  // console.log('semester', semesterID);
+  console.log('class', classId);
+  // console.log('semester', studentAttendance);
 
   return (
     <Content className={styles.accountClassContent}>
+      <div className="align-center-between">
+        <ContentHeader
+          contentTitle="Student Attendance"
+          previousBreadcrumb={'Home / '}
+          currentBreadcrumb={'Attendance'}
+          key={''}
+        />
+      </div>
       <Table
-        columns={semesterColumns}
-        dataSource={semestersData}
-        rowKey="semesterID"
+        columns={columns}
         expandable={{
           expandedRowRender,
-          rowExpandable: (record) => record.courses.length > 0,
+          expandedRowKeys: expandedSemester ? [expandedSemester] : [],
+          onExpand: handleSemesterExpand,
         }}
+        dataSource={semesters}
+        rowKey="semesterID"
         pagination={false}
       />
     </Content>
