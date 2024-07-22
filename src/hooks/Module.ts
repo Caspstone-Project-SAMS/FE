@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { MODULE_API } from '.';
+import { MODULE_API, SET_WIFI_API } from '.';
 import { ActiveModule, Module, ModuleByID } from '../models/module/Module';
 import { useSelector } from 'react-redux';
 
@@ -109,7 +109,6 @@ const activeModuleMode = async (
     throw new Error(error.message);
   }
 };
-
 const activeModuleAttendance = async (
   ModuleID: number,
   SessionId: number,
@@ -152,11 +151,7 @@ const activeModuleAttendance = async (
   }
 };
 
-const activeModule = async (
-  ModuleID: number,
-  Mode: number,
-  token: string,
-)=> {
+const activeModule = async (ModuleID: number, Mode: number, token: string) => {
   try {
     const response = await axios.post(
       MODULE_API + '/Activate',
@@ -171,7 +166,7 @@ const activeModule = async (
         },
       },
     );
-    console.log("vvedf", response.data)
+    console.log('vvedf', response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
@@ -183,11 +178,19 @@ const activeModule = async (
   }
 };
 
+const setUpWifi = async (ssid: string, pass: string) => {
+  return await axios.post(SET_WIFI_API, {
+    ssid,
+    pass,
+  });
+};
+
 export const ModuleService = {
   getModuleByEmployeeID,
   activeModuleMode,
   getAllModule,
   getModuleByID,
   activeModule,
+  setUpWifi,
   activeModuleAttendance,
 };

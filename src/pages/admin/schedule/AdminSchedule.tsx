@@ -15,13 +15,14 @@ const AdminSchedule = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchValue, setSearchValue] = useState<string>('');
+    const [searchCategory, setSearchCategory] = useState<'Email' | 'Phone' | 'Department'>('Email');
 
     const handleSearch = () => {
 
     }
 
     const onClick: MenuProps['onClick'] = ({ key }) => {
-        setSearchValue(key);
+        setSearchCategory(key);
     };
 
     const items: MenuProps['items'] = [
@@ -94,7 +95,7 @@ const AdminSchedule = () => {
                             <div className={styles.filterLeftCtn}>
                                 <div className={styles.filterItemTxt}>
                                     <FiFilter size={18} />
-                                    <Text style={{ fontSize: '1rem' }}>{searchValue}</Text>
+                                    <Text style={{ fontSize: '1rem' }}>{searchCategory}</Text>
                                 </div>
                                 <Dropdown
                                     trigger={['click']}

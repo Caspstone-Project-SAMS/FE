@@ -12,6 +12,8 @@ import { BiCalendarEdit } from "react-icons/bi";
 
 import { AttendanceService } from '../../hooks/Attendance';
 import { Attendance, UpdateListAttendance } from '../../models/attendance/Attendance';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 const { Header: AntHeader } = Layout;
 
@@ -23,6 +25,8 @@ type ColumnsType<T> = TableProps<T>['columns'];
 let socket
 
 const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
+
+  const userToken = useSelector((state: RootState) => state.auth.userDetail?.token)
 
   //web socket
   const [change, setChange] = useState('any');
@@ -42,48 +46,50 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   function activeWebSocket() {
-    socket = new WebSocket("http://34.81.224.196/ws");
-    socket.onopen = function (event) {
-      console.log('Connecteed');
-      // setInformation("Connected");
-    };
+    if (userToken) {
+      socket = new WebSocket("ws://34.81.224.196/ws/client", ["access_token", userToken]);
+      socket.onopen = function (event) {
+        console.log('Connecteed');
+        // setInformation("Connected");
+      };
 
-    socket.onclose = function (event) {
-      console.log("Connection closed");
-      console.log(event);
-    };
+      socket.onclose = function (event) {
+        console.log("Connection closed");
+        console.log(event);
+      };
 
-    socket.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      console.log("mess message event*", message.Event);
-      console.log("mess message Data*", message.Data);
-      switch (message.Event) {
-        case "statusChange":
-          {
-            const data = JSON.parse(message.Data);
-            console.log("case status change", data.studentID, data.status)
+      socket.onmessage = function (event) {
+        const message = JSON.parse(event.data);
+        console.log("mess message event*", message.Event);
+        console.log("mess message Data*", message.Data);
+        switch (message.Event) {
+          case "statusChange":
+            {
+              const data = JSON.parse(message.Data);
+              console.log("case status change", data.studentID, data.status)
 
-            const elementId = `attendanceStatus-${data.studentID}`;
-            const element = document.getElementById(`attendanceStatus-${data.studentID}`);
+              const elementId = `attendanceStatus-${data.studentID}`;
+              const element = document.getElementById(`attendanceStatus-${data.studentID}`);
 
-            if (element) {
-              element.innerHTML = 'Attended'
-              element.style.color = 'green'
-            }
-
-            const newOne = studentList.map(item => {
-              if (item.studentID == data.studentID) {
-                item.attendanceStatus = data.status
-                return item
+              if (element) {
+                element.innerHTML = 'Attended'
+                element.style.color = 'green'
               }
-              return item
-            })
-            console.log("The prev one ", studentList);
-            console.log("The Edited one ", newOne);
-          }
-          break;
-      }
-    };
+
+              const newOne = studentList.map(item => {
+                if (item.studentID == data.studentID) {
+                  item.attendanceStatus = data.status
+                  return item
+                }
+                return item
+              })
+              console.log("The prev one ", studentList);
+              console.log("The Edited one ", newOne);
+            }
+            break;
+        }
+      };
+    }
   }
 
   const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {

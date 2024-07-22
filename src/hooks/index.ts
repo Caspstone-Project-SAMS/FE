@@ -24,6 +24,7 @@ export const SUBJECT_API = `${server}/Subject`;
 
 //Module
 export const MODULE_API = `${server}/Module`;
+export const SET_WIFI_API = `http://192.168.4.1/connect-to`;
 
 //Slot
 export const SLOT_API = `${server}/Slot`;

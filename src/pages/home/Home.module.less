@@ -303,8 +303,16 @@
 
 .sub-prepare {
   background-color: #ebfdef;
-  padding-top: 19px;
-  padding-bottom: 19px;
+  // padding-top: 19px;
+  // padding-bottom: 19px;
+  height: 100%;
+
+  .subInfoCtn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
 
   .sub-title {
     color: #808080;
@@ -313,6 +321,10 @@
   .sub-detail {
     color: #252c58;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 1.375rem;
   }
+}
+
+.nonContentCard {
+  height: 80%;
 }
