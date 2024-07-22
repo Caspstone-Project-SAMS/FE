@@ -1,11 +1,13 @@
 export interface Student {
   userID?: string;
+  email?: string;
   studentID?: string;
   studentName?: string;
   studentCode?: string;
   avatar?: string;
   isAuthenticated?: boolean;
   absencePercentage?: number;
+  phoneNumber?: string
 }
 
 export interface StudentMessage {

@@ -1,7 +1,7 @@
 
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Card, Col, Input, Layout, Row, Table } from 'antd';
+import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
 import { StudentService } from '../../../../hooks/StudentList';
@@ -10,6 +10,7 @@ import ContentHeader from '../../../../components/header/contentHeader/ContentHe
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import Excel from '../../../../components/excel/Excel';
+import personIcon from '../../../../assets/imgs/person-icon.jpg';
 import '../../../../assets/styles/styles.less'
 import { useNavigate } from 'react-router-dom';
 
@@ -36,11 +37,21 @@ const AccountStudents: React.FC = () => {
     },
     {
       key: '2',
+      title: 'Email',
+      dataIndex: 'email',
+    },
+    {
+      key: '3',
       title: 'Student Code',
       dataIndex: 'studentcode',
     },
     {
-      key: '3',
+      key: '4',
+      title: 'Phone',
+      dataIndex: 'phone',
+    },
+    {
+      key: '5',
       title: 'Authenticated',
       dataIndex: 'isAuthenticated',
       render: (isAuthenticated: boolean) => (
@@ -51,28 +62,18 @@ const AccountStudents: React.FC = () => {
         </div>
       ),
     },
-    // {
-    //   key: '4',
-    //   title: 'Register',
-    //   dataIndex: 'register',
-    //   render: (_: any, record: Student) => (
-    //     <div>
-    //       {record.isAuthenticated ? (
-    //         <Button
-    //           shape="circle"
-    //           style={{ border: 'none', backgroundColor: 'white' }}
-    //           disabled
-    //         >
-    //           <FaFingerprint size={20} />
-    //         </Button>
-    //       ) : (
-    //         <Button shape="circle" style={{ border: 'none' }}>
-    //           <FaFingerprint size={20} />
-    //         </Button>
-    //       )}
-    //     </div>
-    //   ),
-    // },
+    {
+      key: '6',
+      title: 'Info',
+      dataIndex: 'info',
+      render: (info: any) => (
+        <div>
+          <Button shape="circle" style={{ border: 'none' }}>
+            <span>i</span>
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -144,12 +145,15 @@ const AccountStudents: React.FC = () => {
             key: index,
             studentname: (
               <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <img src={item.avatar} alt="Student" className={styles.img} />
+                <img src={item.avatar || personIcon} alt="Student" className={styles.img} />
                 <p className={styles.studentName}>{item.studentName}</p>
               </div>
             ),
+            email: item.email,
             studentcode: item.studentCode,
+            phone: item.phoneNumber,
             isAuthenticated: item.isAuthenticated,
+            info: item,
             ID: item.studentID,
           }),
         )}

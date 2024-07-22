@@ -8,6 +8,7 @@ import {
   Empty,
   Input,
   Layout,
+  message,
   Modal,
   Row,
   Spin,
@@ -25,11 +26,17 @@ import {
 import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
 import { ModuleService } from '../../../../hooks/Module';
 import { Module, ModuleDetail } from '../../../../models/module/Module';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import { StudentService } from '../../../../hooks/StudentList';
 import { CiSearch } from 'react-icons/ci';
 import personIcon from '../../../../assets/imgs/person-icon.jpg';
+import moduleImg from '../../../../assets/imgs/module00.png';
+import {
+  activeModule,
+  clearModuleMessages,
+} from '../../../../redux/slice/Module';
+import { delay } from 'framer-motion';
 
 const { Header: AntHeader } = Layout;
 
@@ -51,12 +58,40 @@ const AccountStudentsDetail: React.FC = () => {
   const [progressStep2, setProgressStep2] = useState(0);
   const [timeoutIds, setTimeoutIds] = useState<number[]>([]);
   const [module, setModule] = useState<Module>();
-  const [moduleID, setModuleID] = useState(0);
+  const [moduleID, setModuleID] = useState<number>(0);
   const [moduleDetail, setModuleDetail] = useState<ModuleDetail[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredSemesterClass, setFilteredSemesterClass] =
     useState<EnrolledClasses[]>(studentClass);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const [sessionID, setSessionID] = useState<number>(0);
+  const [status, setStatus] = useState('');
+  const [isActiveModule, setIsActiveModule] = useState(false);
+  const [changeModuleUI, setChangeModuleUI] = useState(0)
+
+  const dispatch = useDispatch();
+
+  const failMessage = useSelector((state: RootState) => state.module.message);
+  const successMessage = useSelector(
+    (state: RootState) => state.module.moduleDetail,
+  );
+
+  console.log('session', sessionID);
+
+  useEffect(() => {
+    if (successMessage) {
+      message.success(successMessage.title);
+      setSessionID(successMessage.result.sessionId);
+      setStatus('success');
+      dispatch(clearModuleMessages());
+    }
+    if (failMessage && failMessage.data.error.title) {
+      message.error(`${failMessage.data.error.title}`);
+      setStatus('fail');
+      dispatch(clearModuleMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
 
   useEffect(() => {
     if (location.state && location.state.studentID) {
@@ -75,7 +110,6 @@ const AccountStudentsDetail: React.FC = () => {
 
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
-      console.log('Student ID', studentID);
       const message = JSON.parse(event.data);
       switch (message.Event) {
         case 'RegisterFingerSuccessfully': {
@@ -91,6 +125,31 @@ const AccountStudentsDetail: React.FC = () => {
               setProgressStep2(3);
             }
           }
+          break;
+        }
+        case 'ModuleConnected': {
+          const data = message.Data;
+          const moduleId = data.ModuleId;
+          modifyModuleConnection(moduleId, 1);
+
+          setModuleDetail(moduleDetail || []);
+          console.log('change module view')
+
+
+          break;
+        }
+        case 'ModuleLostConnected': {
+          const data = message.Data;
+          const moduleId = data.ModuleId;
+          modifyModuleConnection(moduleId, 2);
+          setModuleDetail(moduleDetail || []);
+
+          setTimeout(() => {
+            50
+          }, 50);
+
+          setModuleDetail(moduleDetail || []);
+
           break;
         }
         default: {
@@ -112,6 +171,13 @@ const AccountStudentsDetail: React.FC = () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
   }, [token, studentID]);
+
+  const modifyModuleConnection = (moduleId: number, conenctionStatus: number) => {
+    const existedModule = moduleDetail.find(m => m.moduleID == moduleId);
+    if(existedModule){
+      existedModule.connectionStatus = conenctionStatus;
+    }
+  }
 
   useEffect(() => {
     ConnectWebsocket();
@@ -158,6 +224,7 @@ const AccountStudentsDetail: React.FC = () => {
       .catch((error) => {
         console.log('get module by id error: ', error);
       });
+      setChangeModuleUI((prev) => (prev) + 1);
   }, [employeeID]);
 
   const handleSearchClass = (value: string) => {
@@ -173,6 +240,7 @@ const AccountStudentsDetail: React.FC = () => {
 
   const activeModuleRegisterThree = (
     moduleID: number,
+    SessionId: number,
     registerMode: number,
   ) => {
     const RegisterMode = {
@@ -183,7 +251,7 @@ const AccountStudentsDetail: React.FC = () => {
     //   ScheduleID: 0,
     // };
 
-    ModuleService.activeModuleMode(moduleID, 1, RegisterMode, token)
+    ModuleService.activeModuleMode(moduleID, 1, SessionId, RegisterMode, token)
       .then((data) => {
         console.log('Response data:', data);
       })
@@ -192,11 +260,28 @@ const AccountStudentsDetail: React.FC = () => {
       });
   };
 
-  const handleModuleClick = (moduleId: number) => {
+  // const handleModuleClick = (moduleId: number) => {
+  //   if (moduleID === moduleId) {
+  //     setModuleID(0); // Unclick will set moduleID to 0
+  //   } else {
+  //     setModuleID(moduleId);
+  //   }
+  //   ModuleService.activeModule(moduleID, 6, token);
+  // };
+
+  const handleModuleClick = async (moduleId: number) => {
     if (moduleID === moduleId) {
       setModuleID(0); // Unclick will set moduleID to 0
+      setStatus('');
+      dispatch(clearModuleMessages()); // Clear messages when unselecting
     } else {
       setModuleID(moduleId);
+      const arg = {
+        ModuleID: moduleId,
+        Mode: 6,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
     }
   };
 
@@ -240,9 +325,6 @@ const AccountStudentsDetail: React.FC = () => {
   const showModal = () => {
     console.log('module', moduleID);
     setIsModalVisible(true);
-    setProgressStep1(1);
-    setProgressStep2(1);
-
     // setTimeout(() => {
     //   setProgressStep1(2);
     // }, 2000);
@@ -263,12 +345,14 @@ const AccountStudentsDetail: React.FC = () => {
   };
 
   const handleOk = () => {
+    setIsRegisterPressed(false);
     setIsModalVisible(false);
     setProgressStep1(0);
     setProgressStep2(0);
   };
 
   const handleCancel = () => {
+    setIsRegisterPressed(false);
     setIsModalVisible(false);
     setProgressStep1(0);
     setProgressStep2(0);
@@ -279,6 +363,7 @@ const AccountStudentsDetail: React.FC = () => {
     console.log('Fingerprint upload confirmed!');
     // Optionally, close the modal
     setIsModalVisible(false);
+    setIsRegisterPressed(false);
     // Reset progress steps
     setProgressStep1(0);
     setProgressStep2(0);
@@ -288,6 +373,7 @@ const AccountStudentsDetail: React.FC = () => {
     clearTimeouts();
     setProgressStep1(0);
     setProgressStep2(0);
+    setIsRegisterPressed(false);
     showModal();
   };
 
@@ -344,76 +430,11 @@ const AccountStudentsDetail: React.FC = () => {
                     block
                     onClick={() => {
                       showModal();
-                      activeModuleRegisterThree(moduleID, 3);
+                      // activeModuleRegisterThree(moduleID, 3);
                     }}
                   >
                     <p>Register Fingerprints</p>
                   </Button>
-
-                  <Content style={{ marginTop: 20 }}>
-                    {moduleDetail.length === 0 ? (
-                      <Empty description="No modules available" />
-                    ) : (
-                      <Card>
-                        {moduleDetail.map((item, index) => (
-                          <Card
-                            onClick={() => handleModuleClick(item.moduleID)}
-                            key={index}
-                            className={`${styles.unselectedModule} ${
-                              moduleID === item.moduleID
-                                ? styles.selectedModule
-                                : ''
-                            }`}
-                          >
-                            <Row>
-                              <Col span={15}>
-                                <p className={styles.upTitle}>
-                                  Module {item.moduleID}
-                                </p>
-                                <br />
-                                <p className={styles.upDetail}>
-                                  {item.status === 1 ? (
-                                    <>
-                                      <Badge status="success" /> online
-                                    </>
-                                  ) : item.status === 2 ? (
-                                    <>
-                                      <Badge status="error" /> offline
-                                    </>
-                                  ) : null}
-                                </p>
-                              </Col>
-                              <Col
-                                span={9}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                <p>
-                                  {item.mode === 1 ? (
-                                    <p>
-                                      Mode:{' '}
-                                      <span style={{ fontWeight: 'bold' }}>
-                                        Register
-                                      </span>
-                                    </p>
-                                  ) : item.mode === 2 ? (
-                                    <p>
-                                      Mode:{' '}
-                                      <span style={{ fontWeight: 'bold' }}>
-                                        Check Attendance
-                                      </span>
-                                    </p>
-                                  ) : null}
-                                </p>
-                              </Col>
-                            </Row>
-                          </Card>
-                        ))}
-                      </Card>
-                    )}
-                  </Content>
                 </div>
               )}
             </div>
@@ -491,6 +512,8 @@ const AccountStudentsDetail: React.FC = () => {
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
+        width={800}
+        // bodyStyle={{ minHeight: '300px' }}
         footer={[
           <Button key="cancel" onClick={handleCancel}>
             Cancel
@@ -504,16 +527,132 @@ const AccountStudentsDetail: React.FC = () => {
         ]}
       >
         <Row gutter={[16, 16]}>
-          <Col span={12} style={{ textAlign: 'center' }}>
-            <Lottie options={defaultOptions} height={100} width={100} />
-            <p>Registering Fingerprint Template 1...</p>
-            {renderProgress(progressStep1)}
+          <Col span={12}>
+            <Card>
+              <Row gutter={[16, 16]}>
+                <Col span={14}>
+                  <p style={{ fontWeight: 500 }}>
+                    Module Connecting: {moduleID > 0 && <span>{moduleID}</span>}
+                  </p>
+                </Col>
+
+                <Col span={10}>
+                  <p style={{ fontWeight: 500 }}>
+                    Status:{' '}
+                    {status === 'success' && (
+                      <span style={{ color: 'green' }}>Connected</span>
+                    )}
+                    {status === 'fail' && (
+                      <span style={{ color: 'red' }}>Fail</span>
+                    )}
+                  </p>
+                </Col>
+              </Row>
+            </Card>
+            <Content className='module_cards' style={{ marginTop: 5 }}>
+              {moduleDetail.length === 0 ? (
+                <Empty description="No modules available" />
+              ) : (
+                ////////////////vô đc
+                <Card style={{ height: 300, overflowY: 'auto' }}>
+                  <>{console.log("Trc khi vô")}</>
+                  {moduleDetail.map((item, index) => (
+                    //ko vo đc
+                    <Button
+                      onClick={() => handleModuleClick(item.moduleID)}
+                      key={index}
+                      className={`${styles.unselectedModule} ${
+                        moduleID === item.moduleID ? styles.selectedModule : ''
+                      }`}
+                      disabled={isActiveModule}
+                    >
+                      <>{console.log("sau khi vô")}</>
+                      <Row>
+                        <Col span={3} style={{ marginRight: 80 }}>
+                          <p className={styles.upTitle}>
+                            Module {item.moduleID}
+                          </p>
+                          <br />
+                          <img src={moduleImg} alt='module' style={{width:45, height:45}}/>
+                        </Col>
+                        <Col span={3} style={{}}>
+                          <p>
+                            {item.mode === 1 ? (
+                              <p>
+                                Mode:{' '}
+                                <span style={{ fontWeight: 'bold' }}>
+                                  Register
+                                </span>
+                              </p>
+                            ) : item.mode === 2 ? (
+                              <p>
+                                Mode:{' '}
+                                <span style={{ fontWeight: 'bold' }}>
+                                  Attendance
+                                </span>
+                              </p>
+                            ) : null}
+                          </p>
+                          <p className={styles.upDetail}>
+                            {item.status === 1 ? (
+                              <p style={{color:'blue'}}>
+                                available
+                              </p>
+                            ) : item.status === 2 ? (
+                              <p style={{color:'red'}}>
+                                 unavailable
+                              </p>
+                            ) : null}
+                          </p>
+                          <p className={styles.upDetail}>
+                            {item.connectionStatus === 1 ? (
+                              <>
+                                <Badge status="success" /> online
+                              </>
+                            ) : item.connectionStatus === 2 ? (
+                              <>
+                                <Badge status="error" /> offline
+                              </>
+                            ) : null}
+                          </p>
+                        </Col>
+                      </Row>
+                    </Button>
+                  ))}
+                </Card>
+              )}
+            </Content>
+            <Button
+              type="primary"
+              block
+              onClick={() => {
+                setIsActiveModule(true);
+                activeModuleRegisterThree(moduleID, sessionID, 3);
+                setIsRegisterPressed(true);
+                setProgressStep1(1);
+                setProgressStep2(1);
+              }}
+              style={{ width: '100%', marginTop: 20 }}
+              disabled={isActiveModule || !moduleID}
+            >
+              Register
+            </Button>
           </Col>
-          <Col span={12} style={{ textAlign: 'center' }}>
-            <Lottie options={defaultOptions} height={100} width={100} />
-            <p>Registering Fingerprint Template 2...</p>
-            {renderProgress(progressStep2)}
-          </Col>
+
+          {isRegisterPressed && (
+            <Col span={12}>
+              <Col style={{ textAlign: 'center', marginBottom: 60 }}>
+                <Lottie options={defaultOptions} height={100} width={100} />
+                <p>Registering Fingerprint Template 1...</p>
+                {renderProgress(progressStep1)}
+              </Col>
+              <Col style={{ textAlign: 'center' }}>
+                <Lottie options={defaultOptions} height={100} width={100} />
+                <p>Registering Fingerprint Template 2...</p>
+                {renderProgress(progressStep2)}
+              </Col>
+            </Col>
+          )}
         </Row>
       </Modal>
     </Content>

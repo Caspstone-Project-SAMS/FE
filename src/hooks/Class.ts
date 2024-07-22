@@ -38,6 +38,28 @@ const getAllClass = async (): Promise<Class | null> => {
   }
 };
 
+const getClassBySemesterID = async (semesterID: number, studentId: string): Promise<Class | null> => {
+  // console.log(typeof classID)
+  try {
+    const response = await axios.get(`${CLASS_API}`, {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+        semesterID,
+        studentId,
+      },
+      headers: {
+        'accept': '*/*'
+      }
+    });
+    return response.data as Class;
+  } catch (error) {
+    console.error('Error on get Class by SemesterID: ', error);
+    return null;
+  }
+};
+
 const getClassByID = async (classID: number): Promise<ClassDetail | null> => {
   // console.log(typeof classID)
   try {
@@ -99,4 +121,5 @@ export const ClassService = {
   getAllClass,
   getClassByID,
   createClass,
+  getClassBySemesterID,
 };
