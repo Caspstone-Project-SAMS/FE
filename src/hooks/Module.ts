@@ -151,13 +151,14 @@ const activeModuleAttendance = async (
   }
 };
 
-const activeModule = async (ModuleID: number, Mode: number, token: string) => {
+const activeModule = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
   try {
     const response = await axios.post(
       MODULE_API + '/Activate',
       {
         ModuleID,
         Mode,
+        SessionId,
       },
       {
         headers: {

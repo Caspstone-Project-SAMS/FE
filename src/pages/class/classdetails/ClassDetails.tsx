@@ -84,7 +84,9 @@ const ClassDetails: React.FC = () => {
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage.title);
-      setSessionID(successMessage.result.sessionId);
+      if (successMessage.title == 'Connect module successfully') {
+        setSessionID(successMessage.result.sessionId);
+      }
       setStatus('success');
       dispatch(clearModuleMessages());
     }
@@ -282,17 +284,64 @@ const ClassDetails: React.FC = () => {
     setIsActiveModule(false);
   };
 
+  // const handleModuleClick = async (moduleId: number) => {
+  //   setLoading(true);
+  //   setIsActiveModule(true);
+  //   if (moduleID === moduleId) {
+  //     const arg = {
+  //       ModuleID: moduleId,
+  //       Mode: 2,
+  //       SessionId: sessionID,
+  //       token: token,
+  //     };
+  //     await dispatch(activeModule(arg) as any);
+  //     setModuleID(0); // Unclick will set moduleID to 0
+  //     setStatus('');
+  //     setModuleByID(undefined);
+  //     setIsActiveModule(false);
+  //     setLoading(false);
+  //     dispatch(clearModuleMessages());
+  //   } else {
+  //     setModuleID(moduleId);
+  //     const arg = {
+  //       ModuleID: moduleId,
+  //       Mode: 6,
+  //       token: token,
+  //     };
+  //     await dispatch(activeModule(arg) as any);
+  //     setLoading(false);
+  //     setIsActiveModule(false);
+  //   }
+  // };
+
   const handleModuleClick = async (moduleId: number) => {
     setLoading(true);
     setIsActiveModule(true);
-    if (moduleID === moduleId) {
-      setModuleID(0); // Unclick will set moduleID to 0
+    if (moduleID === moduleId && sessionID === 0) {
+      setModuleID(0);
       setStatus('');
       setModuleByID(undefined);
       setIsActiveModule(false);
       setLoading(false);
       dispatch(clearModuleMessages());
-    } else {
+      console.log('1');
+    } else if (moduleID === moduleId && sessionID !== 0) {
+      const arg = {
+        ModuleID: moduleId,
+        Mode: 2,
+        SessionId: sessionID,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
+      setModuleID(0);
+      setStatus('');
+      setSessionID(0);
+      setModuleByID(undefined);
+      setIsActiveModule(false);
+      setLoading(false);
+      dispatch(clearModuleMessages());
+      console.log('2');
+    } else if (moduleID !== moduleId) {
       setModuleID(moduleId);
       const arg = {
         ModuleID: moduleId,
@@ -302,6 +351,7 @@ const ClassDetails: React.FC = () => {
       await dispatch(activeModule(arg) as any);
       setLoading(false);
       setIsActiveModule(false);
+      console.log('3');
     }
   };
 
@@ -421,7 +471,7 @@ const ClassDetails: React.FC = () => {
                 <Col style={{ display: 'flex', justifyContent: 'center' }}>
                   <text className={styles.moduleText}>Module</text>
                 </Col>
-                <Col
+                {/* <Col
                   style={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -434,7 +484,7 @@ const ClassDetails: React.FC = () => {
                   <Button className={styles.btnDisconnect}>
                     <text>Disconnect</text>
                   </Button>
-                </Col>
+                </Col> */}
                 <Col style={{ display: 'flex', justifyContent: 'center' }}>
                   <div className={styles.moduleCard}>
                     <div className={styles.moduleImgCtn}>

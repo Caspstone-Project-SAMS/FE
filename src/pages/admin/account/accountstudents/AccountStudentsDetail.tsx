@@ -103,12 +103,14 @@ const AccountStudentsDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
-  console.log('type', typeof moduleDetail);
+  console.log('sessionID', sessionID);
 
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage.title);
-      setSessionID(successMessage.result.sessionId);
+      if (successMessage.title == 'Connect module successfully') {
+        setSessionID(successMessage.result.sessionId);
+      }
       setStatus('success');
       dispatch(clearModuleMessages());
     }
@@ -359,18 +361,34 @@ const AccountStudentsDetail: React.FC = () => {
   //   }
   //   ModuleService.activeModule(moduleID, 6, token);
   // };
-
   const handleModuleClick = async (moduleId: number) => {
     setLoading(true);
     setIsActiveModule(true);
-    if (moduleID === moduleId) {
-      setModuleID(0); // Unclick will set moduleID to 0
+    if (moduleID === moduleId && sessionID === 0) {
+      setModuleID(0);
       setStatus('');
       setModuleByID(undefined);
       setIsActiveModule(false);
       setLoading(false);
-      dispatch(clearModuleMessages()); // Clear messages when unselecting
-    } else {
+      dispatch(clearModuleMessages());
+      console.log('1');
+    } else if (moduleID === moduleId && sessionID !== 0) {
+      const arg = {
+        ModuleID: moduleId,
+        Mode: 2,
+        SessionId: sessionID,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
+      setModuleID(0);
+      setStatus('');
+      setSessionID(0);
+      setModuleByID(undefined);
+      setIsActiveModule(false);
+      setLoading(false);
+      dispatch(clearModuleMessages());
+      console.log('2');
+    } else if (moduleID !== moduleId) {
       setModuleID(moduleId);
       const arg = {
         ModuleID: moduleId,
@@ -380,6 +398,7 @@ const AccountStudentsDetail: React.FC = () => {
       await dispatch(activeModule(arg) as any);
       setLoading(false);
       setIsActiveModule(false);
+      console.log('3');
     }
   };
 
