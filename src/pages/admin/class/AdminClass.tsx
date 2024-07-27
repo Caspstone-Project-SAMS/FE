@@ -36,6 +36,7 @@ import { ClassDetails } from '../../../models/Class';
 import { ClassService } from '../../../hooks/Class';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../../redux/Store';
+import { IoMdInformation } from 'react-icons/io';
 
 const AdminClass: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
@@ -245,6 +246,25 @@ const AdminClass: React.FC = () => {
         </div>
       ),
     },
+    {
+      key: '5',
+      title: 'Info',
+      dataIndex: 'info',
+      render: (classID: number) => (
+        <div>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClick(classID);
+            }}
+            shape="circle"
+            style={{ border: 'none' }}
+          >
+            <span><IoMdInformation size={25}/></span>
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -311,15 +331,16 @@ const AdminClass: React.FC = () => {
             semestercode: item.semester.semesterCode,
             lecturer: item.lecturer.displayName,
             classStatus: item.classStatus,
+            info: item.classID,
             ID: item.classID,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.ID),
-        })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.ID),
+        // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Class' : 'Add New Class'}

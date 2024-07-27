@@ -9,11 +9,14 @@ import {
   Card,
   Col,
   Empty,
+  Input,
   message,
   Modal,
   Row,
   Space,
   Typography,
+  Select,
+  Spin,
 } from 'antd';
 
 import module from '../../../assets/imgs/module.png';
@@ -31,6 +34,7 @@ import { ModuleService } from '../../../hooks/Module';
 import { ModuleByID, ModuleDetail } from '../../../models/module/Module';
 import moduleImg from '../../../assets/imgs/module00.png';
 import { activeModule, clearModuleMessages } from '../../../redux/slice/Module';
+const { Option } = Select;
 
 const ClassDetails: React.FC = () => {
   const location = useLocation();
@@ -50,6 +54,9 @@ const ClassDetails: React.FC = () => {
 
   const [isActiveModule, setIsActiveModule] = useState(false);
   const [statuss, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [change, setChange] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -64,6 +71,14 @@ const ClassDetails: React.FC = () => {
   const failMessage = useSelector((state: RootState) => state.module.message);
   const successMessage = useSelector(
     (state: RootState) => state.module.moduleDetail,
+  );
+
+  const [connectionStatusFilter, setConnectionStatusFilter] = React.useState<
+    number | undefined
+  >(undefined);
+
+  const [searchModuleID, setSearchModuleID] = useState<number | undefined>(
+    undefined,
   );
 
   useEffect(() => {
@@ -92,7 +107,7 @@ const ClassDetails: React.FC = () => {
           console.log('get module by id error: ', error);
         });
     }
-  }, [moduleID]);
+  }, [moduleID, change]);
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -139,6 +154,7 @@ const ClassDetails: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
           setModuleDetail([...moduleDetail]);
+          setChange((prev) => prev + 1);
           console.log('connected');
 
           break;
@@ -148,6 +164,7 @@ const ClassDetails: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
           setModuleDetail([...moduleDetail]);
+          setChange((prev) => prev + 1);
           console.log('disconnected');
 
           // setTimeout(() => {
@@ -266,12 +283,14 @@ const ClassDetails: React.FC = () => {
   };
 
   const handleModuleClick = async (moduleId: number) => {
+    setLoading(true);
     setIsActiveModule(true);
     if (moduleID === moduleId) {
       setModuleID(0); // Unclick will set moduleID to 0
       setStatus('');
       setModuleByID(undefined);
       setIsActiveModule(false);
+      setLoading(false);
       dispatch(clearModuleMessages());
     } else {
       setModuleID(moduleId);
@@ -281,19 +300,29 @@ const ClassDetails: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
+      setLoading(false);
       setIsActiveModule(false);
     }
   };
 
-  const activeModuleCheckAttendance = (
-    moduleID: number,
-    SessionId: number,
-  ) => {
+  const LoadingIndicator = () => (
+    <span className="loading-spinner">
+      <Spin size="medium" />
+    </span>
+  );
+
+  const activeModuleCheckAttendance = (moduleID: number, SessionId: number) => {
     const PrepareAttendance = {
-      ScheduleID: scheduleID
+      ScheduleID: scheduleID,
     };
 
-    ModuleService.activeModuleAttendance(moduleID, SessionId, 3, PrepareAttendance, token)
+    ModuleService.activeModuleAttendance(
+      moduleID,
+      SessionId,
+      3,
+      PrepareAttendance,
+      token,
+    )
       .then((data) => {
         console.log('Response data:', data);
       })
@@ -515,7 +544,14 @@ const ClassDetails: React.FC = () => {
                     setIsActiveModule={setIsActiveModule}
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
                   />
-                  <Button onClick={handleReset} style={{marginTop: 10, backgroundColor:'red', color:'white'}}>
+                  <Button
+                    onClick={handleReset}
+                    style={{
+                      marginTop: 10,
+                      backgroundColor: 'red',
+                      color: 'white',
+                    }}
+                  >
                     Stop
                   </Button>
                 </Row>
@@ -558,7 +594,7 @@ const ClassDetails: React.FC = () => {
 
                 <Col span={10}>
                   <p style={{ fontWeight: 500 }}>
-                    Status:{' '}
+                    Status: {loading && <LoadingIndicator />}
                     {statuss === 'success' && (
                       <span style={{ color: 'green' }}>Connected</span>
                     )}
@@ -570,71 +606,106 @@ const ClassDetails: React.FC = () => {
               </Row>
             </Card>
             <Content className="module_cards" style={{ marginTop: 5 }}>
+              <Row gutter={[16, 16]} style={{ marginBottom: 5 }}>
+                <Col span={18}>
+                  <Input
+                    placeholder="Search by Module ID"
+                    type="number"
+                    onChange={(e) =>
+                      setSearchModuleID(Number(e.target.value) || undefined)
+                    }
+                  />
+                </Col>
+                <Col span={6}>
+                  <Select
+                    defaultValue=""
+                    style={{ width: '100%' }}
+                    onChange={(e) =>
+                      setConnectionStatusFilter(Number(e) || undefined)
+                    }
+                  >
+                    <Option value={''}>All</Option>
+                    <Option value={'1'}>Online</Option>
+                    <Option value={'2'}>Offline</Option>
+                  </Select>
+                </Col>
+              </Row>
               {moduleDetail.length === 0 ? (
                 <Empty description="No modules available" />
               ) : (
-                <Card style={{ height: 300, overflowY: 'auto' }}>
-                  {moduleDetail.map((item, index) => (
-                    <Button
-                      onClick={() => handleModuleClick(item.moduleID)}
-                      key={index}
-                      className={`${styles.unselectedModule} ${
-                        moduleID === item.moduleID ? styles.selectedModule : ''
-                      }`}
-                      disabled={isActiveModule}
-                    >
-                      <Row>
-                        <Col span={4} style={{ marginRight: 80 }}>
-                          <p className={styles.upTitle}>
-                            Module {item.moduleID}
-                          </p>
-                          <br />
-                          <img
-                            src={moduleImg}
-                            alt="module"
-                            style={{ width: 45, height: 45 }}
-                          />
-                        </Col>
-                        <Col span={3} style={{ margin: 'auto' }}>
-                          <p>
-                            {item.mode === 1 ? (
-                              <p>
-                                Mode:{' '}
-                                <span style={{ fontWeight: 'bold' }}>
-                                  Register
-                                </span>
-                              </p>
-                            ) : item.mode === 2 ? (
-                              <p>
-                                Mode:{' '}
-                                <span style={{ fontWeight: 'bold' }}>
-                                  Attendance
-                                </span>
-                              </p>
-                            ) : null}
-                          </p>
-                          <p className={styles.upDetail}>
-                            {item.status === 1 ? (
-                              <p style={{ color: 'blue' }}>available</p>
-                            ) : item.status === 2 ? (
-                              <p style={{ color: 'red' }}>unavailable</p>
-                            ) : null}
-                          </p>
-                          <p className={styles.upDetail}>
-                            {item.connectionStatus === 1 ? (
-                              <>
-                                <Badge status="success" /> online
-                              </>
-                            ) : item.connectionStatus === 2 ? (
-                              <>
-                                <Badge status="error" /> offline
-                              </>
-                            ) : null}
-                          </p>
-                        </Col>
-                      </Row>
-                    </Button>
-                  ))}
+                <Card style={{ height: 400, overflowY: 'auto' }}>
+                  {moduleDetail
+                    .filter(
+                      (item) =>
+                        (connectionStatusFilter === undefined ||
+                          item.connectionStatus === connectionStatusFilter) &&
+                        (searchModuleID === undefined ||
+                          item.moduleID === searchModuleID),
+                    )
+                    .sort((a, b) => a.connectionStatus - b.connectionStatus)
+                    .map((item, index) => (
+                      <Button
+                        onClick={() => handleModuleClick(item.moduleID)}
+                        key={index}
+                        className={`${styles.unselectedModule} ${
+                          moduleID === item.moduleID
+                            ? styles.selectedModule
+                            : ''
+                        }`}
+                        disabled={isActiveModule}
+                      >
+                        <Row>
+                          <Col span={3} style={{ marginRight: 80 }}>
+                            <p className={styles.upTitle}>
+                              Module {item.moduleID}
+                            </p>
+                            <br />
+                            <img
+                              src={moduleImg}
+                              alt="module"
+                              style={{ width: 45, height: 45 }}
+                            />
+                          </Col>
+                          <Col span={3}>
+                            <p>
+                              {item.mode === 1 ? (
+                                <p>
+                                  Mode:{' '}
+                                  <span style={{ fontWeight: 'bold' }}>
+                                    Register
+                                  </span>
+                                </p>
+                              ) : item.mode === 2 ? (
+                                <p>
+                                  Mode:{' '}
+                                  <span style={{ fontWeight: 'bold' }}>
+                                    Attendance
+                                  </span>
+                                </p>
+                              ) : null}
+                            </p>
+                            <p className={styles.upDetail}>
+                              {item.status === 1 ? (
+                                <p style={{ color: 'blue' }}>available</p>
+                              ) : item.status === 2 ? (
+                                <p style={{ color: 'red' }}>unavailable</p>
+                              ) : null}
+                            </p>
+                            <p className={styles.upDetail}>
+                              {item.connectionStatus === 1 ? (
+                                <>
+                                  <Badge status="success" /> online
+                                </>
+                              ) : item.connectionStatus === 2 ? (
+                                <>
+                                  <Badge status="error" /> offline
+                                </>
+                              ) : null}
+                            </p>
+                          </Col>
+                        </Row>
+                      </Button>
+                    ))}
                 </Card>
               )}
             </Content>

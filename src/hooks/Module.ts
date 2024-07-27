@@ -178,6 +178,34 @@ const activeModule = async (ModuleID: number, Mode: number, token: string) => {
   }
 };
 
+const cancelSession = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        SessionId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('vvedf', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
 const setUpWifi = async (ssid: string, pass: string) => {
   return await axios.post(SET_WIFI_API, {
     ssid,
@@ -191,6 +219,7 @@ export const ModuleService = {
   getAllModule,
   getModuleByID,
   activeModule,
+  cancelSession,
   setUpWifi,
   activeModuleAttendance,
 };
