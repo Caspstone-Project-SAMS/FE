@@ -49,7 +49,7 @@ const ClassDetails: React.FC = () => {
   const [moduleDetail, setModuleDetail] = useState<ModuleDetail[]>([]);
   const [moduleID, setModuleID] = useState<number>(0);
   const [sessionID, setSessionID] = useState<number>(0);
-  const [moduleByID, setModuleByID] = useState<ModuleByID>();
+  const [moduleByID, setModuleByID] = useState<ModuleDetail>();
   // const [ScheduleID, setScheduleID] = useState(0);
 
   const [isActiveModule, setIsActiveModule] = useState(false);
@@ -59,6 +59,8 @@ const ClassDetails: React.FC = () => {
   const [change, setChange] = useState(0);
 
   const dispatch = useDispatch();
+
+  const [preparationProgress, setPreparationProgress] = useState(0);
 
   const employeeID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.employeeID,
@@ -97,19 +99,19 @@ const ClassDetails: React.FC = () => {
     }
   }, [successMessage, failMessage, dispatch]);
 
-  useEffect(() => {
-    if (moduleID !== 0) {
-      const response = ModuleService.getModuleByID(moduleID);
+  // useEffect(() => {
+  //   if (moduleID !== 0) {
+  //     const response = ModuleService.getModuleByID(moduleID);
 
-      response
-        .then((data) => {
-          setModuleByID(data || undefined);
-        })
-        .catch((error) => {
-          console.log('get module by id error: ', error);
-        });
-    }
-  }, [moduleID, change]);
+  //     response
+  //       .then((data) => {
+  //         setModuleByID(data || undefined);
+  //       })
+  //       .catch((error) => {
+  //         console.log('get module by id error: ', error);
+  //       });
+  //   }
+  // }, [moduleID]);
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -156,7 +158,10 @@ const ClassDetails: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
           setModuleDetail([...moduleDetail]);
-          setChange((prev) => prev + 1);
+          const specificModule = moduleDetail.find(
+            (module) => module.moduleID === moduleId,
+          );
+          setModuleByID(specificModule as ModuleDetail | undefined);
           console.log('connected');
 
           break;
@@ -166,15 +171,22 @@ const ClassDetails: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
           setModuleDetail([...moduleDetail]);
-          setChange((prev) => prev + 1);
+          const specificModule = moduleDetail.find(
+            (module) => module.moduleID === moduleId,
+          );
+          setModuleByID(specificModule as ModuleDetail | undefined);
           console.log('disconnected');
-
           // setTimeout(() => {
           //   50
           // }, 50);
-
           // setModuleDetail(moduleDetail || []);
-
+          break;
+        }
+        case 'PreparationProgress': {
+          const data = message.Data;
+          const socketSessionId = data.SessionId as number;
+          const progress = data.Progress as number;
+          if (socketSessionId === sessionID) setPreparationProgress(progress);
           break;
         }
         default: {
@@ -195,7 +207,7 @@ const ClassDetails: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, moduleDetail, modifyModuleConnection]);
+  }, [token, moduleDetail, modifyModuleConnection, sessionID]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -314,9 +326,10 @@ const ClassDetails: React.FC = () => {
   //   }
   // };
 
-  const handleModuleClick = async (moduleId: number) => {
+  const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
     setIsActiveModule(true);
+    setModuleByID(module);
     if (moduleID === moduleId && sessionID === 0) {
       setModuleID(0);
       setStatus('');
@@ -497,23 +510,23 @@ const ClassDetails: React.FC = () => {
                     <div className={styles.moduleInfo}>
                       <span>
                         <b>ID: </b>
-                        {moduleByID?.result.moduleID}
+                        {moduleID > 0 && moduleID}
                       </span>
                       <span>
                         <b>Status: </b>
                         <p
                           style={{
                             display: 'inline',
-                            color: moduleByID?.result.status
-                              ? moduleByID?.result.status === 1
+                            color: moduleByID?.status
+                              ? moduleByID?.status === 1
                                 ? 'green'
                                 : 'red'
                               : 'inherit',
                           }}
                         >
-                          {moduleByID?.result.status === 1
+                          {moduleByID?.status === 1
                             ? 'available'
-                            : moduleByID?.result.status === 0
+                            : moduleByID?.status === 0
                             ? 'unavailable'
                             : ''}
                         </p>
@@ -521,11 +534,11 @@ const ClassDetails: React.FC = () => {
                       <span>
                         <b>Connect: </b>
                         <p style={{ display: 'inline', alignItems: 'center' }}>
-                          {moduleByID?.result.connectionStatus === 1 ? (
+                          {moduleByID?.connectionStatus === 1 ? (
                             <>
                               <Badge status="success" /> online
                             </>
-                          ) : moduleByID?.result.connectionStatus === 2 ? (
+                          ) : moduleByID?.connectionStatus === 2 ? (
                             <>
                               <Badge status="error" /> offline
                             </>
@@ -535,9 +548,9 @@ const ClassDetails: React.FC = () => {
                       <span>
                         <b>Mode: </b>
                         <p style={{ display: 'inline' }}>
-                          {moduleByID?.result.mode === 1
+                          {moduleByID?.mode === 1
                             ? 'Register'
-                            : moduleByID?.result.mode === 2
+                            : moduleByID?.mode === 2
                             ? 'Attendance'
                             : ''}
                         </p>
@@ -593,6 +606,7 @@ const ClassDetails: React.FC = () => {
                     sessionID={sessionID}
                     setIsActiveModule={setIsActiveModule}
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
+                    preparationProgress={preparationProgress}
                   />
                   <Button
                     onClick={handleReset}
@@ -695,7 +709,7 @@ const ClassDetails: React.FC = () => {
                     .sort((a, b) => a.connectionStatus - b.connectionStatus)
                     .map((item, index) => (
                       <Button
-                        onClick={() => handleModuleClick(item.moduleID)}
+                        onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
                         className={`${styles.unselectedModule} ${
                           moduleID === item.moduleID

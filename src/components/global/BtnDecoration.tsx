@@ -13,6 +13,7 @@ type props = {
   sessionID: number;
   setIsActiveModule: any;
   activeModuleCheckAttendance: any;
+  preparationProgress: number;
 };
 
 const BtnDecoration: React.FC<props> = ({
@@ -24,6 +25,7 @@ const BtnDecoration: React.FC<props> = ({
   sessionID,
   setIsActiveModule,
   activeModuleCheckAttendance,
+  preparationProgress,
 }) => {
   return (
     <Button
@@ -38,7 +40,11 @@ const BtnDecoration: React.FC<props> = ({
         {btnTitle ? <Title level={4}>{btnTitle}</Title> : ''}
         <span className={styles.btnFuncName}>{btnFuncName}</span>
       </div>
-      <div><Progress type="circle" percent={30} size={60} /></div>
+      <div>
+        {(preparationProgress > 0) && (
+          <Progress type="circle" percent={preparationProgress} size={60} />
+        )}
+      </div>
       <hr className={styles.verticalLine} />
       <div className={styles.iconDecorCtn}>
         <img src={imgDecor} className={styles.iconDecor} />

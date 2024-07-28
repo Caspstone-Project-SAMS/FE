@@ -54,7 +54,6 @@ const getModuleByEmployeeID = async (
 };
 
 const getModuleByID = async (moduleID: number): Promise<ModuleByID | null> => {
-  console.log(typeof moduleID);
   try {
     const response = await axios.get(`${MODULE_API}/${moduleID}`, {
       headers: {

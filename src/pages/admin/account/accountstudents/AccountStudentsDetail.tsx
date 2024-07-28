@@ -50,6 +50,10 @@ const { Option } = Select;
 
 const { Header: AntHeader } = Layout;
 
+message.config({
+  maxCount: 1,
+});
+
 const AccountStudentsDetail: React.FC = () => {
   const employeeID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.employeeID,
@@ -70,7 +74,7 @@ const AccountStudentsDetail: React.FC = () => {
   const [progressStep2, setProgressStep2] = useState(0);
   const [timeoutIds, setTimeoutIds] = useState<number[]>([]);
   const [module, setModule] = useState<Module>();
-  const [moduleByID, setModuleByID] = useState<ModuleByID>();
+  const [moduleByID, setModuleByID] = useState<ModuleDetail>();
   const [moduleID, setModuleID] = useState<number>(0);
   const [moduleDetail, setModuleDetail] = useState<ModuleDetail[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -78,6 +82,7 @@ const AccountStudentsDetail: React.FC = () => {
     useState<EnrolledClasses[]>(studentClass);
   const [isUpdate, setIsUpdate] = useState(false);
   const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const [isUpdatePressed, setIsUpdatePressed] = useState(false);
   const [sessionID, setSessionID] = useState<number>(0);
   const [status, setStatus] = useState('');
   const [isActiveModule, setIsActiveModule] = useState(false);
@@ -92,18 +97,17 @@ const AccountStudentsDetail: React.FC = () => {
     undefined,
   );
 
+  console.log('register', isRegisterPressed);
+  console.log('update', isUpdatePressed);
+
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
-
-  console.log('finger', studentFinger);
 
   const failMessage = useSelector((state: RootState) => state.module.message);
   const successMessage = useSelector(
     (state: RootState) => state.module.moduleDetail,
   );
-
-  console.log('sessionID', sessionID);
 
   useEffect(() => {
     if (successMessage) {
@@ -115,7 +119,9 @@ const AccountStudentsDetail: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error.title) {
-      message.error(`${failMessage.data.error.title}`);
+      if (failMessage.data.error.title !== 'Cancel session failed') {
+        message.error(`${failMessage.data.error.title}`);
+      }
       setStatus('fail');
       dispatch(clearModuleMessages());
     }
@@ -126,17 +132,6 @@ const AccountStudentsDetail: React.FC = () => {
       setStudentID(location.state.studentID);
     }
   }, [location.state]);
-
-  // const modifyModuleConnection = (moduleId: number, conenctionStatus: number) => {
-  //   console.log('0', moduleDetail)
-  //   const existedModule = moduleDetail.find(m => m.moduleID == moduleId);
-  //   console.log('1', moduleDetail)
-  //   if(existedModule){
-  //     existedModule.connectionStatus = conenctionStatus;
-  //   }
-  //   console.log('2', moduleDetail)
-  //   setModuleDetail(moduleDetail)
-  // }
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -189,7 +184,7 @@ const AccountStudentsDetail: React.FC = () => {
           const specificModule = moduleDetail.find(
             (module) => module.moduleID === moduleId,
           );
-          setModuleByID(specificModule as ModuleByID | undefined);
+          setModuleByID(specificModule as ModuleDetail | undefined);
           break;
         }
         case 'ModuleLostConnected': {
@@ -202,14 +197,8 @@ const AccountStudentsDetail: React.FC = () => {
           const specificModule = moduleDetail.find(
             (module) => module.moduleID === moduleId,
           );
-          setModuleByID(specificModule as ModuleByID | undefined);
+          setModuleByID(specificModule as ModuleDetail | undefined);
           break;
-
-          // setTimeout(() => {
-          //   50
-          // }, 50);
-
-          // setModuleDetail(moduleDetail || []);
         }
         default: {
           console.log('Undefined Event!');
@@ -250,19 +239,19 @@ const AccountStudentsDetail: React.FC = () => {
     // },
   ];
 
-  useEffect(() => {
-    if (moduleID !== 0) {
-      const response = ModuleService.getModuleByID(moduleID);
+  // useEffect(() => {
+  //   if (moduleID !== 0) {
+  //     const response = ModuleService.getModuleByID(moduleID);
 
-      response
-        .then((data) => {
-          setModuleByID(data || undefined);
-        })
-        .catch((error) => {
-          console.log('get module by id error: ', error);
-        });
-    }
-  }, [moduleID]);
+  //     response
+  //       .then((data) => {
+  //         setModuleByID(data || undefined);
+  //       })
+  //       .catch((error) => {
+  //         console.log('get module by id error: ', error);
+  //       });
+  //   }
+  // }, [moduleID]);
 
   useEffect(() => {
     if (studentID !== '') {
@@ -343,7 +332,6 @@ const AccountStudentsDetail: React.FC = () => {
     // const schedule = {
     //   ScheduleID: 0,
     // };
-
     ModuleService.activeModuleMode(moduleID, 1, SessionId, RegisterMode, token)
       .then((data) => {
         console.log('Response data:', data);
@@ -353,17 +341,31 @@ const AccountStudentsDetail: React.FC = () => {
       });
   };
 
-  // const handleModuleClick = (moduleId: number) => {
-  //   if (moduleID === moduleId) {
-  //     setModuleID(0); // Unclick will set moduleID to 0
-  //   } else {
-  //     setModuleID(moduleId);
-  //   }
-  //   ModuleService.activeModule(moduleID, 6, token);
-  // };
-  const handleModuleClick = async (moduleId: number) => {
+  const activeModuleUpdateThree = (
+    moduleID: number,
+    SessionId: number,
+    registerMode: number,
+  ) => {
+    const RegisterMode = {
+      StudentID: studentID,
+      FingerRegisterMode: registerMode,
+    };
+    // const schedule = {
+    //   ScheduleID: 0,
+    // };
+    ModuleService.activeModuleMode(moduleID, 8, SessionId, RegisterMode, token)
+      .then((data) => {
+        console.log('Response data:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
+  const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
     setIsActiveModule(true);
+    setModuleByID(module);
     if (moduleID === moduleId && sessionID === 0) {
       setModuleID(0);
       setStatus('');
@@ -389,6 +391,15 @@ const AccountStudentsDetail: React.FC = () => {
       dispatch(clearModuleMessages());
       console.log('2');
     } else if (moduleID !== moduleId) {
+      if (sessionID > 0) {
+        const args = {
+          ModuleID: moduleID,
+          Mode: 2,
+          SessionId: sessionID,
+          token: token,
+        };
+        await dispatch(activeModule(args) as any);
+      }
       setModuleID(moduleId);
       const arg = {
         ModuleID: moduleId,
@@ -437,20 +448,35 @@ const AccountStudentsDetail: React.FC = () => {
       dataIndex: 'absencePercentage',
       render: (absencePercentage: number) => (
         <div>
-          <p style={{ color: absencePercentage >= 20 ? 'red' : 'green' }}>
-            {absencePercentage}
+          <p
+            style={{ color: Number(absencePercentage) >= 20 ? 'red' : 'green' }}
+          >
+            {absencePercentage + '%'}
           </p>
         </div>
       ),
     },
   ];
 
-  const showModal = () => {
+  const showModalRegister = () => {
     if (modalContinue === false) {
       setIsModalVisible(true);
       setIsActiveModule(true);
       activeModuleRegisterThree(moduleID, sessionID, 3);
       setIsRegisterPressed(true);
+      setProgressStep1(1);
+      // setProgressStep2(1);
+    } else {
+      setIsModalVisible(true);
+    }
+  };
+
+  const showModalUpdate = () => {
+    if (modalContinue === false) {
+      setIsModalVisible(true);
+      setIsActiveModule(true);
+      activeModuleUpdateThree(moduleID, sessionID, 3);
+      setIsUpdatePressed(true);
       setProgressStep1(1);
       // setProgressStep2(1);
     } else {
@@ -469,6 +495,7 @@ const AccountStudentsDetail: React.FC = () => {
 
   const handleOk = () => {
     setIsRegisterPressed(false);
+    setIsUpdatePressed(false);
     setIsModalVisible(false);
     setProgressStep1(0);
     setProgressStep2(0);
@@ -488,6 +515,7 @@ const AccountStudentsDetail: React.FC = () => {
         token,
       );
       setIsRegisterPressed(false);
+      setIsUpdatePressed(false);
       setIsModalVisible(false);
       setIsActiveModule(false);
       setProgressStep1(0);
@@ -514,22 +542,13 @@ const AccountStudentsDetail: React.FC = () => {
     setIsModalVisibleModule(false);
   };
 
-  // const handleConfirmUpload = () => {
-  //   console.log('Fingerprint upload confirmed!');
-  //   SessionServive.submitSession(sessionID, token);
-  //   setIsModalVisible(false);
-  //   setIsRegisterPressed(false);
-  //   setProgressStep1(0);
-  //   setProgressStep2(0);
-  // };
-
   const handleConfirmUpload = async () => {
     try {
-      console.log('Fingerprint upload confirmed!');
       const response = await SessionServive.submitSession(sessionID, token);
       message.success(response.title);
       setIsModalVisible(false);
       setIsRegisterPressed(false);
+      setIsUpdatePressed(false);
       setProgressStep1(0);
       setProgressStep2(0);
       return response;
@@ -544,7 +563,7 @@ const AccountStudentsDetail: React.FC = () => {
     setProgressStep1(0);
     setProgressStep2(0);
     setIsRegisterPressed(false);
-    showModal();
+    showModalRegister();
   };
 
   const renderProgress = (step: number) => {
@@ -602,7 +621,7 @@ const AccountStudentsDetail: React.FC = () => {
                         type="primary"
                         block
                         onClick={() => {
-                          showModal();
+                          showModalRegister();
                           // activeModuleRegisterThree(moduleID, 3);
                         }}
                         disabled={
@@ -629,23 +648,23 @@ const AccountStudentsDetail: React.FC = () => {
                         <div className={styles.moduleInfo}>
                           <span>
                             <b>ID: </b>
-                            {moduleByID?.result.moduleID}
+                            {moduleID > 0 && moduleID}
                           </span>
                           <span>
                             <b>Status: </b>
                             <p
                               style={{
                                 display: 'inline',
-                                color: moduleByID?.result.status
-                                  ? moduleByID?.result.status === 1
+                                color: moduleByID?.status
+                                  ? moduleByID?.status === 1
                                     ? 'green'
                                     : 'red'
                                   : 'inherit',
                               }}
                             >
-                              {moduleByID?.result.status === 1
+                              {moduleByID?.status === 1
                                 ? 'available'
-                                : moduleByID?.result.status === 0
+                                : moduleByID?.status === 0
                                 ? 'unavailable'
                                 : ''}
                             </p>
@@ -658,11 +677,11 @@ const AccountStudentsDetail: React.FC = () => {
                                 alignItems: 'center',
                               }}
                             >
-                              {moduleByID?.result.connectionStatus === 1 ? (
+                              {moduleByID?.connectionStatus === 1 ? (
                                 <>
                                   <Badge status="success" /> online
                                 </>
-                              ) : moduleByID?.result.connectionStatus === 2 ? (
+                              ) : moduleByID?.connectionStatus === 2 ? (
                                 <>
                                   <Badge status="error" /> offline
                                 </>
@@ -672,9 +691,9 @@ const AccountStudentsDetail: React.FC = () => {
                           <span>
                             <b>Mode: </b>
                             <p style={{ display: 'inline' }}>
-                              {moduleByID?.result.mode === 1
+                              {moduleByID?.mode === 1
                                 ? 'Register'
-                                : moduleByID?.result.mode === 2
+                                : moduleByID?.mode === 2
                                 ? 'Attendance'
                                 : ''}
                             </p>
@@ -789,7 +808,7 @@ const AccountStudentsDetail: React.FC = () => {
                               .map((item, index) => (
                                 <Button
                                   onClick={() =>
-                                    handleModuleClick(item.moduleID)
+                                    handleModuleClick(item.moduleID, item)
                                   }
                                   key={index}
                                   className={`${styles.unselectedModule} ${
@@ -922,7 +941,13 @@ const AccountStudentsDetail: React.FC = () => {
                 )}
                 {student.result.fingerprintTemplates.length > 0 && (
                   <Row>
-                    <Button style={{ width: ' 100%', marginTop: 5 }}>
+                    <Button
+                      disabled={
+                        isActiveModule || !moduleID || status === 'fail'
+                      }
+                      onClick={() => showModalUpdate()}
+                      style={{ width: ' 100%', marginTop: 5 }}
+                    >
                       Update Fingerprint
                     </Button>
                   </Row>
@@ -987,7 +1012,7 @@ const AccountStudentsDetail: React.FC = () => {
                     classID: item.classID,
                     classCode: item.classCode,
                     classStatus: item.classStatus,
-                    absencePercentage: item.absencePercentage + '%',
+                    absencePercentage: item.absencePercentage,
                   }))}
                   pagination={{
                     showSizeChanger: true,
@@ -1034,6 +1059,22 @@ const AccountStudentsDetail: React.FC = () => {
                 <Col style={{ textAlign: 'center' }}>
                   <Lottie options={defaultOptions} height={100} width={100} />
                   <p>Registering Fingerprint Template 2...</p>
+                  {renderProgress(progressStep2)}
+                </Col>
+              )}
+            </Col>
+          )}
+          {isUpdatePressed && (
+            <Col span={24}>
+              <Col style={{ textAlign: 'center', marginBottom: 60 }}>
+                <Lottie options={defaultOptions} height={100} width={100} />
+                <p>Update Fingerprint Template 1...</p>
+                {renderProgress(progressStep1)}
+              </Col>
+              {(progressStep2 === 1 || progressStep2 === 3) && (
+                <Col style={{ textAlign: 'center' }}>
+                  <Lottie options={defaultOptions} height={100} width={100} />
+                  <p>Update Fingerprint Template 2...</p>
                   {renderProgress(progressStep2)}
                 </Col>
               )}
