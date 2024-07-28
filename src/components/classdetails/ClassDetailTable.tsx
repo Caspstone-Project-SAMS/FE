@@ -63,10 +63,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
         console.log("mess message event*", message.Event);
         console.log("mess message Data*", message.Data);
         switch (message.Event) {
-          case "statusChange":
+          case "StudentAttended":
             {
               const data = JSON.parse(message.Data);
-              console.log("case status change", data.studentID, data.status)
+              const studentIDs = message.Data.studentIDs
+              console.log("case status change", data.studentID, data.status, studentIDs)
 
               const elementId = `attendanceStatus-${data.studentID}`;
               const element = document.getElementById(`attendanceStatus-${data.studentID}`);
@@ -86,6 +87,8 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
               console.log("The prev one ", studentList);
               console.log("The Edited one ", newOne);
             }
+            break;
+          default:
             break;
         }
       };
@@ -156,7 +159,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
             <Avatar src={
               <Image
                 // width={300}
-                src={record.image ? record.image : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
+                src={record.avatar ? record.avatar : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
               />}
             />
             {record.studentName}

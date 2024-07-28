@@ -138,7 +138,7 @@ function Login() {
             <div className={styles.loginForm}>
               <Input
                 size="large"
-                placeholder="Email"
+                placeholder="Email or username"
                 className={styles.input}
                 onChange={(e) => setUsername(e.target.value)}
                 prefix={<MailOutlined style={{ marginRight: '10px' }} />}

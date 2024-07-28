@@ -101,10 +101,6 @@ const admin = [
     element: <Subject />
   },
   {
-    path: '/admin-attendance',
-    element: <AdminAttendance />
-  },
-  {
     path: '/room',
     element: <Room />
   },
