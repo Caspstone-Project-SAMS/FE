@@ -1,8 +1,36 @@
+@import '../../../assets/styles/variables.less';
+
 .adminScheduleCtn {
     padding: 20px;
 
-}
+    .modalCtn {
+        display: flex;
+        flex-direction: column;
+        // align-items: center;
+        margin-bottom: 20px;
+        // gap: 10px;
 
+        .titleTxt {
+            font-size: 1.1rem;
+        }
+
+        .selectedLecturer {
+            width: 26vw;
+            background-color: #FFF;
+            border-radius: 8px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .blurTxt {
+                color: @blur-font-color;
+                font-size: 1rem;
+                padding: 10px;
+            }
+        }
+    }
+}
 
 .searchInput {
     min-height: 50px;
@@ -48,4 +76,57 @@
     }
 }
 
-.searchListCtn {}
+.searchListCtn {
+    margin: 10px 0;
+    width: 100%;
+    gap: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+//Employee card
+.employeeCardCtn {
+    display: flex;
+    width: 100%;
+    border-radius: 8px;
+
+    .imageCtn {
+        // width: 15%;
+    }
+
+    .employeeDetailCtn {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 12px;
+
+        .left {
+            display: flex;
+            flex-direction: column;
+
+            .mainTxt {
+                font-size: 1.1rem;
+                font-weight: 500;
+            }
+
+            .subTxt {
+                text-align: left;
+                color: @blur-font-color;
+            }
+        }
+
+        .right {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: flex-end;
+        }
+    }
+}
+
+// .employeeCardCtn:hover {
+//     background-color: #e7f2ff; //hover color
+//     cursor: pointer;
+//     transition: background-color 0.2s ease-in;
+// }

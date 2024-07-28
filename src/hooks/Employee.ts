@@ -27,8 +27,47 @@ const getAllEmployee = async (): Promise<Employee | null> => {
   }
 };
 
-// const
+const get10Employee = async (): Promise<Employee | null> => {
+  try {
+    const response = await axios.get(EMPLOYEE_API, {
+      params: {
+        quantity: 10,
+        roleId: 2,
+      },
+    });
+
+    return response.data as Employee;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const searchByParams = async (
+  email: string,
+  phone: string,
+  department: string,
+): Promise<Employee | null> => {
+  try {
+    const response = await axios.get(EMPLOYEE_API, {
+      params: {
+        quantity: 10,
+        roleId: 2,
+        email: email ? email : '',
+        phone: phone ? phone : '',
+        department: department ? department : '',
+      },
+    });
+
+    return response.data as Employee;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 
 export const EmployeeService = {
   getAllEmployee,
+  get10Employee,
+  searchByParams,
 };

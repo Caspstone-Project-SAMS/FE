@@ -34,6 +34,10 @@ const lecture = [
     element: <Class />
   },
   {
+    path: '/class/detail',
+    element: <AdminClassDetail />
+  },
+  {
     path: '/student',
     element: <Student />
   },
@@ -95,10 +99,6 @@ const admin = [
   {
     path: '/admin-subject',
     element: <Subject />
-  },
-  {
-    path: '/admin-attendance',
-    element: <AdminAttendance />
   },
   {
     path: '/room',
