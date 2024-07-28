@@ -1,25 +1,27 @@
+import './Sidebar.css';
+import './Sidebar.less';
 import React, { useState } from 'react';
 import Sider from 'antd/es/layout/Sider';
-import { IoHomeOutline } from 'react-icons/io5';
-import { GiBookshelf } from 'react-icons/gi';
-import { PiStudent } from 'react-icons/pi';
-import { CiCalendar } from 'react-icons/ci';
-import { MdOutlineManageAccounts } from 'react-icons/md';
-import { FaListCheck } from 'react-icons/fa6';
 import { Image, Menu } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { useNavigate } from 'react-router-dom';
-import './Sidebar.css';
-import './Sidebar.less';
-import Logo from '../../assets/imgs/logo_sider.png';
-import Logo_Cutted from '../../assets/imgs/logo_cut.png';
 import { RootState } from '../../redux/Store';
 import { useSelector } from 'react-redux';
-import { MdManageAccounts } from 'react-icons/md';
-import { FaBookOpen } from 'react-icons/fa';
+
+import { GoBook } from "react-icons/go";
+import { PiStudent } from 'react-icons/pi';
+import { CiCalendar } from 'react-icons/ci';
 import { IoCalendar } from 'react-icons/io5';
+import { GiBookshelf } from 'react-icons/gi';
 import { GrSchedules } from 'react-icons/gr';
 import { MdViewModule } from "react-icons/md";
+import { LuDoorOpen } from "react-icons/lu";
+import { IoHomeOutline } from 'react-icons/io5';
+import { MdManageAccounts } from 'react-icons/md';
+import { MdOutlineManageAccounts } from 'react-icons/md';
+
+import Logo from '../../assets/imgs/logo_sider.png';
+import Logo_Cutted from '../../assets/imgs/logo_cut.png';
 
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -60,69 +62,65 @@ const Sidebar: React.FC = () => {
         items={
           role === 'Admin'
             ? [
-                {
-                  label: 'Home',
-                  key: '/home',
-                  icon: <IoHomeOutline />,
-                },
-                {
-                  label: 'Account',
-                  key: '/account-admin',
-                  children: [
-                    {
-                      label: 'Student',
-                      key: '/account-admin/student',
-                    },
-                    {
-                      label: 'Teacher',
-                      key: '/account-admin/teacher',
-                    },
-                  ],
-                  icon: <MdManageAccounts />,
-                },
-                {
-                  label: 'Subject',
-                  key: '/admin-subject',
-                  icon: <FaBookOpen />,
-                },
-                {
-                  label: 'Attendance',
-                  key: '/admin-attendance',
-                  icon: <FaListCheck />,
-                },
-                {
-                  label: 'Semester',
-                  key: '/semester',
-                  icon: <IoCalendar />,
-                },
-                {
-                  label: 'Class',
-                  key: '/admin-class',
-                  icon: <GiBookshelf />,
-                },
-                {
-                  label: 'Room',
-                  key: '/room',
-                  icon: <GiBookshelf />,
-                },
-                {
-                  label: 'Schedule',
-                  key: '/schedule',
-                  icon: <GrSchedules />,
-                },
-                {
-                  label: 'Slot',
-                  key: '/slot',
-                  icon: <GiBookshelf />,
-                },
-                {
-                  label: 'Module',
-                  key: '/module',
-                  icon: <MdViewModule />,
-                },
-              ]
+              {
+                label: 'Home',
+                key: '/home',
+                icon: <IoHomeOutline />,
+              },
+              {
+                label: 'Account',
+                key: '/account-admin',
+                children: [
+                  {
+                    label: 'Student',
+                    key: '/account-admin/student',
+                  },
+                  {
+                    label: 'Teacher',
+                    key: '/account-admin/teacher',
+                  },
+                ],
+                icon: <MdManageAccounts />,
+              },
+
+              {
+                label: 'Class',
+                key: '/admin-class',
+                icon: <GiBookshelf />,
+              },
+              {
+                label: 'Schedule',
+                key: '/schedule',
+                icon: <GrSchedules />,
+              },
+              {
+                label: 'Semester',
+                key: '/semester',
+                icon: <IoCalendar />,
+              },
+              {
+                label: 'Room',
+                key: '/room',
+                icon: <LuDoorOpen />,
+              },
+              {
+                label: 'Subject',
+                key: '/admin-subject',
+                icon: <GoBook />,
+              },
+              {
+                label: 'Slot',
+                key: '/slot',
+                icon: <GiBookshelf />,
+              },
+              {
+                label: 'Module',
+                key: '/module',
+                icon: <MdViewModule />,
+              },
+            ]
             : role === 'Lecturer'
-            ? [
+              ? [
                 {
                   label: 'Home',
                   key: '/home',
@@ -149,7 +147,7 @@ const Sidebar: React.FC = () => {
                   icon: <MdOutlineManageAccounts />,
                 },
               ]
-            : [
+              : [
                 {
                   label: 'Account',
                   key: '/student',

@@ -307,7 +307,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     }, [semester])
 
     useEffect(() => {
-        console.log("excel result changed", excelResult);
+        // console.log("excel result changed", excelResult);
         setErrLogs([]);
         setWarningLogs([]);
 
@@ -361,15 +361,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 closable={true}
                 footer={
                     <>
-                        <Button
-                            key="back"
-                            onClick={() => {
-                                handleClear();
-                                setModalOpen(false)
-                            }}
-                        >
-                            Cancel
-                        </Button>
                         {
                             current === 1 ? (
                                 <Button key="submit" type="primary"
@@ -381,12 +372,23 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     Import again
                                 </Button>
                             ) : (
-                                <Button key="submit" type="primary" onClick={() => {
-                                    handleSubmit();
-                                    setCurrent(1);
-                                }}>
-                                    Submit
-                                </Button>
+                                <>
+                                    <Button
+                                        key="back"
+                                        onClick={() => {
+                                            handleClear();
+                                            setModalOpen(false)
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button key="submit" type="primary" onClick={() => {
+                                        handleSubmit();
+                                        setCurrent(1);
+                                    }}>
+                                        Submit
+                                    </Button>
+                                </>
                             )
                         }
                     </>
