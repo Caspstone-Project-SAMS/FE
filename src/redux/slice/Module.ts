@@ -58,15 +58,17 @@ const activeModule = createAsyncThunk(
       arg: {
         ModuleID: number;
         Mode: number;
+        SessionId: number;
         token: string;
       },
       { rejectWithValue },
     ) => {
       try {
-        const { ModuleID, Mode, token } = arg;
+        const { ModuleID, Mode, SessionId, token } = arg;
         const activeModuleResponse = await ModuleService.activeModule(
           ModuleID,
           Mode,
+          SessionId,
           token,
         );
         console.log("active", activeModuleResponse);
@@ -83,6 +85,7 @@ const activeModule = createAsyncThunk(
     }
   );
   
+
   
 
 

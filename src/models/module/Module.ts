@@ -20,6 +20,7 @@ export interface ModuleByID {
     resetTime?: null;
     employeeID: string;
     employee: Employee;
+    moduleActivities: ModuleActivity[];
     createdBy?: string;
     createdAt: string;
     isDeleted: boolean;
@@ -58,6 +59,22 @@ interface Employee {
   createdBy?: string;
   createdAt: string;
   isDeleted: boolean;
+}
+
+export interface ModuleActivity {
+  moduleActivityId: number;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  errors: [];
+  preparationTask: PrepareTask;
+}
+
+interface PrepareTask{
+  progress: number;
+  preparedScheduleId: number;
+  preparedSchedules: [];
 }
 
 export interface ActiveModule {

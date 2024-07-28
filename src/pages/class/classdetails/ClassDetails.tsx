@@ -9,11 +9,14 @@ import {
   Card,
   Col,
   Empty,
+  Input,
   message,
   Modal,
   Row,
   Space,
   Typography,
+  Select,
+  Spin,
 } from 'antd';
 
 import module from '../../../assets/imgs/module.png';
@@ -31,6 +34,7 @@ import { ModuleService } from '../../../hooks/Module';
 import { ModuleByID, ModuleDetail } from '../../../models/module/Module';
 import moduleImg from '../../../assets/imgs/module00.png';
 import { activeModule, clearModuleMessages } from '../../../redux/slice/Module';
+const { Option } = Select;
 
 const ClassDetails: React.FC = () => {
   const location = useLocation();
@@ -45,13 +49,18 @@ const ClassDetails: React.FC = () => {
   const [moduleDetail, setModuleDetail] = useState<ModuleDetail[]>([]);
   const [moduleID, setModuleID] = useState<number>(0);
   const [sessionID, setSessionID] = useState<number>(0);
-  const [moduleByID, setModuleByID] = useState<ModuleByID>();
+  const [moduleByID, setModuleByID] = useState<ModuleDetail>();
   // const [ScheduleID, setScheduleID] = useState(0);
 
   const [isActiveModule, setIsActiveModule] = useState(false);
   const [statuss, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [change, setChange] = useState(0);
 
   const dispatch = useDispatch();
+
+  const [preparationProgress, setPreparationProgress] = useState(0);
 
   const employeeID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.employeeID,
@@ -66,10 +75,20 @@ const ClassDetails: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
+  const [connectionStatusFilter, setConnectionStatusFilter] = React.useState<
+    number | undefined
+  >(undefined);
+
+  const [searchModuleID, setSearchModuleID] = useState<number | undefined>(
+    undefined,
+  );
+
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage.title);
-      setSessionID(successMessage.result.sessionId);
+      if (successMessage.title == 'Connect module successfully') {
+        setSessionID(successMessage.result.sessionId);
+      }
       setStatus('success');
       dispatch(clearModuleMessages());
     }
@@ -80,19 +99,19 @@ const ClassDetails: React.FC = () => {
     }
   }, [successMessage, failMessage, dispatch]);
 
-  useEffect(() => {
-    if (moduleID !== 0) {
-      const response = ModuleService.getModuleByID(moduleID);
+  // useEffect(() => {
+  //   if (moduleID !== 0) {
+  //     const response = ModuleService.getModuleByID(moduleID);
 
-      response
-        .then((data) => {
-          setModuleByID(data || undefined);
-        })
-        .catch((error) => {
-          console.log('get module by id error: ', error);
-        });
-    }
-  }, [moduleID]);
+  //     response
+  //       .then((data) => {
+  //         setModuleByID(data || undefined);
+  //       })
+  //       .catch((error) => {
+  //         console.log('get module by id error: ', error);
+  //       });
+  //   }
+  // }, [moduleID]);
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -139,6 +158,10 @@ const ClassDetails: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
           setModuleDetail([...moduleDetail]);
+          const specificModule = moduleDetail.find(
+            (module) => module.moduleID === moduleId,
+          );
+          setModuleByID(specificModule as ModuleDetail | undefined);
           console.log('connected');
 
           break;
@@ -148,14 +171,22 @@ const ClassDetails: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
           setModuleDetail([...moduleDetail]);
+          const specificModule = moduleDetail.find(
+            (module) => module.moduleID === moduleId,
+          );
+          setModuleByID(specificModule as ModuleDetail | undefined);
           console.log('disconnected');
-
           // setTimeout(() => {
           //   50
           // }, 50);
-
           // setModuleDetail(moduleDetail || []);
-
+          break;
+        }
+        case 'PreparationProgress': {
+          const data = message.Data;
+          const socketSessionId = data.SessionId as number;
+          const progress = data.Progress as number;
+          if (socketSessionId === sessionID) setPreparationProgress(progress);
           break;
         }
         default: {
@@ -176,7 +207,7 @@ const ClassDetails: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, moduleDetail, modifyModuleConnection]);
+  }, [token, moduleDetail, modifyModuleConnection, sessionID]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -265,15 +296,65 @@ const ClassDetails: React.FC = () => {
     setIsActiveModule(false);
   };
 
-  const handleModuleClick = async (moduleId: number) => {
+  // const handleModuleClick = async (moduleId: number) => {
+  //   setLoading(true);
+  //   setIsActiveModule(true);
+  //   if (moduleID === moduleId) {
+  //     const arg = {
+  //       ModuleID: moduleId,
+  //       Mode: 2,
+  //       SessionId: sessionID,
+  //       token: token,
+  //     };
+  //     await dispatch(activeModule(arg) as any);
+  //     setModuleID(0); // Unclick will set moduleID to 0
+  //     setStatus('');
+  //     setModuleByID(undefined);
+  //     setIsActiveModule(false);
+  //     setLoading(false);
+  //     dispatch(clearModuleMessages());
+  //   } else {
+  //     setModuleID(moduleId);
+  //     const arg = {
+  //       ModuleID: moduleId,
+  //       Mode: 6,
+  //       token: token,
+  //     };
+  //     await dispatch(activeModule(arg) as any);
+  //     setLoading(false);
+  //     setIsActiveModule(false);
+  //   }
+  // };
+
+  const handleModuleClick = async (moduleId: number, module: any) => {
+    setLoading(true);
     setIsActiveModule(true);
-    if (moduleID === moduleId) {
-      setModuleID(0); // Unclick will set moduleID to 0
+    setModuleByID(module);
+    if (moduleID === moduleId && sessionID === 0) {
+      setModuleID(0);
       setStatus('');
       setModuleByID(undefined);
       setIsActiveModule(false);
+      setLoading(false);
       dispatch(clearModuleMessages());
-    } else {
+      console.log('1');
+    } else if (moduleID === moduleId && sessionID !== 0) {
+      const arg = {
+        ModuleID: moduleId,
+        Mode: 2,
+        SessionId: sessionID,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
+      setModuleID(0);
+      setStatus('');
+      setSessionID(0);
+      setModuleByID(undefined);
+      setIsActiveModule(false);
+      setLoading(false);
+      dispatch(clearModuleMessages());
+      console.log('2');
+    } else if (moduleID !== moduleId) {
       setModuleID(moduleId);
       const arg = {
         ModuleID: moduleId,
@@ -281,19 +362,30 @@ const ClassDetails: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
+      setLoading(false);
       setIsActiveModule(false);
+      console.log('3');
     }
   };
 
-  const activeModuleCheckAttendance = (
-    moduleID: number,
-    SessionId: number,
-  ) => {
+  const LoadingIndicator = () => (
+    <span className="loading-spinner">
+      <Spin size="medium" />
+    </span>
+  );
+
+  const activeModuleCheckAttendance = (moduleID: number, SessionId: number) => {
     const PrepareAttendance = {
-      ScheduleID: scheduleID
+      ScheduleID: scheduleID,
     };
 
-    ModuleService.activeModuleAttendance(moduleID, SessionId, 3, PrepareAttendance, token)
+    ModuleService.activeModuleAttendance(
+      moduleID,
+      SessionId,
+      3,
+      PrepareAttendance,
+      token,
+    )
       .then((data) => {
         console.log('Response data:', data);
       })
@@ -392,7 +484,7 @@ const ClassDetails: React.FC = () => {
                 <Col style={{ display: 'flex', justifyContent: 'center' }}>
                   <text className={styles.moduleText}>Module</text>
                 </Col>
-                <Col
+                {/* <Col
                   style={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -405,7 +497,7 @@ const ClassDetails: React.FC = () => {
                   <Button className={styles.btnDisconnect}>
                     <text>Disconnect</text>
                   </Button>
-                </Col>
+                </Col> */}
                 <Col style={{ display: 'flex', justifyContent: 'center' }}>
                   <div className={styles.moduleCard}>
                     <div className={styles.moduleImgCtn}>
@@ -418,23 +510,23 @@ const ClassDetails: React.FC = () => {
                     <div className={styles.moduleInfo}>
                       <span>
                         <b>ID: </b>
-                        {moduleByID?.result.moduleID}
+                        {moduleID > 0 && moduleID}
                       </span>
                       <span>
                         <b>Status: </b>
                         <p
                           style={{
                             display: 'inline',
-                            color: moduleByID?.result.status
-                              ? moduleByID?.result.status === 1
+                            color: moduleByID?.status
+                              ? moduleByID?.status === 1
                                 ? 'green'
                                 : 'red'
                               : 'inherit',
                           }}
                         >
-                          {moduleByID?.result.status === 1
+                          {moduleByID?.status === 1
                             ? 'available'
-                            : moduleByID?.result.status === 0
+                            : moduleByID?.status === 0
                             ? 'unavailable'
                             : ''}
                         </p>
@@ -442,11 +534,11 @@ const ClassDetails: React.FC = () => {
                       <span>
                         <b>Connect: </b>
                         <p style={{ display: 'inline', alignItems: 'center' }}>
-                          {moduleByID?.result.connectionStatus === 1 ? (
+                          {moduleByID?.connectionStatus === 1 ? (
                             <>
                               <Badge status="success" /> online
                             </>
-                          ) : moduleByID?.result.connectionStatus === 2 ? (
+                          ) : moduleByID?.connectionStatus === 2 ? (
                             <>
                               <Badge status="error" /> offline
                             </>
@@ -456,9 +548,9 @@ const ClassDetails: React.FC = () => {
                       <span>
                         <b>Mode: </b>
                         <p style={{ display: 'inline' }}>
-                          {moduleByID?.result.mode === 1
+                          {moduleByID?.mode === 1
                             ? 'Register'
-                            : moduleByID?.result.mode === 2
+                            : moduleByID?.mode === 2
                             ? 'Attendance'
                             : ''}
                         </p>
@@ -514,8 +606,16 @@ const ClassDetails: React.FC = () => {
                     sessionID={sessionID}
                     setIsActiveModule={setIsActiveModule}
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
+                    preparationProgress={preparationProgress}
                   />
-                  <Button onClick={handleReset} style={{marginTop: 10, backgroundColor:'red', color:'white'}}>
+                  <Button
+                    onClick={handleReset}
+                    style={{
+                      marginTop: 10,
+                      backgroundColor: 'red',
+                      color: 'white',
+                    }}
+                  >
                     Stop
                   </Button>
                 </Row>
@@ -558,7 +658,7 @@ const ClassDetails: React.FC = () => {
 
                 <Col span={10}>
                   <p style={{ fontWeight: 500 }}>
-                    Status:{' '}
+                    Status: {loading && <LoadingIndicator />}
                     {statuss === 'success' && (
                       <span style={{ color: 'green' }}>Connected</span>
                     )}
@@ -570,71 +670,106 @@ const ClassDetails: React.FC = () => {
               </Row>
             </Card>
             <Content className="module_cards" style={{ marginTop: 5 }}>
+              <Row gutter={[16, 16]} style={{ marginBottom: 5 }}>
+                <Col span={18}>
+                  <Input
+                    placeholder="Search by Module ID"
+                    type="number"
+                    onChange={(e) =>
+                      setSearchModuleID(Number(e.target.value) || undefined)
+                    }
+                  />
+                </Col>
+                <Col span={6}>
+                  <Select
+                    defaultValue=""
+                    style={{ width: '100%' }}
+                    onChange={(e) =>
+                      setConnectionStatusFilter(Number(e) || undefined)
+                    }
+                  >
+                    <Option value={''}>All</Option>
+                    <Option value={'1'}>Online</Option>
+                    <Option value={'2'}>Offline</Option>
+                  </Select>
+                </Col>
+              </Row>
               {moduleDetail.length === 0 ? (
                 <Empty description="No modules available" />
               ) : (
-                <Card style={{ height: 300, overflowY: 'auto' }}>
-                  {moduleDetail.map((item, index) => (
-                    <Button
-                      onClick={() => handleModuleClick(item.moduleID)}
-                      key={index}
-                      className={`${styles.unselectedModule} ${
-                        moduleID === item.moduleID ? styles.selectedModule : ''
-                      }`}
-                      disabled={isActiveModule}
-                    >
-                      <Row>
-                        <Col span={4} style={{ marginRight: 80 }}>
-                          <p className={styles.upTitle}>
-                            Module {item.moduleID}
-                          </p>
-                          <br />
-                          <img
-                            src={moduleImg}
-                            alt="module"
-                            style={{ width: 45, height: 45 }}
-                          />
-                        </Col>
-                        <Col span={3} style={{ margin: 'auto' }}>
-                          <p>
-                            {item.mode === 1 ? (
-                              <p>
-                                Mode:{' '}
-                                <span style={{ fontWeight: 'bold' }}>
-                                  Register
-                                </span>
-                              </p>
-                            ) : item.mode === 2 ? (
-                              <p>
-                                Mode:{' '}
-                                <span style={{ fontWeight: 'bold' }}>
-                                  Attendance
-                                </span>
-                              </p>
-                            ) : null}
-                          </p>
-                          <p className={styles.upDetail}>
-                            {item.status === 1 ? (
-                              <p style={{ color: 'blue' }}>available</p>
-                            ) : item.status === 2 ? (
-                              <p style={{ color: 'red' }}>unavailable</p>
-                            ) : null}
-                          </p>
-                          <p className={styles.upDetail}>
-                            {item.connectionStatus === 1 ? (
-                              <>
-                                <Badge status="success" /> online
-                              </>
-                            ) : item.connectionStatus === 2 ? (
-                              <>
-                                <Badge status="error" /> offline
-                              </>
-                            ) : null}
-                          </p>
-                        </Col>
-                      </Row>
-                    </Button>
-                  ))}
+                <Card style={{ height: 400, overflowY: 'auto' }}>
+                  {moduleDetail
+                    .filter(
+                      (item) =>
+                        (connectionStatusFilter === undefined ||
+                          item.connectionStatus === connectionStatusFilter) &&
+                        (searchModuleID === undefined ||
+                          item.moduleID === searchModuleID),
+                    )
+                    .sort((a, b) => a.connectionStatus - b.connectionStatus)
+                    .map((item, index) => (
+                      <Button
+                        onClick={() => handleModuleClick(item.moduleID, item)}
+                        key={index}
+                        className={`${styles.unselectedModule} ${
+                          moduleID === item.moduleID
+                            ? styles.selectedModule
+                            : ''
+                        }`}
+                        disabled={isActiveModule}
+                      >
+                        <Row>
+                          <Col span={3} style={{ marginRight: 80 }}>
+                            <p className={styles.upTitle}>
+                              Module {item.moduleID}
+                            </p>
+                            <br />
+                            <img
+                              src={moduleImg}
+                              alt="module"
+                              style={{ width: 45, height: 45 }}
+                            />
+                          </Col>
+                          <Col span={3}>
+                            <p>
+                              {item.mode === 1 ? (
+                                <p>
+                                  Mode:{' '}
+                                  <span style={{ fontWeight: 'bold' }}>
+                                    Register
+                                  </span>
+                                </p>
+                              ) : item.mode === 2 ? (
+                                <p>
+                                  Mode:{' '}
+                                  <span style={{ fontWeight: 'bold' }}>
+                                    Attendance
+                                  </span>
+                                </p>
+                              ) : null}
+                            </p>
+                            <p className={styles.upDetail}>
+                              {item.status === 1 ? (
+                                <p style={{ color: 'blue' }}>available</p>
+                              ) : item.status === 2 ? (
+                                <p style={{ color: 'red' }}>unavailable</p>
+                              ) : null}
+                            </p>
+                            <p className={styles.upDetail}>
+                              {item.connectionStatus === 1 ? (
+                                <>
+                                  <Badge status="success" /> online
+                                </>
+                              ) : item.connectionStatus === 2 ? (
+                                <>
+                                  <Badge status="error" /> offline
+                                </>
+                              ) : null}
+                            </p>
+                          </Col>
+                        </Row>
+                      </Button>
+                    ))}
                 </Card>
               )}
             </Content>

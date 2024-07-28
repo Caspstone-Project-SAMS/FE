@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './index.module.less';
 
-import { Button } from 'antd';
+import { Button, Progress } from 'antd';
 import Title from 'antd/es/typography/Title';
 
 type props = {
@@ -13,6 +13,7 @@ type props = {
   sessionID: number;
   setIsActiveModule: any;
   activeModuleCheckAttendance: any;
+  preparationProgress: number;
 };
 
 const BtnDecoration: React.FC<props> = ({
@@ -24,6 +25,7 @@ const BtnDecoration: React.FC<props> = ({
   sessionID,
   setIsActiveModule,
   activeModuleCheckAttendance,
+  preparationProgress,
 }) => {
   return (
     <Button
@@ -37,6 +39,11 @@ const BtnDecoration: React.FC<props> = ({
       <div className={styles.btnInfo}>
         {btnTitle ? <Title level={4}>{btnTitle}</Title> : ''}
         <span className={styles.btnFuncName}>{btnFuncName}</span>
+      </div>
+      <div>
+        {(preparationProgress > 0) && (
+          <Progress type="circle" percent={preparationProgress} size={60} />
+        )}
       </div>
       <hr className={styles.verticalLine} />
       <div className={styles.iconDecorCtn}>

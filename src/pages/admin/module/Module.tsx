@@ -1,11 +1,12 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Card, Layout, Table } from 'antd';
+import { Button, Card, Layout, Table } from 'antd';
 import styles from './Module.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { useNavigate } from 'react-router-dom';
 import type { Module, ModuleDetail } from '../../../models/module/Module';
 import { ModuleService } from '../../../hooks/Module';
+import { IoMdInformation } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
 
@@ -49,6 +50,25 @@ const Module: React.FC = () => {
       key: '4',
       title: 'Prepare Time',
       dataIndex: 'preparedTime',
+    },
+    {
+      key: '5',
+      title: 'Info',
+      dataIndex: 'info',
+      render: (moduleID: number) => (
+        <div>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClick(moduleID);
+            }}
+            shape="circle"
+            style={{ border: 'none' }}
+          >
+            <span><IoMdInformation size={25}/></span>
+          </Button>
+        </div>
+      ),
     },
     // {
     //   key: '4',
@@ -123,14 +143,15 @@ const Module: React.FC = () => {
             status: item.status,
             mode: item.mode,
             preparedTime: item.preparedTime,
+            info: item.moduleID,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.moduleID),
-        })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.moduleID),
+        // })}
       ></Table>
     </Content>
   );

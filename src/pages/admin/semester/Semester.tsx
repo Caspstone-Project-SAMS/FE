@@ -32,6 +32,7 @@ import {
 import { SemesterService } from '../../../hooks/Semester';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { IoMdInformation } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
 
@@ -185,6 +186,25 @@ const Semester: React.FC = () => {
       title: 'Action',
       dataIndex: 'action',
     },
+    {
+      key: '6',
+      title: 'Info',
+      dataIndex: 'info',
+      render: (semesterID: number) => (
+        <div>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClick(semesterID);
+            }}
+            shape="circle"
+            style={{ border: 'none' }}
+          >
+            <span><IoMdInformation size={25}/></span>
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   const handleSearchSemester = (value: string) => {
@@ -326,15 +346,16 @@ const Semester: React.FC = () => {
                 </Button>
               </div>
             ),
+            info: item.semesterID,
             register: item,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.register.semesterID),
-        })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.register.semesterID),
+        // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Semester' : 'Add New Semester'}
