@@ -43,10 +43,7 @@ const Subject: React.FC = () => {
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
-  console.log('status', isModalVisible)
-  console.log('code', SubjectCode)
-  console.log('name', SubjectName)
-  console.log('isCheck', isCheck)
+  console.log('run')
 
   const failMessage = useSelector(
     (state: RootState) => state.subject.subjectDetail,

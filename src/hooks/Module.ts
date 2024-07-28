@@ -54,7 +54,6 @@ const getModuleByEmployeeID = async (
 };
 
 const getModuleByID = async (moduleID: number): Promise<ModuleByID | null> => {
-  console.log(typeof moduleID);
   try {
     const response = await axios.get(`${MODULE_API}/${moduleID}`, {
       headers: {
@@ -151,13 +150,42 @@ const activeModuleAttendance = async (
   }
 };
 
-const activeModule = async (ModuleID: number, Mode: number, token: string) => {
+const activeModule = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
   try {
     const response = await axios.post(
       MODULE_API + '/Activate',
       {
         ModuleID,
         Mode,
+        SessionId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('vvedf', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
+const cancelSession = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        SessionId,
       },
       {
         headers: {
@@ -191,6 +219,7 @@ export const ModuleService = {
   getAllModule,
   getModuleByID,
   activeModule,
+  cancelSession,
   setUpWifi,
   activeModuleAttendance,
 };

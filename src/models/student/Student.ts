@@ -42,6 +42,7 @@ export interface StudentDetail {
 export interface FingerprintTemplate {
   fingerprintTemplateID: number;
   status: number;
+  createdAt: string;
 }
 
 export interface EnrolledClasses {

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { SESSION_API } from '.';
+import { message } from 'antd';
 
 const submitSession = async (sessionId: number, token: string) => {
   try {
@@ -12,6 +13,7 @@ const submitSession = async (sessionId: number, token: string) => {
         Authorization: `Bearer ` + token,
       },
     }, auth);
+    console.log("fcwsfc", response.data)
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {

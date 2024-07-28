@@ -1,4 +1,3 @@
-
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
 import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
@@ -10,25 +9,28 @@ import ContentHeader from '../../../../components/header/contentHeader/ContentHe
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import Excel from '../../../../components/excel/Excel';
-import personIcon from '../../../../assets/imgs/person-icon.jpg';
-import userIcon from '../../../../assets/imgs/users.png'
-import '../../../../assets/styles/styles.less'
+import userIcon from '../../../../assets/imgs/users.png';
+import '../../../../assets/styles/styles.less';
 import { useNavigate } from 'react-router-dom';
+import { IoMdInformation } from "react-icons/io";
 
 const { Header: AntHeader } = Layout;
 
 const AccountStudents: React.FC = () => {
-  const response = useSelector((state: RootState) => state.student.initialStudent);
+  const response = useSelector(
+    (state: RootState) => state.student.initialStudent,
+  );
   const [student, setStudent] = useState<Student[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudents, setFilteredStudents] = useState<Student[]>(student);
   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
-  const handleRowClick = (studentID: string, isAuthenticated: boolean) => {
-    navigate(`/account-admin/student/student-detail`, { state: { studentID: studentID, isAuthenticated: isAuthenticated } });
+  const handleRowClick = (studentID: string) => {
+    navigate(`/account-admin/student/student-detail`, {
+      state: { studentID: studentID },
+    });
   };
-
 
   const columns = [
     {
@@ -67,10 +69,17 @@ const AccountStudents: React.FC = () => {
       key: '6',
       title: 'Info',
       dataIndex: 'info',
-      render: (info: any) => (
+      render: (studentID: string) => (
         <div>
-          <Button shape="circle" style={{ border: 'none' }}>
-            <span>i</span>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClick(studentID);
+            }}
+            shape="circle"
+            style={{ border: 'none' }}
+          >
+            <span><IoMdInformation size={25}/></span>
           </Button>
         </div>
       ),
@@ -105,9 +114,7 @@ const AccountStudents: React.FC = () => {
 
   return (
     <Content className={styles.accountStudentContent}>
-      <div
-        className='align-center-between'
-      >
+      <div className="align-center-between">
         <ContentHeader
           contentTitle="Student"
           previousBreadcrumb={'Home / Account / '}
@@ -119,7 +126,7 @@ const AccountStudents: React.FC = () => {
             onClick={() => {
             }}
           >Download Template</Button> */}
-        <Excel fileType='student' />
+        <Excel fileType="student" />
       </div>
       <Card className={styles.cardHeader}>
         <Content>
@@ -141,12 +148,22 @@ const AccountStudents: React.FC = () => {
       </Card>
       <Table
         columns={columns}
-        dataSource={(!isUpdate ? student : filteredStudents).map(
+        dataSource={(!isUpdate ? student : filteredStudents)
+          .sort((a, b) => {
+            const aAuth = a.isAuthenticated ? 1 : 0;
+            const bAuth = b.isAuthenticated ? 1 : 0;
+            return aAuth - bAuth;
+          })
+          .map(
           (item, index) => ({
             key: index,
             studentname: (
               <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <img src={item.avatar || userIcon} alt="Student" className={styles.img} />
+                <img
+                  src={item.avatar || userIcon}
+                  alt="Student"
+                  className={styles.img}
+                />
                 <p className={styles.studentName}>{item.studentName}</p>
               </div>
             ),
@@ -154,16 +171,16 @@ const AccountStudents: React.FC = () => {
             studentcode: item.studentCode,
             phone: item.phoneNumber,
             isAuthenticated: item.isAuthenticated,
-            info: item,
+            info: item.studentID,
             ID: item.studentID,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.ID, record.isAuthenticated),
-        })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.ID, record.isAuthenticated),
+        // })}
       ></Table>
     </Content>
   );
