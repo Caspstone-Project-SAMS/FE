@@ -87,7 +87,7 @@ const AccountStudentsDetail: React.FC = () => {
   const [status, setStatus] = useState('');
   const [isActiveModule, setIsActiveModule] = useState(false);
   const [changeModuleUI, setChangeModuleUI] = useState(0);
-  // const [change, setChange] = useState(0);
+  const [change, setChange] = useState(0);
   const [modalContinue, setModalContinue] = useState(false);
   const [connectionStatusFilter, setConnectionStatusFilter] = React.useState<
     number | undefined
@@ -291,7 +291,7 @@ const AccountStudentsDetail: React.FC = () => {
           console.log('get student by id error: ', error);
         });
     }
-  }, [studentID]);
+  }, [studentID, change]);
 
   useEffect(() => {
     const response = ModuleService.getModuleByEmployeeID(employeeID ?? '');
@@ -551,6 +551,7 @@ const AccountStudentsDetail: React.FC = () => {
       setIsUpdatePressed(false);
       setProgressStep1(0);
       setProgressStep2(0);
+      setChange((prev) => prev + 1);
       return response;
     } catch (error: any) {
       console.error('Error uploading fingerprint:', error);
@@ -1024,7 +1025,13 @@ const AccountStudentsDetail: React.FC = () => {
         </Row>
       </Card>
       <Modal
-        title="Fingerprint Registration"
+        title={
+          isRegisterPressed
+            ? 'Register Fingerprint'
+            : isUpdatePressed
+            ? 'Update Fingerprint'
+            : 'Fingerprint Registration'
+        }
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}

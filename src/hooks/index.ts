@@ -41,6 +41,9 @@ export const STUDENT_ATTENDANCE = `${server}/Attendance/all`;
 //Session
 export const SESSION_API = `${server}/Session`;
 
+//Notification
+export const NOTIFICATION_API = `${server}/Notification`;
+
 //Google
 export const GET_GG_USER_INFO =
   'https://www.googleapis.com/oauth2/v1/userinfo?access_token=';
