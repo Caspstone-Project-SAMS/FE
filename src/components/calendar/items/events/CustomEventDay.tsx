@@ -21,7 +21,7 @@ const CustomEventDay: React.FC<EventProps<RBC_Event>> = ({ event }) => {
     }
 
     return (
-        <Link to={role === 'Lecturer' ? '/class/classdetails' : '/adminattendance'} state={{ event }} className={styles.eventCtnItem}>
+        <Link to={role === 'Lecturer' ? '/class/classdetails' : '/schedule'} state={{ event }} className={styles.eventCtnItem}>
             <div className={styles.eventTitleDay}>
                 <div className={`${styles.circleStatus} item-justify-center`} style={{ backgroundColor: statusColor }}>
                     {isActive ? (
