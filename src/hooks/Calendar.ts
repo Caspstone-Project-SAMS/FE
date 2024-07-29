@@ -3,6 +3,7 @@ import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
 import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
+import { Schedules } from '../models/calendar/Schedule';
 
 type ScheduleList = {
   date: string;
@@ -77,10 +78,27 @@ const downloadTemplateExcel = async () => {
   }
 };
 
+const getScheduleByID = async (scheduleID: number): Promise<Schedules | null> => {
+  // console.log(typeof classID)
+  try {
+    const response = await axios.get(`${SCHEDULE_API}/${scheduleID}`, {
+      headers: {
+        'accept': '*/*'
+      }
+    });
+    console.log("abcd: ", response.data)
+    return response.data as Schedules;
+  } catch (error) {
+    console.error('Error on get Schedule by ID: ', error);
+    return null;
+  }
+};
+
 export const CalendarService = {
   getAllSemester,
   getScheduleByLecturer,
   importExcelSchedule,
   downloadTemplateExcel,
   getScheduleByWeek,
+  getScheduleByID,
 };

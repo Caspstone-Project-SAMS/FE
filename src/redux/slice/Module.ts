@@ -84,10 +84,39 @@ const activeModule = createAsyncThunk(
       }
     }
   );
-  
 
-  
-
+  const settingModules = createAsyncThunk(
+    'module/setting',
+    async (
+      arg: {
+        moduleID: number;
+        AutoPrepare: boolean;
+        PreparedTime: string;
+        token: string;
+      },
+      { rejectWithValue },
+    ) => {
+      try {
+        const { moduleID, AutoPrepare, PreparedTime, token } = arg;
+        const settingModuleResponse = await ModuleService.settingModule(
+          moduleID,
+          AutoPrepare,
+          PreparedTime,
+          token,
+        );
+        console.log("setting", settingModuleResponse);
+        return settingModuleResponse;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          console.log('Error:', error.response.data);
+          return rejectWithValue(error.response.data);
+        } else {
+          console.log('Unexpectedd error:', error);
+          return rejectWithValue({ error });
+        }
+      }
+    }
+  );
 
 const ModuleSlice = createSlice({
   name: 'module',
@@ -124,9 +153,35 @@ const ModuleSlice = createSlice({
         message: { data: action.payload || 'Failed to active module' },
       };
     });
+
+    builder.addCase(settingModules.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(settingModules.fulfilled, (state, action) => {
+      const { payload } = action;
+    //   message.success("Active module successfully");
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: payload,
+        message: undefined,
+      };
+    });
+    builder.addCase(settingModules.rejected, (state, action) => {
+    //   message.error("Active module faillllll");
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: undefined,
+        message: { data: action.payload || 'Failed to setting module' },
+      };
+    });
   },
 });
 
 export const { clearModuleMessages } = ModuleSlice.actions;
-export { activeModule };
+export { activeModule, settingModules };
 export default ModuleSlice.reducer;

@@ -41,6 +41,9 @@ export const STUDENT_ATTENDANCE = `${server}/Attendance/all`;
 //Session
 export const SESSION_API = `${server}/Session`;
 
+//Notification
+export const NOTIFICATION_API = `${server}/Notification`;
+
 //Dashboard
 export const DASHBOARD_API = `${server}/Dashboard`;
 
