@@ -53,7 +53,7 @@ const ModuleDetail: React.FC = () => {
   const [moduleID, setModuleID] = useState<number>(0);
   const [schedule, setSchedule] = useState<Schedules>();
   const [activeKey, setActiveKey] = useState<string | string[]>();
-  const [AutoPrepare, setAutoPrepare] = useState(0);
+  const [AutoPrepare, setAutoPrepare] = useState(false);
   const [PreparedTime, setPreparedTime] = useState('');
   const [reload, setReload] = useState(0);
 
@@ -123,7 +123,7 @@ const ModuleDetail: React.FC = () => {
       response
         .then((data) => {
           setModule(data || undefined);
-          setAutoPrepare(data?.result.autoPrepare ? 1 : 0);
+          setAutoPrepare(data?.result.autoPrepare || false);
           setPreparedTime(data?.result.preparedTime || '');
           setModuleActivity(data?.result.moduleActivities || []);
         })
@@ -281,8 +281,8 @@ const ModuleDetail: React.FC = () => {
                       className={styles.radioGroup}
                       optionType="button"
                     >
-                      <Radio value={1}>true</Radio>
-                      <Radio value={0}>false</Radio>
+                      <Radio value={true}>true</Radio>
+                      <Radio value={false}>false</Radio>
                     </Radio.Group>
                   </div>
                   <div className={styles.settingItem}>
