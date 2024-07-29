@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { MODULE_API, SET_WIFI_API } from '.';
 import { ActiveModule, Module, ModuleByID } from '../models/module/Module';
 import { useSelector } from 'react-redux';
+import { isRejectedWithValue } from '@reduxjs/toolkit';
 
 interface RegisterMode {
   StudentID: string;
@@ -206,6 +207,38 @@ const cancelSession = async (ModuleID: number, Mode: number, SessionId: number, 
   }
 };
 
+const settingModule = async (
+  moduleID: number,
+  AutoPrepare: boolean,
+  PreparedTime: string,
+  token: string,
+) => {
+  try {
+    const response = await axios.put(
+      `${MODULE_API}/${moduleID}`,
+      {
+        AutoPrepare,
+        PreparedTime,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
 const setUpWifi = async (ssid: string, pass: string) => {
   return await axios.post(SET_WIFI_API, {
     ssid,
@@ -222,4 +255,5 @@ export const ModuleService = {
   cancelSession,
   setUpWifi,
   activeModuleAttendance,
+  settingModule,
 };
