@@ -1,18 +1,56 @@
 import { Content } from 'antd/es/layout/layout';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './HomeAdmin.module.less';
 import { Card, Col, Row, Typography } from 'antd';
-import { GoPeople } from 'react-icons/go';
+import { GoBook, GoPeople } from 'react-icons/go';
 import { PiStudent } from 'react-icons/pi';
 import { GiTeacher } from 'react-icons/gi';
 import HomeCalendar from '../../../components/calendar/HomeCalendar';
 import useDispatch from '../../../redux/UseDispatch';
 import { getAllSemester } from '../../../redux/slice/global/GlobalSemester';
+import { DashboardService } from '../../../hooks/Dashboard';
+
+type AdminDashnoard = {
+  totalStudent: string,
+  totalTeacher: string,
+  totalSubject: string,
+  totalClass: string
+}
 
 const HomeAdmin: React.FC = () => {
+  const [dashboardStat, setDashboardStat] = useState<AdminDashnoard>({
+    totalClass: '',
+    totalStudent: '',
+    totalSubject: '',
+    totalTeacher: ''
+  })
   const dispatch = useDispatch()
 
+  const handleFetchDashboard = async () => {
+    try {
+      const students = await DashboardService.getTotalStudent();
+      const lecturers = await DashboardService.getTotalLecturer();
+      const subjects = await DashboardService.getTotalSubject();
+      const classes = await DashboardService.getTotalClass();
+
+      if (students && lecturers && subjects && classes) {
+        setDashboardStat(prev => ({
+          ...prev,
+          totalStudent: students.data,
+          totalClass: classes.data,
+          totalSubject: subjects.data,
+          totalTeacher: lecturers.data
+        }))
+      }
+
+    } catch (error) {
+      console.log("Unknown error occurer when get data dashboard");
+    }
+  }
+
   useEffect(() => {
+    handleFetchDashboard()
+
     dispatch(getAllSemester());
   }, [])
 
@@ -36,7 +74,7 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        12.0K
+                        {dashboardStat.totalStudent ? dashboardStat.totalStudent : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
@@ -57,7 +95,8 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        500
+                        {dashboardStat.totalTeacher ? dashboardStat.totalTeacher : '...'}
+
                       </Typography.Text>
                     </Col>
                     <Col
@@ -78,14 +117,14 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        100
+                        {dashboardStat.totalSubject ? dashboardStat.totalSubject : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
                       span={7}
                       style={{ display: 'flex', alignItems: 'center' }}
                     >
-                      <GoPeople size={'40px'} />
+                      <GoBook size={'40px'} />
                     </Col>
                   </Row>
                 </Card>
@@ -99,7 +138,7 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        20
+                        {dashboardStat.totalClass ? dashboardStat.totalClass : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
