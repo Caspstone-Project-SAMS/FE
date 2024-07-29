@@ -79,6 +79,36 @@ const login = createAsyncThunk(
   },
 );
 
+const loginGG = createAsyncThunk(
+  'auth/loginGG',
+  async (arg: { accessToken: string }, { rejectWithValue }) => {
+    const { accessToken } = arg;
+    try {
+      //Toast chỉ nhận promise, nhưng redux async thunk cần trả về promise đã hoàn thành để thực hiện pending, fulfilled,...
+      const loginPromise = AuthService.loginGG(accessToken);
+      toast.promise(loginPromise, {
+        success: 'Login successfully',
+        error: (err) => {
+          if (err.message.includes('Network Error')) {
+            return 'Server is busy right now. Please try again later.';
+          } else return 'Invalid Credentials';
+        },
+        loading: 'Loading...',
+      });
+
+      const result = await loginPromise;
+      console.log('User result here ', result);
+      return result;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('hi error here ', error);
+        throw new AxiosError(error.response);
+      }
+      return rejectWithValue(error.message.data);
+    }
+  },
+);
+
 const AuthSlice = createSlice({
   name: 'auth',
   initialState,
@@ -98,7 +128,6 @@ const AuthSlice = createSlice({
       };
     });
     builder.addCase(login.fulfilled, (state, action) => {
-      // console.log('In the case fulfilled, ', action);
       const { payload } = action;
       return {
         ...state,
@@ -108,6 +137,32 @@ const AuthSlice = createSlice({
       };
     });
     builder.addCase(login.rejected, (state) => {
+      // const { payload } = action;
+      // console.log('Login fail - Action: ', action);
+      // console.log('Payload ', payload);
+
+      return {
+        ...state,
+        authStatus: false,
+        loadingStatus: false,
+      };
+    });
+    builder.addCase(loginGG.pending, (state) => {
+      return {
+        ...state,
+        loadingStatus: true,
+      };
+    });
+    builder.addCase(loginGG.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        authStatus: true,
+        loadingStatus: false,
+        userDetail: payload,
+      };
+    });
+    builder.addCase(loginGG.rejected, (state) => {
       // const { payload } = action;
       // console.log('Login fail - Action: ', action);
       // console.log('Payload ', payload);
@@ -129,7 +184,7 @@ const AuthSlice = createSlice({
   },
 });
 
-export { login, fakeLogin };
+export { login, loginGG, fakeLogin };
 export const { logout } = AuthSlice.actions;
 
 export default AuthSlice.reducer;

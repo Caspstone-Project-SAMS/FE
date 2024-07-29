@@ -2,7 +2,7 @@ import styles from './ClassDetail.module.less';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { RadioChangeEvent, TableProps } from 'antd';
-import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
+import { Layout, Table, Typography, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
 import Search from 'antd/es/input/Search';
 import { Content } from 'antd/es/layout/layout';
 import { IoIosCheckmark } from 'react-icons/io';
@@ -65,16 +65,29 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
         switch (message.Event) {
           case "StudentAttended":
             {
-              const data = JSON.parse(message.Data);
+              //new
               const studentIDs = message.Data.studentIDs
+              if (Array.isArray(studentIDs)) {
+                studentIDs.map(item => {
+                  console.log("On update item ", item);
+                  const element = document.getElementById(`attendanceStatus-${item}`);
+                  if (element) {
+                    element.innerHTML = 'Attended';
+                    element.style.color = 'green';
+                  }
+                })
+              }
+
+              //old
+              const data = JSON.parse(message.Data);
               console.log("case status change", data.studentID, data.status, studentIDs)
 
               const elementId = `attendanceStatus-${data.studentID}`;
               const element = document.getElementById(`attendanceStatus-${data.studentID}`);
 
               if (element) {
-                element.innerHTML = 'Attended'
-                element.style.color = 'green'
+                element.innerHTML = 'Attended';
+                element.style.color = 'green';
               }
 
               const newOne = studentList.map(item => {
@@ -84,8 +97,8 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
                 }
                 return item
               })
-              console.log("The prev one ", studentList);
-              console.log("The Edited one ", newOne);
+              // console.log("The prev one ", studentList);
+              // console.log("The Edited one ", newOne);
             }
             break;
           default:
@@ -156,11 +169,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       render: ((value, record: Attendance, index: number) => {
         return (
           <div key={`avar_${index}`}>
-            <Avatar src={
-              <Image
-                // width={300}
-                src={record.avatar ? record.avatar : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
-              />}
+            <Avatar
+              src={
+                <Image
+                  // width={300}
+                  src={record.avatar ? record.avatar : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
+                />}
             />
             {record.studentName}
           </div>

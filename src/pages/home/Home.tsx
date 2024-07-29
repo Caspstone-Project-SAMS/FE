@@ -15,6 +15,7 @@ import { RootState } from '../../redux/Store';
 import HomeCalendar from '../../components/calendar/HomeCalendar';
 import { Schedule } from '../../models/calendar/Schedule';
 import { useNavigate } from 'react-router-dom';
+import SetUpWifi from '../../components/wifi/SetUpWifi';
 
 type scheduleStatus = 'past' | 'current' | 'future';
 interface ScheduleExtend extends Schedule {
@@ -201,7 +202,10 @@ const Home: React.FC = () => {
                 <div>Current / Upcoming class</div>
               </Col>
               <Col className={styles.date} span={10}>
-                <div>{todayDate}</div>
+                <div style={{ textAlign: 'right' }}>
+                  <span>{todayDate}</span>
+                  <h1>{formatTime(time)}</h1>
+                </div>
               </Col>
             </Row>
             <Row gutter={[16, 16]}>
@@ -250,7 +254,7 @@ const Home: React.FC = () => {
                 </Button>
               </Col>
               <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} span={10}>
-                <h1>{formatTime(time)}</h1>
+                <SetUpWifi />
               </Col>
             </Row>
           </Card>
