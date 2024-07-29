@@ -276,7 +276,7 @@ const AdminSchedule = () => {
                     </div>
                 </Modal>
             </div>
-            <div>
+            <div style={{ height: '95vh' }}>
                 <MyCalendar LECTURER_ID={selectedLecturer ? selectedLecturer.id : undefined} />
             </div>
         </div>

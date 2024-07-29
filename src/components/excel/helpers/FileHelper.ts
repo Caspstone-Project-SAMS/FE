@@ -983,6 +983,10 @@ const handleImportSchedule = (
               });
             }
 
+            // const isDuplicated = sample.filter((item) => item.C === );
+
+            // if()
+
             const day = col.param;
             // const date = cell.value;
             sample.push({ [day]: date });

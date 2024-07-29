@@ -15,6 +15,7 @@ import { RootState } from '../../redux/Store';
 import HomeCalendar from '../../components/calendar/HomeCalendar';
 import { Schedule } from '../../models/calendar/Schedule';
 import { useNavigate } from 'react-router-dom';
+import SetUpWifi from '../../components/wifi/SetUpWifi';
 
 type scheduleStatus = 'past' | 'current' | 'future';
 interface ScheduleExtend extends Schedule {
@@ -201,11 +202,14 @@ const Home: React.FC = () => {
                 <div>Current / Upcoming class</div>
               </Col>
               <Col className={styles.date} span={10}>
-                <div>{todayDate}</div>
+                <div style={{ textAlign: 'right' }}>
+                  <span>{todayDate}</span>
+                  <h1>{formatTime(time)}</h1>
+                </div>
               </Col>
             </Row>
             <Row gutter={[16, 16]}>
-              <Col span={14}>
+              <Col span={14} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', width: '100%' }}>
                 <Button
                   style={{
                     height: 'fit-content',
@@ -213,7 +217,6 @@ const Home: React.FC = () => {
                   }}
                   onClick={() => {
                     if (dashBoardInfo && dashBoardInfo.curUpClass) {
-                      //
                       try {
                         const event = formatCurUpClass(dashBoardInfo.curUpClass)
                         navigate('/class/classdetails', { state: { event } });
@@ -250,7 +253,7 @@ const Home: React.FC = () => {
                 </Button>
               </Col>
               <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} span={10}>
-                <h1>{formatTime(time)}</h1>
+                <SetUpWifi />
               </Col>
             </Row>
           </Card>
