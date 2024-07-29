@@ -664,10 +664,10 @@ const AccountStudentsDetail: React.FC = () => {
                               }}
                             >
                               {moduleByID?.status === 1
-                                ? 'available'
+                                ? 'Available'
                                 : moduleByID?.status === 0
-                                ? 'unavailable'
-                                : ''}
+                                  ? 'Unavailable'
+                                  : ''}
                             </p>
                           </span>
                           <span>
@@ -695,8 +695,8 @@ const AccountStudentsDetail: React.FC = () => {
                               {moduleByID?.mode === 1
                                 ? 'Register'
                                 : moduleByID?.mode === 2
-                                ? 'Attendance'
-                                : ''}
+                                  ? 'Attendance'
+                                  : ''}
                             </p>
                           </span>
                         </div>
@@ -798,7 +798,7 @@ const AccountStudentsDetail: React.FC = () => {
                                 (item) =>
                                   (connectionStatusFilter === undefined ||
                                     item.connectionStatus ===
-                                      connectionStatusFilter) &&
+                                    connectionStatusFilter) &&
                                   (searchModuleID === undefined ||
                                     item.moduleID === searchModuleID),
                               )
@@ -812,11 +812,10 @@ const AccountStudentsDetail: React.FC = () => {
                                     handleModuleClick(item.moduleID, item)
                                   }
                                   key={index}
-                                  className={`${styles.unselectedModule} ${
-                                    moduleID === item.moduleID
-                                      ? styles.selectedModule
-                                      : ''
-                                  }`}
+                                  className={`${styles.unselectedModule} ${moduleID === item.moduleID
+                                    ? styles.selectedModule
+                                    : ''
+                                    }`}
                                   disabled={isActiveModule || modalContinue}
                                 >
                                   <Row>
@@ -901,7 +900,7 @@ const AccountStudentsDetail: React.FC = () => {
                               <BsFingerprint size={30} />
                             </Row>
                             <Row>
-                              <Row>
+                              <Row style={{ gap: '4px' }}>
                                 <b>Status:</b>
                                 <span
                                   style={{
@@ -909,19 +908,19 @@ const AccountStudentsDetail: React.FC = () => {
                                       item.status === 1
                                         ? 'green'
                                         : item.status === 2
-                                        ? 'red'
-                                        : 'inherit',
+                                          ? 'red'
+                                          : 'inherit',
                                   }}
                                 >
                                   {item.status === 1
-                                    ? 'available'
+                                    ? 'Available'
                                     : item.status === 2
-                                    ? 'unavailable'
-                                    : ''}
+                                      ? 'Unavailable'
+                                      : ''}
                                 </span>
                               </Row>
-                              <Row>
-                                <b>Create at: </b>
+                              <Row style={{ gap: '4px' }}>
+                                <b>Create at:</b>
                                 <span>
                                   {new Date(item.createdAt).toLocaleDateString(
                                     'en-GB',
@@ -1029,8 +1028,8 @@ const AccountStudentsDetail: React.FC = () => {
           isRegisterPressed
             ? 'Register Fingerprint'
             : isUpdatePressed
-            ? 'Update Fingerprint'
-            : 'Fingerprint Registration'
+              ? 'Update Fingerprint'
+              : 'Fingerprint Registration'
         }
         visible={isModalVisible}
         onOk={handleOk}

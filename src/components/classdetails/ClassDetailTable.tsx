@@ -18,13 +18,14 @@ import { RootState } from '../../redux/Store';
 const { Header: AntHeader } = Layout;
 
 type props = {
-  scheduleID: string
+  scheduleID: string,
+  isOkOpen: boolean
 }
 type ColumnsType<T> = TableProps<T>['columns'];
 
 let socket
 
-const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
+const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
 
   const userToken = useSelector((state: RootState) => state.auth.userDetail?.token)
 
@@ -49,7 +50,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
     if (userToken) {
       socket = new WebSocket("ws://34.81.224.196/ws/client", ["access_token", userToken]);
       socket.onopen = function (event) {
-        console.log('Connecteed');
+        console.log('Connecteed in herrrrrrrrrrrr brbrbr');
         // setInformation("Connected");
       };
 
@@ -59,6 +60,8 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       };
 
       socket.onmessage = function (event) {
+        console.log("Event coming", event);
+
         const message = JSON.parse(event.data);
         console.log("mess message event*", message.Event);
         console.log("mess message Data*", message.Data);
@@ -67,7 +70,9 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
             {
               //new
               const studentIDs = message.Data.studentIDs
+              console.log("studentIDS ", studentIDs);
               if (Array.isArray(studentIDs)) {
+                console.log("Im in the arr ",);
                 studentIDs.map(item => {
                   console.log("On update item ", item);
                   const element = document.getElementById(`attendanceStatus-${item}`);
@@ -79,24 +84,24 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
               }
 
               //old
-              const data = JSON.parse(message.Data);
-              console.log("case status change", data.studentID, data.status, studentIDs)
+              // const data = JSON.parse(message.Data);
+              // console.log("case status change", data.studentID, data.status, studentIDs)
 
-              const elementId = `attendanceStatus-${data.studentID}`;
-              const element = document.getElementById(`attendanceStatus-${data.studentID}`);
+              // const elementId = `attendanceStatus-${data.studentID}`;
+              // const element = document.getElementById(`attendanceStatus-${data.studentID}`);
 
-              if (element) {
-                element.innerHTML = 'Attended';
-                element.style.color = 'green';
-              }
+              // if (element) {
+              //   element.innerHTML = 'Attended';
+              //   element.style.color = 'green';
+              // }
 
-              const newOne = studentList.map(item => {
-                if (item.studentID == data.studentID) {
-                  item.attendanceStatus = data.status
-                  return item
-                }
-                return item
-              })
+              // const newOne = studentList.map(item => {
+              //   if (item.studentID == data.studentID) {
+              //     item.attendanceStatus = data.status
+              //     return item
+              //   }
+              //   return item
+              // })
               // console.log("The prev one ", studentList);
               // console.log("The Edited one ", newOne);
             }
@@ -324,12 +329,19 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   }, [])
 
   useEffect(() => {
-    activeWebSocket();
+    if (isOkOpen) {
+      activeWebSocket();
 
-    return () => {
-      socket.close();
-    };
-  }, [])
+      return () => {
+        socket.close();
+      };
+    }
+    // activeWebSocket();
+
+    // return () => {
+    //   socket.close();
+    // };
+  }, [isOkOpen])
 
   // useEffect(() => {
   //   console.log("Change ", updatedList);
