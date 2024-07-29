@@ -1,9 +1,9 @@
-import { Button, Image, Input, message, Modal, Steps, theme, Tooltip, Typography } from 'antd'
+import { Button, Image, Input, Modal, Steps, theme, Tooltip, Typography } from 'antd'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 import { ModuleService } from '../../hooks/Module';
 import styles from './index.module.less'
-import { InfoOutlined } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeTwoTone, InfoOutlined } from '@ant-design/icons';
 import OverviewImg from '../../assets/imgs/setUpWifi/Overview_Img.png'
 import ModuleRmBg from '../../assets/imgs/module_rm_bg.png'
 
@@ -138,7 +138,7 @@ const SetUpWifi = () => {
                             fontSize: '1rem',
                             color: '#64748B',
                             fontWeight: 400
-                        }}>Enter the Wi-fi that module will connect</Text>
+                        }}>Enter the Wi-Fi that module will connect</Text>
                     </div>
                 }
                 open={isModalOpen}
@@ -166,14 +166,20 @@ const SetUpWifi = () => {
                     <div style={{ marginBottom: '10px' }}>
                         <Text className={styles.label}>WI-FI NAME</Text>
                         <Input
+                            style={{ padding: '10px 10px', fontSize: '1rem' }}
                             name='ssid'
                             onChange={(e) => setSsid(e.target.value)} />
                     </div>
                     <div>
                         <Text className={styles.label}>PASSWORD</Text>
-                        <Input
+                        <Input.Password
+                            style={{ padding: '10px 10px', fontSize: '1rem' }}
                             name='pass'
-                            onChange={(e) => setPass(e.target.value)} />
+                            onChange={(e) => setPass(e.target.value)}
+                            iconRender={(visible) =>
+                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                            }
+                        />
                     </div>
                 </div>
             </Modal>
