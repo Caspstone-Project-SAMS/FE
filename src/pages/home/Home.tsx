@@ -209,7 +209,7 @@ const Home: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={[16, 16]}>
-              <Col span={14}>
+              <Col span={14} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', width: '100%' }}>
                 <Button
                   style={{
                     height: 'fit-content',
@@ -217,7 +217,6 @@ const Home: React.FC = () => {
                   }}
                   onClick={() => {
                     if (dashBoardInfo && dashBoardInfo.curUpClass) {
-                      //
                       try {
                         const event = formatCurUpClass(dashBoardInfo.curUpClass)
                         navigate('/class/classdetails', { state: { event } });
