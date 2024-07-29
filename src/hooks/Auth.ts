@@ -14,6 +14,13 @@ const login = async (
   return response.data as UserInfo;
 };
 
+const loginGG = async (AccessToken: string): Promise<UserInfo | undefined> => {
+  const response = await axios.post(USER_AUTH_API + '/login/google', {
+    AccessToken,
+  });
+  return response.data as UserInfo;
+};
+
 const getGGInfo = async (access_token: string): Promise<GGUserInfo> => {
   const response = await axios.get(GET_GG_USER_INFO + access_token, {
     headers: {
@@ -27,6 +34,7 @@ const getGGInfo = async (access_token: string): Promise<GGUserInfo> => {
 const AuthService = {
   login,
   getGGInfo,
+  loginGG,
 };
 
 export default AuthService;
