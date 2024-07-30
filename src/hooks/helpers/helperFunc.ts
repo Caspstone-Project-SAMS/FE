@@ -1,4 +1,5 @@
 import moment from 'moment';
+import * as CryptoTS from 'crypto-ts';
 
 const capitalizeFirstLetter = (text: string) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -48,6 +49,18 @@ const removeDuplicates = (arr: string[]): string[] => {
   return Array.from(uniqueSet);
 };
 
+//Encrypt
+const encryptString = (text: string) => {
+  const ciphertext = CryptoTS.AES.encrypt(text, 'SAMS_sc_key');
+  return ciphertext.toString();
+  // Decrypt
+};
+const decryptString = (cipherText: string): object => {
+  const bytes = CryptoTS.AES.decrypt(cipherText.toString(), 'SAMS_sc_key');
+  const plaintext = JSON.parse(bytes.toString(CryptoTS.enc.Utf8));
+  return plaintext;
+};
+
 export const HelperService = {
   capitalizeFirstLetter,
   downloadFile,
@@ -56,4 +69,6 @@ export const HelperService = {
   randomDelay,
   checkContainedDate,
   removeDuplicates,
+  encryptString,
+  decryptString,
 };

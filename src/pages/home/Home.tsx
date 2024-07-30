@@ -197,9 +197,10 @@ const Home: React.FC = () => {
             <Row>
               <Col style={{ marginBottom: 25 }} span={14}>
                 <div className={styles.firstCardTitle}
-                  onClick={() => {
-                    console.log("Current dashboard ", dashBoardInfo);
-                  }}
+                // onClick={() => {
+                //   console.log("Current dashboard ", dashBoardInfo);
+                //   dispatch(updateUser())
+                // }}
                 >
                   Lecturer Dashboard
                 </div>
