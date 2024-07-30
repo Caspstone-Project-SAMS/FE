@@ -483,12 +483,23 @@ const handleImportFAPClass = (
           //Check if null value allowed (no -> not noted)
           if ((cell.value === null) === col.isNull) {
             if (col.index === 'A') {
-              rowData[col.param] = cell.value;
+              const classCode = String(cell.value);
+              //Class code contain spaces between text
+              if (classCode.trim().split(' ').length > 1) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Class code is wrong format, can not contain white space at cell ${col.index}${i}`,
+                });
+                isValidRecord = false;
+              } else {
+                rowData[col.param] = cell.value;
+              }
             }
+            //Check duplicated studentCode?
             if (col.index === 'B') {
               const studentCode = cell.value;
               const isDuplicated = sample.filter(
-                (item) => item.B === studentCode,
+                (item) => item.studentCode === studentCode,
               );
               if (isDuplicated.length > 0) {
                 createMsgLog({
@@ -621,19 +632,20 @@ const handleImportFAPStudent = (
           const cell = worksheet!.getCell(`${col.index}${i}`);
           //Check if null value allowed (no -> not noted)
           if ((cell.value === null) === col.isNull) {
+            //Write all the cell, but not valid then will not push
             if (col.index === 'B' || col.index === 'C' || col.index === 'E') {
               rowData[col.param] = cell.value;
             }
 
-            //Check MSSV unique and not contain special char
+            //Check MSSV unique and not contain special char and not having spaces in between
             if (col.index === 'B') {
               const mssv = cell.value;
 
               const isDuplicated = sample.filter((item) => item.B === mssv);
-
               const isContainSpecialChar = ValidateHelper.emojiChecker(
                 String(mssv),
               );
+
               if (isDuplicated.length > 0) {
                 createMsgLog({
                   type: 'warning',

@@ -10,6 +10,7 @@ import { RootState } from '../../redux/Store';
 import { ModuleDetail } from '../../models/module/Module';
 import { ModuleService } from '../../hooks/Module';
 
+//code cu
 const ClassDetail: React.FC = () => {
   const classDetails = [
     { label: 'Class', value: 'NJS1601' },
@@ -68,10 +69,10 @@ const ClassDetail: React.FC = () => {
 
               <Row className={styles.rowDetails}>
                 <Col span={10}>
-                  <text style={{fontSize:20}}>{detail.label}</text>
+                  <text style={{ fontSize: 20 }}>{detail.label}</text>
                 </Col>
                 <Col>
-                  <text style={{ fontWeight: 500, color: '#667085', fontSize:20 }}>
+                  <text style={{ fontWeight: 500, color: '#667085', fontSize: 20 }}>
                     {detail.value}
                   </text>
                 </Col>
@@ -88,10 +89,10 @@ const ClassDetail: React.FC = () => {
 
             <Row className={styles.rowDetails}>
               <Col span={10}>
-                <text style={{fontSize:20}} >Class status</text>
+                <text style={{ fontSize: 20 }} >Class status</text>
               </Col>
               <Col>
-                <text style={{ color: 'green', fontWeight: 500, fontSize:20 }}>
+                <text style={{ color: 'green', fontWeight: 500, fontSize: 20 }}>
                   On going
                 </text>
               </Col>
@@ -226,10 +227,10 @@ const ClassDetail: React.FC = () => {
                 }}
               >
                 <Button className={styles.btnConnect}>
-                  <text style={{fontWeight:500, fontSize:20}}>Connect</text>
+                  <text style={{ fontWeight: 500, fontSize: 20 }}>Connect</text>
                 </Button>
                 <Button className={styles.btnDisconnect}>
-                  <text style={{fontWeight:500, fontSize:20}}>Disconnect</text>
+                  <text style={{ fontWeight: 500, fontSize: 20 }}>Disconnect</text>
                 </Button>
               </Col>
               <Col style={{ display: 'flex', justifyContent: 'center' }}>

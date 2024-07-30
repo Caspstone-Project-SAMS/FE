@@ -489,7 +489,9 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                     ))
                                                     : (
                                                         <>
-                                                            <Text># Those record will be ignored, please consider again before continue</Text>
+                                                            <div style={{ marginBottom: 8 }}>
+                                                                <Text># Those record will be ignored, please consider again before continue</Text>
+                                                            </div>
                                                             {
                                                                 (errLogs.length > 0) && (<MessageCard props={errLogs} />)
                                                             }
