@@ -43,6 +43,11 @@ const checkContainedDate = (item: Date[], sample: Date[]): boolean => {
   return item.every((value) => sample.includes(value));
 };
 
+const removeDuplicates = (arr: string[]): string[] => {
+  const uniqueSet = new Set(arr);
+  return Array.from(uniqueSet);
+};
+
 export const HelperService = {
   capitalizeFirstLetter,
   downloadFile,
@@ -50,4 +55,5 @@ export const HelperService = {
   navigateFAP,
   randomDelay,
   checkContainedDate,
+  removeDuplicates,
 };

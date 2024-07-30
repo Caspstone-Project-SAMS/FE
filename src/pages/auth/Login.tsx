@@ -52,6 +52,14 @@ function Login() {
   const role = Auth.userDetail?.result?.role.name;
 
   const handleLogin = async () => {
+    //43,200,000 - 12hr
+    // const session = {
+    //   loginTime: new Date().getTime(),
+    //   expiredTime: new Date().getTime() + 43200000,
+    // }
+
+
+
     await dispatch(login({ username, password }));
     // const res = await dispatch(login({ username, password }));
     // if (res.payload != null) {
