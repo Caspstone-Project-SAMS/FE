@@ -49,11 +49,10 @@ const removeDuplicates = (arr: string[]): string[] => {
   return Array.from(uniqueSet);
 };
 
-//Encrypt
+//Encrypt & Decrypt
 const encryptString = (text: string) => {
   const ciphertext = CryptoTS.AES.encrypt(text, 'SAMS_sc_key');
   return ciphertext.toString();
-  // Decrypt
 };
 const decryptString = (cipherText: string): object => {
   const bytes = CryptoTS.AES.decrypt(cipherText.toString(), 'SAMS_sc_key');

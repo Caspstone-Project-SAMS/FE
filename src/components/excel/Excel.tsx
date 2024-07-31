@@ -4,7 +4,7 @@ import '../../assets/styles/styles.less'
 import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
 import { RcFile } from 'antd/es/upload'
-import { Button, Checkbox, Dropdown, Image, MenuProps, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { Button, Checkbox, Dropdown, Image, MenuProps, message, Modal, Select, Skeleton, Steps, Typography, Upload } from 'antd'
 import { CloudUploadOutlined, DeleteOutlined, FileExcelOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
@@ -26,6 +26,8 @@ type ValidateFmt = {
     result?: any[];
     errors: Message[];
     success: Message[];
+    //Continue import student to class, continue generate schedule for other weeks
+    isContinueAble?: boolean;
 };
 type ServerResult = {
     status: boolean;
@@ -57,7 +59,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isFAPFile, setIsFAPFile] = useState<boolean>(false);
 
-    //havent has api - not modelling data yet
+    //Excel state - handling result, visible state logs 
     const [excelResult, setExcelResult] = useState<ValidateFmt>();
     const [errLogs, setErrLogs] = useState<Message[]>([]);
     const [warningLogs, setWarningLogs] = useState<Message[]>([]);
@@ -66,6 +68,9 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [onValidateExcel, setOnValidateExcel] = useState(false);
     const [onValidateServer, setOnValidateServer] = useState(false);
     const [validateSvResult, setValidateSvResult] = useState<ServerResult | undefined>();
+    //Continue import
+    const [isContinueAble, setIsContinueAble] = useState<boolean>(false);
+    const [isImportToClass, setIsImportToClass] = useState<boolean>(false);
 
     function formatBytes(bytes: number) {
         const kb = 1024;
@@ -114,6 +119,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         // if (userID) {
                         if (isFAPFile) {
                             excelData = await FileHelper.handleImportFAPStudent(file, workbook)
+                            if (excelData.isContinueAble) {
+                                setIsContinueAble(true)
+                            }
+                            console.log("Returned to parent ", excelData);
                             setExcelResult(excelData)
                         } else {
                             excelData = await FileHelper.handleImportStudent(file, workbook)
@@ -177,14 +186,65 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             switch (fileType) {
                 case 'student':
                     {
-                        const result = RequestHelpers.postExcelStudent(excelData);
-                        result.then(response => {
-                            // console.log("After merge success, data: ", response);
-                            saveInfo(response)
-                        }).catch(err => {
-                            // console.log("Err here after merge ", err);
-                            saveInfo(err)
-                        })
+                        setIsContinueAble(false);
+                        console.log("Current gonna push ", excelData);
+                        //continue import to class
+                        if (isImportToClass) {
+                            const dataImportToClass: any[] = []
+                            const dataStudent = excelData.map(item => {
+                                const { classCode, ...result } = item;
+                                dataImportToClass.push({ classCode, studentCode: item.studentCode })
+                                return result
+                            })
+                            const promiseCreateStudent = RequestHelpers.postExcelStudent(dataStudent);
+                            promiseCreateStudent.then(response => {
+                                // console.log("After merge success, data: ", response);
+                                const { errorLogs, successLogs, warningLogs, data } = response
+                                setSuccessLogs(successLogs ? successLogs : [])
+                                setErrLogs(errorLogs ? errorLogs : [])
+                                setWarningLogs(warningLogs ? warningLogs : [])
+                                let title = ''
+                                if (data) {
+                                    title = data.data;
+                                    const result = RequestHelpers.postExcelClass(dataImportToClass, selectedSemester);
+                                    result.then(response2 => {
+                                        if (response2 && response2.data) { // data.data - title
+                                            response2.data.data = title + response2.data.data
+                                        }
+                                        const { errorLogs, successLogs, warningLogs, data } = response2
+
+                                        setOnValidateServer(false)
+                                        setOnValidateExcel(false)
+                                        setSuccessLogs((prev) => [...prev, ...successLogs])
+                                        setErrLogs((prev) => [...prev, ...errorLogs])
+                                        setWarningLogs((prev) => [...prev, ...warningLogs])
+
+                                        setValidateSvResult(data)
+                                    }).catch(err => {
+                                        saveInfo(err)
+                                    })
+
+                                    setValidateSvResult(data)
+                                }
+                                // saveInfo(response)
+                                setIsContinueAble(false)
+                            }).catch(err => {
+                                // console.log("Err here after merge ", err);
+                                saveInfo(err)
+                                setIsContinueAble(false)
+                            })
+                        } else {
+                            const result = RequestHelpers.postExcelStudent(excelData);
+                            result.then(response => {
+                                // console.log("After merge success, data: ", response);
+                                saveInfo(response)
+                                setIsContinueAble(false)
+                            }).catch(err => {
+                                // console.log("Err here after merge ", err);
+                                saveInfo(err)
+                                setIsContinueAble(false)
+                            })
+                        }
                     }
                     break;
                 case 'class':
@@ -218,6 +278,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         }
     }
 
+    // const onContinueImportToClass = () => {
+
+    // }
+
     const customItemRender = (originNode, file, fileList, actions) => {
         return (
             <div className={styles.fileItem}>
@@ -247,8 +311,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         setSuccessLogs([]);
         setIsFAPFile(false);
 
-        setCurrent(0);
+        setIsContinueAble(false);
+        setIsImportToClass(false);
 
+        setCurrent(0);
         setOnValidateExcel(false);
         setExcelResult({
             result: [],
@@ -282,7 +348,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             semester.forEach((item, i) => {
                 if (i === 0) {
                     setSelectedSemester(item.semesterID);
-                    setLabelSemester(item.semesterCode)
+                    setLabelSemester(item.semesterCode);
                 }
                 menuData.push({
                     key: item.semesterID,
@@ -361,6 +427,24 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 closable={true}
                 footer={
                     <>
+                        {
+                            //Continue import student to class
+                            (isContinueAble && fileType === 'student') && (
+                                <div>
+                                    <Text style={{ fontSize: '0.95rem' }}>
+                                        # System recognized that excel file also contained "classCode" <br />
+                                        Do you want to import to class? <br />
+                                    </Text>
+                                    <Checkbox
+                                        value={isImportToClass}
+                                        onChange={() => setIsImportToClass(!isImportToClass)}
+                                        style={{ marginBottom: 10 }}
+                                    >
+                                        Yes
+                                    </Checkbox>
+                                </div>
+                            )
+                        }
                         {
                             current === 1 ? (
                                 <Button key="submit" type="primary"

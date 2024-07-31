@@ -141,7 +141,12 @@ const MsgRecord: React.FC<InfoLog> = ({ messages, type }) => {
             {messages.map((item, i) => (
                 <div key={`msgRecord-${i}`} className={styles.recordItem}>
                     <EnterOutlined className={styles.msgRecordIcon} />
-                    <p className={styles.msgRecordTxt}>{item}</p>
+                    <p
+                        style={{ whiteSpace: 'pre-line' }}
+                        className={styles.msgRecordTxt}
+                    >
+                        {item}
+                    </p>
                 </div>
             ))}
         </div>

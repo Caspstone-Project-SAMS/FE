@@ -2,11 +2,13 @@ import ExcelJS from 'exceljs';
 import { ValidateHelper } from './ValidateHelper';
 import { RcFile } from 'antd/es/upload';
 import moment from 'moment';
+import { ExcelHelpers } from '../../../hooks/helpers/ExcelHelpers';
 
 type validateFmt = {
   result?: any;
   errors: Message[];
   success: Message[];
+  isContinueAble?: boolean;
 };
 
 type Message = {
@@ -306,7 +308,6 @@ const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
 
     //Check worksheet exist
     if (worksheet === undefined) {
-      console.log('notfound');
       createMsgLog({
         type: 'error',
         message:
@@ -428,7 +429,6 @@ const handleImportFAPClass = (
 
     //Check worksheet exist
     if (worksheet === undefined) {
-      console.log('notfound');
       createMsgLog({
         type: 'error',
         message:
@@ -562,6 +562,7 @@ const handleImportFAPStudent = (
     result: undefined,
     errors: [],
     success: [],
+    isContinueAble: false,
   };
 
   const createMsgLog = (log: Message) => {
@@ -574,15 +575,16 @@ const handleImportFAPStudent = (
 
   const promise = workbook.xlsx.load(excelFile).then((workbook) => {
     const worksheet = workbook.getWorksheet('Sheet1');
-    const sample: any[] = [];
+    let sample: any[] = [];
+    const sampleClass: any[] = [];
 
     //Check worksheet exist
     if (worksheet === undefined) {
-      console.log('notfound');
       createMsgLog({
         type: 'error',
-        message:
-          'Worksheet name not match, please do not change sheet name and make sure it has name Sheet1',
+        message: `Worksheet name not meet requirements, please make sure thats: \n
+          1. Excel file from FAP system, and extension file is .xlxs \n
+          2. Sheet name is: "Sheet1"`,
       });
       return [];
     }
@@ -632,6 +634,10 @@ const handleImportFAPStudent = (
           const cell = worksheet!.getCell(`${col.index}${i}`);
           //Check if null value allowed (no -> not noted)
           if ((cell.value === null) === col.isNull) {
+            //Check if file contain classcode and continue imprt to class
+            if (col.index === 'A') {
+              sampleClass.push({ classCode: cell.value });
+            }
             //Write all the cell, but not valid then will not push
             if (col.index === 'B' || col.index === 'C' || col.index === 'E') {
               rowData[col.param] = cell.value;
@@ -641,10 +647,23 @@ const handleImportFAPStudent = (
             if (col.index === 'B') {
               const mssv = cell.value;
 
-              const isDuplicated = sample.filter((item) => item.B === mssv);
+              const isDuplicated = sample.filter(
+                (item) => item.studentCode === mssv,
+              );
               const isContainSpecialChar = ValidateHelper.emojiChecker(
                 String(mssv),
               );
+              const isValidFormat = ExcelHelpers.checkValidStudentCode(
+                String(mssv),
+              );
+
+              if (!isValidFormat) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Student code is wrong format at cell ${col.index}${i}.\n Example receive: SE112233, MKT123456,...`,
+                });
+                isValidRecord = false;
+              }
 
               if (isDuplicated.length > 0) {
                 createMsgLog({
@@ -684,9 +703,11 @@ const handleImportFAPStudent = (
             sample.push(rowData);
           }
         } else if (
-          //Collumn classCode, StudentCode
-          Object.keys(rowData).length === 3
+          //Collumn StudentCode, email, fullname
+          Object.keys(rowData).length !== 3 &&
+          Object.keys(rowData).length >= 1
         ) {
+          console.log('Creating the unvalid record ', rowData);
           createMsgLog({
             type: 'warning',
             message: `Unvalid record at row ${i}`,
@@ -701,7 +722,17 @@ const handleImportFAPStudent = (
         });
       }
     }
+    //Check if record import to class satisfied in import student
+    //if yes -> merge 2 obj and continue return diff to parent and need to format outside once again
+    if (sample.length === sampleClass.length) {
+      console.log('File oke, can continue import to class');
+      result.isContinueAble = true;
+      sample = sample.map((item, index) => {
+        return { ...item, ...sampleClass[index] };
+      });
+    }
     console.log('Sample ', sample);
+    console.log('SampleClasscode ', sampleClass);
     return sample;
   });
 
@@ -753,7 +784,6 @@ const handleImportSchedule = (
 
     //Check worksheet exist
     if (worksheet1 === undefined && worksheet2 === undefined) {
-      console.log('notfound');
       createMsgLog({
         type: 'error',
         message:
