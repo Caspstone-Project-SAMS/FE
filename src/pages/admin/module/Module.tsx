@@ -12,9 +12,9 @@ const { Header: AntHeader } = Layout;
 
 const Module: React.FC = () => {
   const [module, setModule] = useState<ModuleDetail[]>([]);
-//   const [searchInput, setSearchInput] = useState('');
-//   const [filteredSlots, setFilteredSlots] = useState<Slot[]>(slot);
-//   const [isUpdate, setIsUpdate] = useState(false);
+  //   const [searchInput, setSearchInput] = useState('');
+  //   const [filteredSlots, setFilteredSlots] = useState<Slot[]>(slot);
+  //   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
   const handleRowClick = (moduleID: number) => {
@@ -30,17 +30,17 @@ const Module: React.FC = () => {
       dataIndex: 'moduleID',
     },
     {
-        key: '2',
-        title: 'status',
-        dataIndex: 'status',
-        render: (status: boolean) => (
-          <div>
-            <p style={{ color: status ? 'green' : 'red' }}>
-              {status ? 'true' : 'false'}
-            </p>
-          </div>
-        ),
-      },
+      key: '2',
+      title: 'status',
+      dataIndex: 'status',
+      render: (status: boolean) => (
+        <div>
+          <p style={{ color: status ? 'green' : 'red' }}>
+            {status ? 'true' : 'false'}
+          </p>
+        </div>
+      ),
+    },
     {
       key: '3',
       title: 'Mode',
@@ -65,7 +65,7 @@ const Module: React.FC = () => {
             shape="circle"
             style={{ border: 'none' }}
           >
-            <span><IoMdInformation size={25}/></span>
+            <span><IoMdInformation size={25} /></span>
           </Button>
         </div>
       ),
@@ -142,16 +142,16 @@ const Module: React.FC = () => {
             moduleID: item.moduleID,
             status: item.status,
             mode: item.mode,
-            preparedTime: item.preparedTime,
+            preparedTime: item.preparedTime ? item.preparedTime : 'Not prepare',
             info: item.moduleID,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.moduleID),
-        // })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.moduleID),
+      // })}
       ></Table>
     </Content>
   );
