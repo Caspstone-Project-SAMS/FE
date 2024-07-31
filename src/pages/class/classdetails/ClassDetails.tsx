@@ -52,9 +52,11 @@ const ClassDetails: React.FC = () => {
   const [moduleByID, setModuleByID] = useState<ModuleDetail>();
   // const [ScheduleID, setScheduleID] = useState(0);
 
+  const [isCheckAttendance, setIsCheckAttendance] = useState(false);
   const [isActiveModule, setIsActiveModule] = useState(false);
   const [statuss, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [exit, setExit] = useState(false);
 
   const [change, setChange] = useState(0);
 
@@ -85,7 +87,9 @@ const ClassDetails: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage.title);
+      if (exit === false) {
+        message.success(successMessage.title);
+      }
       if (successMessage.title == 'Connect module successfully') {
         setSessionID(successMessage.result.sessionId);
       }
@@ -161,7 +165,9 @@ const ClassDetails: React.FC = () => {
           const specificModule = moduleDetail.find(
             (module) => module.moduleID === moduleId,
           );
-          setModuleByID(specificModule as ModuleDetail | undefined);
+          if (isActiveModule) {
+            setModuleByID(specificModule as ModuleDetail | undefined);
+          }
           console.log('connected');
 
           break;
@@ -174,7 +180,9 @@ const ClassDetails: React.FC = () => {
           const specificModule = moduleDetail.find(
             (module) => module.moduleID === moduleId,
           );
-          setModuleByID(specificModule as ModuleDetail | undefined);
+          if (isActiveModule) {
+            setModuleByID(specificModule as ModuleDetail | undefined);
+          }
           console.log('disconnected');
           // setTimeout(() => {
           //   50
@@ -292,8 +300,55 @@ const ClassDetails: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const handleReset = () => {
-    setIsActiveModule(false);
+  const handleResetModule = async () => {
+    try {
+      const response = await ModuleService.cancelSession(
+        moduleID,
+        2,
+        sessionID,
+        token,
+      );
+      return response;
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  useEffect(() => {
+    // Return a cleanup function
+    return () => {
+      handleResetModule();
+    };
+  }, []); // Empty dependency array means this runs on unmount only
+
+  const handleReset = async () => {
+    try {
+      const response = await ModuleService.cancelSession(
+        moduleID,
+        2,
+        sessionID,
+        token,
+      );
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+
+      await dispatch(activeModule(arg) as any);
+      setIsCheckAttendance(false);
+      setIsCheckAttendance(false);
+      setIsModalVisible(false);
+      setIsActiveModule(false);
+      setExit(true);
+      // setModuleID(0);
+      // setStatus('');
+      // setModuleByID(undefined);
+      message.success(response.title);
+      return response;
+    } catch (error: any) {
+      message.error(error.errors);
+    }
   };
 
   // const handleModuleClick = async (moduleId: number) => {
@@ -330,6 +385,7 @@ const ClassDetails: React.FC = () => {
     setLoading(true);
     setIsActiveModule(true);
     setModuleByID(module);
+    setExit(false);
     if (moduleID === moduleId && sessionID === 0) {
       setModuleID(0);
       setStatus('');
@@ -373,8 +429,11 @@ const ClassDetails: React.FC = () => {
       <Spin size="medium" />
     </span>
   );
+   console.log('exit', exit)
 
   const activeModuleCheckAttendance = (moduleID: number, SessionId: number) => {
+    setExit(false);
+    setIsCheckAttendance(true);
     const PrepareAttendance = {
       ScheduleID: scheduleID,
     };
@@ -604,7 +663,9 @@ const ClassDetails: React.FC = () => {
                     isActiveModule={isActiveModule}
                     moduleID={moduleID}
                     sessionID={sessionID}
+                    status={statuss}
                     setIsActiveModule={setIsActiveModule}
+                    isCheckAttendance={isCheckAttendance}
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
                     preparationProgress={preparationProgress}
                   />

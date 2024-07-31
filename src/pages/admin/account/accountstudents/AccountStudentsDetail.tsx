@@ -89,6 +89,7 @@ const AccountStudentsDetail: React.FC = () => {
   const [changeModuleUI, setChangeModuleUI] = useState(0);
   const [change, setChange] = useState(0);
   const [modalContinue, setModalContinue] = useState(false);
+  const [exit, setExit] = useState(false);
   const [connectionStatusFilter, setConnectionStatusFilter] = React.useState<
     number | undefined
   >(undefined);
@@ -111,7 +112,8 @@ const AccountStudentsDetail: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage.title);
+      if (exit === false) message.success(successMessage.title);
+
       if (successMessage.title == 'Connect module successfully') {
         setSessionID(successMessage.result.sessionId);
       }
@@ -132,6 +134,19 @@ const AccountStudentsDetail: React.FC = () => {
       setStudentID(location.state.studentID);
     }
   }, [location.state]);
+
+  const autoConnectModule = async () => {
+    try {
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
+    } catch (error) {
+      console.log('error at auto connect module', error);
+    }
+  };
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -180,11 +195,14 @@ const AccountStudentsDetail: React.FC = () => {
           modifyModuleConnection(moduleId, 1);
           setModuleDetail([...moduleDetail]);
           // setChange((prev) => prev + 1);
+          autoConnectModule();
           console.log('connected');
           const specificModule = moduleDetail.find(
             (module) => module.moduleID === moduleId,
           );
-          setModuleByID(specificModule as ModuleDetail | undefined);
+          if (isActiveModule) {
+            setModuleByID(specificModule as ModuleDetail | undefined);
+          }
           break;
         }
         case 'ModuleLostConnected': {
@@ -192,12 +210,15 @@ const AccountStudentsDetail: React.FC = () => {
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
           setModuleDetail([...moduleDetail]);
+          autoConnectModule();
           // setChange((prev) => prev + 1);
           console.log('disconnected');
           const specificModule = moduleDetail.find(
             (module) => module.moduleID === moduleId,
           );
-          setModuleByID(specificModule as ModuleDetail | undefined);
+          if (isActiveModule) {
+            setModuleByID(specificModule as ModuleDetail | undefined);
+          }
           break;
         }
         default: {
@@ -239,19 +260,8 @@ const AccountStudentsDetail: React.FC = () => {
     // },
   ];
 
-  // useEffect(() => {
-  //   if (moduleID !== 0) {
-  //     const response = ModuleService.getModuleByID(moduleID);
 
-  //     response
-  //       .then((data) => {
-  //         setModuleByID(data || undefined);
-  //       })
-  //       .catch((error) => {
-  //         console.log('get module by id error: ', error);
-  //       });
-  //   }
-  // }, [moduleID]);
+  
 
   useEffect(() => {
     if (studentID !== '') {
@@ -364,6 +374,7 @@ const AccountStudentsDetail: React.FC = () => {
 
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
+    setExit(false);
     setIsActiveModule(true);
     setModuleByID(module);
     if (moduleID === moduleId && sessionID === 0) {
@@ -458,26 +469,31 @@ const AccountStudentsDetail: React.FC = () => {
     },
   ];
 
-  const showModalRegister = () => {
+  const showModalRegister = async () => {
+    setIsRegisterPressed(true);
+    setProgressStep1(1);
     if (modalContinue === false) {
+      await activeModuleRegisterThree(moduleID, sessionID, 3);
+
+      setExit(false);
       setIsModalVisible(true);
       setIsActiveModule(true);
-      activeModuleRegisterThree(moduleID, sessionID, 3);
-      setIsRegisterPressed(true);
-      setProgressStep1(1);
       // setProgressStep2(1);
     } else {
       setIsModalVisible(true);
     }
   };
 
-  const showModalUpdate = () => {
+  const showModalUpdate = async () => {
+    setIsUpdatePressed(true);
+    setProgressStep1(1);
     if (modalContinue === false) {
+      await activeModuleUpdateThree(moduleID, sessionID, 3);
+
+      setExit(false);
       setIsModalVisible(true);
       setIsActiveModule(true);
-      activeModuleUpdateThree(moduleID, sessionID, 3);
-      setIsUpdatePressed(true);
-      setProgressStep1(1);
+
       // setProgressStep2(1);
     } else {
       setIsModalVisible(true);
@@ -506,6 +522,27 @@ const AccountStudentsDetail: React.FC = () => {
     setIsModalVisibleModule(false);
   };
 
+  const handleResetModule = async () => {
+    try {
+      const response = await ModuleService.cancelSession(
+        moduleID,
+        2,
+        sessionID,
+        token,
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    // Return a cleanup function
+    return () => {
+      handleResetModule();
+    };
+  }, []); // Empty dependency array means this runs on unmount only
+
   const handleExit = async () => {
     try {
       const response = await ModuleService.cancelSession(
@@ -514,6 +551,13 @@ const AccountStudentsDetail: React.FC = () => {
         sessionID,
         token,
       );
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+
+      await dispatch(activeModule(arg) as any);
       setIsRegisterPressed(false);
       setIsUpdatePressed(false);
       setIsModalVisible(false);
@@ -521,11 +565,11 @@ const AccountStudentsDetail: React.FC = () => {
       setProgressStep1(0);
       setProgressStep2(0);
       setModalContinue(false);
-      setModuleID(0);
-      setStatus('');
-      setModuleByID(undefined);
+      setExit(true);
+      // setModuleID(0);
+      // setStatus('');
+      // setModuleByID(undefined);
       message.success(response.title);
-      console.log('adwcsad', response.title);
       return response;
     } catch (error: any) {
       message.error(error.errors);
@@ -538,6 +582,8 @@ const AccountStudentsDetail: React.FC = () => {
     setIsActiveModule(false);
   };
 
+  console.log('active', isActiveModule)
+
   const handleCancelModule = () => {
     setIsModalVisibleModule(false);
   };
@@ -546,11 +592,20 @@ const AccountStudentsDetail: React.FC = () => {
     try {
       const response = await SessionServive.submitSession(sessionID, token);
       message.success(response.title);
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+
+      await dispatch(activeModule(arg) as any);
       setIsModalVisible(false);
       setIsRegisterPressed(false);
       setIsUpdatePressed(false);
       setProgressStep1(0);
       setProgressStep2(0);
+      setIsActiveModule(false);
+      setModalContinue(false);
       setChange((prev) => prev + 1);
       return response;
     } catch (error: any) {
@@ -626,7 +681,10 @@ const AccountStudentsDetail: React.FC = () => {
                           // activeModuleRegisterThree(moduleID, 3);
                         }}
                         disabled={
-                          isActiveModule || !moduleID || status === 'fail'
+                          isActiveModule ||
+                          !moduleID ||
+                          status === 'fail' ||
+                          !sessionID
                         }
                       >
                         <p>Register Fingerprints</p>
