@@ -117,16 +117,31 @@ const ClassDetails: React.FC = () => {
   //   }
   // }, [moduleID]);
 
+  const autoConnectModule = useCallback(async () => {
+    try {
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
+      console.log("testttt");
+    } catch (error) {
+      console.log('error at auto connect module', error);
+    }
+  }, [moduleID, token, dispatch]); // Add dependencies here
+
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
       const existedModule = moduleDetail.find((m) => m.moduleID === moduleId);
       if (existedModule) {
         existedModule.connectionStatus = connectionStatus;
       }
-      console.log('2', moduleDetail);
     },
     [moduleDetail],
   );
+
+console.log('session', sessionID)
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -161,14 +176,20 @@ const ClassDetails: React.FC = () => {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
-          setModuleDetail([...moduleDetail]);
-          const specificModule = moduleDetail.find(
-            (module) => module.moduleID === moduleId,
-          );
-          if (isActiveModule) {
-            setModuleByID(specificModule as ModuleDetail | undefined);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+              console.log('run');
+            }).catch((error) => {
+
+              console.log('Error in autoConnectModule:', error);
+            });
           }
-          console.log('connected');
+          setModuleDetail([...moduleDetail]);
+
 
           break;
         }
@@ -176,18 +197,19 @@ const ClassDetails: React.FC = () => {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
-          setModuleDetail([...moduleDetail]);
-          const specificModule = moduleDetail.find(
-            (module) => module.moduleID === moduleId,
-          );
-          if (isActiveModule) {
-            setModuleByID(specificModule as ModuleDetail | undefined);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+              console.log('run');
+            }).catch((error) => {
+
+              console.log('Error in autoConnectModule:', error);
+            });
           }
-          console.log('disconnected');
-          // setTimeout(() => {
-          //   50
-          // }, 50);
-          // setModuleDetail(moduleDetail || []);
+          setModuleDetail([...moduleDetail]);
           break;
         }
         case 'PreparationProgress': {
@@ -215,7 +237,7 @@ const ClassDetails: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, moduleDetail, modifyModuleConnection, sessionID]);
+  }, [token, moduleDetail, modifyModuleConnection, sessionID, autoConnectModule, moduleID]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -322,21 +344,23 @@ const ClassDetails: React.FC = () => {
   }, []); // Empty dependency array means this runs on unmount only
 
   const handleReset = async () => {
+    const StopAttendance = {
+      ScheduleID: scheduleID,
+    };
     try {
-      const response = await ModuleService.cancelSession(
+      const response = await ModuleService.stopCheckAttendance(
         moduleID,
-        2,
-        sessionID,
+        4,
+        StopAttendance,
         token,
       );
-      const arg = {
-        ModuleID: moduleID,
-        Mode: 6,
-        token: token,
-      };
+      // const arg = {
+      //   ModuleID: moduleID,
+      //   Mode: 6,
+      //   token: token,
+      // };
 
-      await dispatch(activeModule(arg) as any);
-      setIsCheckAttendance(false);
+      // await dispatch(activeModule(arg) as any);
       setIsCheckAttendance(false);
       setIsModalVisible(false);
       setIsActiveModule(false);
@@ -351,41 +375,11 @@ const ClassDetails: React.FC = () => {
     }
   };
 
-  // const handleModuleClick = async (moduleId: number) => {
-  //   setLoading(true);
-  //   setIsActiveModule(true);
-  //   if (moduleID === moduleId) {
-  //     const arg = {
-  //       ModuleID: moduleId,
-  //       Mode: 2,
-  //       SessionId: sessionID,
-  //       token: token,
-  //     };
-  //     await dispatch(activeModule(arg) as any);
-  //     setModuleID(0); // Unclick will set moduleID to 0
-  //     setStatus('');
-  //     setModuleByID(undefined);
-  //     setIsActiveModule(false);
-  //     setLoading(false);
-  //     dispatch(clearModuleMessages());
-  //   } else {
-  //     setModuleID(moduleId);
-  //     const arg = {
-  //       ModuleID: moduleId,
-  //       Mode: 6,
-  //       token: token,
-  //     };
-  //     await dispatch(activeModule(arg) as any);
-  //     setLoading(false);
-  //     setIsActiveModule(false);
-  //   }
-  // };
-
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
+    setExit(false);
     setIsActiveModule(true);
     setModuleByID(module);
-    setExit(false);
     if (moduleID === moduleId && sessionID === 0) {
       setModuleID(0);
       setStatus('');
@@ -411,6 +405,15 @@ const ClassDetails: React.FC = () => {
       dispatch(clearModuleMessages());
       console.log('2');
     } else if (moduleID !== moduleId) {
+      if (sessionID > 0) {
+        const args = {
+          ModuleID: moduleID,
+          Mode: 2,
+          SessionId: sessionID,
+          token: token,
+        };
+        await dispatch(activeModule(args) as any);
+      }
       setModuleID(moduleId);
       const arg = {
         ModuleID: moduleId,
@@ -431,14 +434,23 @@ const ClassDetails: React.FC = () => {
   );
    console.log('exit', exit)
 
-  const activeModuleCheckAttendance = (moduleID: number, SessionId: number) => {
+  const activeModuleCheckAttendance = async (moduleID: number, SessionId: number) => {
+    if(exit === true) {
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+  
+      await dispatch(activeModule(arg) as any);
+    }
     setExit(false);
     setIsCheckAttendance(true);
     const PrepareAttendance = {
       ScheduleID: scheduleID,
     };
 
-    ModuleService.activeModuleAttendance(
+    await ModuleService.activeModuleAttendance(
       moduleID,
       SessionId,
       3,
@@ -697,7 +709,7 @@ const ClassDetails: React.FC = () => {
         // bodyStyle={{ minHeight: '300px' }}
         footer={[
           <Button key="cancel" onClick={handleCancel}>
-            Cancel
+            Exit
           </Button>,
           // <Button key="reset" onClick={handleReset}>
           //   Reset

@@ -90,6 +90,8 @@ const AccountStudentsDetail: React.FC = () => {
   const [change, setChange] = useState(0);
   const [modalContinue, setModalContinue] = useState(false);
   const [exit, setExit] = useState(false);
+  const [moduleStatus, setModuleStatus] = useState(false);
+  const [disable, setDisable] = useState(false);
   const [connectionStatusFilter, setConnectionStatusFilter] = React.useState<
     number | undefined
   >(undefined);
@@ -97,9 +99,6 @@ const AccountStudentsDetail: React.FC = () => {
   const [searchModuleID, setSearchModuleID] = useState<number | undefined>(
     undefined,
   );
-
-  console.log('register', isRegisterPressed);
-  console.log('update', isUpdatePressed);
 
   const [loading, setLoading] = useState(false);
 
@@ -135,7 +134,7 @@ const AccountStudentsDetail: React.FC = () => {
     }
   }, [location.state]);
 
-  const autoConnectModule = async () => {
+  const autoConnectModule = useCallback(async () => {
     try {
       const arg = {
         ModuleID: moduleID,
@@ -143,21 +142,24 @@ const AccountStudentsDetail: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
+      console.log("testttt");
     } catch (error) {
       console.log('error at auto connect module', error);
     }
-  };
+  }, [moduleID, token, dispatch]); // Add dependencies here
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
       const existedModule = moduleDetail.find((m) => m.moduleID === moduleId);
       if (existedModule) {
         existedModule.connectionStatus = connectionStatus;
+        setModuleStatus(true);
       }
-      console.log('2', moduleDetail);
     },
     [moduleDetail],
   );
+
+  console.log('id', moduleID)
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -178,7 +180,6 @@ const AccountStudentsDetail: React.FC = () => {
           const fingerNumber = data.Finger;
 
           if (studentID == StudentID) {
-            console.log('Success!!!!!!!!!');
             if (fingerNumber == 1) {
               setProgressStep1(3);
               setProgressStep2(1);
@@ -189,36 +190,57 @@ const AccountStudentsDetail: React.FC = () => {
           break;
         }
         case 'ModuleConnected': {
-          console.log('c', moduleDetail);
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+              setModuleStatus(false);
+
+              console.log('run');
+            }).catch((error) => {
+
+              console.log('Error in autoConnectModule:', error);
+            });
+          }
           setModuleDetail([...moduleDetail]);
           // setChange((prev) => prev + 1);
-          autoConnectModule();
-          console.log('connected');
-          const specificModule = moduleDetail.find(
-            (module) => module.moduleID === moduleId,
-          );
-          if (isActiveModule) {
-            setModuleByID(specificModule as ModuleDetail | undefined);
-          }
+          
+
+          // setTimeout(() => {
+          // }, 1500);
+
           break;
         }
         case 'ModuleLostConnected': {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
-          setModuleDetail([...moduleDetail]);
-          autoConnectModule();
-          // setChange((prev) => prev + 1);
-          console.log('disconnected');
-          const specificModule = moduleDetail.find(
-            (module) => module.moduleID === moduleId,
-          );
-          if (isActiveModule) {
-            setModuleByID(specificModule as ModuleDetail | undefined);
+          setSessionID(0);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+              setModuleStatus(false);
+
+              console.log('run');
+            }).catch((error) => {
+
+              console.log('Error in autoConnectModule:', error);
+            });
           }
+          setModuleDetail([...moduleDetail]);
+          
+          // setChange((prev) => prev + 1);
+
+          // setTimeout(() => {
+
           break;
         }
         default: {
@@ -239,7 +261,7 @@ const AccountStudentsDetail: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, studentID, moduleDetail, modifyModuleConnection]);
+  }, [token, studentID, moduleDetail, modifyModuleConnection, autoConnectModule, moduleID]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -310,8 +332,6 @@ const AccountStudentsDetail: React.FC = () => {
       .then((data) => {
         setModule(data || undefined);
         setModuleDetail(data?.result || []);
-        console.log('detai', moduleDetail);
-        console.log('detail', data?.result);
       })
       .catch((error) => {
         console.log('get module by id error: ', error);
@@ -330,47 +350,43 @@ const AccountStudentsDetail: React.FC = () => {
     setIsUpdate(true);
   };
 
-  const activeModuleRegisterThree = (
+  const activeModuleRegisterThree = async (
     moduleID: number,
     SessionId: number,
     registerMode: number,
-  ) => {
+  ): Promise<void> => {
     const RegisterMode = {
       StudentID: studentID,
       FingerRegisterMode: registerMode,
     };
-    // const schedule = {
-    //   ScheduleID: 0,
-    // };
-    ModuleService.activeModuleMode(moduleID, 1, SessionId, RegisterMode, token)
-      .then((data) => {
-        console.log('Response data:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  
+    try {
+      const data = await ModuleService.activeModuleMode(moduleID, 1, SessionId, RegisterMode, token);
+      console.log('Response data:', data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
+  
 
-  const activeModuleUpdateThree = (
+  const activeModuleUpdateThree = async (
     moduleID: number,
     SessionId: number,
     registerMode: number,
-  ) => {
+  ): Promise<void> => {
     const RegisterMode = {
       StudentID: studentID,
       FingerRegisterMode: registerMode,
     };
-    // const schedule = {
-    //   ScheduleID: 0,
-    // };
-    ModuleService.activeModuleMode(moduleID, 8, SessionId, RegisterMode, token)
-      .then((data) => {
-        console.log('Response data:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  
+    try {
+      const data = await ModuleService.activeModuleMode(moduleID, 8, SessionId, RegisterMode, token);
+      console.log('Response data:', data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
+  
 
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
@@ -419,6 +435,7 @@ const AccountStudentsDetail: React.FC = () => {
       };
       await dispatch(activeModule(arg) as any);
       setLoading(false);
+      setDisable(false);
       setIsActiveModule(false);
       console.log('3');
     }
@@ -469,36 +486,91 @@ const AccountStudentsDetail: React.FC = () => {
     },
   ];
 
-  const showModalRegister = async () => {
-    setIsRegisterPressed(true);
-    setProgressStep1(1);
-    if (modalContinue === false) {
-      await activeModuleRegisterThree(moduleID, sessionID, 3);
+  const handleConnectModule = async () => {
+    if (exit === true) {
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+  
+      try {
+        await dispatch(activeModule(arg) as any);
+      } catch (error) {
+        console.error('Error dispatching activeModule:', error);
+      }
+    }
+  };
 
+  const showModalRegister = async () => {
+    setDisable(true);
+    setIsRegisterPressed(true);
+    
+  //   if(exit === true) {
+  //   const arg = {
+  //     ModuleID: moduleID,
+  //     Mode: 6,
+  //     token: token,
+  //   };
+
+  //   await dispatch(activeModule(arg) as any);
+  // }
+
+    if (modalContinue === false) {
+      setProgressStep1(1);
+      await activeModuleRegisterThree(moduleID, sessionID, 3);
       setExit(false);
       setIsModalVisible(true);
       setIsActiveModule(true);
-      // setProgressStep2(1);
+      setDisable(false);
     } else {
       setIsModalVisible(true);
+      setDisable(false);
     }
   };
+  
 
   const showModalUpdate = async () => {
+    setDisable(true);
     setIsUpdatePressed(true);
-    setProgressStep1(1);
-    if (modalContinue === false) {
-      await activeModuleUpdateThree(moduleID, sessionID, 3);
+    
+    try {
+      // if (exit === true) {
+      //   const arg = {
+      //     ModuleID: moduleID,
+      //     Mode: 6,
+      //     token: token,
+      //   };
+  
+      //   // Await the dispatch call and handle potential errors
+      //   await dispatch(activeModule(arg) as any);
+      // }
+  
+      if (modalContinue === false) {
+        setProgressStep1(1);
+        try {
+          // Await the call to activeModuleUpdateThree and handle potential errors
+          await activeModuleUpdateThree(moduleID, sessionID, 3);
+          setIsModalVisible(true);
+          setDisable(false);
+          setIsActiveModule(true);
+          setExit(false);
+        } catch (error) {
+          console.error('Error in activeModuleUpdateThree:', error);
+          // Optionally handle the error (e.g., show an error message to the user)
+        }
+      } else {
+        setIsModalVisible(true);
+        setDisable(false);
+      }
+  
+      // Set modal visibility and other states
 
-      setExit(false);
-      setIsModalVisible(true);
-      setIsActiveModule(true);
-
-      // setProgressStep2(1);
-    } else {
-      setIsModalVisible(true);
+    } catch (error) {
+      console.error('Error in showModalUpdate:', error);
     }
   };
+  
 
   const showModalModule = () => {
     setIsModalVisibleModule(true);
@@ -551,30 +623,39 @@ const AccountStudentsDetail: React.FC = () => {
         sessionID,
         token,
       );
-      const arg = {
-        ModuleID: moduleID,
-        Mode: 6,
-        token: token,
-      };
 
-      await dispatch(activeModule(arg) as any);
-      setIsRegisterPressed(false);
-      setIsUpdatePressed(false);
-      setIsModalVisible(false);
-      setIsActiveModule(false);
-      setProgressStep1(0);
-      setProgressStep2(0);
-      setModalContinue(false);
-      setExit(true);
+
       // setModuleID(0);
       // setStatus('');
       // setModuleByID(undefined);
-      message.success(response.title);
+      setTimeout(async() => {
+        const arg = {
+          ModuleID: moduleID,
+          Mode: 6,
+          token: token,
+        };
+  
+        await dispatch(activeModule(arg) as any);
+        setIsRegisterPressed(false);
+        setIsUpdatePressed(false);
+        setIsActiveModule(false);
+        setProgressStep1(0);
+        setProgressStep2(0);
+        setModalContinue(false);
+        setExit(true);
+        setIsModalVisible(false);
+        message.success(response.title);
+      }, 1000);
       return response;
     } catch (error: any) {
       message.error(error.errors);
+      setModalContinue(false);
     }
   };
+
+  console.log('modal continue', modalContinue)
+  console.log('actibe module', isActiveModule)
+  console.log('session', sessionID)
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -591,7 +672,7 @@ const AccountStudentsDetail: React.FC = () => {
   const handleConfirmUpload = async () => {
     try {
       const response = await SessionServive.submitSession(sessionID, token);
-      message.success(response.title);
+      
       const arg = {
         ModuleID: moduleID,
         Mode: 6,
@@ -606,20 +687,13 @@ const AccountStudentsDetail: React.FC = () => {
       setProgressStep2(0);
       setIsActiveModule(false);
       setModalContinue(false);
+      message.success(response.title);
       setChange((prev) => prev + 1);
       return response;
     } catch (error: any) {
       console.error('Error uploading fingerprint:', error);
       message.error(error.errors);
     }
-  };
-
-  const handleReset = () => {
-    clearTimeouts();
-    setProgressStep1(0);
-    setProgressStep2(0);
-    setIsRegisterPressed(false);
-    showModalRegister();
   };
 
   const renderProgress = (step: number) => {
@@ -684,7 +758,7 @@ const AccountStudentsDetail: React.FC = () => {
                           isActiveModule ||
                           !moduleID ||
                           status === 'fail' ||
-                          !sessionID
+                          !sessionID || disable
                         }
                       >
                         <p>Register Fingerprints</p>
@@ -773,6 +847,7 @@ const AccountStudentsDetail: React.FC = () => {
                       onClick={() => {
                         showModalModule();
                       }}
+                      disabled={disable}
                     >
                       <p>Select Module</p>
                     </Button>
@@ -875,7 +950,7 @@ const AccountStudentsDetail: React.FC = () => {
                                       ? styles.selectedModule
                                       : ''
                                   }`}
-                                  disabled={isActiveModule || modalContinue}
+                                  disabled={isActiveModule || modalContinue }
                                 >
                                   <Row>
                                     <Col span={3} style={{ marginRight: 80 }}>
@@ -1002,7 +1077,7 @@ const AccountStudentsDetail: React.FC = () => {
                   <Row>
                     <Button
                       disabled={
-                        isActiveModule || !moduleID || status === 'fail'
+                        isActiveModule || !moduleID || status === 'fail' || !sessionID || disable
                       }
                       onClick={() => showModalUpdate()}
                       style={{ width: ' 100%', marginTop: 5 }}
@@ -1098,9 +1173,6 @@ const AccountStudentsDetail: React.FC = () => {
         footer={[
           <Button key="cancel" onClick={handleExit}>
             Cancel
-          </Button>,
-          <Button key="reset" onClick={handleReset}>
-            Reset
           </Button>,
           <Button
             key="submit"

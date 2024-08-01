@@ -34,7 +34,7 @@ const BtnDecoration: React.FC<props> = ({
   return (
     <Button
       className={styles.btnDecorationCtn}
-      disabled={isActiveModule || !moduleID || isCheckAttendance || status === 'fail'}
+      disabled={isActiveModule || !moduleID || !sessionID || status === 'fail'}
       onClick={() => {
         setIsActiveModule(true);
         activeModuleCheckAttendance(moduleID, sessionID);
