@@ -143,12 +143,12 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
         const week: Date[] = HelperService.getWeekFromDate(today)
 
         if (LECTURER_ID) {
-            const arg = { lecturerID: LECTURER_ID, semesterID: '2', week };
+            const arg = { lecturerID: LECTURER_ID, semesterID: '5', week };
             dispatch(getScheduleByWeek(arg))
         } else {
             const lecturerID = userDetail?.result?.id;
             if (lecturerID) {
-                const arg = { lecturerID: lecturerID, semesterID: '2', week };
+                const arg = { lecturerID: lecturerID, semesterID: '5', week };
                 dispatch(getScheduleByWeek(arg))
             }
         }
@@ -184,10 +184,10 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
                         const isContainedTimeLine = HelperService.checkContainedDate(range, timeLine)
                         if (!isContainedTimeLine) {
                             if (LECTURER_ID) {
-                                const arg = { lecturerID: LECTURER_ID, semesterID: '2', week: range };
+                                const arg = { lecturerID: LECTURER_ID, semesterID: '5', week: range };
                                 dispatch(getScheduleByWeek(arg))
                             } else {
-                                const arg = { lecturerID: lecturerID, semesterID: '2', week: range };
+                                const arg = { lecturerID: lecturerID, semesterID: '5', week: range };
                                 dispatch(getScheduleByWeek(arg))
                             }
                         }

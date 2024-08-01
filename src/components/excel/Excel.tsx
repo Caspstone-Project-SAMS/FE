@@ -42,6 +42,11 @@ type FolderType = {
     fileType: 'student' | 'class' | 'schedule'
 }
 
+type Week = {
+    label: string,
+    value: string
+}
+
 //Nhận file -> Quét Excel file (theo format riêng) - return ValidateFmt
 // HandleSubmit -> Trả về lỗi || thành công
 
@@ -72,6 +77,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [isContinueAble, setIsContinueAble] = useState<boolean>(false);
     const [isImportToClass, setIsImportToClass] = useState<boolean>(false);
 
+    const [weeks, setWeeks] = useState<Week[]>([]);
+    const [weekStart, setWeekStart] = useState<Week>({ label: '', value: '' });
+    const [weekEnd, setWeekEnd] = useState<Week>({ label: '', value: '' });
+
+    //Functions----------------------------
     function formatBytes(bytes: number) {
         const kb = 1024;
         const mb = kb * 1024;
@@ -119,10 +129,9 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         // if (userID) {
                         if (isFAPFile) {
                             excelData = await FileHelper.handleImportFAPStudent(file, workbook)
-                            if (excelData.isContinueAble) {
+                            if (excelData.isContinueAble) { //if the excel file perfect
                                 setIsContinueAble(true)
                             }
-                            console.log("Returned to parent ", excelData);
                             setExcelResult(excelData)
                         } else {
                             excelData = await FileHelper.handleImportStudent(file, workbook)
@@ -149,7 +158,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'schedule':
                     {
-                        const excelData = await FileHelper.handleImportSchedule(file, workbook);
+                        const excelData = await FileHelper.handleImportSchedule(file, workbook, isContinueAble);
                         setExcelResult(excelData)
                     }
                     break;
@@ -204,12 +213,12 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                 setErrLogs(errorLogs ? errorLogs : [])
                                 setWarningLogs(warningLogs ? warningLogs : [])
                                 let title = ''
-                                if (data) {
+                                if (data && data.status) {
                                     title = data.data;
                                     const result = RequestHelpers.postExcelClass(dataImportToClass, selectedSemester);
                                     result.then(response2 => {
                                         if (response2 && response2.data) { // data.data - title
-                                            response2.data.data = title + response2.data.data
+                                            response2.data.data = title + '\n' + response2.data.data
                                         }
                                         const { errorLogs, successLogs, warningLogs, data } = response2
 
@@ -218,31 +227,30 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                         setSuccessLogs((prev) => [...prev, ...successLogs])
                                         setErrLogs((prev) => [...prev, ...errorLogs])
                                         setWarningLogs((prev) => [...prev, ...warningLogs])
-
-                                        setValidateSvResult(data)
+                                        if (data) {
+                                            setValidateSvResult(data)
+                                        }
                                     }).catch(err => {
                                         saveInfo(err)
                                     })
 
                                     setValidateSvResult(data)
+                                } else {
+                                    saveInfo(response)
                                 }
-                                // saveInfo(response)
-                                setIsContinueAble(false)
                             }).catch(err => {
-                                // console.log("Err here after merge ", err);
+                                console.log("im in da error import studnet");
+                                console.log("Err here after merge ", err);
                                 saveInfo(err)
-                                setIsContinueAble(false)
                             })
                         } else {
                             const result = RequestHelpers.postExcelStudent(excelData);
                             result.then(response => {
                                 // console.log("After merge success, data: ", response);
                                 saveInfo(response)
-                                setIsContinueAble(false)
                             }).catch(err => {
                                 // console.log("Err here after merge ", err);
                                 saveInfo(err)
-                                setIsContinueAble(false)
                             })
                         }
                     }
@@ -332,6 +340,14 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     //     }
     // };
 
+    const onChangeSelect = (value: string) => {
+        console.log(`selected ${value}`);
+    };
+
+    const onSearchSelect = (value: string) => {
+        console.log('search:', value);
+    };
+
     const onClick: MenuProps['onClick'] = ({ key, domEvent }) => {
         try {
             setSelectedSemester(Number(key))
@@ -364,7 +380,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         }
     }
 
+    //Use Effect--------------------------------------------
     useEffect(() => {
+        if (fileType === 'schedule') {
+            setWeeks(HelperService.generateWeekFromCur());
+        }
         if (semester && semester.length === 0) {
             dispatch(getAllSemester())
         } else {
@@ -479,7 +499,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 }
             >
                 <div
-                    style={{ minHeight: '70vh' }}
+                    style={{
+                        minHeight: '70vh',
+                        // minWidth: '50vw'
+                    }}
                 >
                     <Steps
                         current={current}
@@ -500,7 +523,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                             <div className='upload-excel'>
                                 <div className={styles.templateSection}>
                                     <div className={styles.templateSectionLeft}>
-                                        {fileType === 'class' && (
+                                        {(fileType === 'class' || (fileType === 'student' && isContinueAble)) && (
                                             <>
                                                 <Text>Semester: </Text>
                                                 <Dropdown
@@ -522,6 +545,42 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                 </Dropdown>
                                             </>
                                         )}
+                                        {
+                                            fileType === 'schedule' && (
+                                                <div className={styles.continueImportScheduleCtn}>
+                                                    <Checkbox
+                                                        checked={isContinueAble}
+                                                        onChange={() => { setIsContinueAble(!isContinueAble) }}
+                                                        style={{}}
+                                                    >
+                                                        Continue import for other weeks
+                                                    </Checkbox>
+                                                    <div className={styles.checkboxCtn}>
+                                                        <Select
+                                                            disabled={!isContinueAble}
+                                                            showSearch
+                                                            placeholder="Start week"
+                                                            optionFilterProp="label"
+                                                            onChange={onChangeSelect}
+                                                            onSearch={onSearchSelect}
+                                                            options={weeks}
+                                                            style={{ minWidth: '8vw' }}
+                                                        />
+                                                        <Text>TO</Text>
+                                                        <Select
+                                                            disabled={!isContinueAble}
+                                                            showSearch
+                                                            placeholder="End week"
+                                                            optionFilterProp="label"
+                                                            onChange={onChangeSelect}
+                                                            onSearch={onSearchSelect}
+                                                            options={weeks}
+                                                            style={{ minWidth: '8vw' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                     <div className={styles.templateSectionRight}>
                                         {

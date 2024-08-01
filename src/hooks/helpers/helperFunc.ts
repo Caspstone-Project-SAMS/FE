@@ -1,6 +1,13 @@
 import moment from 'moment';
 import * as CryptoTS from 'crypto-ts';
 
+moment.updateLocale('ko', {
+  week: {
+    dow: 1,
+    doy: 1,
+  },
+});
+
 const capitalizeFirstLetter = (text: string) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
@@ -32,11 +39,62 @@ const getWeekFromDate = (inputDate: Date): WeekDay[] => {
   return week;
 };
 
+const generateWeekFromCur = () => {
+  const weeks = [];
+  const startOfYear = moment().startOf('week').add(1, 'week');
+  const endOfYear = moment().endOf('year');
+
+  const current = startOfYear.clone();
+  while (current.isBefore(endOfYear)) {
+    const weekStart = current.clone().startOf('week').format('DD/MM');
+    const weekEnd = current.clone().endOf('week').format('DD/MM');
+    weeks.push({
+      label: `${weekStart} - ${weekEnd}`,
+      value: `${weekStart} - ${weekEnd}`,
+    });
+    current.add(1, 'week');
+  }
+
+  return weeks;
+};
+
+const getDaysOfWeek = (range: string) => {
+  const [start, end] = range.split(' - ');
+  const startDate = moment(start, 'DD/MM');
+  const endDate = moment(end, 'DD/MM');
+  const days = [];
+
+  const currentDate = startDate.clone();
+  while (currentDate.isSameOrBefore(endDate)) {
+    days.push(currentDate.format('YYYY-MM-DD'));
+    currentDate.add(1, 'day');
+  }
+
+  return days;
+};
+
+const getWeeks = (startDate: string, endDate: string) => {
+  const start = moment(startDate, 'DD/MM');
+  const end = moment(endDate, 'DD/MM');
+  const weeks = [];
+
+  const current = start.clone().startOf('isoWeek');
+
+  while (current.isBefore(end) || current.isSame(end, 'week')) {
+    const weekStart = current.clone().format('DD/MM');
+    const weekEnd = current.clone().endOf('isoWeek').format('DD/MM');
+    weeks.push(`${weekStart} - ${weekEnd}`);
+    current.add(1, 'weeks');
+  }
+
+  return weeks;
+};
+
 const navigateFAP = () => {
   window.open('https://fap.fpt.edu.vn/', '_blank');
 };
 
-const randomDelay = () => Math.floor(Math.random() * 1200) + 1000;
+const randomDelay = () => Math.floor(Math.random() * 800) + 500;
 
 const checkContainedDate = (item: Date[], sample: Date[]): boolean => {
   // console.log('Item in ', item);
@@ -61,12 +119,17 @@ const decryptString = (cipherText: string): object => {
 };
 
 export const HelperService = {
-  capitalizeFirstLetter,
   downloadFile,
-  getWeekFromDate,
   navigateFAP,
   randomDelay,
+  //Day
+  getWeekFromDate,
   checkContainedDate,
+  generateWeekFromCur,
+  getWeeks,
+  getDaysOfWeek,
+  //String
+  capitalizeFirstLetter,
   removeDuplicates,
   encryptString,
   decryptString,
