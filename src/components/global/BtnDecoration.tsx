@@ -14,6 +14,8 @@ type props = {
   setIsActiveModule: any;
   activeModuleCheckAttendance: any;
   preparationProgress: number;
+  isCheckAttendance: boolean;
+  status: string;
 };
 
 const BtnDecoration: React.FC<props> = ({
@@ -26,11 +28,13 @@ const BtnDecoration: React.FC<props> = ({
   setIsActiveModule,
   activeModuleCheckAttendance,
   preparationProgress,
+  isCheckAttendance,
+  status
 }) => {
   return (
     <Button
       className={styles.btnDecorationCtn}
-      disabled={isActiveModule || !moduleID}
+      disabled={isActiveModule || !moduleID || !sessionID || status === 'fail'}
       onClick={() => {
         setIsActiveModule(true);
         activeModuleCheckAttendance(moduleID, sessionID);

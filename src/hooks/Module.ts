@@ -9,6 +9,10 @@ interface RegisterMode {
   FingerRegisterMode: number;
 }
 
+interface StopAttendance {
+  ScheduleID: number;
+}
+
 // interface Schedule {
 //   ScheduleID: number;
 // }
@@ -109,6 +113,7 @@ const activeModuleMode = async (
     throw new Error(error.message);
   }
 };
+
 const activeModuleAttendance = async (
   ModuleID: number,
   SessionId: number,
@@ -131,6 +136,41 @@ const activeModuleAttendance = async (
         PrepareAttendance,
         // StartAttendance,
         // StopAttendance
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('asddc', response);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error.message);
+      throw new Error(error.response.data);
+    }
+    console.log('Unexpected error:', error.message);
+    throw new Error(error.message);
+  }
+};
+
+const stopCheckAttendance = async (
+  ModuleID: number,
+  Mode: number,
+  StopAttendance: StopAttendance,
+  token: string,
+  // StartAttendance: Schedule,
+  // StopAttendance: Schedule
+) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        StopAttendance,
       },
       {
         headers: {
@@ -255,5 +295,6 @@ export const ModuleService = {
   cancelSession,
   setUpWifi,
   activeModuleAttendance,
+  stopCheckAttendance,
   settingModule,
 };

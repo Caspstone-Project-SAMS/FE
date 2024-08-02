@@ -52,9 +52,11 @@ const ClassDetails: React.FC = () => {
   const [moduleByID, setModuleByID] = useState<ModuleDetail>();
   // const [ScheduleID, setScheduleID] = useState(0);
 
+  const [isCheckAttendance, setIsCheckAttendance] = useState(false);
   const [isActiveModule, setIsActiveModule] = useState(false);
   const [statuss, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [exit, setExit] = useState(false);
 
   //Temp fix------------
   const [isOkOpen, setIsOkOpen] = useState(false);
@@ -89,7 +91,9 @@ const ClassDetails: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage.title);
+      if (exit === false) {
+        message.success(successMessage.title);
+      }
       if (successMessage.title == 'Connect module successfully') {
         setSessionID(successMessage.result.sessionId);
       }
@@ -117,16 +121,31 @@ const ClassDetails: React.FC = () => {
   //   }
   // }, [moduleID]);
 
+  const autoConnectModule = useCallback(async () => {
+    try {
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+      await dispatch(activeModule(arg) as any);
+      console.log("testttt");
+    } catch (error) {
+      console.log('error at auto connect module', error);
+    }
+  }, [moduleID, token, dispatch]); // Add dependencies here
+
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
       const existedModule = moduleDetail.find((m) => m.moduleID === moduleId);
       if (existedModule) {
         existedModule.connectionStatus = connectionStatus;
       }
-      console.log('2', moduleDetail);
     },
     [moduleDetail],
   );
+
+console.log('session', sessionID)
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -161,12 +180,20 @@ const ClassDetails: React.FC = () => {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 1);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+              console.log('run');
+            }).catch((error) => {
+
+              console.log('Error in autoConnectModule:', error);
+            });
+          }
           setModuleDetail([...moduleDetail]);
-          const specificModule = moduleDetail.find(
-            (module) => module.moduleID === moduleId,
-          );
-          setModuleByID(specificModule as ModuleDetail | undefined);
-          console.log('connected');
+
 
           break;
         }
@@ -174,16 +201,19 @@ const ClassDetails: React.FC = () => {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+              console.log('run');
+            }).catch((error) => {
+
+              console.log('Error in autoConnectModule:', error);
+            });
+          }
           setModuleDetail([...moduleDetail]);
-          const specificModule = moduleDetail.find(
-            (module) => module.moduleID === moduleId,
-          );
-          setModuleByID(specificModule as ModuleDetail | undefined);
-          console.log('disconnected');
-          // setTimeout(() => {
-          //   50
-          // }, 50);
-          // setModuleDetail(moduleDetail || []);
           break;
         }
         case 'PreparationProgress': {
@@ -215,7 +245,7 @@ const ClassDetails: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, moduleDetail, modifyModuleConnection, sessionID]);
+  }, [token, moduleDetail, modifyModuleConnection, sessionID, autoConnectModule, moduleID]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -300,42 +330,62 @@ const ClassDetails: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const handleReset = () => {
-    setIsActiveModule(false);
+  const handleResetModule = async () => {
+    try {
+      const response = await ModuleService.cancelSession(
+        moduleID,
+        2,
+        sessionID,
+        token,
+      );
+      return response;
+    } catch (error) {
+      console.log(error)
+    }
   };
 
-  // const handleModuleClick = async (moduleId: number) => {
-  //   setLoading(true);
-  //   setIsActiveModule(true);
-  //   if (moduleID === moduleId) {
-  //     const arg = {
-  //       ModuleID: moduleId,
-  //       Mode: 2,
-  //       SessionId: sessionID,
-  //       token: token,
-  //     };
-  //     await dispatch(activeModule(arg) as any);
-  //     setModuleID(0); // Unclick will set moduleID to 0
-  //     setStatus('');
-  //     setModuleByID(undefined);
-  //     setIsActiveModule(false);
-  //     setLoading(false);
-  //     dispatch(clearModuleMessages());
-  //   } else {
-  //     setModuleID(moduleId);
-  //     const arg = {
-  //       ModuleID: moduleId,
-  //       Mode: 6,
-  //       token: token,
-  //     };
-  //     await dispatch(activeModule(arg) as any);
-  //     setLoading(false);
-  //     setIsActiveModule(false);
-  //   }
-  // };
+  useEffect(() => {
+    // Return a cleanup function
+    return () => {
+      handleResetModule();
+    };
+  }, []); // Empty dependency array means this runs on unmount only
+
+  const handleReset = async () => {
+    const StopAttendance = {
+      ScheduleID: scheduleID,
+    };
+    try {
+      const response = await ModuleService.stopCheckAttendance(
+        moduleID,
+        4,
+        StopAttendance,
+        token,
+      );
+      // const arg = {
+      //   ModuleID: moduleID,
+      //   Mode: 6,
+      //   token: token,
+      // };
+
+      // await dispatch(activeModule(arg) as any);
+      setIsCheckAttendance(false);
+      setIsModalVisible(false);
+      setIsActiveModule(false);
+      setExit(true);
+      // setModuleID(0);
+      // setStatus('');
+      // setModuleByID(undefined);
+      message.success(response.title);
+      return response;
+    } catch (error: any) {
+      message.error(error.errors);
+    }
+  };
 
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
+    setExit(false);
     setIsActiveModule(true);
     setModuleByID(module);
     if (moduleID === moduleId && sessionID === 0) {
@@ -363,6 +413,15 @@ const ClassDetails: React.FC = () => {
       dispatch(clearModuleMessages());
       console.log('2');
     } else if (moduleID !== moduleId) {
+      if (sessionID > 0) {
+        const args = {
+          ModuleID: moduleID,
+          Mode: 2,
+          SessionId: sessionID,
+          token: token,
+        };
+        await dispatch(activeModule(args) as any);
+      }
       setModuleID(moduleId);
       const arg = {
         ModuleID: moduleId,
@@ -381,13 +440,25 @@ const ClassDetails: React.FC = () => {
       <Spin size="medium" />
     </span>
   );
+   console.log('exit', exit)
 
-  const activeModuleCheckAttendance = (moduleID: number, SessionId: number) => {
+  const activeModuleCheckAttendance = async (moduleID: number, SessionId: number) => {
+    if(exit === true) {
+      const arg = {
+        ModuleID: moduleID,
+        Mode: 6,
+        token: token,
+      };
+  
+      await dispatch(activeModule(arg) as any);
+    }
+    setExit(false);
+    setIsCheckAttendance(true);
     const PrepareAttendance = {
       ScheduleID: scheduleID,
     };
 
-    ModuleService.activeModuleAttendance(
+    await ModuleService.activeModuleAttendance(
       moduleID,
       SessionId,
       3,
@@ -612,7 +683,9 @@ const ClassDetails: React.FC = () => {
                     isActiveModule={isActiveModule}
                     moduleID={moduleID}
                     sessionID={sessionID}
+                    status={statuss}
                     setIsActiveModule={setIsActiveModule}
+                    isCheckAttendance={isCheckAttendance}
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
                     preparationProgress={preparationProgress}
                   />
@@ -644,7 +717,7 @@ const ClassDetails: React.FC = () => {
         // bodyStyle={{ minHeight: '300px' }}
         footer={[
           <Button key="cancel" onClick={handleCancel}>
-            Cancel
+            Exit
           </Button>,
           // <Button key="reset" onClick={handleReset}>
           //   Reset

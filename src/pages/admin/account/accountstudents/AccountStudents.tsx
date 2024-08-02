@@ -1,25 +1,30 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
+import { Button, Card, Col, Input, Layout, message, Row, Table } from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
 import { StudentService } from '../../../../hooks/StudentList';
 import { CiSearch } from 'react-icons/ci';
 import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import Excel from '../../../../components/excel/Excel';
 import userIcon from '../../../../assets/imgs/users.png';
 import '../../../../assets/styles/styles.less';
 import { useNavigate } from 'react-router-dom';
-import { IoMdInformation } from "react-icons/io";
+import { IoMdInformation } from 'react-icons/io';
+import {
+  clearStudentMessages,
+  createStudent,
+} from '../../../../redux/slice/Student';
+import { PlusOutlined } from '@ant-design/icons';
 import { DashboardService } from '../../../../hooks/Dashboard';
 
 const { Header: AntHeader } = Layout;
 
 const AccountStudents: React.FC = () => {
   const response = useSelector(
-    (state: RootState) => state.student.initialStudent,
+    (state: RootState) => state.student.studentDetail,
   );
   const [student, setStudent] = useState<Student[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -30,7 +35,21 @@ const AccountStudents: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(35);
   const [totalRecords, setTotalRecord] = useState(0);
 
+  const [reload, setReload] = useState(0);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCheck, setIsCheck] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [StudentCode, setStudentCode] = useState('');
+  const [DisplayName, setDisplayName] = useState('');
+  const [Email, setEmail] = useState('');
+
+  const failMessage = useSelector((state: RootState) => state.student.message);
+  const successMessage = useSelector(
+    (state: RootState) => state.student.studentDetail?.title,
+  );
 
   const handleRowClick = (studentID: string) => {
     navigate(`/account-admin/student/student-detail`, {
@@ -120,6 +139,20 @@ const AccountStudents: React.FC = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (successMessage) {
+      message.success(successMessage);
+      setReload((prevReload) => prevReload + 1);
+      setIsModalVisible(false);
+      resetModalFields();
+      dispatch(clearStudentMessages());
+    }
+    if (failMessage && failMessage.data) {
+      message.error(`${failMessage.data.data.data.title}`);
+      dispatch(clearStudentMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
+
   const handleSearchStudent = (value: string) => {
     setSearchInput(value);
     const filtered = student.filter(
@@ -131,6 +164,43 @@ const AccountStudents: React.FC = () => {
     );
     setFilteredStudents(filtered);
     setIsUpdate(true);
+  };
+
+  const showModalCreate = () => {
+    setIsCheck(false);
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    resetModalFields();
+  };
+
+  const resetModalFields = () => {
+    setIsCheck(false);
+  };
+
+  const handleCreate = async () => {
+    setLoading(true);
+    await createNewStudent(StudentCode, DisplayName, Email);
+    setLoading(false);
+    setIsModalVisible(false);
+    resetModalFields();
+    setReload((prevReload) => prevReload + 1);
+  };
+
+  const createNewStudent = async (
+    StudentCode: string,
+    DisplayName: string,
+    Email: string,
+  ) => {
+    const arg = {
+      StudentCode: StudentCode,
+      DisplayName: DisplayName,
+      Email: Email,
+    };
+    await dispatch(createStudent(arg) as any);
+    setIsCheck(false);
   };
 
   return (
@@ -162,6 +232,15 @@ const AccountStudents: React.FC = () => {
                   value={searchInput}
                   onChange={(e) => handleSearchStudent(e.target.value)}
                 ></Input>
+              </Col>
+              <Col>
+                <Button
+                  onClick={showModalCreate}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
+                  Add New
+                </Button>
               </Col>
             </Row>
           </AntHeader>
