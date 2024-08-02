@@ -51,3 +51,18 @@ export interface EnrolledClasses {
   classStatus: number;
   absencePercentage: number;
 }
+
+export interface StudentFail {
+  data: {
+    data: {
+      data: {
+        title: string;
+        errors: string[];
+      };
+    };
+  };
+}
+
+export interface StudentFail {
+  title: string;
+}

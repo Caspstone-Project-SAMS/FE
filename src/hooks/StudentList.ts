@@ -1,9 +1,10 @@
-import axios from 'axios';
+import axios, { Axios, AxiosError } from 'axios';
 import { DOWNLOAD_TEMPLATE_API, STUDENT_API } from '.';
 import { Student, StudentDetail } from '../models/student/Student';
 import toast from 'react-hot-toast';
 import { HelperService } from './helpers/helperFunc';
 import { ExcelClassList } from '../models/Class';
+import { isRejectedWithValue } from '@reduxjs/toolkit';
 
 type StudentList = {
   studentCode: string;
@@ -56,13 +57,18 @@ const importExcelClass = async (data: ExcelClassList[], semesterId: number) => {
   return res.data;
 };
 
-const createStudent = async (StudentCode: string, CreateBy: string) => {
+const createStudent = async (
+  StudentCode: string,
+  DisplayName: string,
+  Email: string,
+) => {
   try {
     const response = await axios.post(
       STUDENT_API,
       {
         StudentCode,
-        CreateBy,
+        DisplayName,
+        Email,
       },
       {
         headers: {
@@ -72,9 +78,12 @@ const createStudent = async (StudentCode: string, CreateBy: string) => {
     );
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on create new student: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('abccccccccc', error.message);
+      throw new AxiosError(error.response);
+    }
+    return isRejectedWithValue(error.message);
   }
 };
 

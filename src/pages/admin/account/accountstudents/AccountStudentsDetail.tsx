@@ -16,7 +16,7 @@ import {
 } from 'antd';
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import Lottie from 'react-lottie';
-import fingerprintScanAnimation from '../../../../assets/animations/Scanning_Fingerprint_animation.json'; // Adjust the path as needed
+import fingerprintScanAnimation from '../../../../assets/animations/Scanning_Fingerprint_animation.json';
 import styles from './AccountStudents.module.less';
 import { useLocation } from 'react-router-dom';
 import {
@@ -146,7 +146,7 @@ const AccountStudentsDetail: React.FC = () => {
     } catch (error) {
       console.log('error at auto connect module', error);
     }
-  }, [moduleID, token, dispatch]); // Add dependencies here
+  }, [moduleID, token, dispatch]);
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -208,12 +208,6 @@ const AccountStudentsDetail: React.FC = () => {
             });
           }
           setModuleDetail([...moduleDetail]);
-          // setChange((prev) => prev + 1);
-          
-
-          // setTimeout(() => {
-          // }, 1500);
-
           break;
         }
         case 'ModuleLostConnected': {
@@ -259,7 +253,7 @@ const AccountStudentsDetail: React.FC = () => {
     };
 
     return () => {
-      ws.close(); // Close the WebSocket when component unmounts
+      ws.close();
     };
   }, [token, studentID, moduleDetail, modifyModuleConnection, autoConnectModule, moduleID]);
 
@@ -541,15 +535,12 @@ const AccountStudentsDetail: React.FC = () => {
       //     Mode: 6,
       //     token: token,
       //   };
-  
-      //   // Await the dispatch call and handle potential errors
       //   await dispatch(activeModule(arg) as any);
       // }
   
       if (modalContinue === false) {
         setProgressStep1(1);
         try {
-          // Await the call to activeModuleUpdateThree and handle potential errors
           await activeModuleUpdateThree(moduleID, sessionID, 3);
           setIsModalVisible(true);
           setDisable(false);
@@ -557,14 +548,11 @@ const AccountStudentsDetail: React.FC = () => {
           setExit(false);
         } catch (error) {
           console.error('Error in activeModuleUpdateThree:', error);
-          // Optionally handle the error (e.g., show an error message to the user)
         }
       } else {
         setIsModalVisible(true);
         setDisable(false);
       }
-  
-      // Set modal visibility and other states
 
     } catch (error) {
       console.error('Error in showModalUpdate:', error);
@@ -609,11 +597,10 @@ const AccountStudentsDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    // Return a cleanup function
     return () => {
       handleResetModule();
     };
-  }, []); // Empty dependency array means this runs on unmount only
+  }, []);
 
   const handleExit = async () => {
     try {
