@@ -50,7 +50,7 @@ const SetUpWifi = () => {
         <Select
             placeholder='Recents'
             style={{
-                width: 'fit-content',
+                width: '32%',
                 height: 'auto',
                 borderTopLeftRadius: 0,
                 borderBottomLeftRadius: 0
