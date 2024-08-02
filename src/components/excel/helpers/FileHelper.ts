@@ -781,6 +781,8 @@ const handleImportSchedule = (
   const promise = workbook.xlsx.load(excelFile).then((workbook) => {
     const worksheet1 = workbook.getWorksheet('page-1_table-1');
     const worksheet2 = workbook.getWorksheet('page-1_table-2');
+
+    const uniqueList = new Set<string>();
     const sample: any[] = [];
     const sample2: any[] = [];
 
@@ -1027,12 +1029,32 @@ const handleImportSchedule = (
             });
           }
 
-          // const isDuplicated = sample.filter((item) => item.C === );
+          // let isDuplicates = false;
+          // for (let i = 0; i < sample.length; i++) {
+          //   const value = Object.values(sample[i])[0];
+          //   console.log('hehe, this is value ', value);
+          //   console.log('hehe, this is uniqueList ', uniqueList);
+          //   if (uniqueList.has(date)) {
+          //     console.log('Yes, dup her ', value);
+          //     isDuplicates = true;
+          //     break;
+          //   } else {
+          //     uniqueList.add(date);
+          //   }
+          // }
+          // if (isDuplicates) {
+          //   createMsgLog({
+          //     type: 'error',
+          //     message: `
+          //     Duplicate date at cell ${col.index}2 in table 1 \n
+          //     This will resulted in errors, please adjust before continue
+          //     `,
+          //   });
+          // }
 
-          // if()
-
-          const day = col.param;
+          // console.log('alo', { [day]: date });
           // const date = cell.value;
+          const day = col.param;
           sample.push({ [day]: date });
         }
       });
@@ -1169,8 +1191,14 @@ const handleImportSchedule = (
 
     const updatedSchedule = sample2.map((item) => {
       const newItem = { ...item };
+      //merge 2 arr from 2 table base on mon, tue, wed,... col
       if (dayMap[newItem.date]) {
         newItem.date = dayMap[newItem.date];
+
+        if (isContinueAble) {
+          //add attr for continue import other weeks
+          newItem.dayOfWeek = item.date;
+        }
       }
       return newItem;
     });

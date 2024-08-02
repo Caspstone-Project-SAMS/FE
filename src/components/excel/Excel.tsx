@@ -78,8 +78,8 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [isImportToClass, setIsImportToClass] = useState<boolean>(false);
 
     const [weeks, setWeeks] = useState<Week[]>([]);
-    const [weekStart, setWeekStart] = useState<Week>({ label: '', value: '' });
-    const [weekEnd, setWeekEnd] = useState<Week>({ label: '', value: '' });
+    const [weekStart, setWeekStart] = useState<string | undefined>(undefined);
+    const [weekEnd, setWeekEnd] = useState<string | undefined>(undefined);
 
     //Functions----------------------------
     function formatBytes(bytes: number) {
@@ -267,15 +267,93 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'schedule':
                     {
-                        // console.log("This is input ", excelData);
-                        const result = RequestHelpers.postExcelSchedule(excelData);
-                        result.then(data => {
-                            // console.log("Post schedule success ", data);
-                            saveInfo(data)
-                        }).catch(err => {
-                            // console.log("Post schedule error ", err);
-                            saveInfo(err)
-                        })
+                        if (isContinueAble) {
+                            setIsContinueAble(false);
+                            if (weekStart && weekEnd) {
+                                const isValid = HelperService.isStartWeekSooner(weekStart, weekEnd);
+                                if (isValid) {
+                                    const refVal = [
+                                        {
+                                            index: 0,
+                                            dayOfWeek: 'mon',
+                                        },
+                                        {
+                                            index: 1,
+                                            dayOfWeek: 'tue',
+                                        },
+                                        {
+                                            index: 2,
+                                            dayOfWeek: 'wed',
+                                        },
+                                        {
+                                            index: 3,
+                                            dayOfWeek: 'thu',
+                                        },
+                                        {
+                                            index: 4,
+                                            dayOfWeek: 'fri',
+                                        },
+                                        {
+                                            index: 5,
+                                            dayOfWeek: 'sat',
+                                        },
+                                        {
+                                            index: 6,
+                                            dayOfWeek: 'sun',
+                                        },
+                                    ]
+                                    const result: any[] = [];
+                                    console.log("Data ", excelData);
+                                    const weekArr = HelperService.getWeeks(weekStart, weekEnd);
+                                    weekArr.forEach(week => {
+                                        const days = HelperService.getDaysOfWeek(week);
+                                        days.forEach((day, index) => {
+                                            const scheduleValid = excelData.filter(item => item.dayOfWeek === refVal[index].dayOfWeek)
+                                            if (scheduleValid.length > 0) {
+                                                const newSchedule = scheduleValid.map(schedule => {
+                                                    const fmtData = {
+                                                        classCode: schedule.classCode,
+                                                        date: day,
+                                                        slotNumber: schedule.slotNumber
+                                                    }
+                                                    return fmtData
+                                                })
+                                                result.push(...newSchedule);
+                                            }
+                                        })
+                                    })
+                                    const formatExcelData = excelData.map(schedule => {
+                                        const { dayOfWeek, ...valueNeed } = schedule
+                                        return valueNeed
+                                    })
+                                    // console.log("formated data", excelData);
+                                    // console.log("Done - this is schedule valid", result);
+                                    const mergedArr = [...formatExcelData, ...result];
+                                    console.log("mergedArr", mergedArr);
+                                    const promise = RequestHelpers.postExcelSchedule(excelData);
+                                    promise.then(data => {
+                                        saveInfo(data)
+                                    }).catch(err => {
+                                        saveInfo(err)
+                                    })
+                                } else {
+                                    setOnValidateServer(false)
+                                    setOnValidateExcel(true)
+                                    message.warning('Start week time can not further than end week ')
+                                }
+                            } else {
+                                message.info('Choose week start and week end before continue!')
+                            }
+                        } else {
+                            const result = RequestHelpers.postExcelSchedule(excelData);
+                            result.then(data => {
+                                // console.log("Post schedule success ", data);
+                                saveInfo(data)
+                            }).catch(err => {
+                                // console.log("Post schedule error ", err);
+                                saveInfo(err)
+                            })
+                        }
                     }
                     break;
                 default:
@@ -330,8 +408,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             success: []
         });
 
-        setOnValidateServer(false)
-        setValidateSvResult(undefined)
+        setOnValidateServer(false);
+        setValidateSvResult(undefined);
+
+        // setWeekStart(undefined);
+        // setWeekEnd(undefined);
     }
     // const getLabelByKey = (key: number): string => {
     //     if (semesterData && semesterData.length > 0) {
@@ -339,10 +420,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     //         // return item.label;
     //     }
     // };
-
-    const onChangeSelect = (value: string) => {
-        console.log(`selected ${value}`);
-    };
 
     const onSearchSelect = (value: string) => {
         console.log('search:', value);
@@ -391,6 +468,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             handleFormatSemester()
         }
     }, [semester])
+
+    useEffect(() => {
+        console.log("Change ", weekStart, weekEnd);
+    }, [weekStart, weekEnd])
+
 
     useEffect(() => {
         // console.log("excel result changed", excelResult);
@@ -486,12 +568,30 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     >
                                         Cancel
                                     </Button>
-                                    <Button key="submit" type="primary" onClick={() => {
-                                        handleSubmit();
-                                        setCurrent(1);
-                                    }}>
-                                        Submit
-                                    </Button>
+                                    {
+                                        (fileType === 'schedule' && isContinueAble) ? (
+                                            <Button
+                                                disabled={isContinueAble && (weekStart === undefined || weekEnd === undefined)}
+                                                key="submit"
+                                                type="primary"
+                                                onClick={() => {
+                                                    handleSubmit();
+                                                    setCurrent(1);
+                                                }}>
+                                                Submit
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                key="submit"
+                                                type="primary"
+                                                onClick={() => {
+                                                    handleSubmit();
+                                                    setCurrent(1);
+                                                }}>
+                                                Submit
+                                            </Button>
+                                        )
+                                    }
                                 </>
                             )
                         }
@@ -551,7 +651,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                     <Checkbox
                                                         checked={isContinueAble}
                                                         onChange={() => { setIsContinueAble(!isContinueAble) }}
-                                                        style={{}}
                                                     >
                                                         Continue import for other weeks
                                                     </Checkbox>
@@ -561,7 +660,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                             showSearch
                                                             placeholder="Start week"
                                                             optionFilterProp="label"
-                                                            onChange={onChangeSelect}
+                                                            onChange={val => setWeekStart(val)}
                                                             onSearch={onSearchSelect}
                                                             options={weeks}
                                                             style={{ minWidth: '8vw' }}
@@ -572,7 +671,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                             showSearch
                                                             placeholder="End week"
                                                             optionFilterProp="label"
-                                                            onChange={onChangeSelect}
+                                                            onChange={val => setWeekEnd(val)}
                                                             onSearch={onSearchSelect}
                                                             options={weeks}
                                                             style={{ minWidth: '8vw' }}

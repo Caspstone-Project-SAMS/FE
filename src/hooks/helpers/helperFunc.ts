@@ -90,6 +90,23 @@ const getWeeks = (startDate: string, endDate: string) => {
   return weeks;
 };
 
+const isStartWeekSooner = (weekStart: string, weekEnd: string): boolean => {
+  const startDate1 = weekStart.split(' - ')[0];
+  const startDate2 = weekEnd.split(' - ')[0];
+
+  const week1 = moment(startDate1, 'DD/MM');
+  const date2 = moment(startDate2, 'DD/MM');
+
+  if (week1.isBefore(date2)) {
+    return true;
+  } else if (week1.isAfter(date2)) {
+    return false;
+  } else {
+    // 2 week equal
+    return true;
+  }
+};
+
 const navigateFAP = () => {
   window.open('https://fap.fpt.edu.vn/', '_blank');
 };
@@ -128,6 +145,7 @@ export const HelperService = {
   generateWeekFromCur,
   getWeeks,
   getDaysOfWeek,
+  isStartWeekSooner,
   //String
   capitalizeFirstLetter,
   removeDuplicates,
