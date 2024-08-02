@@ -13,6 +13,16 @@ const determineFileType = (file) => {
   }
 };
 
+const checkValidStudentCode = (studentCode: string): boolean => {
+  const regex = /^[A-Za-z]+\d{6}$/;
+
+  if (regex.test(studentCode)) {
+    return true;
+  }
+  return false;
+};
+
 export const ExcelHelpers = {
   determineFileType,
+  checkValidStudentCode,
 };

@@ -11,16 +11,12 @@ const { Header: AntHeader } = Layout;
 
 const Slot: React.FC = () => {
   const [slot, setSlot] = useState<Slot[]>([]);
-//   const [searchInput, setSearchInput] = useState('');
-//   const [filteredSlots, setFilteredSlots] = useState<Slot[]>(slot);
-//   const [isUpdate, setIsUpdate] = useState(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(5);
+  //   const [searchInput, setSearchInput] = useState('');
+  //   const [filteredSlots, setFilteredSlots] = useState<Slot[]>(slot);
+  //   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
-
-  const handleRowClick = (slotID: number) => {
-    navigate(`/slot/slot-detail`, {
-      state: { slotID: slotID },
-    });
-  };
 
   const columns = [
     {
@@ -79,6 +75,17 @@ const Slot: React.FC = () => {
     // },
   ];
 
+  const handlePagination = (page: number, pageSize: number) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+  }
+
+  const handleRowClick = (slotID: number) => {
+    navigate(`/slot/slot-detail`, {
+      state: { slotID: slotID },
+    });
+  };
+
   useEffect(() => {
     const response = SlotService.getAllSlot();
 
@@ -92,16 +99,16 @@ const Slot: React.FC = () => {
       });
   }, []);
 
-//   const handleSearchSlot = (value: string) => {
-//     setSearchInput(value);
-//     const filtered = slot.filter(
-//       (item) =>
-//         (item.slotNumber &&
-//           item.slotNumber.toLowerCase().includes(value.toLowerCase())) 
-//     );
-//     setFilteredStudents(filtered);
-//     setIsUpdate(true);
-//   };
+  //   const handleSearchSlot = (value: string) => {
+  //     setSearchInput(value);
+  //     const filtered = slot.filter(
+  //       (item) =>
+  //         (item.slotNumber &&
+  //           item.slotNumber.toLowerCase().includes(value.toLowerCase())) 
+  //     );
+  //     setFilteredStudents(filtered);
+  //     setIsUpdate(true);
+  //   };
 
   return (
     <Content className={styles.slotContent}>
@@ -114,7 +121,11 @@ const Slot: React.FC = () => {
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>
-            <p className={styles.tableTitle}>Slots</p>
+            <p className={styles.tableTitle}
+              onClick={() => {
+                SlotService.getSlotByPage(2)
+              }}
+            >Slots</p>
             {/* <Row gutter={[16, 16]}>
               <Col>
                 <Input
@@ -143,11 +154,11 @@ const Slot: React.FC = () => {
           }),
         )}
         pagination={{
-          showSizeChanger: true,
+          showSizeChanger: true
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.slotID),
-        })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.slotID),
+      // })}
       ></Table>
     </Content>
   );

@@ -62,7 +62,7 @@ const CustomToolBar: React.FC<{ toolbar: ToolbarProps, loadingStatus: boolean }>
         // console.log("searching ", value);
         const lecturerID = userDetail?.result?.id;
         if (lecturerID) {
-            const arg = { lecturerID: lecturerID, semesterID: '2' };
+            const arg = { lecturerID: lecturerID, semesterID: '5' };
             dispatch(getScheduleByID(arg))
         }
     }
