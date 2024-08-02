@@ -8,7 +8,7 @@ import {
   Select,
   Input,
 } from 'antd';
-import styles from '../../pages/admin/slot/Slot.module.less';
+import styles from './ScheduleImport.module.less';
 import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 import { useNavigate } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
@@ -90,7 +90,7 @@ const ScheduleImport: React.FC = () => {
       setSlot(response?.result.slots || []);
 
       console.log('Upload successful:', response);
-    } catch (error) {
+    } catch (error: any) {
       // Handle error
       console.error('Upload error:', error.message || error);
       message.error(
@@ -174,7 +174,7 @@ const ScheduleImport: React.FC = () => {
           Create
         </Button>
       </Modal>
-      <table>
+      <table className={styles.borderedTable}>
         <thead>
           <tr>
             <th>{schedule?.result.year}</th>
@@ -186,7 +186,7 @@ const ScheduleImport: React.FC = () => {
         <tbody>
           {slot.map((slot, slotIndex) => (
             <tr key={slotIndex}>
-              <td>Slot {slot.slotNumber}</td>
+              <td><b>Slot {slot.slotNumber}</b></td>
               {slot.adjustedClassSlots.map((classSlot, classSlotIndex) => (
                 <td key={classSlotIndex}>
                   {classSlot ? classSlot.classCode : '-'}
