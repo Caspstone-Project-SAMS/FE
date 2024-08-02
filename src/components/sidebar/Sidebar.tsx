@@ -146,6 +146,11 @@ const Sidebar: React.FC = () => {
                   key: '/account',
                   icon: <MdOutlineManageAccounts />,
                 },
+                {
+                  label: 'Schedule',
+                  key: '/import-schedule',
+                  icon: <MdOutlineManageAccounts />,
+                },
               ]
               : [
                 {
