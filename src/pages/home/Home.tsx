@@ -16,6 +16,7 @@ import HomeCalendar from '../../components/calendar/HomeCalendar';
 import { Schedule } from '../../models/calendar/Schedule';
 import { useNavigate } from 'react-router-dom';
 import SetUpWifi from '../../components/wifi/SetUpWifi';
+import { HelperService } from '../../hooks/helpers/helperFunc';
 
 type scheduleStatus = 'past' | 'current' | 'future';
 interface ScheduleExtend extends Schedule {
@@ -132,6 +133,9 @@ const Home: React.FC = () => {
             dashboardInfoVal.todayClass = `${todaySchedules.length}/${todaySchedules.length}`
           }
         }
+
+        const subjectArr = dashboardInfoVal.subjectPrepare
+        dashboardInfoVal.subjectPrepare = HelperService.removeDuplicates(subjectArr)
         setDashboardInfo(dashboardInfoVal)
       }
     }
@@ -193,9 +197,10 @@ const Home: React.FC = () => {
             <Row>
               <Col style={{ marginBottom: 25 }} span={14}>
                 <div className={styles.firstCardTitle}
-                  onClick={() => {
-                    console.log("Current dashboard ", dashBoardInfo);
-                  }}
+                // onClick={() => {
+                //   console.log("Current dashboard ", dashBoardInfo);
+                //   dispatch(updateUser())
+                // }}
                 >
                   Lecturer Dashboard
                 </div>

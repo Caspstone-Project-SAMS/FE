@@ -46,6 +46,21 @@ const getStudentByID = async (
   }
 };
 
+const getStudentByPage = async (page: number, pageSize?: number) => {
+  try {
+    const response = await axios.get(STUDENT_API, {
+      params: {
+        startPage: page,
+        endPage: page,
+        quantity: pageSize ? pageSize : 35,
+      },
+    });
+    return response.data as Student[];
+  } catch (error) {
+    return [];
+  }
+};
+
 const importExcelStudent = async (studentList: StudentList[]) => {
   return await axios.post(STUDENT_API, studentList);
 };
@@ -110,4 +125,5 @@ export const StudentService = {
   createStudent,
   downloadTemplateExcel,
   importExcelClass,
+  getStudentByPage,
 };

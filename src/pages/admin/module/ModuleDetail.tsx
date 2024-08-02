@@ -132,7 +132,7 @@ const ModuleDetail: React.FC = () => {
         });
     }
   }, [moduleID, reload]);
-  
+
 
   const getScheduleByID = async (scheduleID: number) => {
     try {

@@ -17,8 +17,8 @@ const getSlotByID = async (slotID: number): Promise<SlotDetail | null> => {
   try {
     const response = await axios.get(`${SLOT_API}/${slotID}`, {
       headers: {
-        'accept': '*/*'
-      }
+        accept: '*/*',
+      },
     });
     return response.data as SlotDetail;
   } catch (error) {
@@ -27,7 +27,24 @@ const getSlotByID = async (slotID: number): Promise<SlotDetail | null> => {
   }
 };
 
+const getSlotByPage = async (page: number, pageSize?: number) => {
+  try {
+    const response = await axios.get(`${SLOT_API}`, {
+      params: {
+        startPage: page,
+        endPage: page,
+        quantity: pageSize ? pageSize : 35,
+      },
+    });
+
+    return response.data as Slot[];
+  } catch (error) {
+    return [];
+  }
+};
+
 export const SlotService = {
   getAllSlot,
-  getSlotByID
+  getSlotByID,
+  getSlotByPage,
 };

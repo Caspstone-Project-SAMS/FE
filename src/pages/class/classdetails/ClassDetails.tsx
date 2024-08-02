@@ -58,6 +58,10 @@ const ClassDetails: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [exit, setExit] = useState(false);
 
+  //Temp fix------------
+  const [isOkOpen, setIsOkOpen] = useState(false);
+  //Temp fix------------
+
   const [change, setChange] = useState(0);
 
   const dispatch = useDispatch();
@@ -217,6 +221,10 @@ console.log('session', sessionID)
           const socketSessionId = data.SessionId as number;
           const progress = data.Progress as number;
           if (socketSessionId === sessionID) setPreparationProgress(progress);
+          if (progress === 100) {
+            ws.close();
+            setIsOkOpen(true);
+          }
           break;
         }
         default: {
@@ -292,8 +300,8 @@ console.log('session', sessionID)
         status === 'past'
           ? 'Past'
           : status === 'current'
-          ? 'On going'
-          : 'Future';
+            ? 'On going'
+            : 'Future';
 
       setClassInfo([
         { label: 'Class', value: classCode },
@@ -598,8 +606,8 @@ console.log('session', sessionID)
                           {moduleByID?.status === 1
                             ? 'available'
                             : moduleByID?.status === 0
-                            ? 'unavailable'
-                            : ''}
+                              ? 'unavailable'
+                              : ''}
                         </p>
                       </span>
                       <span>
@@ -622,8 +630,8 @@ console.log('session', sessionID)
                           {moduleByID?.mode === 1
                             ? 'Register'
                             : moduleByID?.mode === 2
-                            ? 'Attendance'
-                            : ''}
+                              ? 'Attendance'
+                              : ''}
                         </p>
                       </span>
                     </div>
@@ -697,7 +705,7 @@ console.log('session', sessionID)
           </Card>
         </Col>
 
-        <ClassDetailTable scheduleID={scheduleID} />
+        <ClassDetailTable scheduleID={scheduleID} isOkOpen={isOkOpen} />
       </Row>
 
       <Modal
@@ -784,11 +792,10 @@ console.log('session', sessionID)
                       <Button
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
-                        className={`${styles.unselectedModule} ${
-                          moduleID === item.moduleID
-                            ? styles.selectedModule
-                            : ''
-                        }`}
+                        className={`${styles.unselectedModule} ${moduleID === item.moduleID
+                          ? styles.selectedModule
+                          : ''
+                          }`}
                         disabled={isActiveModule}
                       >
                         <Row>

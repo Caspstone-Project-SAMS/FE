@@ -1,11 +1,12 @@
-import { Button, Image, Input, Modal, Steps, theme, Tooltip, Typography } from 'antd'
-import React, { useState } from 'react'
+import { Button, Image, Input, Modal, Select, Steps, theme, Tooltip, Typography } from 'antd'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { ModuleService } from '../../hooks/Module';
 import styles from './index.module.less'
 import { EyeInvisibleOutlined, EyeTwoTone, InfoOutlined } from '@ant-design/icons';
 import OverviewImg from '../../assets/imgs/setUpWifi/Overview_Img.png'
 import ModuleRmBg from '../../assets/imgs/module_rm_bg.png'
+import { HelperService } from '../../hooks/helpers/helperFunc';
 
 const { Text, Title } = Typography
 
@@ -32,16 +33,49 @@ const steps = [
     },
 ];
 
+const { Option } = Select;
 
 const SetUpWifi = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
+    const [rememberWifis, setRememberWifis] = useState([]);
     const [ssid, setSsid] = useState<string>('');
     const [pass, setPass] = useState<string>('');
 
     //Guide
     const { token } = theme.useToken();
     const [current, setCurrent] = useState(0);
+
+    const selectAfter = (
+        <Select
+            placeholder='Recents'
+            style={{
+                width: '32%',
+                height: 'auto',
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0
+            }}
+            onChange={(e) => handleSelectWifi(e)}
+        >
+            {
+                rememberWifis.map((item, i) => (
+                    <Option
+                        style={{
+                            borderTopLeftRadius: 0,
+                            borderBottomLeftRadius: 0
+                        }}
+                        key={`wifi_opt_${i}`} value={item.ssid}>{item.ssid}</Option>
+                ))
+            }
+        </Select>
+    );
+    const handleSelectWifi = (val: string) => {
+        const selected = rememberWifis.find(item => item.ssid === val);
+        if (selected) {
+            setSsid(selected.ssid)
+            setPass(selected.pass)
+        }
+    }
 
     const next = () => {
         setCurrent(current + 1);
@@ -64,7 +98,6 @@ const SetUpWifi = () => {
         padding: '20px',
     };
 
-
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -80,25 +113,83 @@ const SetUpWifi = () => {
         setCurrent(0)
         setIsGuideModalOpen(false)
     }
-    const handleSetup = () => {
+    const handleSetup = async () => {
         let isValid = true;
         if (ssid.length === 0) {
             isValid = false;
-            toast.error('Wifi name must not be empty!', { duration: 1650 });
+            toast.error('Wifi name must not be empty!', { duration: 2200 });
         }
         if (pass.length < 8) {
             isValid = false;
-            toast.error('Password must contains at least 8 characters!', { duration: 1650 });
+            toast.error('Password must contains at least 8 characters!', { duration: 2200 });
         }
         if (isValid) {
-            const promise = ModuleService.setUpWifi(ssid, pass);
-            promise.then(data => {
+            // const promise = ModuleService.setUpWifi(ssid, pass);
+            // promise.then(data => {
+            //     isSuccess = true;
+            //     toast.success('Sent to wifi successfully, please check on module!')
+            //     const wifi = {
+            //         ssid: ssid,
+            //         pass: HelperService.encryptString(pass)
+            //     }
+            //     handleRememberWifi(wifi)
+            // }).catch(err => {
+            //     toast.error('Connect failed, please check wifi name and password again')
+            // })
+            const promise2 = await ModuleService.setUpWifi(ssid, pass);
+            if (promise2) {
                 toast.success('Sent to wifi successfully, please check on module!')
-            }).catch(err => {
-                toast.error('Connect failed, please check wifi name and password again')
-            })
+                const wifi = {
+                    ssid: ssid,
+                    pass: HelperService.encryptString(pass)
+                }
+                handleRememberWifi(wifi) // used wifi will not pushed to top list - error
+            }
         }
     }
+    const getRememberWifi = () => {
+        const wifis = localStorage.getItem('wifiList');
+        return wifis ? JSON.parse(wifis) : [];
+    };
+    const getRememberWifiDecrypt = () => {
+        try {
+            const wifis = localStorage.getItem('wifiList');
+            if (wifis) {
+                const list = JSON.parse(wifis);
+                list.forEach(item => {
+                    item.pass = HelperService.decryptString(item.pass);
+                });
+                return list
+            }
+            return []
+        } catch (error) {
+            return []
+        }
+    };
+    const saveRememberWifi = (wifis) => {
+        localStorage.setItem('wifiList', JSON.stringify(wifis));
+    };
+    const handleRememberWifi = (wifi) => {
+        try {
+            let rememberWifiList = getRememberWifi();
+            if (rememberWifiList) {
+                rememberWifiList = rememberWifiList.filter(wifiItem => wifiItem.ssid !== wifi.ssid);
+            }
+            // console.log("after filter ", rememberWifiList);
+            rememberWifiList.unshift(wifi);
+
+            if (rememberWifiList.length > 5) {
+                rememberWifiList.pop();
+            }
+            saveRememberWifi(rememberWifiList);
+            setRememberWifis(getRememberWifiDecrypt())
+        } catch (error) {
+            console.log("Unknown err happen when remember wifi");
+        }
+    };
+    useEffect(() => {
+        setRememberWifis(getRememberWifiDecrypt())
+    }, [])
 
     return (
         <div className={styles.setUpWifiCtn}>
@@ -165,16 +256,26 @@ const SetUpWifi = () => {
                 <div className={styles.setUpWifiModal}>
                     <div style={{ marginBottom: '10px' }}>
                         <Text className={styles.label}>WI-FI NAME</Text>
-                        <Input
-                            style={{ padding: '10px 10px', fontSize: '1rem' }}
-                            name='ssid'
-                            onChange={(e) => setSsid(e.target.value)} />
+                        <div className={styles.ssidInputCtn}>
+                            <Input
+                                className={styles.ssidInput}
+                                // addonAfter={selectAfter}
+                                value={ssid}
+                                style={{ fontSize: '1rem', minHeight: '47.5px' }}
+                                name='ssid'
+                                onChange={(e) => setSsid(e.target.value)}
+                            />
+                            {
+                                selectAfter
+                            }
+                        </div>
                     </div>
                     <div>
                         <Text className={styles.label}>PASSWORD</Text>
                         <Input.Password
-                            style={{ padding: '10px 10px', fontSize: '1rem' }}
+                            style={{ padding: '10px', fontSize: '1rem' }}
                             name='pass'
+                            value={pass}
                             onChange={(e) => setPass(e.target.value)}
                             iconRender={(visible) =>
                                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />

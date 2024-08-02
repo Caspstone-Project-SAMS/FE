@@ -4,6 +4,7 @@ import { UserInfo } from '../../models/UserInfo';
 import AuthService from '../../hooks/Auth';
 import toast from 'react-hot-toast';
 import axios, { AxiosError } from 'axios';
+import { HelperService } from '../../hooks/helpers/helperFunc';
 // import axios, { Axios, AxiosError } from 'axios';
 
 // import { history } from '../../hooks/helpers/history';
@@ -49,10 +50,15 @@ const fakeUser = {
 
 const fakeLogin = createAction('auth/fakeLogin');
 
+const updateUser = createAction('auth/updateUser');
+
 const login = createAsyncThunk(
   'auth/login',
-  async (arg: { username: string; password: string }, { rejectWithValue }) => {
-    const { username, password } = arg;
+  async (
+    arg: { username: string; password: string; isRemember: boolean },
+    { rejectWithValue },
+  ) => {
+    const { username, password, isRemember } = arg;
     try {
       //Toast chỉ nhận promise, nhưng redux async thunk cần trả về promise đã hoàn thành để thực hiện pending, fulfilled,...
       const loginPromise = AuthService.login(username, password);
@@ -67,6 +73,18 @@ const login = createAsyncThunk(
       });
 
       const result = await loginPromise;
+      if (result && isRemember) {
+        const session = {
+          loginTime: new Date().getTime(),
+          expiredTime: new Date().getTime() + 43200000,
+        };
+
+        localStorage.setItem(
+          'userAuth',
+          HelperService.encryptString(JSON.stringify(result)),
+        );
+        localStorage.setItem('session', JSON.stringify(session));
+      }
       console.log('User result here ', result);
       return result;
     } catch (error: any) {
@@ -97,6 +115,18 @@ const loginGG = createAsyncThunk(
       });
 
       const result = await loginPromise;
+      // if (result) {
+      //   const session = {
+      //     loginTime: new Date().getTime(),
+      //     expiredTime: new Date().getTime() + 43200000,
+      //   };
+
+      //   localStorage.setItem(
+      //     'userAuth',
+      //     HelperService.encryptString(JSON.stringify(result)),
+      //   );
+      //   localStorage.setItem('session', JSON.stringify(session));
+      // }
       console.log('User result here ', result);
       return result;
     } catch (error: any) {
@@ -114,6 +144,9 @@ const AuthSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
+      localStorage.removeItem('userAuth');
+      localStorage.removeItem('session');
+
       state.authStatus = false;
       state.loadingStatus = false;
       state.googleAuth = undefined;
@@ -121,6 +154,19 @@ const AuthSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    //CreateAction
+    builder.addCase(updateUser, (state) => {
+      const userAuth = localStorage.getItem('userAuth');
+      if (userAuth) {
+        const userInfo: UserInfo = HelperService.decryptString(userAuth);
+
+        state.authStatus = true;
+        state.loadingStatus = false;
+        state.userDetail = userInfo;
+      }
+    });
+
+    //AsyncThunk
     builder.addCase(login.pending, (state) => {
       return {
         ...state,
@@ -137,10 +183,6 @@ const AuthSlice = createSlice({
       };
     });
     builder.addCase(login.rejected, (state) => {
-      // const { payload } = action;
-      // console.log('Login fail - Action: ', action);
-      // console.log('Payload ', payload);
-
       return {
         ...state,
         authStatus: false,
@@ -163,10 +205,6 @@ const AuthSlice = createSlice({
       };
     });
     builder.addCase(loginGG.rejected, (state) => {
-      // const { payload } = action;
-      // console.log('Login fail - Action: ', action);
-      // console.log('Payload ', payload);
-
       return {
         ...state,
         authStatus: false,
@@ -184,7 +222,7 @@ const AuthSlice = createSlice({
   },
 });
 
-export { login, loginGG, fakeLogin };
+export { login, loginGG, fakeLogin, updateUser };
 export const { logout } = AuthSlice.actions;
 
 export default AuthSlice.reducer;

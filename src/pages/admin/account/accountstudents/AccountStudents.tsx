@@ -18,6 +18,7 @@ import {
   createStudent,
 } from '../../../../redux/slice/Student';
 import { PlusOutlined } from '@ant-design/icons';
+import { DashboardService } from '../../../../hooks/Dashboard';
 
 const { Header: AntHeader } = Layout;
 
@@ -29,6 +30,11 @@ const AccountStudents: React.FC = () => {
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudents, setFilteredStudents] = useState<Student[]>(student);
   const [isUpdate, setIsUpdate] = useState(false);
+  //pagination
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(35);
+  const [totalRecords, setTotalRecord] = useState(0);
+
   const [reload, setReload] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCheck, setIsCheck] = useState(false);
@@ -50,6 +56,17 @@ const AccountStudents: React.FC = () => {
       state: { studentID: studentID },
     });
   };
+
+  const handlePagination = async (page: number, pageSize: number) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+
+    const studentList = await StudentService.getStudentByPage(page, pageSize);
+    setStudent(studentList || []);
+    setFilteredStudents(studentList || []);
+    // setStudent(studentList);
+    // setFilteredStudents(studentList)
+  }
 
   const columns = [
     {
@@ -98,9 +115,7 @@ const AccountStudents: React.FC = () => {
             shape="circle"
             style={{ border: 'none' }}
           >
-            <span>
-              <IoMdInformation size={25} />
-            </span>
+            <span><IoMdInformation size={25} /></span>
           </Button>
         </div>
       ),
@@ -109,6 +124,10 @@ const AccountStudents: React.FC = () => {
 
   useEffect(() => {
     const response = StudentService.getAllStudent();
+    const totalStudent = DashboardService.getTotalStudent();
+    totalStudent
+      .then((data) => setTotalRecord(data.data))
+      .catch(err => console.log("Err when get data"))
 
     response
       .then((data) => {
@@ -235,31 +254,37 @@ const AccountStudents: React.FC = () => {
             const bAuth = b.isAuthenticated ? 1 : 0;
             return aAuth - bAuth;
           })
-          .map((item, index) => ({
-            key: index,
-            studentname: (
-              <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <img
-                  src={item.avatar || userIcon}
-                  alt="Student"
-                  className={styles.img}
-                />
-                <p className={styles.studentName}>{item.studentName}</p>
-              </div>
-            ),
-            email: item.email,
-            studentcode: item.studentCode,
-            phone: item.phoneNumber,
-            isAuthenticated: item.isAuthenticated,
-            info: item.studentID,
-            ID: item.studentID,
-          }))}
+          .map(
+            (item, index) => ({
+              key: index,
+              studentname: (
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <img
+                    src={item.avatar || userIcon}
+                    alt="Student"
+                    className={styles.img}
+                  />
+                  <p className={styles.studentName}>{item.studentName}</p>
+                </div>
+              ),
+              email: item.email,
+              studentcode: item.studentCode,
+              phone: item.phoneNumber,
+              isAuthenticated: item.isAuthenticated,
+              info: item.studentID,
+              ID: item.studentID,
+            }),
+          )}
         pagination={{
           showSizeChanger: true,
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalRecords,
+          onChange: handlePagination
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.ID, record.isAuthenticated),
-        // })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.ID, record.isAuthenticated),
+      // })}
       ></Table>
     </Content>
   );

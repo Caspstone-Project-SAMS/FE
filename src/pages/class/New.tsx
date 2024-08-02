@@ -21,6 +21,7 @@ import Excel from '../../components/excel/Excel';
 import { CiSearch } from 'react-icons/ci';
 import { PlusOutlined } from '@ant-design/icons';
 import styles from './Class.module.less'
+import { IoMdInformation } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
 
@@ -236,6 +237,25 @@ export default function New() {
                 </div>
             ),
         },
+        {
+            key: '5',
+            title: 'Info',
+            dataIndex: 'info',
+            render: (classID: number) => (
+                <div>
+                    <Button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(classID);
+                        }}
+                        shape="circle"
+                        style={{ border: 'none' }}
+                    >
+                        <span><IoMdInformation size={25} /></span>
+                    </Button>
+                </div>
+            ),
+        },
     ];
 
     useEffect(() => {
@@ -302,15 +322,16 @@ export default function New() {
                         semestercode: item.semester.semesterCode,
                         lecturer: item.lecturer.displayName,
                         classStatus: item.classStatus,
+                        info: item.classID,
                         ID: item.classID,
                     }),
                 )}
                 pagination={{
                     showSizeChanger: true,
                 }}
-                onRow={(record) => ({
-                    onClick: () => handleRowClick(record.ID),
-                })}
+            // onRow={(record) => ({
+            //     onClick: () => handleRowClick(record.ID),
+            // })}
             ></Table>
             <Modal
                 title={isCheck ? 'Edit Class' : 'Add New Class'}
