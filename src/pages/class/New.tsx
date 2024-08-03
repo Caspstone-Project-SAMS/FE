@@ -21,6 +21,7 @@ import Excel from '../../components/excel/Excel';
 import { CiSearch } from 'react-icons/ci';
 import { PlusOutlined } from '@ant-design/icons';
 import styles from './Class.module.less'
+import { IoMdInformation } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
 
@@ -50,6 +51,7 @@ export default function New() {
     const [LecturerID, setLecturerID] = useState<string | null>(null);
     // const [CreatedBy, setCreatedBy] = useState('');
 
+    const lectureDetail = useSelector((state: RootState) => state.auth.userDetail?.result);
     const failMessage = useSelector((state: RootState) => state.class.message);
     const successMessage = useSelector(
         (state: RootState) => state.class.classDetail?.title,
@@ -58,22 +60,25 @@ export default function New() {
     console.log('ssdsdc', successMessage)
 
     const handleRowClick = (classID: number) => {
-        navigate(`/admin-class/admin-class-detail`, {
+        navigate(`/class/detail`, {
             state: { classID: classID },
         });
     };
 
     useEffect(() => {
-        const response = ClassService.getAllClass();
+        if (lectureDetail?.id) {
+            const id = lectureDetail.id
+            const response = ClassService.getByClassLecturer(id);
 
-        response
-            .then((data) => {
-                setClasses(data?.result || []);
-                // setFilteredRoom(data || []);
-            })
-            .catch((error) => {
-                console.log('get class error: ', error);
-            });
+            response
+                .then((data) => {
+                    setClasses(data?.result || []);
+                    // setFilteredRoom(data || []);
+                })
+                .catch((error) => {
+                    console.log('get class error: ', error);
+                });
+        }
     }, [reload]);
 
     useEffect(() => {
@@ -232,6 +237,25 @@ export default function New() {
                 </div>
             ),
         },
+        {
+            key: '5',
+            title: 'Info',
+            dataIndex: 'info',
+            render: (classID: number) => (
+                <div>
+                    <Button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(classID);
+                        }}
+                        shape="circle"
+                        style={{ border: 'none' }}
+                    >
+                        <span><IoMdInformation size={25} /></span>
+                    </Button>
+                </div>
+            ),
+        },
     ];
 
     useEffect(() => {
@@ -298,15 +322,16 @@ export default function New() {
                         semestercode: item.semester.semesterCode,
                         lecturer: item.lecturer.displayName,
                         classStatus: item.classStatus,
+                        info: item.classID,
                         ID: item.classID,
                     }),
                 )}
                 pagination={{
                     showSizeChanger: true,
                 }}
-                onRow={(record) => ({
-                    onClick: () => handleRowClick(record.ID),
-                })}
+            // onRow={(record) => ({
+            //     onClick: () => handleRowClick(record.ID),
+            // })}
             ></Table>
             <Modal
                 title={isCheck ? 'Edit Class' : 'Add New Class'}

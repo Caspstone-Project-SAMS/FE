@@ -4,7 +4,7 @@ import useDispatch from '../../redux/UseDispatch';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
-import { fakeLogin, login } from '../../redux/slice/Auth';
+import { login, loginGG, updateUser } from '../../redux/slice/Auth';
 
 //assets
 import styles from './Login.module.less';
@@ -52,7 +52,7 @@ function Login() {
   const role = Auth.userDetail?.result?.role.name;
 
   const handleLogin = async () => {
-    await dispatch(login({ username, password }));
+    await dispatch(login({ username, password, isRemember }));
     // const res = await dispatch(login({ username, password }));
     // if (res.payload != null) {
     //     navigate('/')
@@ -61,19 +61,33 @@ function Login() {
 
   const onChange = () => {
     setIsRemember(!isRemember);
-    console.log('Auth ----', Auth);
+    // console.log('Auth ----', Auth);
   };
 
-  const loginGG = useGoogleLogin({
+  const loginGoogle = useGoogleLogin({
     onSuccess: (tokenResponse) => {
-      console.log(tokenResponse);
-      dispatch(fakeLogin());
+      console.log("Token on success", tokenResponse);
+      const token = tokenResponse.access_token
+      dispatch(loginGG({ accessToken: token }))
       setUserCode(tokenResponse);
+      // dispatch(fakeLogin());
     },
   });
 
   // redirect to dashboard if already logged in
   useEffect(() => {
+    const currentTime = new Date().getTime();
+    const oldSession = localStorage.getItem('session');
+    if (oldSession) {
+      const { expiredTime } = JSON.parse(oldSession);
+      if (expiredTime >= currentTime) {
+        dispatch(updateUser())
+      }
+    } else {
+      localStorage.removeItem('userAuth');
+      localStorage.removeItem('session');
+    }
+
     if (authStatus) navigate('/dashboard');
   }, []);
 
@@ -138,7 +152,7 @@ function Login() {
             <div className={styles.loginForm}>
               <Input
                 size="large"
-                placeholder="Email"
+                placeholder="Email or username"
                 className={styles.input}
                 onChange={(e) => setUsername(e.target.value)}
                 prefix={<MailOutlined style={{ marginRight: '10px' }} />}
@@ -179,7 +193,7 @@ function Login() {
               <span className={styles.line}></span>
             </div>
             <Button
-              onClick={() => loginGG()}
+              onClick={() => loginGoogle()}
               className={styles.ggLoginBtn}
               size="large"
               icon={

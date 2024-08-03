@@ -19,7 +19,7 @@ const HomeCalendar: React.FC = () => {
         <Excel fileType="schedule" />
       </div>
       <div className={styles.calendarCtn}>
-        <MyCalendar />
+        <MyCalendar LECTURER_ID={undefined} />
       </div>
     </Content>
   );

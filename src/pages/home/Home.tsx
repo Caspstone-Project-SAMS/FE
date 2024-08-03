@@ -2,7 +2,7 @@ import styles from './Home.module.less';
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 
-import { Button, Card, Col, Row } from 'antd';
+import { Button, Card, Col, Row, Typography } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import { RightOutlined } from '@ant-design/icons';
 import { GoPeople } from 'react-icons/go';
@@ -14,10 +14,28 @@ import { RootState } from '../../redux/Store';
 
 import HomeCalendar from '../../components/calendar/HomeCalendar';
 import { Schedule } from '../../models/calendar/Schedule';
+import { useNavigate } from 'react-router-dom';
+import SetUpWifi from '../../components/wifi/SetUpWifi';
+import { HelperService } from '../../hooks/helpers/helperFunc';
 
 type scheduleStatus = 'past' | 'current' | 'future';
+interface ScheduleExtend extends Schedule {
+  status: 'past' | 'current' | 'future'
+}
+
+interface FormattedSchedule {
+  room: string;
+  slot: string;
+  status: 'past' | 'current' | 'future';
+  classCode: string;
+  scheduleID: number;
+  subjectCode: string;
+  start: Date,
+  end: Date
+}
+
 type Dashboard = {
-  curUpClass: Schedule,
+  curUpClass: ScheduleExtend,
   upcomingTxt: string,
   todayClass: string,
   subjectPrepare: string[]
@@ -30,6 +48,8 @@ const Home: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth)
   const calendar = useSelector((state: RootState) => state.calendar)
   const todayDate = moment().format('dddd, MMMM DD, YYYY');
+
+  const navigate = useNavigate()
 
   const validateStatusSchedule = (startTime: Date, endTime: Date): scheduleStatus => {
     const currentTime = new Date();
@@ -59,6 +79,7 @@ const Home: React.FC = () => {
         slotNumber: 0,
         startTime: '',
         subjectCode: '',
+        status: 'past'
       },
       upcomingTxt: '',
       todayClass: '',
@@ -76,9 +97,9 @@ const Home: React.FC = () => {
           const status = validateStatusSchedule(startDateTime, endDateTime);
           if (status === 'current' || status === 'future') {
             if (status === 'current') {
-              dashboardInfoVal.curUpClass = schedule;
+              dashboardInfoVal.curUpClass = { ...schedule, status: status };
             } else {
-              dashboardInfoVal.curUpClass = schedule;
+              dashboardInfoVal.curUpClass = { ...schedule, status: status };
               dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
             }
             hasEventToday = true;
@@ -112,6 +133,9 @@ const Home: React.FC = () => {
             dashboardInfoVal.todayClass = `${todaySchedules.length}/${todaySchedules.length}`
           }
         }
+
+        const subjectArr = dashboardInfoVal.subjectPrepare
+        dashboardInfoVal.subjectPrepare = HelperService.removeDuplicates(subjectArr)
         setDashboardInfo(dashboardInfoVal)
       }
     }
@@ -143,6 +167,24 @@ const Home: React.FC = () => {
 
     return `${hours}:${minutes}:00`;
   };
+
+  const formatCurUpClass = (obj: ScheduleExtend): FormattedSchedule => {
+    //   des slot status classCode scheduleID subjectCode
+    const startDateTime = new Date(`${obj.date}T${obj.startTime}`);
+    const endDateTime = new Date(`${obj.date}T${obj.endTime}`);
+
+    return {
+      room: obj.roomName,
+      slot: `Slot ${obj.slotNumber}`,
+      start: startDateTime,
+      end: endDateTime,
+      status: obj.status,
+      classCode: obj.classCode,
+      scheduleID: obj.scheduleID,
+      subjectCode: obj.subjectCode
+    };
+  }
+
   return (
     <Content className={styles.home}>
       <Row
@@ -155,79 +197,44 @@ const Home: React.FC = () => {
             <Row>
               <Col style={{ marginBottom: 25 }} span={14}>
                 <div className={styles.firstCardTitle}
-                  onClick={() => {
-                    console.log("Current dashboard ", dashBoardInfo);
-                  }}
+                // onClick={() => {
+                //   console.log("Current dashboard ", dashBoardInfo);
+                //   dispatch(updateUser())
+                // }}
                 >
                   Lecturer Dashboard
                 </div>
                 <div>Current / Upcoming class</div>
               </Col>
               <Col className={styles.date} span={10}>
-                <div>{todayDate}</div>
+                <div style={{ textAlign: 'right' }}>
+                  <span>{todayDate}</span>
+                  <h1>{formatTime(time)}</h1>
+                </div>
               </Col>
             </Row>
             <Row gutter={[16, 16]}>
-              <Col span={14}>
-                {/* <Button
-                  onClick={() => {
-                    lectureDashboardCalculator()
-                  }}
-                  className={styles.btnClass}>
-                  <Row>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <Col span={6} className={styles.peopleIcon}>
-                        <IoPeopleOutline size={50} />
-                      </Col>
-                      <Col span={12} style={{ textAlign: 'left' }}>
-                        <text className={styles.classTitle}>
-                          Room:{' '}
-                          <span>
-                            <text className={styles.classDetail}>
-                              {dashBoardInfo && dashBoardInfo.curUpClass.roomName}
-                            </text>
-                          </span>
-                        </text>
-                        <br />
-                        <text className={styles.classTitle}>
-                          Slot 1:{' '}
-                          <span>
-                            <text className={styles.classDetail}>
-                              {
-                                dashBoardInfo && (
-                                  `${dashBoardInfo.curUpClass.startTime} - ${dashBoardInfo.curUpClass.endTime}`
-                                )
-                              }
-                            </text>
-                          </span>
-                        </text>
-                        <br />
-                        <text className={styles.classTitle}>
-                          Subject:{' '}
-                          <span>
-                            <text className={styles.classDetail}>MLN131</text>
-                          </span>
-                        </text>
-                        <br />
-                        <text className={styles.classTitle}>
-                          Class:{' '}
-                          <span>
-                            <text className={styles.classDetail}>NET1601</text>
-                          </span>
-                        </text>
-                      </Col>
-                    </div>
-
-                    <Col span={6} className={styles.arrowIcon}>
-                      <RightOutlined />
-                    </Col>
-                  </Row>
-                </Button> */}
+              <Col span={14} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', width: '100%' }}>
                 <Button
-                  style={{ height: 'fit-content' }}
+                  style={{
+                    height: 'fit-content',
+                    width: '95%',
+                  }}
+                  onClick={() => {
+                    if (dashBoardInfo && dashBoardInfo.curUpClass) {
+                      try {
+                        const event = formatCurUpClass(dashBoardInfo.curUpClass)
+                        navigate('/class/classdetails', { state: { event } });
+                      } catch (error) {
+                        console.log("Unknown error when navigate class detail");
+                      }
+                    } else {
+                      navigate('/class')
+                    }
+                  }}
                 >
                   <div className={styles.dashboardCard}>
-                    {dashBoardInfo && (
+                    {dashBoardInfo ? (
                       <div className={styles.cardInfoCtn}>
                         <IoPeopleOutline size={50} />
                         <div className={styles.cardInfo}>
@@ -241,13 +248,17 @@ const Home: React.FC = () => {
                           <span>Class: {dashBoardInfo.curUpClass.classCode}</span>
                         </div>
                       </div>
+                    ) : (
+                      <div className={styles.cardInfoCtn} style={{ height: '100%' }}>
+                        View classes
+                      </div>
                     )}
                     <RightOutlined className={styles.iconNav} />
                   </div>
                 </Button>
               </Col>
               <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} span={10}>
-                <h1>{formatTime(time)}</h1>
+                <SetUpWifi />
               </Col>
             </Row>
           </Card>
@@ -262,7 +273,9 @@ const Home: React.FC = () => {
                       <Col span={17}>
                         <text className={styles.upTitle}>Upcoming class</text>
                         <br />
-                        <text className={styles.upDetail}>{dashBoardInfo && dashBoardInfo.upcomingTxt}</text>
+                        <text className={styles.upDetail}>
+                          {dashBoardInfo?.upcomingTxt ? dashBoardInfo.upcomingTxt : 'Done'}
+                        </text>
                       </Col>
                       <Col
                         span={7}
@@ -279,7 +292,9 @@ const Home: React.FC = () => {
                       <Col span={17}>
                         <text className={styles.toTitle}>Today class</text>
                         <br />
-                        <text className={styles.toDetail}>{dashBoardInfo && dashBoardInfo.todayClass}</text>
+                        <text className={styles.toDetail}>
+                          {dashBoardInfo?.todayClass ? dashBoardInfo.todayClass : 'Done'}
+                        </text>
                       </Col>
                       <Col
                         span={7}
@@ -293,25 +308,28 @@ const Home: React.FC = () => {
               </Col>
               <Col span={12}>
                 <Card className={styles.subPrepare}>
-                  <Row>
-                    <Col style={{ height: '100%', alignItems: 'center' }} span={17}>
-                      <text className={styles.subTitle}>Subject Prepare</text>
-                      <br />
-                      {
-                        dashBoardInfo && dashBoardInfo.subjectPrepare.map(subject => (
-                          <>
-                            <text className={styles.subDetail}>{subject}</text>
-                            <br />
-                          </>
-                        ))
-                      }
-                    </Col>
-                    <Col
-                      span={7}
-                      style={{ display: 'flex', alignItems: 'center' }}
-                    >
-                      <FaSwatchbook size={'40px'} />
-                    </Col>
+                  <Row style={{ height: '100%' }}>
+                    <text className={styles.subTitle}>Subject Prepare</text>
+                    <div style={{ height: '100%' }} className={styles.subInfoCtn}>
+                      <Col style={{ height: '100%', display: 'flex', flexDirection: 'column' }} span={17}>
+                        {
+                          dashBoardInfo?.subjectPrepare.length ? dashBoardInfo.subjectPrepare.map(subject => (
+                            <>
+                              <text className={styles.subDetail}>{subject}</text>
+                              <br />
+                            </>
+                          )) : (
+                            <text className={styles.subDetail}>Done</text>
+                          )
+                        }
+                      </Col>
+                      <Col
+                        span={7}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                      >
+                        <FaSwatchbook size={'40px'} />
+                      </Col>
+                    </div>
                   </Row>
                 </Card>
               </Col>

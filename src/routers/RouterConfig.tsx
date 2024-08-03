@@ -23,6 +23,7 @@ import SlotDetail from '../pages/admin/slot/SlotDetail';
 import AdminClassDetail from '../pages/admin/class/AdminClassDetail';
 import Module from '../pages/admin/module/Module';
 import ModuleDetail from '../pages/admin/module/ModuleDetail';
+import ScheduleImport from '../pages/schedule/ScheduleImport';
 
 const lecture = [
   {
@@ -32,6 +33,10 @@ const lecture = [
   {
     path: '/class',
     element: <Class />
+  },
+  {
+    path: '/class/detail',
+    element: <AdminClassDetail />
   },
   {
     path: '/student',
@@ -48,7 +53,11 @@ const lecture = [
   {
     path: '/class/classdetails',
     element: <ClassDetails />
-  }
+  },
+  {
+    path: '/import-schedule',
+    element: <ScheduleImport />
+  },
 ];
 
 const admin = [
@@ -95,10 +104,6 @@ const admin = [
   {
     path: '/admin-subject',
     element: <Subject />
-  },
-  {
-    path: '/admin-attendance',
-    element: <AdminAttendance />
   },
   {
     path: '/room',

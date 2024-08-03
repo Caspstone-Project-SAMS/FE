@@ -37,7 +37,7 @@ type RBC_Event = {
 
 type scheduleStatus = 'past' | 'current' | 'future';
 
-function MyCalendar() {
+const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID }) => {
     const [date, setDate] = useState(new Date());
     const [scheduleEvent, setScheduleEvent] = useState<RBC_Custom_Event[]>([]);
     const [selectedView, setSelectedView] = useState<View>(Views.WEEK)
@@ -140,25 +140,30 @@ function MyCalendar() {
     }
 
     useEffect(() => {
-        const lecturerID = userDetail?.result?.id;
-        if (lecturerID) {
-            const week: Date[] = HelperService.getWeekFromDate(today)
-            const arg = { lecturerID: lecturerID, semesterID: '2', week };
+        const week: Date[] = HelperService.getWeekFromDate(today)
+
+        if (LECTURER_ID) {
+            const arg = { lecturerID: LECTURER_ID, semesterID: '5', week };
             dispatch(getScheduleByWeek(arg))
+        } else {
+            const lecturerID = userDetail?.result?.id;
+            if (lecturerID) {
+                const arg = { lecturerID: lecturerID, semesterID: '5', week };
+                dispatch(getScheduleByWeek(arg))
+            }
         }
-    }, [])
+    }, [LECTURER_ID])
 
     useEffect(() => {
-        if (userDetail && schedule && schedule.length > 0) {
+        if ((userDetail || LECTURER_ID) && schedule && schedule.length > 0) {
             const formatted = fmtSchedule(schedule);
             // console.log("Schedule API: ", schedule);
-            setScheduleEvent(formatted)
+            setScheduleEvent(formatted);
         } else {
             console.log("userDetail, schedule are undefined");
             setScheduleEvent([])
         }
-    }, [userDetail, schedule])
-
+    }, [userDetail, schedule, LECTURER_ID])
 
     return (
         <Calendar
@@ -172,14 +177,19 @@ function MyCalendar() {
                 const lecturerID = userDetail?.result?.id;
 
                 //Havent do check contained date successful
-                if (selectedView === 'week' && Array.isArray(range) && lecturerID) {
+                if (selectedView === 'week' && Array.isArray(range) && (lecturerID || LECTURER_ID)) {
                     const randomDelay = HelperService.randomDelay();
                     setLoading(true);
                     setTimeout(() => {
                         const isContainedTimeLine = HelperService.checkContainedDate(range, timeLine)
                         if (!isContainedTimeLine) {
-                            const arg = { lecturerID: lecturerID, semesterID: '2', week: range };
-                            dispatch(getScheduleByWeek(arg))
+                            if (LECTURER_ID) {
+                                const arg = { lecturerID: LECTURER_ID, semesterID: '5', week: range };
+                                dispatch(getScheduleByWeek(arg))
+                            } else {
+                                const arg = { lecturerID: lecturerID, semesterID: '5', week: range };
+                                dispatch(getScheduleByWeek(arg))
+                            }
                         }
                         setLoading(false)
                     }, randomDelay)

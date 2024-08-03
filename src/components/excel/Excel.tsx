@@ -4,7 +4,7 @@ import '../../assets/styles/styles.less'
 import React, { useEffect, useState } from 'react'
 import ExcelJS from 'exceljs'
 import { RcFile } from 'antd/es/upload'
-import { Button, Checkbox, Dropdown, Image, MenuProps, message, Modal, Skeleton, Steps, Typography, Upload } from 'antd'
+import { Button, Checkbox, Dropdown, Image, MenuProps, message, Modal, Select, Skeleton, Steps, Typography, Upload } from 'antd'
 import { CloudUploadOutlined, DeleteOutlined, FileExcelOutlined, FileTextOutlined, FolderAddOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
@@ -26,6 +26,8 @@ type ValidateFmt = {
     result?: any[];
     errors: Message[];
     success: Message[];
+    //Continue import student to class, continue generate schedule for other weeks
+    isContinueAble?: boolean;
 };
 type ServerResult = {
     status: boolean;
@@ -38,6 +40,11 @@ type Message = {
 }
 type FolderType = {
     fileType: 'student' | 'class' | 'schedule'
+}
+
+type Week = {
+    label: string,
+    value: string
 }
 
 //Nhận file -> Quét Excel file (theo format riêng) - return ValidateFmt
@@ -57,7 +64,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isFAPFile, setIsFAPFile] = useState<boolean>(false);
 
-    //havent has api - not modelling data yet
+    //Excel state - handling result, visible state logs 
     const [excelResult, setExcelResult] = useState<ValidateFmt>();
     const [errLogs, setErrLogs] = useState<Message[]>([]);
     const [warningLogs, setWarningLogs] = useState<Message[]>([]);
@@ -66,7 +73,15 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [onValidateExcel, setOnValidateExcel] = useState(false);
     const [onValidateServer, setOnValidateServer] = useState(false);
     const [validateSvResult, setValidateSvResult] = useState<ServerResult | undefined>();
+    //Continue import
+    const [isContinueAble, setIsContinueAble] = useState<boolean>(false);
+    const [isImportToClass, setIsImportToClass] = useState<boolean>(false);
 
+    const [weeks, setWeeks] = useState<Week[]>([]);
+    const [weekStart, setWeekStart] = useState<string | undefined>(undefined);
+    const [weekEnd, setWeekEnd] = useState<string | undefined>(undefined);
+
+    //Functions----------------------------
     function formatBytes(bytes: number) {
         const kb = 1024;
         const mb = kb * 1024;
@@ -114,6 +129,9 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         // if (userID) {
                         if (isFAPFile) {
                             excelData = await FileHelper.handleImportFAPStudent(file, workbook)
+                            if (excelData.isContinueAble) { //if the excel file perfect
+                                setIsContinueAble(true)
+                            }
                             setExcelResult(excelData)
                         } else {
                             excelData = await FileHelper.handleImportStudent(file, workbook)
@@ -140,7 +158,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'schedule':
                     {
-                        const excelData = await FileHelper.handleImportSchedule(file, workbook);
+                        const excelData = await FileHelper.handleImportSchedule(file, workbook, isContinueAble);
                         setExcelResult(excelData)
                     }
                     break;
@@ -177,14 +195,64 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             switch (fileType) {
                 case 'student':
                     {
-                        const result = RequestHelpers.postExcelStudent(excelData);
-                        result.then(response => {
-                            // console.log("After merge success, data: ", response);
-                            saveInfo(response)
-                        }).catch(err => {
-                            // console.log("Err here after merge ", err);
-                            saveInfo(err)
-                        })
+                        setIsContinueAble(false);
+                        console.log("Current gonna push ", excelData);
+                        //continue import to class
+                        if (isImportToClass) {
+                            const dataImportToClass: any[] = []
+                            const dataStudent = excelData.map(item => {
+                                const { classCode, ...result } = item;
+                                dataImportToClass.push({ classCode, studentCode: item.studentCode })
+                                return result
+                            })
+                            const promiseCreateStudent = RequestHelpers.postExcelStudent(dataStudent);
+                            promiseCreateStudent.then(response => {
+                                // console.log("After merge success, data: ", response);
+                                const { errorLogs, successLogs, warningLogs, data } = response
+                                setSuccessLogs(successLogs ? successLogs : [])
+                                setErrLogs(errorLogs ? errorLogs : [])
+                                setWarningLogs(warningLogs ? warningLogs : [])
+                                let title = ''
+                                if (data && data.status) {
+                                    title = data.data;
+                                    const result = RequestHelpers.postExcelClass(dataImportToClass, selectedSemester);
+                                    result.then(response2 => {
+                                        if (response2 && response2.data) { // data.data - title
+                                            response2.data.data = title + '\n' + response2.data.data
+                                        }
+                                        const { errorLogs, successLogs, warningLogs, data } = response2
+
+                                        setOnValidateServer(false)
+                                        setOnValidateExcel(false)
+                                        setSuccessLogs((prev) => [...prev, ...successLogs])
+                                        setErrLogs((prev) => [...prev, ...errorLogs])
+                                        setWarningLogs((prev) => [...prev, ...warningLogs])
+                                        if (data) {
+                                            setValidateSvResult(data)
+                                        }
+                                    }).catch(err => {
+                                        saveInfo(err)
+                                    })
+
+                                    setValidateSvResult(data)
+                                } else {
+                                    saveInfo(response)
+                                }
+                            }).catch(err => {
+                                console.log("im in da error import studnet");
+                                console.log("Err here after merge ", err);
+                                saveInfo(err)
+                            })
+                        } else {
+                            const result = RequestHelpers.postExcelStudent(excelData);
+                            result.then(response => {
+                                // console.log("After merge success, data: ", response);
+                                saveInfo(response)
+                            }).catch(err => {
+                                // console.log("Err here after merge ", err);
+                                saveInfo(err)
+                            })
+                        }
                     }
                     break;
                 case 'class':
@@ -199,15 +267,93 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'schedule':
                     {
-                        // console.log("This is input ", excelData);
-                        const result = RequestHelpers.postExcelSchedule(excelData);
-                        result.then(data => {
-                            // console.log("Post schedule success ", data);
-                            saveInfo(data)
-                        }).catch(err => {
-                            // console.log("Post schedule error ", err);
-                            saveInfo(err)
-                        })
+                        if (isContinueAble) {
+                            setIsContinueAble(false);
+                            if (weekStart && weekEnd) {
+                                const isValid = HelperService.isStartWeekSooner(weekStart, weekEnd);
+                                if (isValid) {
+                                    const refVal = [
+                                        {
+                                            index: 0,
+                                            dayOfWeek: 'mon',
+                                        },
+                                        {
+                                            index: 1,
+                                            dayOfWeek: 'tue',
+                                        },
+                                        {
+                                            index: 2,
+                                            dayOfWeek: 'wed',
+                                        },
+                                        {
+                                            index: 3,
+                                            dayOfWeek: 'thu',
+                                        },
+                                        {
+                                            index: 4,
+                                            dayOfWeek: 'fri',
+                                        },
+                                        {
+                                            index: 5,
+                                            dayOfWeek: 'sat',
+                                        },
+                                        {
+                                            index: 6,
+                                            dayOfWeek: 'sun',
+                                        },
+                                    ]
+                                    const result: any[] = [];
+                                    console.log("Data ", excelData);
+                                    const weekArr = HelperService.getWeeks(weekStart, weekEnd);
+                                    weekArr.forEach(week => {
+                                        const days = HelperService.getDaysOfWeek(week);
+                                        days.forEach((day, index) => {
+                                            const scheduleValid = excelData.filter(item => item.dayOfWeek === refVal[index].dayOfWeek)
+                                            if (scheduleValid.length > 0) {
+                                                const newSchedule = scheduleValid.map(schedule => {
+                                                    const fmtData = {
+                                                        classCode: schedule.classCode,
+                                                        date: day,
+                                                        slotNumber: schedule.slotNumber
+                                                    }
+                                                    return fmtData
+                                                })
+                                                result.push(...newSchedule);
+                                            }
+                                        })
+                                    })
+                                    const formatExcelData = excelData.map(schedule => {
+                                        const { dayOfWeek, ...valueNeed } = schedule
+                                        return valueNeed
+                                    })
+                                    // console.log("formated data", excelData);
+                                    // console.log("Done - this is schedule valid", result);
+                                    const mergedArr = [...formatExcelData, ...result];
+                                    console.log("mergedArr", mergedArr);
+                                    const promise = RequestHelpers.postExcelSchedule(mergedArr);
+                                    promise.then(data => {
+                                        saveInfo(data)
+                                    }).catch(err => {
+                                        saveInfo(err)
+                                    })
+                                } else {
+                                    setOnValidateServer(false)
+                                    setOnValidateExcel(true)
+                                    message.warning('Start week time can not further than end week ')
+                                }
+                            } else {
+                                message.info('Choose week start and week end before continue!')
+                            }
+                        } else {
+                            const result = RequestHelpers.postExcelSchedule(excelData);
+                            result.then(data => {
+                                // console.log("Post schedule success ", data);
+                                saveInfo(data)
+                            }).catch(err => {
+                                // console.log("Post schedule error ", err);
+                                saveInfo(err)
+                            })
+                        }
                     }
                     break;
                 default:
@@ -217,6 +363,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             message.warning('No data found in excel')
         }
     }
+
+    // const onContinueImportToClass = () => {
+
+    // }
 
     const customItemRender = (originNode, file, fileList, actions) => {
         return (
@@ -247,8 +397,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         setSuccessLogs([]);
         setIsFAPFile(false);
 
-        setCurrent(0);
+        setIsContinueAble(false);
+        setIsImportToClass(false);
 
+        setCurrent(0);
         setOnValidateExcel(false);
         setExcelResult({
             result: [],
@@ -256,8 +408,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             success: []
         });
 
-        setOnValidateServer(false)
-        setValidateSvResult(undefined)
+        setOnValidateServer(false);
+        setValidateSvResult(undefined);
+
+        // setWeekStart(undefined);
+        // setWeekEnd(undefined);
     }
     // const getLabelByKey = (key: number): string => {
     //     if (semesterData && semesterData.length > 0) {
@@ -265,6 +420,10 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     //         // return item.label;
     //     }
     // };
+
+    const onSearchSelect = (value: string) => {
+        console.log('search:', value);
+    };
 
     const onClick: MenuProps['onClick'] = ({ key, domEvent }) => {
         try {
@@ -282,7 +441,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             semester.forEach((item, i) => {
                 if (i === 0) {
                     setSelectedSemester(item.semesterID);
-                    setLabelSemester(item.semesterCode)
+                    setLabelSemester(item.semesterCode);
                 }
                 menuData.push({
                     key: item.semesterID,
@@ -298,7 +457,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         }
     }
 
+    //Use Effect--------------------------------------------
     useEffect(() => {
+        if (fileType === 'schedule') {
+            setWeeks(HelperService.generateWeekFromCur());
+        }
         if (semester && semester.length === 0) {
             dispatch(getAllSemester())
         } else {
@@ -307,7 +470,12 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     }, [semester])
 
     useEffect(() => {
-        console.log("excel result changed", excelResult);
+        console.log("Change ", weekStart, weekEnd);
+    }, [weekStart, weekEnd])
+
+
+    useEffect(() => {
+        // console.log("excel result changed", excelResult);
         setErrLogs([]);
         setWarningLogs([]);
 
@@ -355,43 +523,86 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 maskClosable={false}
                 className={styles.excelModal}
                 onCancel={() => {
-                    setModalOpen(false)
                     handleClear();
+                    setModalOpen(false)
                 }}
                 closable={true}
                 footer={
                     <>
-                        <Button
-                            key="back"
-                            onClick={() => {
-                                setModalOpen(false)
-                                handleClear();
-                            }}
-                        >
-                            Cancel
-                        </Button>
+                        {
+                            //Continue import student to class
+                            (isContinueAble && fileType === 'student') && (
+                                <div>
+                                    <Text style={{ fontSize: '0.95rem' }}>
+                                        # System recognized that excel file also contained "classCode" <br />
+                                        Do you want to import to class? <br />
+                                    </Text>
+                                    <Checkbox
+                                        value={isImportToClass}
+                                        onChange={() => setIsImportToClass(!isImportToClass)}
+                                        style={{ marginBottom: 10 }}
+                                    >
+                                        Yes
+                                    </Checkbox>
+                                </div>
+                            )
+                        }
                         {
                             current === 1 ? (
-                                <Button key="submit" type="primary" onClick={() => {
-                                    handleClear();
-                                    setCurrent(0);
-                                }}>
+                                <Button key="submit" type="primary"
+                                    disabled={onValidateServer}
+                                    onClick={() => {
+                                        handleClear();
+                                        setCurrent(0);
+                                    }}>
                                     Import again
                                 </Button>
                             ) : (
-                                <Button key="submit" type="primary" onClick={() => {
-                                    handleSubmit();
-                                    setCurrent(1);
-                                }}>
-                                    Submit
-                                </Button>
+                                <>
+                                    <Button
+                                        key="back"
+                                        onClick={() => {
+                                            handleClear();
+                                            setModalOpen(false)
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    {
+                                        (fileType === 'schedule' && isContinueAble) ? (
+                                            <Button
+                                                disabled={isContinueAble && (weekStart === undefined || weekEnd === undefined)}
+                                                key="submit"
+                                                type="primary"
+                                                onClick={() => {
+                                                    handleSubmit();
+                                                    setCurrent(1);
+                                                }}>
+                                                Submit
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                key="submit"
+                                                type="primary"
+                                                onClick={() => {
+                                                    handleSubmit();
+                                                    setCurrent(1);
+                                                }}>
+                                                Submit
+                                            </Button>
+                                        )
+                                    }
+                                </>
                             )
                         }
                     </>
                 }
             >
                 <div
-                    style={{ minHeight: '70vh' }}
+                    style={{
+                        minHeight: '70vh',
+                        // minWidth: '50vw'
+                    }}
                 >
                     <Steps
                         current={current}
@@ -412,7 +623,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                             <div className='upload-excel'>
                                 <div className={styles.templateSection}>
                                     <div className={styles.templateSectionLeft}>
-                                        {fileType === 'class' && (
+                                        {(fileType === 'class' || (fileType === 'student' && isContinueAble)) && (
                                             <>
                                                 <Text>Semester: </Text>
                                                 <Dropdown
@@ -434,15 +645,51 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                 </Dropdown>
                                             </>
                                         )}
+                                        {
+                                            fileType === 'schedule' && (
+                                                <div className={styles.continueImportScheduleCtn}>
+                                                    <Checkbox
+                                                        checked={isContinueAble}
+                                                        onChange={() => { setIsContinueAble(!isContinueAble) }}
+                                                    >
+                                                        Continue import for other weeks
+                                                    </Checkbox>
+                                                    <div className={styles.checkboxCtn}>
+                                                        <Select
+                                                            disabled={!isContinueAble}
+                                                            showSearch
+                                                            placeholder="Start week"
+                                                            optionFilterProp="label"
+                                                            onChange={val => setWeekStart(val)}
+                                                            onSearch={onSearchSelect}
+                                                            options={weeks}
+                                                            style={{ minWidth: '8vw' }}
+                                                        />
+                                                        <Text>TO</Text>
+                                                        <Select
+                                                            disabled={!isContinueAble}
+                                                            showSearch
+                                                            placeholder="End week"
+                                                            optionFilterProp="label"
+                                                            onChange={val => setWeekEnd(val)}
+                                                            onSearch={onSearchSelect}
+                                                            options={weeks}
+                                                            style={{ minWidth: '8vw' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                     <div className={styles.templateSectionRight}>
                                         {
                                             (fileType === 'class' || fileType === 'student') && (
                                                 <Checkbox
+                                                    checked={isFAPFile}
                                                     onChange={() => { setIsFAPFile(!isFAPFile) }}
                                                     style={{ margin: '5px 0 10px' }}
                                                 >
-                                                    FPT Excel
+                                                    FAP Excel
                                                 </Checkbox>
                                             )
                                         }
@@ -484,7 +731,9 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                                     ))
                                                     : (
                                                         <>
-                                                            <Text># Those record will be ignored, please consider again before continue</Text>
+                                                            <div style={{ marginBottom: 8 }}>
+                                                                <Text># Those record will be ignored, please consider again before continue</Text>
+                                                            </div>
                                                             {
                                                                 (errLogs.length > 0) && (<MessageCard props={errLogs} />)
                                                             }

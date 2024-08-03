@@ -36,6 +36,7 @@ import { ClassDetails } from '../../../models/Class';
 import { ClassService } from '../../../hooks/Class';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../../redux/Store';
+import { IoMdInformation } from 'react-icons/io';
 
 const AdminClass: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
@@ -159,7 +160,7 @@ const AdminClass: React.FC = () => {
     setIsCheck(false);
   };
 
-  const handleUpdate = async () => {};
+  const handleUpdate = async () => { };
 
   const handleCreate = async () => {
     setLoading(true);
@@ -245,6 +246,25 @@ const AdminClass: React.FC = () => {
         </div>
       ),
     },
+    {
+      key: '5',
+      title: 'Info',
+      dataIndex: 'info',
+      render: (classID: number) => (
+        <div>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClick(classID);
+            }}
+            shape="circle"
+            style={{ border: 'none' }}
+          >
+            <span><IoMdInformation size={25}/></span>
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -259,10 +279,10 @@ const AdminClass: React.FC = () => {
       setClassCode('');
     }
   }, [ClassName, SubjectCode]);
-  
+
 
   console.log('code', ClassCode)
-  
+
 
   return (
     <Content className={styles.accountClassContent}>
@@ -311,15 +331,16 @@ const AdminClass: React.FC = () => {
             semestercode: item.semester.semesterCode,
             lecturer: item.lecturer.displayName,
             classStatus: item.classStatus,
+            info: item.classID,
             ID: item.classID,
           }),
         )}
         pagination={{
           showSizeChanger: true,
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.ID),
-        })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.ID),
+        // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Class' : 'Add New Class'}
@@ -335,13 +356,13 @@ const AdminClass: React.FC = () => {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-            // disabled={!isFormValid()}
+          // disabled={!isFormValid()}
           >
             Submit
           </Button>,
         ]}
       >
-        <p className={styles.createClassTitle}>Class Code: {ClassCode}</p>
+        <p className={styles.createClassTitle} style={{ fontSize: '1rem', margin: '5px 0px 10px' }}>Class Code: {ClassCode}</p>
         <p className={styles.createClassTitle}>Class Name</p>
         <Input
           placeholder="Class Name"

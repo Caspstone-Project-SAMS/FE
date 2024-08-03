@@ -42,6 +42,7 @@ export interface StudentDetail {
 export interface FingerprintTemplate {
   fingerprintTemplateID: number;
   status: number;
+  createdAt: string;
 }
 
 export interface EnrolledClasses {
@@ -49,4 +50,19 @@ export interface EnrolledClasses {
   classCode: string;
   classStatus: number;
   absencePercentage: number;
+}
+
+export interface StudentFail {
+  data: {
+    data: {
+      data: {
+        title: string;
+        errors: string[];
+      };
+    };
+  };
+}
+
+export interface StudentFail {
+  title: string;
 }

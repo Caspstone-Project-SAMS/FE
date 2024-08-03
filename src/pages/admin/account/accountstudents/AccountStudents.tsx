@@ -1,33 +1,72 @@
-
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
+import { Button, Card, Col, Input, Layout, message, Row, Table } from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
 import { StudentService } from '../../../../hooks/StudentList';
 import { CiSearch } from 'react-icons/ci';
 import ContentHeader from '../../../../components/header/contentHeader/ContentHeader';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/Store';
 import Excel from '../../../../components/excel/Excel';
-import personIcon from '../../../../assets/imgs/person-icon.jpg';
-import '../../../../assets/styles/styles.less'
+import userIcon from '../../../../assets/imgs/users.png';
+import '../../../../assets/styles/styles.less';
 import { useNavigate } from 'react-router-dom';
+import { IoMdInformation } from 'react-icons/io';
+import {
+  clearStudentMessages,
+  createStudent,
+} from '../../../../redux/slice/Student';
+import { PlusOutlined } from '@ant-design/icons';
+import { DashboardService } from '../../../../hooks/Dashboard';
 
 const { Header: AntHeader } = Layout;
 
 const AccountStudents: React.FC = () => {
-  const response = useSelector((state: RootState) => state.student.initialStudent);
+  const response = useSelector(
+    (state: RootState) => state.student.studentDetail,
+  );
   const [student, setStudent] = useState<Student[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudents, setFilteredStudents] = useState<Student[]>(student);
   const [isUpdate, setIsUpdate] = useState(false);
-  const navigate = useNavigate();
+  //pagination
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(35);
+  const [totalRecords, setTotalRecord] = useState(0);
 
-  const handleRowClick = (studentID: number, isAuthenticated: boolean) => {
-    navigate(`/account-admin/student/student-detail`, { state: { studentID: studentID, isAuthenticated: isAuthenticated } });
+  const [reload, setReload] = useState(0);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCheck, setIsCheck] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [StudentCode, setStudentCode] = useState('');
+  const [DisplayName, setDisplayName] = useState('');
+  const [Email, setEmail] = useState('');
+
+  const failMessage = useSelector((state: RootState) => state.student.message);
+  const successMessage = useSelector(
+    (state: RootState) => state.student.studentDetail?.title,
+  );
+
+  const handleRowClick = (studentID: string) => {
+    navigate(`/account-admin/student/student-detail`, {
+      state: { studentID: studentID },
+    });
   };
 
+  const handlePagination = async (page: number, pageSize: number) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+
+    const studentList = await StudentService.getStudentByPage(page, pageSize);
+    setStudent(studentList || []);
+    setFilteredStudents(studentList || []);
+    // setStudent(studentList);
+    // setFilteredStudents(studentList)
+  }
 
   const columns = [
     {
@@ -66,10 +105,17 @@ const AccountStudents: React.FC = () => {
       key: '6',
       title: 'Info',
       dataIndex: 'info',
-      render: (info: any) => (
+      render: (studentID: string) => (
         <div>
-          <Button shape="circle" style={{ border: 'none' }}>
-            <span>i</span>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClick(studentID);
+            }}
+            shape="circle"
+            style={{ border: 'none' }}
+          >
+            <span><IoMdInformation size={25} /></span>
           </Button>
         </div>
       ),
@@ -78,6 +124,10 @@ const AccountStudents: React.FC = () => {
 
   useEffect(() => {
     const response = StudentService.getAllStudent();
+    const totalStudent = DashboardService.getTotalStudent();
+    totalStudent
+      .then((data) => setTotalRecord(data.data))
+      .catch(err => console.log("Err when get data"))
 
     response
       .then((data) => {
@@ -88,6 +138,20 @@ const AccountStudents: React.FC = () => {
         console.log('get student error: ', error);
       });
   }, []);
+
+  useEffect(() => {
+    if (successMessage) {
+      message.success(successMessage);
+      setReload((prevReload) => prevReload + 1);
+      setIsModalVisible(false);
+      resetModalFields();
+      dispatch(clearStudentMessages());
+    }
+    if (failMessage && failMessage.data) {
+      message.error(`${failMessage.data.data.data.title}`);
+      dispatch(clearStudentMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
 
   const handleSearchStudent = (value: string) => {
     setSearchInput(value);
@@ -102,11 +166,46 @@ const AccountStudents: React.FC = () => {
     setIsUpdate(true);
   };
 
+  const showModalCreate = () => {
+    setIsCheck(false);
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    resetModalFields();
+  };
+
+  const resetModalFields = () => {
+    setIsCheck(false);
+  };
+
+  const handleCreate = async () => {
+    setLoading(true);
+    await createNewStudent(StudentCode, DisplayName, Email);
+    setLoading(false);
+    setIsModalVisible(false);
+    resetModalFields();
+    setReload((prevReload) => prevReload + 1);
+  };
+
+  const createNewStudent = async (
+    StudentCode: string,
+    DisplayName: string,
+    Email: string,
+  ) => {
+    const arg = {
+      StudentCode: StudentCode,
+      DisplayName: DisplayName,
+      Email: Email,
+    };
+    await dispatch(createStudent(arg) as any);
+    setIsCheck(false);
+  };
+
   return (
     <Content className={styles.accountStudentContent}>
-      <div
-        className='align-center-between'
-      >
+      <div className="align-center-between">
         <ContentHeader
           contentTitle="Student"
           previousBreadcrumb={'Home / Account / '}
@@ -118,7 +217,7 @@ const AccountStudents: React.FC = () => {
             onClick={() => {
             }}
           >Download Template</Button> */}
-        <Excel fileType='student' />
+        <Excel fileType="student" />
       </div>
       <Card className={styles.cardHeader}>
         <Content>
@@ -134,35 +233,58 @@ const AccountStudents: React.FC = () => {
                   onChange={(e) => handleSearchStudent(e.target.value)}
                 ></Input>
               </Col>
+              <Col>
+                <Button
+                  onClick={showModalCreate}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
+                  Add New
+                </Button>
+              </Col>
             </Row>
           </AntHeader>
         </Content>
       </Card>
       <Table
         columns={columns}
-        dataSource={(!isUpdate ? student : filteredStudents).map(
-          (item, index) => ({
-            key: index,
-            studentname: (
-              <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <img src={item.avatar || personIcon} alt="Student" className={styles.img} />
-                <p className={styles.studentName}>{item.studentName}</p>
-              </div>
-            ),
-            email: item.email,
-            studentcode: item.studentCode,
-            phone: item.phoneNumber,
-            isAuthenticated: item.isAuthenticated,
-            info: item,
-            ID: item.studentID,
-          }),
-        )}
+        dataSource={(!isUpdate ? student : filteredStudents)
+          .sort((a, b) => {
+            const aAuth = a.isAuthenticated ? 1 : 0;
+            const bAuth = b.isAuthenticated ? 1 : 0;
+            return aAuth - bAuth;
+          })
+          .map(
+            (item, index) => ({
+              key: index,
+              studentname: (
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <img
+                    src={item.avatar || userIcon}
+                    alt="Student"
+                    className={styles.img}
+                  />
+                  <p className={styles.studentName}>{item.studentName}</p>
+                </div>
+              ),
+              email: item.email,
+              studentcode: item.studentCode,
+              phone: item.phoneNumber,
+              isAuthenticated: item.isAuthenticated,
+              info: item.studentID,
+              ID: item.studentID,
+            }),
+          )}
         pagination={{
           showSizeChanger: true,
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalRecords,
+          onChange: handlePagination
         }}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.ID, record.isAuthenticated),
-        })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.ID, record.isAuthenticated),
+      // })}
       ></Table>
     </Content>
   );

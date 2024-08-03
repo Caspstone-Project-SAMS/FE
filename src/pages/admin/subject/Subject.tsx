@@ -43,6 +43,8 @@ const Subject: React.FC = () => {
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
+  console.log('run')
+
   const failMessage = useSelector(
     (state: RootState) => state.subject.subjectDetail,
   );

@@ -1,16 +1,25 @@
 import axios, { AxiosError } from 'axios';
-import { MODULE_API } from '.';
+import { MODULE_API, SET_WIFI_API } from '.';
 import { ActiveModule, Module, ModuleByID } from '../models/module/Module';
 import { useSelector } from 'react-redux';
+import { isRejectedWithValue } from '@reduxjs/toolkit';
 
 interface RegisterMode {
   StudentID: string;
   FingerRegisterMode: number;
 }
 
+interface StopAttendance {
+  ScheduleID: number;
+}
+
 // interface Schedule {
 //   ScheduleID: number;
 // }
+
+interface PrepareAttendance {
+  ScheduleID: number;
+}
 
 const getAllModule = async (): Promise<Module | null> => {
   try {
@@ -50,7 +59,6 @@ const getModuleByEmployeeID = async (
 };
 
 const getModuleByID = async (moduleID: number): Promise<ModuleByID | null> => {
-  console.log(typeof moduleID);
   try {
     const response = await axios.get(`${MODULE_API}/${moduleID}`, {
       headers: {
@@ -106,17 +114,28 @@ const activeModuleMode = async (
   }
 };
 
-const activeModule = async (
+const activeModuleAttendance = async (
   ModuleID: number,
+  SessionId: number,
   Mode: number,
+  PrepareAttendance: PrepareAttendance,
   token: string,
-)=> {
+  // StartAttendance: Schedule,
+  // StopAttendance: Schedule
+) => {
   try {
+    console.log('ModuleID', ModuleID);
+    console.log('Mode', Mode);
+    console.log('PrepareAttendance', PrepareAttendance);
     const response = await axios.post(
       MODULE_API + '/Activate',
       {
         ModuleID,
+        SessionId,
         Mode,
+        PrepareAttendance,
+        // StartAttendance,
+        // StopAttendance
       },
       {
         headers: {
@@ -125,7 +144,70 @@ const activeModule = async (
         },
       },
     );
-    console.log("vvedf", response.data)
+    console.log('asddc', response);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error.message);
+      throw new Error(error.response.data);
+    }
+    console.log('Unexpected error:', error.message);
+    throw new Error(error.message);
+  }
+};
+
+const stopCheckAttendance = async (
+  ModuleID: number,
+  Mode: number,
+  StopAttendance: StopAttendance,
+  token: string,
+  // StartAttendance: Schedule,
+  // StopAttendance: Schedule
+) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        StopAttendance,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('asddc', response);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error.message);
+      throw new Error(error.response.data);
+    }
+    console.log('Unexpected error:', error.message);
+    throw new Error(error.message);
+  }
+};
+
+const activeModule = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        SessionId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('vvedf', response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
@@ -137,10 +219,82 @@ const activeModule = async (
   }
 };
 
+const cancelSession = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        SessionId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('vvedf', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
+const settingModule = async (
+  moduleID: number,
+  AutoPrepare: boolean,
+  PreparedTime: string,
+  token: string,
+) => {
+  try {
+    const response = await axios.put(
+      `${MODULE_API}/${moduleID}`,
+      {
+        AutoPrepare,
+        PreparedTime,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
+const setUpWifi = async (ssid: string, pass: string) => {
+  return await axios.post(SET_WIFI_API, {
+    ssid,
+    pass,
+  });
+};
+
 export const ModuleService = {
   getModuleByEmployeeID,
   activeModuleMode,
   getAllModule,
   getModuleByID,
   activeModule,
+  cancelSession,
+  setUpWifi,
+  activeModuleAttendance,
+  stopCheckAttendance,
+  settingModule,
 };

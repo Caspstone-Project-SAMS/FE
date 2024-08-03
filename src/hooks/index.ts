@@ -24,6 +24,7 @@ export const SUBJECT_API = `${server}/Subject`;
 
 //Module
 export const MODULE_API = `${server}/Module`;
+export const SET_WIFI_API = `http://192.168.4.1/connect-to`;
 
 //Slot
 export const SLOT_API = `${server}/Slot`;
@@ -35,7 +36,19 @@ export const EMPLOYEE_API = `${server}/Employee`;
 export const DOWNLOAD_TEMPLATE_API = `${server}/DownloadTemplate`;
 
 //Student attendance
-export const STUDENT_ATTENDANCE = `${server}/Attendance/all`
+export const STUDENT_ATTENDANCE = `${server}/Attendance/all`;
+
+//Session
+export const SESSION_API = `${server}/Session`;
+
+//Notification
+export const NOTIFICATION_API = `${server}/Notification`;
+
+//Dashboard
+export const DASHBOARD_API = `${server}/Dashboard`;
+
+//Import Schedules Image
+export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`
 
 //Google
 export const GET_GG_USER_INFO =

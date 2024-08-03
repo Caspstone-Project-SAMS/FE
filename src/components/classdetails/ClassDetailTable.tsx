@@ -2,7 +2,7 @@ import styles from './ClassDetail.module.less';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { RadioChangeEvent, TableProps } from 'antd';
-import { Layout, Table, Typography, Skeleton, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
+import { Layout, Table, Typography, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
 import Search from 'antd/es/input/Search';
 import { Content } from 'antd/es/layout/layout';
 import { IoIosCheckmark } from 'react-icons/io';
@@ -12,17 +12,22 @@ import { BiCalendarEdit } from "react-icons/bi";
 
 import { AttendanceService } from '../../hooks/Attendance';
 import { Attendance, UpdateListAttendance } from '../../models/attendance/Attendance';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 const { Header: AntHeader } = Layout;
 
 type props = {
-  scheduleID: string
+  scheduleID: string,
+  isOkOpen: boolean
 }
 type ColumnsType<T> = TableProps<T>['columns'];
 
 let socket
 
-const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
+const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
+
+  const userToken = useSelector((state: RootState) => state.auth.userDetail?.token)
 
   //web socket
   const [change, setChange] = useState('any');
@@ -42,48 +47,70 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   };
 
   function activeWebSocket() {
-    socket = new WebSocket("http://34.81.224.196/ws");
-    socket.onopen = function (event) {
-      console.log('Connecteed');
-      // setInformation("Connected");
-    };
+    if (userToken) {
+      socket = new WebSocket("ws://34.81.224.196/ws/client", ["access_token", userToken]);
+      socket.onopen = function (event) {
+        console.log('Connecteed in herrrrrrrrrrrr brbrbr');
+        // setInformation("Connected");
+      };
 
-    socket.onclose = function (event) {
-      console.log("Connection closed");
-      console.log(event);
-    };
+      socket.onclose = function (event) {
+        console.log("Connection closed");
+        console.log(event);
+      };
 
-    socket.onmessage = function (event) {
-      const message = JSON.parse(event.data);
-      console.log("mess message event*", message.Event);
-      console.log("mess message Data*", message.Data);
-      switch (message.Event) {
-        case "statusChange":
-          {
-            const data = JSON.parse(message.Data);
-            console.log("case status change", data.studentID, data.status)
+      socket.onmessage = function (event) {
+        console.log("Event coming", event);
 
-            const elementId = `attendanceStatus-${data.studentID}`;
-            const element = document.getElementById(`attendanceStatus-${data.studentID}`);
-
-            if (element) {
-              element.innerHTML = 'Attended'
-              element.style.color = 'green'
-            }
-
-            const newOne = studentList.map(item => {
-              if (item.studentID == data.studentID) {
-                item.attendanceStatus = data.status
-                return item
+        const message = JSON.parse(event.data);
+        console.log("mess message event*", message.Event);
+        console.log("mess message Data*", message.Data);
+        switch (message.Event) {
+          case "StudentAttended":
+            {
+              //new
+              const studentIDs = message.Data.studentIDs
+              console.log("studentIDS ", studentIDs);
+              if (Array.isArray(studentIDs)) {
+                console.log("Im in the arr ",);
+                studentIDs.map(item => {
+                  console.log("On update item ", item);
+                  const element = document.getElementById(`attendanceStatus-${item}`);
+                  if (element) {
+                    element.innerHTML = 'Attended';
+                    element.style.color = 'green';
+                  }
+                })
               }
-              return item
-            })
-            console.log("The prev one ", studentList);
-            console.log("The Edited one ", newOne);
-          }
-          break;
-      }
-    };
+
+              //old
+              // const data = JSON.parse(message.Data);
+              // console.log("case status change", data.studentID, data.status, studentIDs)
+
+              // const elementId = `attendanceStatus-${data.studentID}`;
+              // const element = document.getElementById(`attendanceStatus-${data.studentID}`);
+
+              // if (element) {
+              //   element.innerHTML = 'Attended';
+              //   element.style.color = 'green';
+              // }
+
+              // const newOne = studentList.map(item => {
+              //   if (item.studentID == data.studentID) {
+              //     item.attendanceStatus = data.status
+              //     return item
+              //   }
+              //   return item
+              // })
+              // console.log("The prev one ", studentList);
+              // console.log("The Edited one ", newOne);
+            }
+            break;
+          default:
+            break;
+        }
+      };
+    }
   }
 
   const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {
@@ -147,11 +174,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
       render: ((value, record: Attendance, index: number) => {
         return (
           <div key={`avar_${index}`}>
-            <Avatar src={
-              <Image
-                // width={300}
-                src={record.image ? record.image : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
-              />}
+            <Avatar
+              src={
+                <Image
+                  // width={300}
+                  src={record.avatar ? record.avatar : 'https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?t=st=1718108394~exp=1718111994~hmac=133f803dd1192a01c2db5decc8c445321e7376559b5c19f03028cc2ef0c73d4a&w=740'}
+                />}
             />
             {record.studentName}
           </div>
@@ -301,12 +329,19 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID }) => {
   }, [])
 
   useEffect(() => {
-    activeWebSocket();
+    if (isOkOpen) {
+      activeWebSocket();
 
-    return () => {
-      socket.close();
-    };
-  }, [])
+      return () => {
+        socket.close();
+      };
+    }
+    // activeWebSocket();
+
+    // return () => {
+    //   socket.close();
+    // };
+  }, [isOkOpen])
 
   // useEffect(() => {
   //   console.log("Change ", updatedList);

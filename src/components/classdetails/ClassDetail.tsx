@@ -1,11 +1,16 @@
 import { Card, Row, Col, Button } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ClassDetail.module.less';
 import ClassDetailTable from './ClassDetailTable';
 import { IoIosFingerPrint } from 'react-icons/io';
 import { VscChecklist } from 'react-icons/vsc';
 import modules from '../../assets/imgs/module.png';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { ModuleDetail } from '../../models/module/Module';
+import { ModuleService } from '../../hooks/Module';
 
+//code cu
 const ClassDetail: React.FC = () => {
   const classDetails = [
     { label: 'Class', value: 'NJS1601' },
@@ -13,6 +18,31 @@ const ClassDetail: React.FC = () => {
     { label: 'Room', value: '404' },
     { label: 'Slot / time', value: '1 / 8:00 am - 9:00 am' },
   ];
+
+  const [moduleDetail, setModuleDetail] = useState<ModuleDetail[]>([]);
+
+
+  const employeeID = useSelector(
+    (state: RootState) => state.auth.userDetail?.result?.employeeID,
+  );
+
+  const token = useSelector(
+    (state: RootState) => state.auth.userDetail?.token ?? '',
+  );
+
+  console.log('module', moduleDetail)
+
+  useEffect(() => {
+    const response = ModuleService.getModuleByEmployeeID(employeeID ?? '');
+
+    response
+      .then((data) => {
+        setModuleDetail(data?.result || []);
+      })
+      .catch((error) => {
+        console.log('get module by id error: ', error);
+      });
+  }, [employeeID]);
 
   return (
     <Row className={styles.classDetailsHeader} gutter={[16, 16]}>
@@ -39,10 +69,10 @@ const ClassDetail: React.FC = () => {
 
               <Row className={styles.rowDetails}>
                 <Col span={10}>
-                  <text style={{fontSize:20}}>{detail.label}</text>
+                  <text style={{ fontSize: 20 }}>{detail.label}</text>
                 </Col>
                 <Col>
-                  <text style={{ fontWeight: 500, color: '#667085', fontSize:20 }}>
+                  <text style={{ fontWeight: 500, color: '#667085', fontSize: 20 }}>
                     {detail.value}
                   </text>
                 </Col>
@@ -59,10 +89,10 @@ const ClassDetail: React.FC = () => {
 
             <Row className={styles.rowDetails}>
               <Col span={10}>
-                <text style={{fontSize:20}} >Class status</text>
+                <text style={{ fontSize: 20 }} >Class status</text>
               </Col>
               <Col>
-                <text style={{ color: 'green', fontWeight: 500, fontSize:20 }}>
+                <text style={{ color: 'green', fontWeight: 500, fontSize: 20 }}>
                   On going
                 </text>
               </Col>
@@ -197,10 +227,10 @@ const ClassDetail: React.FC = () => {
                 }}
               >
                 <Button className={styles.btnConnect}>
-                  <text style={{fontWeight:500, fontSize:20}}>Connect</text>
+                  <text style={{ fontWeight: 500, fontSize: 20 }}>Connect</text>
                 </Button>
                 <Button className={styles.btnDisconnect}>
-                  <text style={{fontWeight:500, fontSize:20}}>Disconnect</text>
+                  <text style={{ fontWeight: 500, fontSize: 20 }}>Disconnect</text>
                 </Button>
               </Col>
               <Col style={{ display: 'flex', justifyContent: 'center' }}>

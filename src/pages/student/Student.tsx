@@ -83,7 +83,17 @@ const Student: React.FC = () => {
     {
       title: 'Semesters',
       dataIndex: 'semesterCode',
-      key: 'code',
+      key: '1',
+    },
+    {
+      title: 'Start date',
+      dataIndex: 'startDate',
+      key: '2',
+    },
+    {
+      title: 'End date',
+      dataIndex: 'endDate',
+      key: '3',
     },
   ];
 
