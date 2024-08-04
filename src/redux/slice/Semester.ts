@@ -20,22 +20,22 @@ const createSemester = createAsyncThunk(
   async (
     arg: {
       SemesterCode: string;
-      SemesterStatus: boolean;
+      SemesterStatus: number;
       StartDate: string;
       EndDate: string;
-      CreatedBy: string;
+      // CreatedBy: string;
     },
     { rejectWithValue },
   ) => {
     try {
-      const { SemesterCode, SemesterStatus, StartDate, EndDate, CreatedBy } =
+      const { SemesterCode, SemesterStatus, StartDate, EndDate } =
         arg;
       const createSemesterResponse = await SemesterService.createSemester(
         SemesterCode,
         SemesterStatus,
         StartDate,
         EndDate,
-        CreatedBy,
+        // CreatedBy,
       );
       return createSemesterResponse;
     } catch (error) {
@@ -60,7 +60,7 @@ const updateSemester = createAsyncThunk(
   async (
     arg: {
       SemesterCode: string;
-      SemesterStatus: boolean;
+      SemesterStatus: number;
       StartDate: string;
       EndDate: string;
       semesterID: number;

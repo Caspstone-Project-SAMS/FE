@@ -1,6 +1,6 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Card, Layout, Table } from 'antd';
+import { Card, Layout, Table, Tag } from 'antd';
 import styles from './Slot.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { useNavigate } from 'react-router-dom';
@@ -35,10 +35,13 @@ const Slot: React.FC = () => {
       dataIndex: 'slotstatus',
       render: (status: boolean) => (
         <div>
-          <p style={{ color: status ? 'green' : 'red' }}>
-            {status ? 'true' : 'false'}
-          </p>
-        </div>
+        <Tag 
+          color={status ? 'green' : 'red'} 
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {status ? 'active' : 'inactive'}
+        </Tag>
+      </div>
       ),
     },
     {

@@ -1,10 +1,9 @@
-import axios, { Axios, AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { DOWNLOAD_TEMPLATE_API, STUDENT_API } from '.';
 import { Student, StudentDetail } from '../models/student/Student';
 import toast from 'react-hot-toast';
 import { HelperService } from './helpers/helperFunc';
 import { ExcelClassList } from '../models/Class';
-import { isRejectedWithValue } from '@reduxjs/toolkit';
 
 type StudentList = {
   studentCode: string;
@@ -80,27 +79,33 @@ const createStudent = async (
   try {
     const response = await axios.post(
       STUDENT_API,
-      {
-        StudentCode,
-        DisplayName,
-        Email,
-      },
+      [
+        {
+          StudentCode,
+          DisplayName,
+          Email,
+        }
+      ],
       {
         headers: {
-          'Content-Type': 'application/json',
+          'accept': '*/*',
+          'Content-Type': 'application/json-patch+json',
         },
-      },
+      }
     );
     console.log(response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('abccccccccc', error.message);
+      console.error('Error:', error.message);
       throw new AxiosError(error.response);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
     }
-    return isRejectedWithValue(error.message);
   }
 };
+
 
 const downloadTemplateExcel = async () => {
   try {

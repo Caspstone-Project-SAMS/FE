@@ -21,18 +21,18 @@ const createSubject = createAsyncThunk(
     arg: {
       SubjectCode: string;
       SubjectName: string;
-      SubjectStatus: boolean;
-      CreateBy: string;
+      SubjectStatus: number;
+      // CreateBy: string;
     },
     { rejectWithValue },
   ) => {
     try {
-      const { SubjectCode, SubjectName, SubjectStatus, CreateBy } = arg;
+      const { SubjectCode, SubjectName, SubjectStatus } = arg;
       const createSubjectResponse = await SubjectService.createSubject(
         SubjectCode,
         SubjectName,
         SubjectStatus,
-        CreateBy,
+        // CreateBy,
       );
       console.log('subject test ', createSubjectResponse);
       return createSubjectResponse;

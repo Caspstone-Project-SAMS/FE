@@ -72,6 +72,7 @@ const AccountStudentsDetail: React.FC = () => {
   const [isModalVisibleModule, setIsModalVisibleModule] = useState(false);
   const [progressStep1, setProgressStep1] = useState(0);
   const [progressStep2, setProgressStep2] = useState(0);
+  const [updatedFinger, setUpdatedFinger] = useState<number[]>([]);
   const [timeoutIds, setTimeoutIds] = useState<number[]>([]);
   const [module, setModule] = useState<Module>();
   const [moduleByID, setModuleByID] = useState<ModuleDetail>();
@@ -95,7 +96,6 @@ const AccountStudentsDetail: React.FC = () => {
   const [connectionStatusFilter, setConnectionStatusFilter] = React.useState<
     number | undefined
   >(undefined);
-
   const [searchModuleID, setSearchModuleID] = useState<number | undefined>(
     undefined,
   );
@@ -103,6 +103,13 @@ const AccountStudentsDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
+
+  const [fingerOne, setFingerOne] = useState(false);
+  const [fingerTwo, setFingerTwo] = useState(false);
+
+  const [selectedFingers, setSelectedFingers] = useState<number[]>([]);
+
+  const [haveFinger, sethaveFinger] = useState(false);
 
   const failMessage = useSelector((state: RootState) => state.module.message);
   const successMessage = useSelector(
@@ -142,11 +149,44 @@ const AccountStudentsDetail: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
-      console.log("testttt");
     } catch (error) {
       console.log('error at auto connect module', error);
     }
   }, [moduleID, token, dispatch]);
+
+  const checkFingerID = useCallback(
+    async (fingerId: number) => {
+      console.log('okkkkkkkkkkkkkkkkkkk', selectedFingers);
+      try {
+        if (fingerTwo === true) {
+          if (selectedFingers.length === 2) {
+            if (selectedFingers.includes(fingerId)) {
+              setProgressStep1(3);
+              setProgressStep2(1);
+              setSelectedFingers(selectedFingers.filter((f) => f !== fingerId));
+            }
+          }
+          if (selectedFingers.length === 1) {
+            if (selectedFingers.includes(fingerId)) {
+              setProgressStep1(3);
+              setProgressStep2(3);
+              setSelectedFingers(selectedFingers.filter((f) => f !== fingerId));
+            }
+          }
+        } else if (fingerOne === true) {
+          if (selectedFingers.length === 1) {
+            if (selectedFingers.includes(fingerId)) {
+              setProgressStep1(3);
+              setSelectedFingers(selectedFingers.filter((f) => f !== fingerId));
+            }
+          }
+        }
+      } catch (error) {
+        console.log('error at auto connect module', error);
+      }
+    },
+    [selectedFingers],
+  );
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -158,8 +198,6 @@ const AccountStudentsDetail: React.FC = () => {
     },
     [moduleDetail],
   );
-
-  console.log('id', moduleID)
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -189,6 +227,17 @@ const AccountStudentsDetail: React.FC = () => {
           }
           break;
         }
+        case 'UpdateFingerSuccessfully': {
+          const data = message.Data;
+          const sessionId = data.SessionID;
+          const studentId = data.StudentID;
+          const fingerId = data.FingerID;
+          console.log('sessionID', sessionID);
+          checkFingerID(fingerId);
+          console.log('finger', selectedFingers);
+
+          break;
+        }
         case 'ModuleConnected': {
           const data = message.Data;
           const moduleId = data.ModuleId;
@@ -197,15 +246,14 @@ const AccountStudentsDetail: React.FC = () => {
             const specificModule = moduleDetail.find(
               (module) => module.moduleID === moduleId,
             );
-            autoConnectModule().then(() => {
-              setModuleByID(specificModule as ModuleDetail | undefined);
-              setModuleStatus(false);
-
-              console.log('run');
-            }).catch((error) => {
-
-              console.log('Error in autoConnectModule:', error);
-            });
+            autoConnectModule()
+              .then(() => {
+                setModuleByID(specificModule as ModuleDetail | undefined);
+                setModuleStatus(false);
+              })
+              .catch((error) => {
+                console.log('Error in autoConnectModule:', error);
+              });
           }
           setModuleDetail([...moduleDetail]);
           break;
@@ -219,15 +267,14 @@ const AccountStudentsDetail: React.FC = () => {
             const specificModule = moduleDetail.find(
               (module) => module.moduleID === moduleId,
             );
-            autoConnectModule().then(() => {
-              setModuleByID(specificModule as ModuleDetail | undefined);
-              setModuleStatus(false);
-
-              console.log('run');
-            }).catch((error) => {
-
-              console.log('Error in autoConnectModule:', error);
-            });
+            autoConnectModule()
+              .then(() => {
+                setModuleByID(specificModule as ModuleDetail | undefined);
+                setModuleStatus(false);
+              })
+              .catch((error) => {
+                console.log('Error in autoConnectModule:', error);
+              });
           }
           setModuleDetail([...moduleDetail]);
 
@@ -237,6 +284,15 @@ const AccountStudentsDetail: React.FC = () => {
 
           break;
         }
+        case 'CancelSession': {
+          setModuleID(0);
+          setStatus('');
+          setModuleByID(undefined);
+          setIsActiveModule(false);
+          setSessionID(0);
+          break;
+        }
+
         default: {
           console.log('Undefined Event!');
           break;
@@ -255,7 +311,17 @@ const AccountStudentsDetail: React.FC = () => {
     return () => {
       ws.close();
     };
-  }, [token, studentID, moduleDetail, modifyModuleConnection, autoConnectModule, moduleID]);
+  }, [
+    token,
+    studentID,
+    moduleDetail,
+    modifyModuleConnection,
+    autoConnectModule,
+    moduleID,
+    sessionID,
+    selectedFingers,
+    checkFingerID,
+  ]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -275,9 +341,6 @@ const AccountStudentsDetail: React.FC = () => {
     //   isAuthenticated: true,
     // },
   ];
-
-
-
 
   useEffect(() => {
     if (studentID !== '') {
@@ -355,32 +418,78 @@ const AccountStudentsDetail: React.FC = () => {
     };
 
     try {
-      const data = await ModuleService.activeModuleMode(moduleID, 1, SessionId, RegisterMode, token);
+      const data = await ModuleService.activeModuleModeRegister(
+        moduleID,
+        1,
+        SessionId,
+        RegisterMode,
+        token,
+      );
       console.log('Response data:', data);
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+  // const activeModuleUpdateThree = async (
+  //   moduleID: number,
+  //   SessionId: number,
+  //   registerMode: number,
+  // ): Promise<void> => {
+  //   const RegisterMode = {
+  //     StudentID: studentID,
+  //     FingerRegisterMode: registerMode,
+  //   };
 
-  const activeModuleUpdateThree = async (
+  //   try {
+  //     const data = await ModuleService.activeModuleMode(
+  //       moduleID,
+  //       8,
+  //       SessionId,
+  //       RegisterMode,
+  //       token,
+  //     );
+  //     console.log('Response data:', data);
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
+
+  const activeModuleUpdateFinger = async (
     moduleID: number,
     SessionId: number,
-    registerMode: number,
+    selectedFinger: number[],
   ): Promise<void> => {
-    const RegisterMode = {
+    let finger1 = null;
+    let finger2 = null;
+
+    if (selectedFinger[0] !== undefined) {
+      finger1 = selectedFinger[0];
+    }
+    if (selectedFinger[1] !== undefined) {
+      finger2 = selectedFinger[1];
+    }
+    const UpdateMode = {
       StudentID: studentID,
-      FingerRegisterMode: registerMode,
+      FingerprintTemplateId1: finger1,
+      FingerprintTemplateId2: finger2,
     };
 
+    console.log('updateeeeeeeeeee', UpdateMode);
+
     try {
-      const data = await ModuleService.activeModuleMode(moduleID, 8, SessionId, RegisterMode, token);
+      const data = await ModuleService.activeModuleModeUpdate(
+        moduleID,
+        8,
+        SessionId,
+        UpdateMode,
+        token,
+      );
       console.log('Response data:', data);
     } catch (error) {
       console.error('Error:', error);
     }
   };
-
 
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
@@ -437,7 +546,7 @@ const AccountStudentsDetail: React.FC = () => {
 
   const LoadingIndicator = () => (
     <span className="loading-spinner">
-      <Spin size="medium" />
+      <Spin size="large" />
     </span>
   );
 
@@ -523,7 +632,6 @@ const AccountStudentsDetail: React.FC = () => {
     }
   };
 
-
   const showModalUpdate = async () => {
     setDisable(true);
     setIsUpdatePressed(true);
@@ -541,7 +649,7 @@ const AccountStudentsDetail: React.FC = () => {
       if (modalContinue === false) {
         setProgressStep1(1);
         try {
-          await activeModuleUpdateThree(moduleID, sessionID, 3);
+          await activeModuleUpdateFinger(moduleID, sessionID, selectedFingers);
           setIsModalVisible(true);
           setDisable(false);
           setIsActiveModule(true);
@@ -553,20 +661,13 @@ const AccountStudentsDetail: React.FC = () => {
         setIsModalVisible(true);
         setDisable(false);
       }
-
     } catch (error) {
       console.error('Error in showModalUpdate:', error);
     }
   };
 
-
   const showModalModule = () => {
     setIsModalVisibleModule(true);
-  };
-
-  const clearTimeouts = () => {
-    timeoutIds.forEach((id) => clearTimeout(id));
-    setTimeoutIds([]);
   };
 
   const handleOk = () => {
@@ -582,14 +683,26 @@ const AccountStudentsDetail: React.FC = () => {
     setIsModalVisibleModule(false);
   };
 
+  useEffect(() => {
+    localStorage.setItem('moduleID', moduleID.toString());
+    localStorage.setItem('sessionID', sessionID.toString());
+    localStorage.setItem('token', token.toString());
+  }, [moduleID, sessionID, token]);
+
   const handleResetModule = async () => {
+    const moduleID = Number(localStorage.getItem('moduleID'));
+    const sessionID = Number(localStorage.getItem('sessionID'));
+    const token = localStorage.getItem('token');
     try {
       const response = await ModuleService.cancelSession(
         moduleID,
         2,
         sessionID,
-        token,
+        token ?? '',
       );
+      localStorage.removeItem('moduleID');
+      localStorage.removeItem('sessionID');
+      localStorage.removeItem('token');
       return response;
     } catch (error) {
       console.log(error);
@@ -610,7 +723,6 @@ const AccountStudentsDetail: React.FC = () => {
         sessionID,
         token,
       );
-
 
       // setModuleID(0);
       // setStatus('');
@@ -640,9 +752,9 @@ const AccountStudentsDetail: React.FC = () => {
     }
   };
 
-  console.log('modal continue', modalContinue)
-  console.log('actibe module', isActiveModule)
-  console.log('session', sessionID)
+  console.log('modal continue', modalContinue);
+  console.log('actibe module', isActiveModule);
+  console.log('session', sessionID);
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -650,7 +762,7 @@ const AccountStudentsDetail: React.FC = () => {
     setIsActiveModule(false);
   };
 
-  console.log('active', isActiveModule)
+  console.log('active', isActiveModule);
 
   const handleCancelModule = () => {
     setIsModalVisibleModule(false);
@@ -709,6 +821,25 @@ const AccountStudentsDetail: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  const fingerSelected = (fingerID: number) => {
+    let newFingers;
+    if (selectedFingers.includes(fingerID)) {
+      newFingers = selectedFingers.filter((fingerId) => fingerId !== fingerID);
+    } else {
+      newFingers = [...selectedFingers, fingerID];
+    }
+    setSelectedFingers(newFingers);
+    sethaveFinger(newFingers.length > 0);
+    if (newFingers.length === 1) {
+      setFingerOne(true);
+    } else if (newFingers.length === 2) {
+      setFingerTwo(true);
+    } else if (newFingers.length === 0) {
+      setFingerOne(false);
+      setFingerTwo(false);
+    }
+  };
+
   return (
     <Content className={styles.accountStudentContent}>
       <ContentHeader
@@ -745,7 +876,8 @@ const AccountStudentsDetail: React.FC = () => {
                           isActiveModule ||
                           !moduleID ||
                           status === 'fail' ||
-                          !sessionID || disable
+                          !sessionID ||
+                          disable
                         }
                       >
                         <p>Register Fingerprints</p>
@@ -785,8 +917,8 @@ const AccountStudentsDetail: React.FC = () => {
                               {moduleByID?.status === 1
                                 ? 'Available'
                                 : moduleByID?.status === 0
-                                  ? 'Unavailable'
-                                  : ''}
+                                ? 'Unavailable'
+                                : ''}
                             </p>
                           </span>
                           <span>
@@ -814,8 +946,8 @@ const AccountStudentsDetail: React.FC = () => {
                               {moduleByID?.mode === 1
                                 ? 'Register'
                                 : moduleByID?.mode === 2
-                                  ? 'Attendance'
-                                  : ''}
+                                ? 'Attendance'
+                                : ''}
                             </p>
                           </span>
                         </div>
@@ -918,7 +1050,7 @@ const AccountStudentsDetail: React.FC = () => {
                                 (item) =>
                                   (connectionStatusFilter === undefined ||
                                     item.connectionStatus ===
-                                    connectionStatusFilter) &&
+                                      connectionStatusFilter) &&
                                   (searchModuleID === undefined ||
                                     item.moduleID === searchModuleID),
                               )
@@ -932,10 +1064,11 @@ const AccountStudentsDetail: React.FC = () => {
                                     handleModuleClick(item.moduleID, item)
                                   }
                                   key={index}
-                                  className={`${styles.unselectedModule} ${moduleID === item.moduleID
-                                    ? styles.selectedModule
-                                    : ''
-                                    }`}
+                                  className={`${styles.unselectedModule} ${
+                                    moduleID === item.moduleID
+                                      ? styles.selectedModule
+                                      : ''
+                                  }`}
                                   disabled={isActiveModule || modalContinue}
                                 >
                                   <Row>
@@ -1014,7 +1147,17 @@ const AccountStudentsDetail: React.FC = () => {
                   <Row gutter={[5, 5]}>
                     {studentFinger.map((item, index) => (
                       <Col span={12}>
-                        <Card>
+                        <Card
+                          onClick={() =>
+                            fingerSelected(item.fingerprintTemplateID)
+                          }
+                          key={index}
+                          className={
+                            selectedFingers.includes(item.fingerprintTemplateID)
+                              ? styles.selectedFinger
+                              : styles.unselectedFinger
+                          }
+                        >
                           <Row>
                             <Row>
                               <BsFingerprint size={30} />
@@ -1028,15 +1171,15 @@ const AccountStudentsDetail: React.FC = () => {
                                       item.status === 1
                                         ? 'green'
                                         : item.status === 2
-                                          ? 'red'
-                                          : 'inherit',
+                                        ? 'red'
+                                        : 'inherit',
                                   }}
                                 >
                                   {item.status === 1
                                     ? 'Available'
                                     : item.status === 2
-                                      ? 'Unavailable'
-                                      : ''}
+                                    ? 'Unavailable'
+                                    : ''}
                                 </span>
                               </Row>
                               <Row style={{ gap: '4px' }}>
@@ -1055,6 +1198,28 @@ const AccountStudentsDetail: React.FC = () => {
                             </Row>
                           </Row>
                         </Card>
+                        {/* <Button
+                          disabled={
+                            isActiveModule ||
+                            !moduleID ||
+                            status === 'fail' ||
+                            !sessionID ||
+                            disable
+                          }
+                          onClick={() => {
+                            if (index === 0) {
+                              setFingerTwo(null);
+                              setFingerOne(item.fingerprintTemplateID);
+                            } else if (index === 1) {
+                              setFingerOne(null);
+                              setFingerTwo(item.fingerprintTemplateID);
+                            }
+                            showModalUpdate();
+                          }}
+                          style={{ width: ' 100%', marginTop: 5 }}
+                        >
+                          Update Fingerprint {index + 1}
+                        </Button> */}
                       </Col>
                     ))}
                   </Row>
@@ -1063,7 +1228,12 @@ const AccountStudentsDetail: React.FC = () => {
                   <Row>
                     <Button
                       disabled={
-                        isActiveModule || !moduleID || status === 'fail' || !sessionID || disable
+                        isActiveModule ||
+                        !moduleID ||
+                        status === 'fail' ||
+                        !sessionID ||
+                        disable ||
+                        !haveFinger
                       }
                       onClick={() => showModalUpdate()}
                       style={{ width: ' 100%', marginTop: 5 }}
@@ -1148,8 +1318,8 @@ const AccountStudentsDetail: React.FC = () => {
           isRegisterPressed
             ? 'Register Fingerprint'
             : isUpdatePressed
-              ? 'Update Fingerprint'
-              : 'Fingerprint Registration'
+            ? 'Update Fingerprint'
+            : 'Fingerprint Registration'
         }
         visible={isModalVisible}
         onOk={handleOk}

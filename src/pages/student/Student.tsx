@@ -107,6 +107,17 @@ const Student: React.FC = () => {
 
   const attendanceColumns = [
     {
+      title: 'Slot',
+      key: 'slot',
+      dataIndex: 'slot',
+      render: (_, record) => {
+        const slot = studentAttendance?.result.find(
+          (attendance) => attendance.slot.slotNumber === record.key
+        )?.slot?.slotNumber;
+        return slot ?? 'N/A';
+      },
+    },
+    {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',

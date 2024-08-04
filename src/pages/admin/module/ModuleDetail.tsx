@@ -7,21 +7,17 @@ import {
   Space,
   Typography,
   Tabs,
-  Skeleton,
-  Divider,
   List,
   Collapse,
   Progress,
   message,
   Radio,
-  DatePicker,
   Button,
   TimePicker,
 } from 'antd';
 import dayjs from 'dayjs';
 import { Content } from 'antd/es/layout/layout';
 import { useLocation } from 'react-router-dom';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { SettingOutlined, HistoryOutlined } from '@ant-design/icons';
 import styles from './Module.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
@@ -40,7 +36,6 @@ import {
   clearModuleMessages,
   settingModules,
 } from '../../../redux/slice/Module';
-import moment from 'moment';
 
 const { Header: AntHeader } = Layout;
 const { TabPane } = Tabs;
@@ -84,21 +79,34 @@ const ModuleDetail: React.FC = () => {
   console.log('schedule', schedule);
 
   const autoPrepareStatus = module?.result.autoPrepare;
+  const status = module?.result.status;
+  const mode = module?.result.mode;
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID },
     { title: 'Employee', value: module?.result.employee.displayName },
-    { title: 'Mode', value: module?.result.mode },
+    {
+      title: 'Mode',
+      value: (
+        <span style={{ color: mode === 1 ? 'green' : 'blue' }}>
+          {mode === 1 ? 'Register' : 'Attendance'}
+        </span>
+      ),
+    },
     {
       title: 'Status',
-      value: module?.result.status ? 'active' : 'inactive',
+      value: (
+        <span style={{ color: status ? 'green' : 'red' }}>
+          {status ? 'active' : 'inactive'}
+        </span>
+      ),
       status: true,
     },
     {
       title: 'Auto Prepare',
       value: (
         <span style={{ color: autoPrepareStatus ? 'green' : 'red' }}>
-          {autoPrepareStatus ? 'true' : 'false'}
+          {autoPrepareStatus ? 'Auto' : 'Not auto'}
         </span>
       ),
     },
@@ -133,7 +141,6 @@ const ModuleDetail: React.FC = () => {
     }
   }, [moduleID, reload]);
 
-
   const getScheduleByID = async (scheduleID: number) => {
     try {
       const response = await CalendarService.getScheduleByID(scheduleID);
@@ -161,7 +168,7 @@ const ModuleDetail: React.FC = () => {
 
   const handleSubmit = async () => {
     await settingModule(moduleID, AutoPrepare, PreparedTime, token);
-    setReload((prev) => (prev) + 1);
+    setReload((prev) => prev + 1);
   };
 
   const handlePanelChange = (key: string | string[]) => {
@@ -237,17 +244,7 @@ const ModuleDetail: React.FC = () => {
                               {detail.title}
                             </td>
                             <td>
-                              <p
-                                style={{
-                                  color: detail.status
-                                    ? detail.value === 'true'
-                                      ? 'green'
-                                      : 'red'
-                                    : 'inherit',
-                                }}
-                              >
-                                {detail.value}
-                              </p>
+                              <p>{detail.value}</p>
                             </td>
                           </tr>
                         ))}
@@ -281,8 +278,8 @@ const ModuleDetail: React.FC = () => {
                       className={styles.radioGroup}
                       optionType="button"
                     >
-                      <Radio value={true}>true</Radio>
-                      <Radio value={false}>false</Radio>
+                      <Radio value={true}>Yes</Radio>
+                      <Radio value={false}>No</Radio>
                     </Radio.Group>
                   </div>
                   <div className={styles.settingItem}>
@@ -385,6 +382,54 @@ const ModuleDetail: React.FC = () => {
                               />
                               <div>Additional Content</div> */}
                             <div style={{ width: '60%' }}>
+                              <div
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  backgroundColor: '#f5f5f5',
+                                  borderRadius: '5px',
+                                  padding: '5px 10px',
+                                  fontSize: '14px',
+                                  color: '#333',
+                                  border: '1px solid #ddd',
+                                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  {item.preparationTask.uploadedFingers}
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    color: '#108ee9',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  /
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  {item.preparationTask.totalFingers}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: '12px',
+                                    color: '#555',
+                                  }}
+                                >
+                                  Fingers
+                                </span>
+                              </div>
+                              <br/>
                               <b>{item.title}</b>
                               <p>{item.description}</p>
                               <p>

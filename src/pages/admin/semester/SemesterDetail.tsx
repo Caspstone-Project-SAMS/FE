@@ -5,6 +5,7 @@ import {
   Layout,
   Row,
   Table,
+  Tag,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
@@ -35,7 +36,11 @@ const SemesterDetail: React.FC = () => {
     { title: 'Semester Code', value: semester?.result.semesterCode },
     {
       title: 'Status',
-      value: semester?.result.semesterStatus ? 'active' : 'inactive',
+      value: semester?.result.semesterStatus ? (
+        <Tag color="green">Active</Tag>
+      ) : (
+        <Tag color="red">Inactive</Tag>
+      ),
       isAuthenticated: true,
     },
     { title: 'Start Date', value: semester?.result.startDate },
@@ -92,10 +97,13 @@ const SemesterDetail: React.FC = () => {
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-          <p style={{ color: classStatus ? 'green' : 'red' }}>
-            {classStatus ? 'active' : 'inactive'}
-          </p>
-        </div>
+        <Tag 
+          color={classStatus ? 'green' : 'red'} 
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {classStatus ? 'active' : 'inactive'}
+        </Tag>
+      </div>
       ),
     },
   ];

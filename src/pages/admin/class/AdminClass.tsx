@@ -9,6 +9,8 @@ import {
   Row,
   Select,
   Table,
+  Form,
+  Tag,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useEffect, useState } from 'react';
@@ -62,14 +64,20 @@ const AdminClass: React.FC = () => {
   const [RoomId, setRoomId] = useState<number | null>(null);
   const [SubjectId, setSubjectId] = useState<number | null>(null);
   const [LecturerID, setLecturerID] = useState<string | null>(null);
-  // const [CreatedBy, setCreatedBy] = useState('');
+
+  // Error state
+  const [errors, setErrors] = useState<{
+    className?: string;
+    semesterId?: string;
+    roomId?: string;
+    subjectId?: string;
+    lecturerId?: string;
+  }>({});
 
   const failMessage = useSelector((state: RootState) => state.class.message);
   const successMessage = useSelector(
     (state: RootState) => state.class.classDetail?.title,
   );
-
-  console.log('ssdsdc', successMessage)
 
   const handleRowClick = (classID: number) => {
     navigate(`/admin-class/admin-class-detail`, {
@@ -83,7 +91,6 @@ const AdminClass: React.FC = () => {
     response
       .then((data) => {
         setClasses(data?.result || []);
-        // setFilteredRoom(data || []);
       })
       .catch((error) => {
         console.log('get class error: ', error);
@@ -158,11 +165,23 @@ const AdminClass: React.FC = () => {
     setSubjectId(null);
     setLecturerID(null);
     setIsCheck(false);
+    setErrors({});
   };
 
-  const handleUpdate = async () => { };
+  const validateFields = () => {
+    const newErrors: any = {};
+    if (!ClassName) newErrors.className = 'Class Name is required';
+    if (SemesterId === null) newErrors.semesterId = 'Semester is required';
+    if (RoomId === null) newErrors.roomId = 'Room is required';
+    if (SubjectId === null) newErrors.subjectId = 'Subject is required';
+    if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleCreate = async () => {
+    if (!validateFields()) return;
+
     setLoading(true);
     await createNewClass(
       ClassCode,
@@ -170,7 +189,6 @@ const AdminClass: React.FC = () => {
       RoomId ?? 0,
       SubjectId ?? 0,
       LecturerID ?? '',
-      // CreatedBy,
     );
     setLoading(false);
     setIsModalVisible(false);
@@ -184,7 +202,6 @@ const AdminClass: React.FC = () => {
     RoomId: number,
     SubjectId: number,
     LecturerID: string,
-    // CreatedBy: string,
   ) => {
     const arg = {
       ClassCode: ClassCode,
@@ -192,7 +209,6 @@ const AdminClass: React.FC = () => {
       RoomId: RoomId,
       SubjectId: SubjectId,
       LecturerID: LecturerID,
-      // CreatedBy: CreatedBy,
     };
     await dispatch(createClass(arg) as any);
     setIsCheck(false);
@@ -240,10 +256,13 @@ const AdminClass: React.FC = () => {
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-          <p style={{ color: classStatus ? 'green' : 'red' }}>
-            {classStatus ? 'true' : 'false'}
-          </p>
-        </div>
+        <Tag 
+          color={classStatus ? 'green' : 'red'} 
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {classStatus ? 'active' : 'inactive'}
+        </Tag>
+      </div>
       ),
     },
     {
@@ -260,7 +279,9 @@ const AdminClass: React.FC = () => {
             shape="circle"
             style={{ border: 'none' }}
           >
-            <span><IoMdInformation size={25}/></span>
+            <span>
+              <IoMdInformation size={25} />
+            </span>
           </Button>
         </div>
       ),
@@ -279,10 +300,6 @@ const AdminClass: React.FC = () => {
       setClassCode('');
     }
   }, [ClassName, SubjectCode]);
-
-
-  console.log('code', ClassCode)
-
 
   return (
     <Content className={styles.accountClassContent}>
@@ -338,14 +355,10 @@ const AdminClass: React.FC = () => {
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.ID),
-        // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Class' : 'Add New Class'}
         visible={isModalVisible}
-        // onOk={isCheck ? handleUpdate : handleCreate}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -355,27 +368,37 @@ const AdminClass: React.FC = () => {
             key="submit"
             type="primary"
             loading={loading}
-            onClick={isCheck ? handleUpdate : handleCreate}
-          // disabled={!isFormValid()}
+            onClick={handleCreate}
           >
             Submit
           </Button>,
         ]}
       >
-        <p className={styles.createClassTitle} style={{ fontSize: '1rem', margin: '5px 0px 10px' }}>Class Code: {ClassCode}</p>
+        <p
+          className={styles.createClassTitle}
+          style={{ fontSize: '1rem', margin: '5px 0px 10px' }}
+        >
+          Class Code: {ClassCode}
+        </p>
         <p className={styles.createClassTitle}>Class Name</p>
         <Input
           placeholder="Class Name"
-          // value={SubjectCode ? `${ClassCode}_${SubjectCode}` : ClassCode}
           value={ClassName}
-          onChange={(e) => setClassName(e.target.value)}
+          onChange={(e) => {
+            setErrors((prevErrors) => ({ ...prevErrors, className: '' }));
+            setClassName(e.target.value)
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.className && <p className={styles.errorText}>{errors.className}</p>}
+
         <p className={styles.createClassTitle}>Semester Code</p>
         <Select
           placeholder="Semester Code"
           value={SemesterId}
-          onChange={(value) => setSemesterId(value)}
+          onChange={(value) => {
+            setErrors((prevErrors) => ({ ...prevErrors, semesterId: '' }));
+            setSemesterId(value)}}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {semester.map((sem) => (
@@ -384,11 +407,17 @@ const AdminClass: React.FC = () => {
             </Select.Option>
           ))}
         </Select>
+        {errors.semesterId && (
+          <p className={styles.errorText}>{errors.semesterId}</p>
+        )}
+
         <p className={styles.createClassTitle}>Room Name</p>
         <Select
           placeholder="Room Name"
           value={RoomId}
-          onChange={(value) => setRoomId(value)}
+          onChange={(value) => {
+            setErrors((prevErrors) => ({ ...prevErrors, roomId: '' }));
+            setRoomId(value)}}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {room.map((room) => (
@@ -397,12 +426,15 @@ const AdminClass: React.FC = () => {
             </Select.Option>
           ))}
         </Select>
+        {errors.roomId && <p className={styles.errorText}>{errors.roomId}</p>}
+
         <p className={styles.createClassTitle}>Subject Code</p>
         <Select
           placeholder="Subject Code"
           value={SubjectId}
           onChange={(value) => {
             setSubjectId(value);
+            setErrors((prevErrors) => ({ ...prevErrors, subjectId: '' }));
             setSubjectCode(
               subject.find((sub) => sub.subjectID === value)?.subjectCode || '',
             );
@@ -415,30 +447,26 @@ const AdminClass: React.FC = () => {
             </Select.Option>
           ))}
         </Select>
+        {errors.subjectId && <p className={styles.errorText}>{errors.subjectId}</p>}
+
         <p className={styles.createClassTitle}>Lecturer</p>
         <Select
           placeholder="Lecturer"
           value={LecturerID}
-          onChange={(value) => setLecturerID(value)}
+          onChange={(value) => {
+            setErrors((prevErrors) => ({ ...prevErrors, lecturerId: '' }));
+            setLecturerID(value)}}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {lecturer.map((lec) => (
             <Select.Option key={lec.id} value={lec.id}>
-              {/* <img alt='lecturer' src={lec.avatar}/> */}
               <p>{lec.displayName}</p>
             </Select.Option>
           ))}
         </Select>
-        {/* {!isCheck && (
-          <>
-            <p className={styles.createClassTitle}>Create By</p>
-            <Input
-              placeholder="Create By"
-              value={CreateBy}
-              onChange={(e) => setCreateBy(e.target.value)}
-            />
-          </>
-        )} */}
+        {errors.lecturerId && (
+          <p className={styles.errorText}>{errors.lecturerId}</p>
+        )}
       </Modal>
     </Content>
   );

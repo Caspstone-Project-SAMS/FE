@@ -1,20 +1,20 @@
 import axios from 'axios';
 import { EMPLOYEE_API } from '.';
-import { Employee } from '../models/employee/Employee';
+import { Employee, EmployeeDetails } from '../models/employee/Employee';
 
-// const getEmployeeByID = async (id: number): Promise<SemesterDetail | null> => {
-//     try {
-//       const response = await axios.get(`${EMPLOYEE_API}/${id}`, {
-//         headers: {
-//           'accept': '*/*'
-//         }
-//       });
-//       return response.data as SemesterDetail;
-//     } catch (error) {
-//       console.error('Error on get Semester by ID: ', error);
-//       return null;
-//     }
-//   };
+const getEmployeeByID = async (lecturerID: number): Promise<EmployeeDetails | null> => {
+    try {
+      const response = await axios.get(`${EMPLOYEE_API}/${lecturerID}`, {
+        headers: {
+          'accept': '*/*'
+        }
+      });
+      return response.data as EmployeeDetails;
+    } catch (error) {
+      console.error('Error on get employee by ID: ', error);
+      return null;
+    }
+  };
 
 const getAllEmployee = async (): Promise<Employee | null> => {
   try {
@@ -70,4 +70,5 @@ export const EmployeeService = {
   getAllEmployee,
   get10Employee,
   searchByParams,
+  getEmployeeByID,
 };

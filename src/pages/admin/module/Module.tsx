@@ -1,6 +1,6 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Layout, Table } from 'antd';
+import { Button, Card, Layout, Table, Tag } from 'antd';
 import styles from './Module.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { useNavigate } from 'react-router-dom';
@@ -35,9 +35,12 @@ const Module: React.FC = () => {
       dataIndex: 'status',
       render: (status: boolean) => (
         <div>
-          <p style={{ color: status ? 'green' : 'red' }}>
-            {status ? 'true' : 'false'}
-          </p>
+          <Tag
+            color={status ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {status ? 'active' : 'inactive'}
+          </Tag>
         </div>
       ),
     },
@@ -45,6 +48,16 @@ const Module: React.FC = () => {
       key: '3',
       title: 'Mode',
       dataIndex: 'mode',
+      render: (mode: number) => (
+        <div>
+        <Tag
+          color={mode === 1 ? 'green' : 'blue'}
+          style={{ fontWeight: 'bold', fontSize: '10px', textAlign: 'center' }}
+        >
+          {mode === 1 ? 'Register' : 'Attendance'}
+        </Tag>
+      </div>
+      ),
     },
     {
       key: '4',
@@ -65,7 +78,9 @@ const Module: React.FC = () => {
             shape="circle"
             style={{ border: 'none' }}
           >
-            <span><IoMdInformation size={25} /></span>
+            <span>
+              <IoMdInformation size={25} />
+            </span>
           </Button>
         </div>
       ),
@@ -106,8 +121,6 @@ const Module: React.FC = () => {
       });
   }, []);
 
-
-
   return (
     <Content className={styles.moduleContent}>
       <ContentHeader
@@ -136,22 +149,20 @@ const Module: React.FC = () => {
       </Card>
       <Table
         columns={columns}
-        dataSource={(module).map(
-          (item, index) => ({
-            key: index,
-            moduleID: item.moduleID,
-            status: item.status,
-            mode: item.mode,
-            preparedTime: item.preparedTime ? item.preparedTime : 'Not prepare',
-            info: item.moduleID,
-          }),
-        )}
+        dataSource={module.map((item, index) => ({
+          key: index,
+          moduleID: item.moduleID,
+          status: item.status,
+          mode: item.mode,
+          preparedTime: item.preparedTime ? item.preparedTime : 'Not prepare',
+          info: item.moduleID,
+        }))}
         pagination={{
           showSizeChanger: true,
         }}
-      // onRow={(record) => ({
-      //   onClick: () => handleRowClick(record.moduleID),
-      // })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.moduleID),
+        // })}
       ></Table>
     </Content>
   );

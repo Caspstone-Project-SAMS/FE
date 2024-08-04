@@ -57,6 +57,9 @@ const ScheduleImport: React.FC = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
     resetModalFields();
+    setRecommendationRate(0);
+    setSemesterId(null);
+    setImageFile(null); 
   };
 
   const resetModalFields = () => {

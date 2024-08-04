@@ -24,8 +24,8 @@ const getSubjectByID = async (subjectID: number): Promise<Subject> => {
 const createSubject = async (
   SubjectCode: string,
   SubjectName: string,
-  SubjectStatus: boolean,
-  CreateBy: string,
+  SubjectStatus: number,
+  // CreateBy: string,
 ) => {
   try {
     const response = await axios.post(
@@ -34,7 +34,7 @@ const createSubject = async (
         SubjectCode,
         SubjectName,
         SubjectStatus,
-        CreateBy,
+        // CreateBy,
       },
       {
         headers: {

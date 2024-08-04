@@ -75,6 +75,8 @@ interface PrepareTask{
   progress: number;
   preparedScheduleId: number;
   preparedSchedules: [];
+  totalFingers: number,
+  uploadedFingers: number,
 }
 
 export interface ActiveModule {
