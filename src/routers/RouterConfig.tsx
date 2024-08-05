@@ -123,7 +123,7 @@ const admin = [
     element: <AdminSchedule />
   },
   {
-    path: '/calendar/import-schedule',
+    path: '/schedule/import-schedule',
     element: <ScheduleImport />
   },
   {
