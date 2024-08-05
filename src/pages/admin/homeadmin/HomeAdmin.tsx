@@ -154,9 +154,9 @@ const HomeAdmin: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      <Row>
+      <div>
         <HomeCalendar />
-      </Row>
+      </div>
     </Content>
   );
 };
