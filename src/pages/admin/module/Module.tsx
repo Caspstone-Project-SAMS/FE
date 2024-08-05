@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Module, ModuleDetail } from '../../../models/module/Module';
 import { ModuleService } from '../../../hooks/Module';
 import { IoMdInformation } from 'react-icons/io';
+import SetUpWifi from '../../../components/wifi/SetUpWifi';
 
 const { Header: AntHeader } = Layout;
 
@@ -50,13 +51,13 @@ const Module: React.FC = () => {
       dataIndex: 'mode',
       render: (mode: number) => (
         <div>
-        <Tag
-          color={mode === 1 ? 'green' : 'blue'}
-          style={{ fontWeight: 'bold', fontSize: '10px', textAlign: 'center' }}
-        >
-          {mode === 1 ? 'Register' : 'Attendance'}
-        </Tag>
-      </div>
+          <Tag
+            color={mode === 1 ? 'green' : 'blue'}
+            style={{ fontWeight: 'bold', fontSize: '10px', textAlign: 'center' }}
+          >
+            {mode === 1 ? 'Register' : 'Attendance'}
+          </Tag>
+        </div>
       ),
     },
     {
@@ -123,12 +124,15 @@ const Module: React.FC = () => {
 
   return (
     <Content className={styles.moduleContent}>
-      <ContentHeader
-        contentTitle="Module"
-        previousBreadcrumb={'Home / '}
-        currentBreadcrumb={'Module'}
-        key={''}
-      />
+      <div>
+        <ContentHeader
+          contentTitle="Module"
+          previousBreadcrumb={'Home / '}
+          currentBreadcrumb={'Module'}
+          key={''}
+        />
+        {/* <SetUpWifi /> */}
+      </div>
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>
@@ -160,9 +164,9 @@ const Module: React.FC = () => {
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.moduleID),
-        // })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.moduleID),
+      // })}
       ></Table>
     </Content>
   );

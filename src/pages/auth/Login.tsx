@@ -148,7 +148,7 @@ function Login() {
         <div className={styles.right}>
           <div className={styles.loginBox}>
             <h2>Sign In to your Account</h2>
-            <div>Welcome back! please enter your detail</div>
+            <div>Welcome back! Please enter your detail</div>
             <div className={styles.loginForm}>
               <Input
                 size="large"
