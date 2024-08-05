@@ -78,19 +78,34 @@ const downloadTemplateExcel = async () => {
   }
 };
 
-const getScheduleByID = async (scheduleID: number): Promise<Schedules | null> => {
-  // console.log(typeof classID)
+const getScheduleByID = async (
+  scheduleID: number,
+): Promise<Schedules | null> => {
   try {
     const response = await axios.get(`${SCHEDULE_API}/${scheduleID}`, {
       headers: {
-        'accept': '*/*'
-      }
+        accept: '*/*',
+      },
     });
-    console.log("abcd: ", response.data)
     return response.data as Schedules;
   } catch (error) {
     console.error('Error on get Schedule by ID: ', error);
     return null;
+  }
+};
+
+const importSchedulesByImg = async (previewImgData: any) => {
+  try {
+    const response = await axios.post(
+      `${SCHEDULE_API}/import-schedules`,
+      previewImgData,
+    );
+    console.log('response back in importSchedulesByImg', response);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return error.response.data;
+    }
   }
 };
 
@@ -101,4 +116,5 @@ export const CalendarService = {
   downloadTemplateExcel,
   getScheduleByWeek,
   getScheduleByID,
+  importSchedulesByImg,
 };

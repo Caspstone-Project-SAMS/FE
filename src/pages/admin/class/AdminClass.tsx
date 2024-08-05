@@ -256,13 +256,13 @@ const AdminClass: React.FC = () => {
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-        <Tag 
-          color={classStatus ? 'green' : 'red'} 
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {classStatus ? 'active' : 'inactive'}
-        </Tag>
-      </div>
+          <Tag
+            color={classStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {classStatus ? 'active' : 'inactive'}
+          </Tag>
+        </div>
       ),
     },
     {
@@ -358,7 +358,7 @@ const AdminClass: React.FC = () => {
       ></Table>
       <Modal
         title={isCheck ? 'Edit Class' : 'Add New Class'}
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -398,7 +398,8 @@ const AdminClass: React.FC = () => {
           value={SemesterId}
           onChange={(value) => {
             setErrors((prevErrors) => ({ ...prevErrors, semesterId: '' }));
-            setSemesterId(value)}}
+            setSemesterId(value)
+          }}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {semester.map((sem) => (
@@ -417,7 +418,8 @@ const AdminClass: React.FC = () => {
           value={RoomId}
           onChange={(value) => {
             setErrors((prevErrors) => ({ ...prevErrors, roomId: '' }));
-            setRoomId(value)}}
+            setRoomId(value)
+          }}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {room.map((room) => (
@@ -455,7 +457,8 @@ const AdminClass: React.FC = () => {
           value={LecturerID}
           onChange={(value) => {
             setErrors((prevErrors) => ({ ...prevErrors, lecturerId: '' }));
-            setLecturerID(value)}}
+            setLecturerID(value)
+          }}
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {lecturer.map((lec) => (

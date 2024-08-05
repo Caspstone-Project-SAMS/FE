@@ -30,18 +30,18 @@ const ProtectedRoute = () => {
         <Routes>
           {role === 'Lecturer'
             ? routeConfig.lecture.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
-              ))
+              <Route key={index} path={route.path} element={route.element} />
+            ))
             : ''}
           {role === 'Admin'
             ? routeConfig.admin.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
-              ))
+              <Route key={index} path={route.path} element={route.element} />
+            ))
             : ''}
           {role === 'Student'
             ? routeConfig.student.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
-              ))
+              <Route key={index} path={route.path} element={route.element} />
+            ))
             : ''}
           <Route path="*" element={<ErrorPage />} />
         </Routes>
