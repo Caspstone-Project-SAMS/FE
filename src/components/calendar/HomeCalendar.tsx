@@ -8,8 +8,11 @@ import Excel from "../excel/Excel";
 import { Button } from "antd";
 import { CiImageOn } from "react-icons/ci";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
 
 const HomeCalendar: React.FC = () => {
+  const userRole = useSelector((state: RootState) => state.auth.userDetail?.result?.role.name)
 
   return (
     <Content className={styles.homeCalendarCtn}>
@@ -20,16 +23,33 @@ const HomeCalendar: React.FC = () => {
           currentBreadcrumb={undefined}
         />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Link to={'/calendar/import-schedule'}>
-            <Button
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-              size="large" icon={<CiImageOn size={18} />}>
-              Import FAP Image
-            </Button>
-          </Link>
+          {
+            userRole && userRole === 'Lecturer' ? (
+              <Link to={'/calendar/import-schedule'}>
+                <Button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  size="large" icon={<CiImageOn size={18} />}>
+                  Import FAP Image
+                </Button>
+              </Link>
+            ) : (
+              userRole && userRole === 'Admin' && (
+                <Link to={'/schedule/import-schedule'}>
+                  <Button
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                    size="large" icon={<CiImageOn size={18} />}>
+                    Import FAP Image
+                  </Button>
+                </Link>
+              )
+            )
+          }
           <Excel fileType="schedule" />
         </div>
       </div>
