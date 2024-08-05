@@ -158,6 +158,13 @@ const handleImportStudent = (
       message: message,
     });
   };
+  const createSucceedLog = (log: Message) => {
+    const { message, type } = log;
+    result.success.push({
+      type: type,
+      message: message,
+    });
+  };
 
   const promise = workbook.xlsx.load(excelFile).then((workbook) => {
     const worksheet = workbook.getWorksheet('Import-Student');
@@ -183,7 +190,6 @@ const handleImportStudent = (
           index: 'D',
           name: 'Tên học sinh',
           param: 'DisplayName',
-
           isNull: false,
         },
         {
@@ -211,11 +217,23 @@ const handleImportStudent = (
             if (col.index === 'C') {
               const mssv = cell.value;
 
-              const isDuplicated = sample.filter((item) => item.C === mssv);
+              const isValidFormat = ExcelHelpers.checkValidStudentCode(
+                String(mssv),
+              );
+              const isDuplicated = sample.filter(
+                (item) => item.StudentCode === mssv,
+              );
 
               const isContainSpecialChar = ValidateHelper.emojiChecker(
                 String(mssv),
               );
+              if (!isValidFormat) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Student code is wrong format at cell ${col.index}${i}.\n Example receive: SE112233, MKT123456,...`,
+                });
+                isValidRecord = false;
+              }
               if (isDuplicated.length > 0) {
                 createMsgLog({
                   type: 'warning',
@@ -254,7 +272,8 @@ const handleImportStudent = (
           sample.push(rowData);
         } else if (
           //Collumn mssv, ho ten, email
-          Object.keys(rowData).length === 3
+          Object.keys(rowData).length !== 3 &&
+          Object.keys(rowData).length >= 1
         ) {
           createMsgLog({
             type: 'warning',
@@ -263,6 +282,15 @@ const handleImportStudent = (
         }
       }
       console.log('sample, ', sample);
+      if (sample.length > 0) {
+        createSucceedLog({
+          type: 'success',
+          message:
+            sample.length === 1
+              ? '1 record has been successfully written'
+              : `${sample.length} records have been successfully written`,
+        });
+      }
 
       return sample;
     } else {
@@ -298,6 +326,13 @@ const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
   const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+  const createSucceedLog = (log: Message) => {
+    const { message, type } = log;
+    result.success.push({
       type: type,
       message: message,
     });
@@ -388,6 +423,15 @@ const handleImportClass = (excelFile: RcFile, workbook: ExcelJS.Workbook) => {
       console.log('sample ', sample);
     }
 
+    if (sample.length > 0) {
+      createSucceedLog({
+        type: 'success',
+        message:
+          sample.length === 1
+            ? '1 record has been successfully written'
+            : `${sample.length} records have been successfully written`,
+      });
+    }
     return sample;
   });
 
@@ -418,6 +462,13 @@ const handleImportFAPClass = (
   const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+  const createSucceedLog = (log: Message) => {
+    const { message, type } = log;
+    result.success.push({
       type: type,
       message: message,
     });
@@ -536,6 +587,16 @@ const handleImportFAPClass = (
         });
       }
     }
+
+    if (sample.length > 0) {
+      createSucceedLog({
+        type: 'success',
+        message:
+          sample.length === 1
+            ? '1 record has been successfully written'
+            : `${sample.length} records have been successfully written`,
+      });
+    }
     console.log('Sample ', sample);
     return sample;
   });
@@ -569,6 +630,13 @@ const handleImportFAPStudent = (
   const createMsgLog = (log: Message) => {
     const { message, type } = log;
     result.errors.push({
+      type: type,
+      message: message,
+    });
+  };
+  const createSucceedLog = (log: Message) => {
+    const { message, type } = log;
+    result.success.push({
       type: type,
       message: message,
     });
@@ -725,12 +793,29 @@ const handleImportFAPStudent = (
     }
     //Check if record import to class satisfied in import student
     //if yes -> merge 2 obj and continue return diff to parent and need to format outside once again
-    if (sample.length === sampleClass.length) {
+    if (sample.length === sampleClass.length && sample.length > 0) {
       console.log('File oke, can continue import to class');
       result.isContinueAble = true;
       sample = sample.map((item, index) => {
         return { ...item, ...sampleClass[index] };
       });
+      createSucceedLog({
+        type: 'success',
+        message:
+          sample.length === 1
+            ? '1 record has been successfully written'
+            : `${sample.length} records have been successfully written`,
+      });
+    } else {
+      if (sample.length > 0) {
+        createSucceedLog({
+          type: 'success',
+          message:
+            sample.length === 1
+              ? '1 record has been successfully written'
+              : `${sample.length} records have been successfully written`,
+        });
+      }
     }
     console.log('Sample ', sample);
     console.log('SampleClasscode ', sampleClass);

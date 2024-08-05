@@ -51,13 +51,17 @@ const lecture = [
     element: <HomeCalendar />
   },
   {
+    path: '/calendar/import-schedule',
+    element: <ScheduleImport />
+  },
+  {
     path: '/class/classdetails',
     element: <ClassDetails />
   },
-  {
-    path: '/import-schedule',
-    element: <ScheduleImport />
-  },
+  // {
+  //   path: '/import-schedule',
+  //   element: <ScheduleImport />
+  // },
 ];
 
 const admin = [
