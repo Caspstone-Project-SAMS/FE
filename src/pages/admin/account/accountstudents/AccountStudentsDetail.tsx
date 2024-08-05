@@ -116,6 +116,8 @@ const AccountStudentsDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
+  const length = selectedFingers.length;
+
   useEffect(() => {
     if (successMessage) {
       if (exit === false) message.success(successMessage.title);
@@ -154,30 +156,31 @@ const AccountStudentsDetail: React.FC = () => {
     }
   }, [moduleID, token, dispatch]);
 
+  const [next, setNext] = useState(false);
+
   const checkFingerID = useCallback(
     async (fingerId: number) => {
       console.log('okkkkkkkkkkkkkkkkkkk', selectedFingers);
       try {
         if (fingerTwo === true) {
-          if (selectedFingers.length === 2) {
+          if (length === 2) {
             if (selectedFingers.includes(fingerId)) {
+              length - 1
+              setNext(true);
               setProgressStep1(3);
-              setProgressStep2(1);
-              setSelectedFingers(selectedFingers.filter((f) => f !== fingerId));
+              setProgressStep2(1);   
             }
           }
-          if (selectedFingers.length === 1) {
+          if (next === true) {
             if (selectedFingers.includes(fingerId)) {
-              setProgressStep1(3);
+              setNext(false);
               setProgressStep2(3);
-              setSelectedFingers(selectedFingers.filter((f) => f !== fingerId));
             }
           }
         } else if (fingerOne === true) {
-          if (selectedFingers.length === 1) {
+          if (length === 1) {
             if (selectedFingers.includes(fingerId)) {
               setProgressStep1(3);
-              setSelectedFingers(selectedFingers.filter((f) => f !== fingerId));
             }
           }
         }
@@ -185,7 +188,7 @@ const AccountStudentsDetail: React.FC = () => {
         console.log('error at auto connect module', error);
       }
     },
-    [selectedFingers],
+    [selectedFingers, length, next],
   );
 
   const modifyModuleConnection = useCallback(
@@ -752,16 +755,15 @@ const AccountStudentsDetail: React.FC = () => {
     }
   };
 
-  console.log('modal continue', modalContinue);
-  console.log('actibe module', isActiveModule);
-  console.log('session', sessionID);
+
+  console.log('one', fingerOne);
+  console.log('two', fingerTwo);
 
   const handleCancel = () => {
     setIsModalVisible(false);
     setModalContinue(true);
     setIsActiveModule(false);
   };
-
   console.log('active', isActiveModule);
 
   const handleCancelModule = () => {
@@ -832,7 +834,9 @@ const AccountStudentsDetail: React.FC = () => {
     sethaveFinger(newFingers.length > 0);
     if (newFingers.length === 1) {
       setFingerOne(true);
+      setFingerTwo(false);
     } else if (newFingers.length === 2) {
+      setFingerOne(false);
       setFingerTwo(true);
     } else if (newFingers.length === 0) {
       setFingerOne(false);
@@ -1148,9 +1152,11 @@ const AccountStudentsDetail: React.FC = () => {
                     {studentFinger.map((item, index) => (
                       <Col span={12}>
                         <Card
-                          onClick={() =>
-                            fingerSelected(item.fingerprintTemplateID)
-                          }
+                          onClick={() => {
+                            if (!modalContinue) {
+                              fingerSelected(item.fingerprintTemplateID);
+                            }
+                          }}
                           key={index}
                           className={
                             selectedFingers.includes(item.fingerprintTemplateID)
@@ -1334,7 +1340,7 @@ const AccountStudentsDetail: React.FC = () => {
             key="submit"
             type="primary"
             onClick={handleConfirmUpload}
-            disabled={progressStep2 !== 3}
+            // disabled={progressStep2 !== 3}
           >
             Submit
           </Button>,
