@@ -74,6 +74,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     const [onValidateServer, setOnValidateServer] = useState(false);
     const [validateSvResult, setValidateSvResult] = useState<ServerResult | undefined>();
     //Continue import
+    const [canContinueSchedule, setCanContinueSchedule] = useState<boolean>(true);
     const [isContinueAble, setIsContinueAble] = useState<boolean>(false);
     const [isImportToClass, setIsImportToClass] = useState<boolean>(false);
 
@@ -158,6 +159,8 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     break;
                 case 'schedule':
                     {
+                        setCanContinueSchedule(false);
+                        handleClearLogs();
                         const excelData = await FileHelper.handleImportSchedule(file, workbook, isContinueAble);
                         setExcelResult(excelData)
                     }
@@ -239,7 +242,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     saveInfo(response)
                                 }
                             }).catch(err => {
-                                console.log("im in da error import studnet");
                                 console.log("Err here after merge ", err);
                                 saveInfo(err)
                             })
@@ -391,12 +393,19 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
         );
     };
 
+    const handleClearLogs = () => {
+        setErrLogs([]);
+        setWarningLogs([]);
+        setSuccessLogs([]);
+    }
+
     const handleClear = () => {
         setErrLogs([]);
         setWarningLogs([]);
         setSuccessLogs([]);
         setIsFAPFile(false);
 
+        setCanContinueSchedule(true);
         setIsContinueAble(false);
         setIsImportToClass(false);
 
@@ -515,7 +524,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             <Modal
                 title={
                     <Text style={{ fontSize: '1.25rem' }}>
-                        Import {HelperService.capitalizeFirstLetter(fileType)}
+                        Import {
+                            fileType === 'class' ? ('Student To Class') : (
+                                HelperService.capitalizeFirstLetter(fileType)
+                            )
+                        }
                     </Text>
                 }
                 centered
@@ -649,6 +662,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                             fileType === 'schedule' && (
                                                 <div className={styles.continueImportScheduleCtn}>
                                                     <Checkbox
+                                                        disabled={!canContinueSchedule}
                                                         checked={isContinueAble}
                                                         onChange={() => { setIsContinueAble(!isContinueAble) }}
                                                     >
