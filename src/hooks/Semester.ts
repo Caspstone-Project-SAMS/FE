@@ -27,10 +27,10 @@ const getSemesterByID = async (
 
 const createSemester = async (
   SemesterCode: string,
-  SemesterStatus: boolean,
+  SemesterStatus: number,
   StartDate: string,
   EndDate: string,
-  CreatedBy: string,
+  // CreatedBy: string,
 ) => {
   try {
     const response = await axios.post(
@@ -40,7 +40,7 @@ const createSemester = async (
         SemesterStatus,
         StartDate,
         EndDate,
-        CreatedBy,
+        // CreatedBy,
       },
       {
         headers: {
@@ -61,7 +61,7 @@ const createSemester = async (
 
 const updateSemester = async (
   SemesterCode: string,
-  SemesterStatus: boolean,
+  SemesterStatus: number,
   StartDate: string,
   EndDate: string,
   semesterID: number,

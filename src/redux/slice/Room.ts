@@ -21,18 +21,18 @@ const createRoom = createAsyncThunk(
     arg: {
       RoomName: string;
       RoomDescription: string;
-      RoomStatus: boolean;
-      CreateBy: string;
+      RoomStatus: number;
+      // CreateBy: string;
     },
     { rejectWithValue },
   ) => {
     try {
-      const { RoomName, RoomDescription, RoomStatus, CreateBy } = arg;
+      const { RoomName, RoomDescription, RoomStatus } = arg;
       const createRoomResponse = await RoomService.createRoom(
         RoomName,
         RoomDescription,
         RoomStatus,
-        CreateBy,
+        // CreateBy,
       );
       return createRoomResponse;
     } catch (error) {
@@ -58,7 +58,7 @@ const updateRoom = createAsyncThunk(
     arg: {
       RoomName: string;
       RoomDescription: string;
-      RoomStatus: boolean;
+      RoomStatus: number;
       // CreateBy: string;
       roomID: number;
     },

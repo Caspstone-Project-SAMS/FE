@@ -9,6 +9,12 @@ interface RegisterMode {
   FingerRegisterMode: number;
 }
 
+interface UpdateMode {
+  StudentID: string;
+  FingerprintTemplateId1: number | null;
+  FingerprintTemplateId2: number | null;
+}
+
 interface StopAttendance {
   ScheduleID: number;
 }
@@ -72,7 +78,7 @@ const getModuleByID = async (moduleID: number): Promise<ModuleByID | null> => {
   }
 };
 
-const activeModuleMode = async (
+const activeModuleModeRegister = async (
   ModuleID: number,
   Mode: number,
   SessionId: number,
@@ -84,6 +90,7 @@ const activeModuleMode = async (
   try {
     console.log('ModuleID', ModuleID);
     console.log('Mode', Mode);
+    console.log('Session', SessionId);
     console.log('RegisterMode', RegisterMode);
     const response = await axios.post(
       MODULE_API + '/Activate',
@@ -92,6 +99,47 @@ const activeModuleMode = async (
         Mode,
         SessionId,
         RegisterMode,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('asddc', response);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error.message);
+      throw new Error(error.response.data);
+    }
+    console.log('Unexpected error:', error.message);
+    throw new Error(error.message);
+  }
+};
+
+const activeModuleModeUpdate = async (
+  ModuleID: number,
+  Mode: number,
+  SessionId: number,
+  UpdateMode: UpdateMode,
+  token: string,
+  // StartAttendance: Schedule,
+  // StopAttendance: Schedule
+) => {
+  try {
+    console.log('ModuleID', ModuleID);
+    console.log('Mode', Mode);
+    console.log('Session', SessionId);
+    console.log('UpdateMode', UpdateMode);
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+        SessionId,
+        UpdateMode,
         // StartAttendance,
         // StopAttendance
       },
@@ -288,7 +336,8 @@ const setUpWifi = async (ssid: string, pass: string) => {
 
 export const ModuleService = {
   getModuleByEmployeeID,
-  activeModuleMode,
+  activeModuleModeRegister,
+  activeModuleModeUpdate,
   getAllModule,
   getModuleByID,
   activeModule,

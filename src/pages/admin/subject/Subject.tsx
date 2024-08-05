@@ -10,14 +10,18 @@ import {
   Table,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './Subject.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import type { Subject } from '../../../models/subject/Subject';
 import { SubjectService } from '../../../hooks/Subject';
 import { CiSearch, CiEdit } from 'react-icons/ci';
 import { MdDeleteForever } from 'react-icons/md';
-import { clearSubjectMessages, createSubject, updateSubject } from '../../../redux/slice/Subject';
+import {
+  clearSubjectMessages,
+  createSubject,
+  updateSubject,
+} from '../../../redux/slice/Subject';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import { message } from 'antd';
@@ -36,14 +40,16 @@ const Subject: React.FC = () => {
   const [subjectID, setSubjectID] = useState(0);
   const [SubjectCode, setSubjectCode] = useState('');
   const [SubjectName, setSubjectName] = useState('');
-  const [SubjectStatus, setSubjectStatus] = useState(false);
-  const [CreateBy, setCreateBy] = useState('');
+  const [SubjectStatus, setSubjectStatus] = useState(0);
+  // const [CreateBy, setCreateBy] = useState('');
 
   const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
-  console.log('run')
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  console.log('run');
 
   const failMessage = useSelector(
     (state: RootState) => state.subject.subjectDetail,
@@ -52,21 +58,37 @@ const Subject: React.FC = () => {
     (state: RootState) => state.subject.message,
   );
 
+  const handleSearchSubject = useCallback((value: string) => {
+    setSearchInput(value);
+    const filtered = subject.filter(
+      (item) =>
+        (item.subjectName &&
+          item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
+        (item.subjectCode &&
+          item.subjectCode.toLowerCase().includes(value.toLowerCase())),
+    );
+    setFilteredSubject(filtered);
+    setIsUpdate(true);
+  }, [subject]); 
+
   useEffect(() => {
-    const response = SubjectService.getAllSubject();
-    response
-      .then((data) => {
+    const fetchSubjects = async () => {
+      try {
+        const data = await SubjectService.getAllSubject();
         setSubject(data || []);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.log('get subject error: ', error);
-      });
-  }, [reload]);
+      }
+    };
+  
+    fetchSubjects();
+    handleSearchSubject(searchInput)
+  }, [reload, handleSearchSubject, searchInput]);
+  
 
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearSubjectMessages());
@@ -95,8 +117,9 @@ const Subject: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    if (!validateForm()) return;
     setLoading(true);
-    await createNewSubject(SubjectCode, SubjectName, SubjectStatus, CreateBy);
+    await createNewSubject(SubjectCode, SubjectName, SubjectStatus);
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
@@ -104,11 +127,11 @@ const Subject: React.FC = () => {
   };
 
   const handleUpdate = async () => {
+    if (!validateForm()) return;
     setLoading(true);
     await updateExistingSubject(subjectID, SubjectCode, SubjectName);
     setLoading(false);
     setIsModalVisible(false);
-    setReload((prevReload) => prevReload + 1);
   };
 
   const handleCancel = () => {
@@ -120,9 +143,10 @@ const Subject: React.FC = () => {
     setSubjectID(0);
     setSubjectCode('');
     setSubjectName('');
-    setSubjectStatus(false);
-    setCreateBy('');
+    setSubjectStatus(0);
+    // setCreateBy('');
     setIsCheck(false);
+    setErrors({});
     // setSubjectByID(undefined);
   };
 
@@ -144,30 +168,19 @@ const Subject: React.FC = () => {
     },
   ];
 
-  const handleSearchSubject = (value: string) => {
-    setSearchInput(value);
-    const filtered = subject.filter(
-      (item) =>
-        (item.subjectName &&
-          item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
-        (item.subjectCode &&
-          item.subjectCode.toLowerCase().includes(value.toLowerCase())),
-    );
-    setFilteredSubject(filtered);
-    setIsUpdate(true);
-  };
+
 
   const createNewSubject = async (
     SubjectCode: string,
     SubjectName: string,
-    SubjectStatus: boolean,
-    CreateBy: string,
+    SubjectStatus: number,
+    // CreateBy: string,
   ) => {
     const arg = {
       SubjectCode: SubjectCode,
       SubjectName: SubjectName,
       SubjectStatus: SubjectStatus,
-      CreateBy: CreateBy,
+      // CreateBy: CreateBy,
     };
 
     await dispatch(createSubject(arg) as any);
@@ -201,6 +214,21 @@ const Subject: React.FC = () => {
         setReload((prevReload) => prevReload + 1);
       },
     });
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+    if (!SubjectCode.trim()) {
+      newErrors.SubjectCode = 'Subject Code is required';
+    }
+    if (!SubjectName.trim()) {
+      newErrors.SubjectName = 'Subject Name is required';
+    }
+    // if (!isCheck && !CreateBy.trim()) {
+    //   newErrors.CreateBy = 'Created By is required';
+    // }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -300,16 +328,28 @@ const Subject: React.FC = () => {
         <Input
           placeholder="Subject Code"
           value={SubjectCode}
-          onChange={(e) => setSubjectCode(e.target.value)}
+          onChange={(e) => {
+            setSubjectCode(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, SubjectCode: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.SubjectCode && (
+          <p className={styles.errorText}>{errors.SubjectCode}</p>
+        )}
         <p className={styles.createSubjectTitle}>Subject Name</p>
         <Input
           placeholder="Subject Name"
           value={SubjectName}
-          onChange={(e) => setSubjectName(e.target.value)}
+          onChange={(e) => {
+            setSubjectName(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, SubjectName: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.SubjectName && (
+          <p className={styles.errorText}>{errors.SubjectName}</p>
+        )}
         {!isCheck && (
           <>
             <p className={styles.createSubjectTitle}>Subject Status</p>
@@ -321,12 +361,12 @@ const Subject: React.FC = () => {
               <Radio value={1}>Active</Radio>
               <Radio value={0}>Inactive</Radio>
             </Radio.Group>
-            <p className={styles.createSubjectTitle}>Create By</p>
+            {/* <p className={styles.createSubjectTitle}>Create By</p>
             <Input
               placeholder="Create By"
               value={CreateBy}
               onChange={(e) => setCreateBy(e.target.value)}
-            />
+            /> */}
           </>
         )}
       </Modal>

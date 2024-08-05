@@ -2,7 +2,7 @@ export interface Room {
   roomID?: number;
   roomName?: string;
   roomDescription?: string;
-  roomStatus?: boolean;
+  roomStatus?: number;
 }
 
 export interface RoomMessage {

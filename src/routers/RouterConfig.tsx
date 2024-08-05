@@ -24,6 +24,7 @@ import AdminClassDetail from '../pages/admin/class/AdminClassDetail';
 import Module from '../pages/admin/module/Module';
 import ModuleDetail from '../pages/admin/module/ModuleDetail';
 import ScheduleImport from '../pages/schedule/ScheduleImport';
+import AccountTeacherDetail from '../pages/admin/account/accountteachers/AccountTeacherDetail';
 
 const lecture = [
   {
@@ -76,6 +77,10 @@ const admin = [
   {
     path: '/teacher',
     element: <Admin />
+  },
+  {
+    path: '/teacher/teacher-detail',
+    element: <AccountTeacherDetail />
   },
   {
     path: '/attendance',

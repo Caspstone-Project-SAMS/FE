@@ -17,8 +17,8 @@ const getAllRoom = async (): Promise<Room[] | null> => {
 const createRoom = async (
   RoomName: string,
   RoomDescription: string,
-  RoomStatus: boolean,
-  CreateBy: string,
+  RoomStatus: number,
+  // CreateBy: string,
 ) => {
   try {
     const response = await axios.post(
@@ -27,7 +27,7 @@ const createRoom = async (
         RoomName,
         RoomDescription,
         RoomStatus,
-        CreateBy,
+        // CreateBy,
       },
       {
         headers: {
@@ -48,7 +48,7 @@ const createRoom = async (
 const updateRoom = async (
   RoomName: string,
   RoomDescription: string,
-  RoomStatus: boolean,
+  RoomStatus: number,
   // CreateBy: string,
   roomID: number,
 ) => {

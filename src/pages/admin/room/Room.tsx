@@ -9,9 +9,10 @@ import {
   Radio,
   Row,
   Table,
+  Tag,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './Room.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import type { Room } from '../../../models/room/Room';
@@ -20,13 +21,16 @@ import { CiSearch, CiEdit } from 'react-icons/ci';
 import { MdDeleteForever } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
-import { clearRoomMessages, createRoom, updateRoom } from '../../../redux/slice/Room';
+import {
+  clearRoomMessages,
+  createRoom,
+  updateRoom,
+} from '../../../redux/slice/Room';
 import { PlusOutlined } from '@ant-design/icons';
 
 const { Header: AntHeader } = Layout;
 
 const Room: React.FC = () => {
-
   const [room, setRoom] = useState<Room[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [filteredRoom, setFilteredRoom] = useState<Room[]>(room);
@@ -37,37 +41,50 @@ const Room: React.FC = () => {
   const [roomID, setRoomID] = useState(0);
   const [RoomName, setRoomName] = useState('');
   const [RoomDescription, setRoomDescription] = useState('');
-  const [RoomStatus, setRoomStatus] = useState(false);
-  const [CreateBy, setCreateBy] = useState('');
+  const [RoomStatus, setRoomStatus] = useState(0);
+  // const [CreateBy, setCreateBy] = useState('');
 
   const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
-  const failMessage = useSelector(
-    (state: RootState) => state.room.roomDetail,
-  );
-  const successMessage = useSelector(
-    (state: RootState) => state.room.message,
-  );
+  const [errors, setErrors] = useState({
+    roomName: '',
+    roomDescription: '',
+    createBy: '',
+  });
+
+  const failMessage = useSelector((state: RootState) => state.room.roomDetail);
+  const successMessage = useSelector((state: RootState) => state.room.message);
+
+  const handleSearchRoom = useCallback((value: string) => {
+    setSearchInput(value);
+    const filtered = room.filter(
+      (item) =>
+        item.roomName &&
+        item.roomName.toLowerCase().includes(value.toLowerCase()),
+    );
+    setFilteredRoom(filtered);
+    setIsUpdate(true);
+  }, [room]);
 
   useEffect(() => {
-    const response = RoomService.getAllRoom();
-
-    response
-      .then((data) => {
+    const fetchRooms = async () => {
+      try {
+        const data = await RoomService.getAllRoom();
         setRoom(data || []);
-        setFilteredRoom(data || []);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.log('get room error: ', error);
-      });
-  }, [reload]);
+      }
+    };
+    fetchRooms();
+    handleSearchRoom(searchInput);
+  }, [reload, handleSearchRoom, searchInput]);
+  
 
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearRoomMessages());
@@ -97,8 +114,13 @@ const Room: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    const validationErrors = validateInputs();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setLoading(true);
-    await createNewRoom(RoomName, RoomDescription, RoomStatus, CreateBy);
+    await createNewRoom(RoomName, RoomDescription, RoomStatus);
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
@@ -106,12 +128,16 @@ const Room: React.FC = () => {
   };
 
   const handleUpdate = async () => {
+    const validationErrors = validateInputs();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setLoading(true);
     await updateExistingRoom(RoomName, RoomDescription, RoomStatus, roomID);
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
   };
 
   const handleCancel = () => {
@@ -123,8 +149,8 @@ const Room: React.FC = () => {
     setRoomID(0);
     setRoomName('');
     setRoomDescription('');
-    setRoomStatus(false);
-    setCreateBy('');
+    setRoomStatus(0);
+    // setCreateBy('');
     setIsCheck(false);
   };
   const columns = [
@@ -150,28 +176,19 @@ const Room: React.FC = () => {
     },
   ];
 
-  const handleSearchRoom = (value: string) => {
-    setSearchInput(value);
-    const filtered = room.filter(
-      (item) =>
-        item.roomName &&
-        item.roomName.toLowerCase().includes(value.toLowerCase()),
-    );
-    setFilteredRoom(filtered);
-    setIsUpdate(true);
-  };
+
 
   const createNewRoom = async (
     RoomName: string,
     RoomDescription: string,
-    RoomStatus: boolean,
-    CreateBy: string,
+    RoomStatus: number,
+    // CreateBy: string,
   ) => {
     const arg = {
       RoomName: RoomName,
       RoomDescription: RoomDescription,
       RoomStatus: RoomStatus,
-      CreateBy: CreateBy,
+      // CreateBy: CreateBy,
     };
     await dispatch(createRoom(arg) as any);
     setIsCheck(false);
@@ -180,7 +197,7 @@ const Room: React.FC = () => {
   const updateExistingRoom = async (
     RoomName: string,
     RoomDescription: string,
-    RoomStatus: boolean,
+    RoomStatus: number,
     roomID: number,
   ) => {
     const arg = {
@@ -192,7 +209,7 @@ const Room: React.FC = () => {
     setRoomID(0);
     setRoomName('');
     setRoomDescription('');
-    setRoomStatus(false);
+    setRoomStatus(0);
     await dispatch(updateRoom(arg) as any);
   };
 
@@ -207,6 +224,16 @@ const Room: React.FC = () => {
       },
     });
   };
+
+  const validateInputs = () => {
+    const errors: any = {};
+    if (!RoomName) errors.roomName = 'Room Name is required';
+    if (!RoomDescription)
+      errors.roomDescription = 'Room Description is required';
+    // if (!isCheck && !CreateBy) errors.createBy = 'Created By is required';
+    return errors;
+  };
+
   return (
     <Content className={styles.roomContent}>
       <ContentHeader
@@ -250,10 +277,13 @@ const Room: React.FC = () => {
           roomdescription: item.roomDescription,
           roomstatus: (
             <div>
-              <p style={{ color: item.roomStatus ? 'green' : 'red' }}>
-                {item.roomStatus ? 'active' : 'inactive'}
-              </p>
-            </div>
+            <Tag 
+              color={item.roomStatus ? 'green' : 'red'} 
+              style={{ fontWeight: 'bold', fontSize: '10px' }}
+            >
+              {item.roomStatus ? 'active' : 'inactive'}
+            </Tag>
+          </div>
           ),
           action: (
             <div>
@@ -309,16 +339,28 @@ const Room: React.FC = () => {
         <Input
           placeholder="Room Name"
           value={RoomName}
-          onChange={(e) => setRoomName(e.target.value)}
+          onChange={(e) => {
+            setRoomName(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, roomName: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.roomName && (
+          <p className={styles.errorText}>{errors.roomName}</p>
+        )}
         <p className={styles.createRoomTitle}>Room Description</p>
         <Input
           placeholder="Room Description"
           value={RoomDescription}
-          onChange={(e) => setRoomDescription(e.target.value)}
+          onChange={(e) => {
+            setRoomDescription(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, roomDescription: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.roomDescription && (
+          <p className={styles.errorText}>{errors.roomDescription}</p>
+        )}
         <p className={styles.createRoomTitle}>Room Status</p>
         <Radio.Group
           onChange={(e) => setRoomStatus(e.target.value)}
@@ -328,20 +370,25 @@ const Room: React.FC = () => {
           <Radio value={1}>Active</Radio>
           <Radio value={0}>Inactive</Radio>
         </Radio.Group>
-        {!isCheck && (
+        {/* {!isCheck && (
           <>
             <p className={styles.createSubjectTitle}>Create By</p>
             <Input
-              placeholder="Create By"
+              placeholder="Created By"
               value={CreateBy}
-              onChange={(e) => setCreateBy(e.target.value)}
+              onChange={(e) => {
+                setCreateBy(e.target.value);
+                setErrors((prevErrors) => ({ ...prevErrors, createBy: '' }));
+              }}
             />
+            {errors.createBy && (
+              <p className={styles.errorText}>{errors.createBy}</p>
+            )}
           </>
-        )}
+        )} */}
       </Modal>
     </Content>
   );
 };
 
 export default Room;
-

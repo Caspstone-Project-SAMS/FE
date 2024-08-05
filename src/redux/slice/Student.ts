@@ -80,7 +80,7 @@ const StudentSlice = createSlice({
         ...state,
         loading: false,
         studentDetail: undefined,
-        message: { data: action.payload || 'Failed to create class' },
+        message: { data: action.payload || 'Failed to create student' },
       };
     });
   },

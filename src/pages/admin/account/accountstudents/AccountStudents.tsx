@@ -1,6 +1,18 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Col, Input, Layout, message, Row, Table } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  Layout,
+  message,
+  Modal,
+  Row,
+  Table,
+  Form,
+  Tag
+} from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
 import { StudentService } from '../../../../hooks/StudentList';
@@ -23,6 +35,8 @@ import { DashboardService } from '../../../../hooks/Dashboard';
 const { Header: AntHeader } = Layout;
 
 const AccountStudents: React.FC = () => {
+  const [form] = Form.useForm();
+
   const response = useSelector(
     (state: RootState) => state.student.studentDetail,
   );
@@ -30,7 +44,7 @@ const AccountStudents: React.FC = () => {
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudents, setFilteredStudents] = useState<Student[]>(student);
   const [isUpdate, setIsUpdate] = useState(false);
-  //pagination
+  // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(35);
   const [totalRecords, setTotalRecord] = useState(0);
@@ -45,6 +59,12 @@ const AccountStudents: React.FC = () => {
   const [StudentCode, setStudentCode] = useState('');
   const [DisplayName, setDisplayName] = useState('');
   const [Email, setEmail] = useState('');
+
+  const [errors, setErrors] = useState({
+    studentCode: '',
+    displayName: '',
+    email: '',
+  });
 
   const failMessage = useSelector((state: RootState) => state.student.message);
   const successMessage = useSelector(
@@ -64,9 +84,7 @@ const AccountStudents: React.FC = () => {
     const studentList = await StudentService.getStudentByPage(page, pageSize);
     setStudent(studentList || []);
     setFilteredStudents(studentList || []);
-    // setStudent(studentList);
-    // setFilteredStudents(studentList)
-  }
+  };
 
   const columns = [
     {
@@ -95,10 +113,13 @@ const AccountStudents: React.FC = () => {
       dataIndex: 'isAuthenticated',
       render: (isAuthenticated: boolean) => (
         <div>
-          <p style={{ color: isAuthenticated ? 'green' : 'red' }}>
-            {isAuthenticated ? 'true' : 'false'}
-          </p>
-        </div>
+        <Tag 
+          color={isAuthenticated ? 'green' : 'red'} 
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}
+        </Tag>
+      </div>
       ),
     },
     {
@@ -115,7 +136,9 @@ const AccountStudents: React.FC = () => {
             shape="circle"
             style={{ border: 'none' }}
           >
-            <span><IoMdInformation size={25} /></span>
+            <span>
+              <IoMdInformation size={25} />
+            </span>
           </Button>
         </div>
       ),
@@ -127,7 +150,7 @@ const AccountStudents: React.FC = () => {
     const totalStudent = DashboardService.getTotalStudent();
     totalStudent
       .then((data) => setTotalRecord(data.data))
-      .catch(err => console.log("Err when get data"))
+      .catch((err) => console.log('Err when get data'));
 
     response
       .then((data) => {
@@ -178,9 +201,59 @@ const AccountStudents: React.FC = () => {
 
   const resetModalFields = () => {
     setIsCheck(false);
+    setStudentCode('');
+    setDisplayName('');
+    setEmail('');
+    setErrors({
+      studentCode: '',
+      displayName: '',
+      email: '',
+    });
+  };
+
+  const validateStudentCode = (code: string) => {
+    if (!code) {
+      return 'Student Code is required';
+    } else if (!/^[A-Z]{2}\d{6}$/.test(code)) {
+      return 'Student Code must be in the format: AA123456';
+    }
+    return '';
+  };
+
+  const handleStudentCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const code = e.target.value;
+    setStudentCode(code);
+    const error = validateStudentCode(code);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      studentCode: error,
+    }));
   };
 
   const handleCreate = async () => {
+    const validationErrors: any = {};
+
+    if (!StudentCode) {
+      validationErrors.studentCode = 'Student Code is required';
+    } else if (!/^[A-Z]{2}\d{6}$/.test(StudentCode)) {
+      validationErrors.studentCode = 'Student Code must be in the format: AA123456';
+    }
+
+    if (!DisplayName) {
+      validationErrors.displayName = 'Student Name is required';
+    }
+
+    if (!Email) {
+      validationErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(Email)) {
+      validationErrors.email = 'Email is invalid';
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     setLoading(true);
     await createNewStudent(StudentCode, DisplayName, Email);
     setLoading(false);
@@ -212,11 +285,6 @@ const AccountStudents: React.FC = () => {
           currentBreadcrumb={'Student'}
           key={''}
         />
-        {/* <Button size='large' style={{ marginRight: "10px" }}
-            icon={<DownloadOutlined />}
-            onClick={() => {
-            }}
-          >Download Template</Button> */}
         <Excel fileType="student" />
       </div>
       <Card className={styles.cardHeader}>
@@ -254,38 +322,82 @@ const AccountStudents: React.FC = () => {
             const bAuth = b.isAuthenticated ? 1 : 0;
             return aAuth - bAuth;
           })
-          .map(
-            (item, index) => ({
-              key: index,
-              studentname: (
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <img
-                    src={item.avatar || userIcon}
-                    alt="Student"
-                    className={styles.img}
-                  />
-                  <p className={styles.studentName}>{item.studentName}</p>
-                </div>
-              ),
-              email: item.email,
-              studentcode: item.studentCode,
-              phone: item.phoneNumber,
-              isAuthenticated: item.isAuthenticated,
-              info: item.studentID,
-              ID: item.studentID,
-            }),
-          )}
+          .map((item, index) => ({
+            key: index,
+            studentname: (
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <img
+                  src={item.avatar || userIcon}
+                  alt="Student"
+                  className={styles.img}
+                />
+                <p className={styles.studentName}>{item.studentName}</p>
+              </div>
+            ),
+            email: item.email,
+            studentcode: item.studentCode,
+            phone: item.phoneNumber,
+            isAuthenticated: item.isAuthenticated,
+            info: item.studentID,
+            ID: item.studentID,
+          }))}
         pagination={{
           showSizeChanger: true,
           current: currentPage,
           pageSize: pageSize,
           total: totalRecords,
-          onChange: handlePagination
+          onChange: handlePagination,
         }}
-      // onRow={(record) => ({
-      //   onClick: () => handleRowClick(record.ID, record.isAuthenticated),
-      // })}
       ></Table>
+      <Modal
+        title={'Add new student'}
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="back" onClick={handleCancel}>
+            Return
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={handleCreate}
+          >
+            Submit
+          </Button>,
+        ]}
+      >
+        <p className={styles.createStudentTitle}>Student Code</p>
+        <Input
+          placeholder="Student Code"
+          value={StudentCode}
+          onChange={handleStudentCodeChange}
+          style={{ marginBottom: '10px' }}
+        />
+        {errors.studentCode && <p className={styles.errorText}>{errors.studentCode}</p>}
+        
+        <p className={styles.createStudentTitle}>Student Name</p>
+        <Input
+          placeholder="Student Name"
+          value={DisplayName}
+          onChange={(e) => {
+            setErrors((prevErrors) => ({ ...prevErrors, displayName: '' }));
+            setDisplayName(e.target.value)}}
+          style={{ marginBottom: '10px' }}
+        />
+        {errors.displayName && <p className={styles.errorText}>{errors.displayName}</p>}
+        
+        <p className={styles.createStudentTitle}>Email</p>
+        <Input
+          placeholder="Email"
+          value={Email}
+          onChange={(e) =>{
+            setErrors((prevErrors) => ({ ...prevErrors, email: '' }));
+            setEmail(e.target.value)}}
+          style={{ marginBottom: '10px' }}
+        />
+        {errors.email && <p className={styles.errorText}>{errors.email}</p>}
+      </Modal>
     </Content>
   );
 };

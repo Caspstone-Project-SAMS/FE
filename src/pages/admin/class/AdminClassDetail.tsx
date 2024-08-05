@@ -1,4 +1,4 @@
-import { Card, Col, Input, Layout, Row, Space, Table, Typography } from 'antd';
+import { Card, Col, Input, Layout, Row, Space, Table, Tag, Typography } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
 import styles from './AdminClass.module.less';
@@ -29,7 +29,11 @@ const AdminClassDetail: React.FC = () => {
     { title: 'Class Code', value: classes?.result.classCode },
     {
       title: 'Status',
-      value: classes?.result.classStatus ? 'active' : 'inactive',
+      value: classes?.result.classStatus ? (
+        <Tag color="green">Active</Tag>
+      ) : (
+        <Tag color="red">Inactive</Tag>
+      ),
       classStatus: true,
     },
     { title: 'Semester', value: classes?.result.semester.semesterCode },
@@ -131,10 +135,13 @@ const AdminClassDetail: React.FC = () => {
       dataIndex: 'scheduleStatus',
       render: (scheduleStatus: boolean) => (
         <div>
-          <p style={{ color: scheduleStatus ? 'green' : 'red' }}>
-            {scheduleStatus ? 'active' : 'inactive'}
-          </p>
-        </div>
+        <Tag 
+          color={scheduleStatus ? 'green' : 'red'} 
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {scheduleStatus ? 'Authenticated' : 'Not Authenticated'}
+        </Tag>
+      </div>
       ),
     },
     {
@@ -233,15 +240,7 @@ const AdminClassDetail: React.FC = () => {
                               {detail.title}
                             </td>
                             <td>
-                              <p
-                                style={{
-                                  color: detail.classStatus
-                                    ? detail.value === 'true'
-                                      ? 'green'
-                                      : 'red'
-                                    : 'inherit',
-                                }}
-                              >
+                              <p>
                                 {detail.value}
                               </p>
                             </td>
