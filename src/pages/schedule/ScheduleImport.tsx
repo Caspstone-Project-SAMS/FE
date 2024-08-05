@@ -194,7 +194,7 @@ const ScheduleImport: React.FC = () => {
             style={{ marginBottom: '10px' }}
           />
           <Button onClick={handleCreate} style={{ marginTop: 16 }} type="primary">
-            Create
+            Preview image
           </Button>
         </div>
         <div className={styles.fapInfoRight}>
