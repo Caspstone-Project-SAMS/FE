@@ -309,7 +309,7 @@ const ScheduleImport: React.FC = () => {
         schedule && schedule.result ? (
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <table className={styles.borderedTable}
-              style={onShowResult ? { width: '70%', transition: 'width 1s ease-in' } : {}}
+              style={onShowResult ? { width: '70%', transition: 'width 0.8s ease-in-out' } : {}}
             >
               <thead>
                 <tr>
