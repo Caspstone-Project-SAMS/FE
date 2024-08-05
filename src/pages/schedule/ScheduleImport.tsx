@@ -47,7 +47,7 @@ const ScheduleImport: React.FC = () => {
   const [RecommendationRate, setRecommendationRate] = useState(70);
   const [date, setDate] = useState<ScheduleDate[]>([]);
   const [slot, setSlot] = useState<ScheduleSlot[]>([]);
-  const [schedule, setSchedule] = useState<ScheduleImage>();
+  const [schedule, setSchedule] = useState<ScheduleImage | undefined>(undefined);
 
   const [isSubmitAble, setIsSubmitAble] = useState<boolean>(false);
   const [onShowResult, setOnShowResult] = useState<boolean>(false);
@@ -68,9 +68,15 @@ const ScheduleImport: React.FC = () => {
     }
   };
 
-  const resetModalFields = () => {
+  const resetFields = () => {
     setRecommendationRate(70);
-    // setIsSubmitAble(false);
+    setIsSubmitAble(false);
+    setSchedule(undefined)
+    setDate([]);
+    setSlot([]);
+
+    setImagePreview('')
+    //after submit to system
     setOnShowResult(false);
     setSuccessLogs([]);
     setWarningLogs([]);
@@ -146,7 +152,7 @@ const ScheduleImport: React.FC = () => {
         );
       }).finally(() => {
         setLoading(false);
-        resetModalFields();
+        // resetFields();
       })
     }, 450)
   };
@@ -188,7 +194,7 @@ const ScheduleImport: React.FC = () => {
 
 
   return (
-    <div className={styles.slotContent}>
+    <Content className={styles.slotContent}>
 
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
         <Link to={'/calendar'} style={{ display: 'flex', alignItems: 'center' }}>
@@ -202,7 +208,7 @@ const ScheduleImport: React.FC = () => {
         {
           onShowResult ? (
             <div className={styles.fapInfoLeft}>
-              <Title level={3}>Result: {resultImport.title}</Title>
+              <Title level={3}>Result: {String(resultImport.isSuccess)}</Title>
               <div>
                 {
                   successLogs.length > 0 && <MessageCard props={successLogs} key={'success_logs'} />
@@ -210,9 +216,13 @@ const ScheduleImport: React.FC = () => {
                 {
                   errLogs.length > 0 && <MessageCard props={errLogs} key={'err_logs'} />
                 }
-                {
-                  errLogs.length > 0 && <MessageCard props={errLogs} key={'err_logs'} />
-                }
+              </div>
+              <div style={{ width: '100%' }}>
+                <Button
+                  onClick={() => resetFields()}
+                  style={{ width: '100%' }} type='primary'>
+                  Import Again
+                </Button>
               </div>
             </div>
           ) : (
@@ -299,7 +309,7 @@ const ScheduleImport: React.FC = () => {
         schedule && schedule.result ? (
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <table className={styles.borderedTable}
-              style={onShowResult ? { width: '70%', } : {}}
+              style={onShowResult ? { width: '70%', transition: 'width 1s ease-in' } : {}}
             >
               <thead>
                 <tr>
@@ -338,7 +348,7 @@ const ScheduleImport: React.FC = () => {
           </table>
         )
       }
-    </div>
+    </Content>
   );
 };
 
