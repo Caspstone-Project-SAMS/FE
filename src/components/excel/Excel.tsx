@@ -330,7 +330,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     // console.log("Done - this is schedule valid", result);
                                     const mergedArr = [...formatExcelData, ...result];
                                     console.log("mergedArr", mergedArr);
-                                    const promise = RequestHelpers.postExcelSchedule(excelData);
+                                    const promise = RequestHelpers.postExcelSchedule(mergedArr);
                                     promise.then(data => {
                                         saveInfo(data)
                                     }).catch(err => {
