@@ -9,9 +9,11 @@
 .bordered-table td {
   border: 1px solid black;
   padding: 8px;
+  transition: 'width 1s ease-in',
 }
 
 .slotContent {
+  height: fit-content;
   padding: 20px;
   background-color: #FFF;
   border: 1px solid @blur-color;
@@ -32,6 +34,7 @@
     text-align: center;
     border: 1px solid @blur-color;
     border-radius: 8px;
+    overflow: hidden;
   }
 
   .createClassTitle {

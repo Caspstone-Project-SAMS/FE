@@ -2,13 +2,13 @@ import axios from 'axios';
 import { ScheduleImage } from '../models/calendar/ScheduleImage';
 
 interface ImportScheduleParams {
-  Image: File; 
+  Image: File;
   SemesterId: number;
   UserId: string;
   RecommendationRate: number;
 }
 
-const importScheduleImage = async ({
+const previewScheduleImage = async ({
   Image,
   SemesterId,
   UserId,
@@ -27,7 +27,7 @@ const importScheduleImage = async ({
       {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: 'Bearer YOUR_ACCESS_TOKEN', 
+          Authorization: 'Bearer YOUR_ACCESS_TOKEN',
         },
       },
     );
@@ -35,15 +35,15 @@ const importScheduleImage = async ({
     return response.data as ScheduleImage;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      console.error('Error importing schedule image:', error.message);
-      throw new Error(
-        error.response.data.message || 'Error importing schedule image',
-      );
+      if (error.response.status === 500) {
+        throw new Error('Unvalid image, can not process preview version!');
+      } else {
+        throw new Error('Unexpected error occurred');
+      }
     }
-    throw new Error('Unexpected error occurred');
   }
 };
 
 export const ScheduleImageService = {
-  importScheduleImage,
+  previewScheduleImage,
 };
