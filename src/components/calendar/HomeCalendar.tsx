@@ -5,6 +5,9 @@ import ContentHeader from "../header/contentHeader/ContentHeader";
 import MyCalendar from "./MyCalendar";
 import { Content } from "antd/es/layout/layout";
 import Excel from "../excel/Excel";
+import { Button } from "antd";
+import { CiImageOn } from "react-icons/ci";
+import { Link } from "react-router-dom";
 
 const HomeCalendar: React.FC = () => {
 
@@ -16,7 +19,19 @@ const HomeCalendar: React.FC = () => {
           previousBreadcrumb={undefined}
           currentBreadcrumb={undefined}
         />
-        <Excel fileType="schedule" />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Link to={'/calendar/import-schedule'}>
+            <Button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              size="large" icon={<CiImageOn size={18} />}>
+              Import FAP Image
+            </Button>
+          </Link>
+          <Excel fileType="schedule" />
+        </div>
       </div>
       <div className={styles.calendarCtn}>
         <MyCalendar LECTURER_ID={undefined} />
