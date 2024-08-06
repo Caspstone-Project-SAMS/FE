@@ -12,6 +12,7 @@ import { AttendanceService } from '../../../hooks/Attendance';
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import { AttendanceRecord } from '../../../models/attendance/AttendanceReport';
+import { useLocation } from 'react-router-dom';
 
 interface DataType {
     key: React.Key;
@@ -33,10 +34,10 @@ const { Text, Title } = Typography
 
 const AttendanceStatus: React.FC<{ status: number }> = ({ status }) => {
     //0: not_yet, 1: attended, 2: absent
-    const color = status === 0
-        ? (styles.notYetColor)
+    const color = status === 1
+        ? (styles.attendedColor)
         : (
-            status === 1 ? (styles.attendedColor) : (styles.absentColor)
+            status === 2 ? (styles.absentColor) : (styles.notYetColor)
         );
     return (
         <div className={`${styles.statusIcon} ${color}`}>
@@ -106,7 +107,10 @@ const data: ReportItem[] = [
     },
 ];
 
-const ClassReport = () => {
+const ClassReport: React.FC = () => {
+    const location = useLocation();
+    const { classId } = location.state || 0;
+
     const [searchInput, setSearchInput] = useState('');
     const [classes, setClasses] = useState<[]>([]);
     const [filteredClass, setFilteredClass] = useState<[]>(classes);
@@ -163,9 +167,10 @@ const ClassReport = () => {
     };
 
     useEffect(() => {
-        // setColDatas(columns);
-        // setRowDatas([]);
-        const promise = AttendanceService.getClassAttendanceReportByID(5);
+        setColDatas(columns);
+        setRowDatas([]);
+
+        const promise = AttendanceService.getClassAttendanceReportByID(classId);
         promise.then(data => {
             console.log("Got this data ", data);
             data.forEach((item, index) => {
@@ -175,7 +180,6 @@ const ClassReport = () => {
                     name: item.studentName,
                     studentCode: item.studentCode,
                     absentPercent: item.absencePercentage,
-                    // attendanceStatus: item
                 };
 
                 item.attendanceRecords.forEach((item, i) => {
@@ -188,6 +192,7 @@ const ClassReport = () => {
                             title: titleCol,
                             dataIndex: `date_${i}`,
                             key: `date_${i}`,
+                            width: 85
                         };
                         setColDatas(prev => [...prev, col]);
                     }
@@ -202,9 +207,12 @@ const ClassReport = () => {
         }).catch(err => {
             toast.error('Unexpected error occured.')
         })
+    }, [classId])
 
-
-    }, [])
+    useEffect(() => {
+        console.log("row ", rowDatas);
+        console.log("col ", colDatas);
+    }, [rowDatas, colDatas])
 
     return (
         <Content className={styles.classReportCtn}>
@@ -246,8 +254,8 @@ const ClassReport = () => {
                 //  width: '60%'
             }}>
                 <Table
-                    columns={columns}
-                    dataSource={data}
+                    columns={colDatas}
+                    dataSource={rowDatas}
                     scroll={{ x: 1300 }}
                 />
             </div>

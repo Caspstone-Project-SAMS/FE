@@ -37,6 +37,10 @@ const lecture = [
     element: <Class />
   },
   {
+    path: '/class/detail/class-report',
+    element: <ClassReport />
+  },
+  {
     path: '/class/detail',
     element: <AdminClassDetail />
   },
