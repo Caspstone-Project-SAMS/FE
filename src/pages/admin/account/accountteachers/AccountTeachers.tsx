@@ -8,6 +8,7 @@ import { Employee, EmployeeDetail } from '../../../../models/employee/Employee';
 import { useNavigate } from 'react-router-dom';
 import { EmployeeService } from '../../../../hooks/Employee';
 import { IoMdInformation } from 'react-icons/io';
+import userIcon from '../../../../assets/imgs/users.png';
 
 const { Header: AntHeader } = Layout;
 
@@ -34,21 +35,21 @@ const AccountTeachers: React.FC = () => {
     },
     {
       key: '3',
-      title: 'Address',
-      dataIndex: 'address',
+      title: 'Department',
+      dataIndex: 'department',
     },
+    // {
+    //   key: '4',
+    //   title: 'Birthday',
+    //   dataIndex: 'birthday',
+    // },
     {
       key: '4',
-      title: 'Birthday',
-      dataIndex: 'birthday',
-    },
-    {
-      key: '5',
       title: 'Phone',
       dataIndex: 'phone',
     },
     {
-      key: '6',
+      key: '5',
       title: 'Info',
       dataIndex: 'info',
       render: (lecturerID: number) => (
@@ -93,11 +94,7 @@ const AccountTeachers: React.FC = () => {
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>
-            <p
-              className={styles.tableTitle}
-            >
-              Teachers
-            </p>
+            <p className={styles.tableTitle}>Teachers</p>
             {/* <Row gutter={[16, 16]}>
               <Col>
                 <Input
@@ -116,12 +113,20 @@ const AccountTeachers: React.FC = () => {
         columns={columns}
         dataSource={lecturer.map((item, index) => ({
           key: index,
-          lecturername: item.displayName,
+          lecturername: (
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <img
+                src={item.avatar || userIcon}
+                alt="Teacher"
+                className={styles.img}
+              />
+              <p className={styles.lecturerName}>{item.displayName}</p>
+            </div>
+          ),
           email: item.email,
-          address: item.address,
-          birthday: item.dob,
+          department: item.department,
           phone: item.phoneNumber,
-          info: item.employeeID
+          info: item.employeeID,
         }))}
         pagination={{
           showSizeChanger: true,

@@ -77,16 +77,19 @@ const Semester: React.FC = () => {
     (state: RootState) => state.semester.message,
   );
 
-  const handleSearchSemester = useCallback ((value: string) => {
-    setSearchInput(value);
-    const filtered = semester.filter(
-      (item) =>
-        item.semesterCode &&
-        item.semesterCode.toLowerCase().includes(value.toLowerCase()),
-    );
-    setFilteredSemester(filtered);
-    setIsUpdate(true);
-  }, [semester]);
+  const handleSearchSemester = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      const filtered = semester.filter(
+        (item) =>
+          item.semesterCode &&
+          item.semesterCode.toLowerCase().includes(value.toLowerCase()),
+      );
+      setFilteredSemester(filtered);
+      setIsUpdate(true);
+    },
+    [semester],
+  );
 
   useEffect(() => {
     const fetchSemesters = async () => {
@@ -97,11 +100,10 @@ const Semester: React.FC = () => {
         console.log('get semester error: ', error);
       }
     };
-  
+
     fetchSemesters();
-    handleSearchSemester(searchInput)
+    handleSearchSemester(searchInput);
   }, [reload, handleSearchSemester, searchInput]);
-  
 
   useEffect(() => {
     if (successMessage) {
@@ -246,8 +248,6 @@ const Semester: React.FC = () => {
     },
   ];
 
-
-
   const CreatedNewSemester = async (
     SemesterCode: string,
     SemesterStatus: number,
@@ -349,13 +349,25 @@ const Semester: React.FC = () => {
             semester: item.semesterCode,
             semesterstatus: (
               <div>
-              <Tag 
-                color={item.semesterStatus ? 'green' : 'red'} 
-                style={{ fontWeight: 'bold', fontSize: '10px' }}
-              >
-                {item.semesterStatus ? 'active' : 'inactive'}
-              </Tag>
-            </div>
+                <Tag
+                  color={
+                    item.semesterStatus === 1
+                      ? 'gray'
+                      : item.semesterStatus === 2
+                      ? 'blue'
+                      : 'green'
+                  }
+                  style={{ fontWeight: 'bold', fontSize: '10px' }}
+                >
+                  {item.semesterStatus === 1
+                    ? 'Not Yet'
+                    : item.semesterStatus === 2
+                    ? 'Ongoing'
+                    : item.semesterStatus === 3
+                    ? 'Finished'
+                    : 'Unknown'}
+                </Tag>
+              </div>
             ),
             startdate: moment(item.startDate, 'YYYY-MM-DD').format(
               'DD/MM/YYYY',
@@ -443,8 +455,9 @@ const Semester: React.FC = () => {
           value={SemesterStatus}
           style={{ marginBottom: '10px' }}
         >
-          <Radio value={1}>Active</Radio>
-          <Radio value={0}>Inactive</Radio>
+          <Radio value={1}>Not Yet</Radio>
+          <Radio value={2}>On going</Radio>
+          <Radio value={3}>Finished</Radio>
         </Radio.Group>
         {errors.semesterStatus && (
           <p className={styles.errorText}>{errors.semesterStatus}</p>
@@ -454,7 +467,7 @@ const Semester: React.FC = () => {
           placeholder="Start Date"
           value={StartDate ? moment(StartDate, 'YYYY-MM-DD') : null}
           onChange={(date, dateString) => {
-            setStartDate((`${dateString}`));
+            setStartDate(`${dateString}`);
             setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
           }}
           format="YYYY-MM-DD"
@@ -468,7 +481,7 @@ const Semester: React.FC = () => {
           placeholder="End Date"
           value={EndDate ? moment(EndDate, 'YYYY-MM-DD') : null}
           onChange={(date, dateString) => {
-            setEndDate((`${dateString}`));
+            setEndDate(`${dateString}`);
             setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
           }}
           format="YYYY-MM-DD"

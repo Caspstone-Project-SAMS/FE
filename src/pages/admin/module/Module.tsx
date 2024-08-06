@@ -61,8 +61,8 @@ const Module: React.FC = () => {
     },
     {
       key: '4',
-      title: 'Prepare Time',
-      dataIndex: 'preparedTime',
+      title: 'Owner',
+      dataIndex: 'owner',
     },
     {
       key: '5',
@@ -154,7 +154,7 @@ const Module: React.FC = () => {
           moduleID: item.moduleID,
           status: item.status,
           mode: item.mode,
-          preparedTime: item.preparedTime ? item.preparedTime : 'Not prepare',
+          owner: item.employee.displayName,
           info: item.moduleID,
         }))}
         pagination={{

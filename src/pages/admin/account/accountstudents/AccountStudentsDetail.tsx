@@ -165,10 +165,10 @@ const AccountStudentsDetail: React.FC = () => {
         if (fingerTwo === true) {
           if (length === 2) {
             if (selectedFingers.includes(fingerId)) {
-              length - 1
+              length - 1;
               setNext(true);
               setProgressStep1(3);
-              setProgressStep2(1);   
+              setProgressStep2(1);
             }
           }
           if (next === true) {
@@ -755,7 +755,6 @@ const AccountStudentsDetail: React.FC = () => {
     }
   };
 
-
   console.log('one', fingerOne);
   console.log('two', fingerTwo);
 
@@ -866,28 +865,6 @@ const AccountStudentsDetail: React.FC = () => {
 
               <div>
                 <Col>
-                  {student.result.fingerprintTemplates.length === 0 && (
-                    <Row>
-                      <Button
-                        style={{ width: '100%', marginBottom: 10 }}
-                        type="primary"
-                        block
-                        onClick={() => {
-                          showModalRegister();
-                          // activeModuleRegisterThree(moduleID, 3);
-                        }}
-                        disabled={
-                          isActiveModule ||
-                          !moduleID ||
-                          status === 'fail' ||
-                          !sessionID ||
-                          disable
-                        }
-                      >
-                        <p>Register Fingerprints</p>
-                      </Button>
-                    </Row>
-                  )}
                   <Row>
                     <Col
                       span={24}
@@ -1248,6 +1225,28 @@ const AccountStudentsDetail: React.FC = () => {
                     </Button>
                   </Row>
                 )}
+                {student.result.fingerprintTemplates.length === 0 && (
+                  <Row>
+                    <Button
+                      style={{ width: '100%', marginBottom: 10 }}
+                      type="primary"
+                      block
+                      onClick={() => {
+                        showModalRegister();
+                        // activeModuleRegisterThree(moduleID, 3);
+                      }}
+                      disabled={
+                        isActiveModule ||
+                        !moduleID ||
+                        status === 'fail' ||
+                        !sessionID ||
+                        disable
+                      }
+                    >
+                      <p>Register Fingerprints</p>
+                    </Button>
+                  </Row>
+                )}
               </Card>
             </div>
           </Col>
@@ -1333,13 +1332,28 @@ const AccountStudentsDetail: React.FC = () => {
         width={800}
         // bodyStyle={{ minHeight: '300px' }}
         footer={[
-          <Button key="cancel" onClick={handleExit}>
+          <Button
+            key="cancel"
+            onClick={() => {
+              Modal.confirm({
+                title: 'Confirm Cancel',
+                content: 'Are you sure you want to cancel progress?',
+                onOk: handleExit,
+              });
+            }}
+          >
             Cancel
           </Button>,
           <Button
             key="submit"
             type="primary"
-            onClick={handleConfirmUpload}
+            onClick={() => {
+              Modal.confirm({
+                title: 'Confirm Submission',
+                content: 'Are you sure you want to submit the fingerprint?',
+                onOk: handleConfirmUpload,
+              });
+            }}
             // disabled={progressStep2 !== 3}
           >
             Submit

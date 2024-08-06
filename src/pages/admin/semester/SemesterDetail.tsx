@@ -18,6 +18,7 @@ import type {
 import { useLocation } from 'react-router-dom';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { CiSearch } from 'react-icons/ci';
+import moment from 'moment';
 const { Header: AntHeader } = Layout;
 
 const SemesterDetail: React.FC = () => {
@@ -43,8 +44,8 @@ const SemesterDetail: React.FC = () => {
       ),
       isAuthenticated: true,
     },
-    { title: 'Start Date', value: semester?.result.startDate },
-    { title: 'End Date', value: semester?.result.endDate },
+    { title: 'Start Date', value: moment(semester?.result.startDate, 'YYYY-MM-DD').format('DD/MM/YYYY') },
+    { title: 'End Date', value: moment(semester?.result.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY') },
   ];
 
   useEffect(() => {
@@ -169,15 +170,7 @@ const SemesterDetail: React.FC = () => {
                               {detail.title}
                             </td>
                             <td>
-                              <p
-                                style={{
-                                  color: detail.isAuthenticated
-                                    ? detail.value === 'true'
-                                      ? 'green'
-                                      : 'red'
-                                    : 'inherit',
-                                }}
-                              >
+                              <p>
                                 {detail.value}
                               </p>
                             </td>

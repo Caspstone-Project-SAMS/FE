@@ -343,10 +343,10 @@ const AccountStudents: React.FC = () => {
           }))}
         pagination={{
           showSizeChanger: true,
-          current: currentPage,
-          pageSize: pageSize,
-          total: totalRecords,
-          onChange: handlePagination,
+          // current: currentPage,
+          // pageSize: pageSize,
+          // total: totalRecords,
+          // onChange: handlePagination,
         }}
       ></Table>
       <Modal
