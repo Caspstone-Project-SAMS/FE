@@ -25,6 +25,7 @@ import Module from '../pages/admin/module/Module';
 import ModuleDetail from '../pages/admin/module/ModuleDetail';
 import ScheduleImport from '../pages/schedule/ScheduleImport';
 import AccountTeacherDetail from '../pages/admin/account/accountteachers/AccountTeacherDetail';
+import ClassReport from '../pages/class/classReport/ClassReport';
 
 const lecture = [
   {
@@ -34,6 +35,10 @@ const lecture = [
   {
     path: '/class',
     element: <Class />
+  },
+  {
+    path: '/class/detail/class-report',
+    element: <ClassReport />
   },
   {
     path: '/class/detail',
@@ -58,6 +63,10 @@ const lecture = [
   {
     path: '/class/classdetails',
     element: <ClassDetails />
+  },
+  {
+    path: '/class-report',
+    element: <ClassReport />
   },
   // {
   //   path: '/import-schedule',

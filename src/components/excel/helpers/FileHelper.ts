@@ -1248,11 +1248,17 @@ const handleImportSchedule = (
                 }
               }
             }
-
+            console.log('This is cellData ', cellData);
             if (Object.keys(cellData).length > 1) {
               cellData['slotNumber'] = currentSlot;
               sample2.push(cellData);
             }
+            // else if(Object.keys(cellData).length > 1 && ){
+            //   createMsgLog({
+            //     type: 'error',
+            //     message: `Invalid format data at ${col.index}${i} - Val: ${JSON.stringify(cellData)}`,
+            //   });
+            // }
           }
         });
       }

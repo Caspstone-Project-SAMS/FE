@@ -1,9 +1,10 @@
 @import '../../assets/styles/variables.less';
 
 .content {
-    margin-left: 20px;
-    margin-top: 20px;
-    margin-right: 20px;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding-right: 20px;
+    overflow-y: auto;
 
     .class-details-header {
         display: flex;
@@ -169,24 +170,24 @@
 .account-class-content {
     overflow-y: auto;
     // margin: 20px 20px 20px 20px;
+}
 
-    .card-header {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
+.card-header {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 
-        .table-header {
-            background-color: white;
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            margin-top: -15px;
-            margin-bottom: -15px;
+    .table-header {
+        background-color: white;
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        margin-top: -15px;
+        margin-bottom: -15px;
 
-            .table-title {
-                font-size: 20px;
-                font-weight: 500;
-                margin-left: -40px;
-            }
+        .table-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-left: -40px;
         }
     }
 }
@@ -249,4 +250,34 @@
             color: #8f8f91;
         }
     }
+}
+
+//Class report
+.classReportCtn {
+    padding: 20px;
+    overflow-y: auto;
+
+
+}
+
+//Attendance status
+.statusIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.notYetColor {
+    background-color: @yellow-base;
+}
+
+.attendedColor {
+    background-color: #00d749;
+}
+
+.absentColor {
+    background-color: #ff5151;
 }
