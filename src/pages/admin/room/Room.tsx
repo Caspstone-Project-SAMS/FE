@@ -57,30 +57,37 @@ const Room: React.FC = () => {
   const failMessage = useSelector((state: RootState) => state.room.roomDetail);
   const successMessage = useSelector((state: RootState) => state.room.message);
 
-  const handleSearchRoom = useCallback((value: string) => {
-    setSearchInput(value);
-    const filtered = room.filter(
-      (item) =>
-        item.roomName &&
-        item.roomName.toLowerCase().includes(value.toLowerCase()),
-    );
-    setFilteredRoom(filtered);
-    setIsUpdate(true);
-  }, [room]);
+  const handleSearchRoom = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      const filtered = room.filter(
+        (item) =>
+          item.roomName &&
+          item.roomName.toLowerCase().includes(value.toLowerCase()),
+      );
+      setFilteredRoom(filtered);
+      setIsUpdate(true);
+    },
+    [room],
+  );
+
+  const fetchRooms = useCallback(async () => {
+    try {
+      const data = await RoomService.getAllRoom();
+      setRoom(data || []);
+    } catch (error) {
+      console.log('get room error: ', error);
+    }
+  }, []);
+  useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const data = await RoomService.getAllRoom();
-        setRoom(data || []);
-      } catch (error) {
-        console.log('get room error: ', error);
-      }
-    };
-    fetchRooms();
-    handleSearchRoom(searchInput);
-  }, [reload, handleSearchRoom, searchInput]);
-  
+    if (searchInput !== '' && room.length > 0) {
+      handleSearchRoom(searchInput);
+    }
+  }, [room, searchInput, handleSearchRoom]);
 
   useEffect(() => {
     if (successMessage) {
@@ -124,7 +131,7 @@ const Room: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchRooms();
   };
 
   const handleUpdate = async () => {
@@ -138,6 +145,7 @@ const Room: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
+    fetchRooms();
   };
 
   const handleCancel = () => {
@@ -175,8 +183,6 @@ const Room: React.FC = () => {
       dataIndex: 'action',
     },
   ];
-
-
 
   const createNewRoom = async (
     RoomName: string,
@@ -220,7 +226,7 @@ const Room: React.FC = () => {
       onOk: async () => {
         await RoomService.deleteRoom(roomID);
         message.success('Room deleted successfully');
-        setReload((prevReload) => prevReload + 1);
+        fetchRooms();
       },
     });
   };
@@ -277,13 +283,13 @@ const Room: React.FC = () => {
           roomdescription: item.roomDescription,
           roomstatus: (
             <div>
-            <Tag 
-              color={item.roomStatus ? 'green' : 'red'} 
-              style={{ fontWeight: 'bold', fontSize: '10px' }}
-            >
-              {item.roomStatus ? 'active' : 'inactive'}
-            </Tag>
-          </div>
+              <Tag
+                color={item.roomStatus ? 'green' : 'red'}
+                style={{ fontWeight: 'bold', fontSize: '10px' }}
+              >
+                {item.roomStatus ? 'active' : 'inactive'}
+              </Tag>
+            </div>
           ),
           action: (
             <div>

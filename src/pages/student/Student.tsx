@@ -3,7 +3,7 @@ import styles from './Student.module.less'; // Adjust the import if necessary
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { StudentAttendanceService } from '../../hooks/StudentAttendance';
-import { StudentAttendance } from '../../models/student/StudentAttendance';
+import { Slot, StudentAttendance } from '../../models/student/StudentAttendance';
 import { CalendarService } from '../../hooks/Calendar';
 import { Content } from 'antd/es/layout/layout';
 import { ClassService } from '../../hooks/Class';
@@ -48,7 +48,7 @@ const Student: React.FC = () => {
             semesterID,
             studentId,
           );
-          console.log('data', data)
+          console.log('data', data);
           setClasses(data?.result || []);
         } catch (error) {
           console.error('Error fetching classes:', error);
@@ -77,7 +77,7 @@ const Student: React.FC = () => {
     }
   }, [classId, studentId]);
 
-  console.log('attendance', studentAttendance)
+  console.log('attendance', studentAttendance);
 
   const columns = [
     {
@@ -112,7 +112,7 @@ const Student: React.FC = () => {
       dataIndex: 'slot',
       render: (_, record) => {
         const slot = studentAttendance?.result.find(
-          (attendance) => attendance.slot.slotNumber === record.key
+          (attendance) => attendance.slot.slotID === record.slot.slotID
         )?.slot?.slotNumber;
         return slot ?? 'N/A';
       },
@@ -121,6 +121,35 @@ const Student: React.FC = () => {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
+      render: (date: string) => {
+        const formattedDate = new Date(date).toLocaleDateString('en-GB');
+        return formattedDate;
+      },
+    },
+    // {
+    //   title: 'Time',
+    //   key: 'time',
+    //   dataIndex: 'time',
+    //   render: (_, record) => {
+    //     const startTime = studentAttendance?.result.find(
+    //       (attendance) => attendance.slot.slotID === record.slot.slotID
+    //     )?.slot?.startTime;
+    //     const endTime = studentAttendance?.result.find(
+    //       (attendance) => attendance.slot.slotID === record.slot.slotID
+    //     )?.slot?.endTime;
+    //     return startTime - endTime ?? 'N/A';
+    //   },
+    // },
+    {
+      title: 'Room',
+      key: 'room',
+      dataIndex: 'roomName',
+      render: (_, record) => {
+        const room = studentAttendance?.result.find(
+          (attendance) => attendance.room.roomID === record.room.roomID
+        )?.room?.roomName;
+        return room ?? 'N/A';
+      },
     },
     {
       title: 'Status',
@@ -160,13 +189,12 @@ const Student: React.FC = () => {
       setStudentAttendance(null); // Reset attendance data
     }
   };
-  
 
   // const expandedRowRender = (semester: Semester) => {
   //   const filteredClasses = classes.filter(
   //     (cls) => cls.semester.semesterID === semester.semesterID,
   //   );
-    
+
   //   return (
   //     <Collapse>
   //       <Panel header="Classes" key="1">
@@ -207,7 +235,7 @@ const Student: React.FC = () => {
     const filteredClasses = classes.filter(
       (cls) => cls.semester.semesterID === semester.semesterID,
     );
-    
+
     return (
       <Collapse>
         <Panel header="Classes" key="1">
@@ -216,21 +244,19 @@ const Student: React.FC = () => {
             dataSource={filteredClasses}
             rowKey="classID"
             onRow={(record) => ({
-              onClick: () => handleClassRowClick(record),
+              // onClick: () => handleClassRowClick(record),
             })}
             expandable={{
               expandedRowRender: (record) =>
                 expandedClassRow === record.classID && (
                   <Table
                     columns={attendanceColumns}
-                    dataSource={
-                      studentAttendance?.result
-                    }
-                    rowKey="classID"
+                    dataSource={studentAttendance?.result}
+                    rowKey="attendanceID"
                   />
                 ),
-              rowExpandable: (record) =>
-                true,
+              rowExpandable: (record) => true,
+              onExpand: (expanded, record) => handleClassRowClick(record),
             }}
             expandedRowKeys={expandedClassRow ? [expandedClassRow] : []}
           />
@@ -238,7 +264,6 @@ const Student: React.FC = () => {
       </Collapse>
     );
   };
-  
 
   const handleSemesterExpand = (expanded: boolean, record: Semester) => {
     if (expanded) {

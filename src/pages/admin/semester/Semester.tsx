@@ -91,19 +91,23 @@ const Semester: React.FC = () => {
     [semester],
   );
 
+  const fetchSemesters = useCallback(async () => {
+    try {
+      const data = await CalendarService.getAllSemester();
+      setSemester(data || []);
+    } catch (error) {
+      console.log('get semester error: ', error);
+    }
+  }, []);
   useEffect(() => {
-    const fetchSemesters = async () => {
-      try {
-        const data = await CalendarService.getAllSemester();
-        setSemester(data || []);
-      } catch (error) {
-        console.log('get semester error: ', error);
-      }
-    };
-
     fetchSemesters();
-    handleSearchSemester(searchInput);
-  }, [reload, handleSearchSemester, searchInput]);
+  }, [fetchSemesters]);
+
+  useEffect(() => {
+    if (searchInput !== '' && semester.length > 0) {
+      handleSearchSemester(searchInput);
+    }
+  }, [semester, searchInput, handleSearchSemester]);
 
   useEffect(() => {
     if (successMessage) {
@@ -155,7 +159,7 @@ const Semester: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchSemesters();
   };
 
   const handleUpdate = async () => {
@@ -175,7 +179,7 @@ const Semester: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchSemesters();
   };
 
   const handleCancel = () => {
@@ -290,7 +294,7 @@ const Semester: React.FC = () => {
       onOk: async () => {
         await SemesterService.deleteSemester(semesterID);
         message.success('Semester deleted successfully');
-        setReload((prevReload) => prevReload + 1);
+        fetchSemesters();
       },
     });
   };

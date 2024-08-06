@@ -43,9 +43,11 @@ const Subject: React.FC = () => {
   const [SubjectStatus, setSubjectStatus] = useState(0);
   // const [CreateBy, setCreateBy] = useState('');
 
-  const [reload, setReload] = useState(0);
+  // const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
+
+  // const [fetchSuccess, setFetchSuccess] = useState(false);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -58,33 +60,41 @@ const Subject: React.FC = () => {
     (state: RootState) => state.subject.message,
   );
 
-  const handleSearchSubject = useCallback((value: string) => {
-    setSearchInput(value);
-    const filtered = subject.filter(
-      (item) =>
-        (item.subjectName &&
-          item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
-        (item.subjectCode &&
-          item.subjectCode.toLowerCase().includes(value.toLowerCase())),
-    );
-    setFilteredSubject(filtered);
-    setIsUpdate(true);
-  }, [subject]); 
+  const handleSearchSubject = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      const filtered = subject.filter(
+        (item) =>
+          (item.subjectName &&
+            item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
+          (item.subjectCode &&
+            item.subjectCode.toLowerCase().includes(value.toLowerCase())),
+      );
+      console.log(11111111);
+      setFilteredSubject(filtered);
+      setIsUpdate(true);
+    },
+    [subject],
+  );
+
+  const fetchSubjects = useCallback(async () => {
+    try {
+      const data = await SubjectService.getAllSubject();
+      setSubject(data || []);
+    } catch (error) {
+      console.log('get subject error: ', error);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const data = await SubjectService.getAllSubject();
-        setSubject(data || []);
-      } catch (error) {
-        console.log('get subject error: ', error);
-      }
-    };
-  
     fetchSubjects();
-    handleSearchSubject(searchInput)
-  }, [reload, handleSearchSubject, searchInput]);
-  
+  }, [fetchSubjects]);
+
+  useEffect(() => {
+    if (searchInput !== '' && subject.length > 0) {
+      handleSearchSubject(searchInput);
+    }
+  }, [subject, searchInput, handleSearchSubject]);
 
   useEffect(() => {
     if (successMessage) {
@@ -123,7 +133,7 @@ const Subject: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchSubjects();
   };
 
   const handleUpdate = async () => {
@@ -132,6 +142,7 @@ const Subject: React.FC = () => {
     await updateExistingSubject(subjectID, SubjectCode, SubjectName);
     setLoading(false);
     setIsModalVisible(false);
+    fetchSubjects();
   };
 
   const handleCancel = () => {
@@ -167,8 +178,6 @@ const Subject: React.FC = () => {
       dataIndex: 'action',
     },
   ];
-
-
 
   const createNewSubject = async (
     SubjectCode: string,
@@ -211,7 +220,7 @@ const Subject: React.FC = () => {
       onOk: async () => {
         await SubjectService.deleteSubject(subjectID);
         message.success('Subject deleted successfully');
-        setReload((prevReload) => prevReload + 1);
+        fetchSubjects();
       },
     });
   };
