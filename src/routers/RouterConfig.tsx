@@ -61,7 +61,7 @@ const lecture = [
     element: <ClassDetails />
   },
   {
-    path: '/report',
+    path: '/class-report',
     element: <ClassReport />
   },
   // {

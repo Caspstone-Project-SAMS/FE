@@ -17,6 +17,8 @@ import {
   Typography,
   Select,
   Spin,
+  Popconfirm,
+  PopconfirmProps,
 } from 'antd';
 
 import module from '../../../assets/imgs/module.png';
@@ -145,7 +147,7 @@ const ClassDetails: React.FC = () => {
     [moduleDetail],
   );
 
-console.log('session', sessionID)
+  console.log('session', sessionID)
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -440,16 +442,16 @@ console.log('session', sessionID)
       <Spin size="medium" />
     </span>
   );
-   console.log('exit', exit)
+  console.log('exit', exit)
 
   const activeModuleCheckAttendance = async (moduleID: number, SessionId: number) => {
-    if(exit === true) {
+    if (exit === true) {
       const arg = {
         ModuleID: moduleID,
         Mode: 6,
         token: token,
       };
-  
+
       await dispatch(activeModule(arg) as any);
     }
     setExit(false);
@@ -471,6 +473,16 @@ console.log('session', sessionID)
       .catch((error) => {
         console.error('Error:', error);
       });
+  };
+
+  const confirm: PopconfirmProps['onConfirm'] = (e) => {
+    console.log(e);
+    message.success('Click on Yes');
+  };
+
+  const cancel: PopconfirmProps['onCancel'] = (e) => {
+    console.log(e);
+    message.error('Click on No');
   };
 
   return (
@@ -660,7 +672,7 @@ console.log('session', sessionID)
                   marginRight: 10,
                   display: 'flex',
                   justifyContent: 'center',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                 }}
               >
                 <Row className={styles.btnGroup}>
@@ -675,9 +687,25 @@ console.log('session', sessionID)
                       setIsActiveModule={setIsActiveModule}
                     /> */}
                   </div>
+                  <Popconfirm
+                    title="Disconnect Online Attendance Tracking"
+                    description="Are you sure to disconnect?"
+                    onConfirm={handleReset}
+                    onCancel={cancel}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button
+                      danger
+                      type='primary'
+                      style={{ alignSelf: 'end', marginBottom: '12px' }}
+                    >
+                      Disconnect tracking
+                    </Button>
+                  </Popconfirm>
                   <BtnDecoration
-                    btnFuncName="Start session"
-                    btnTitle="Attendance"
+                    btnFuncName="Prepare Data"
+                    btnTitle="Fingerprints"
                     imgDecor={reportIcon}
                     key={'fingerprintImport'}
                     isActiveModule={isActiveModule}
@@ -689,16 +717,6 @@ console.log('session', sessionID)
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
                     preparationProgress={preparationProgress}
                   />
-                  <Button
-                    onClick={handleReset}
-                    style={{
-                      marginTop: 10,
-                      backgroundColor: 'red',
-                      color: 'white',
-                    }}
-                  >
-                    Stop
-                  </Button>
                 </Row>
               </Col>
             </Row>
