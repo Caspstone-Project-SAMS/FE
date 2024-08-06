@@ -163,14 +163,12 @@ const ClassReport = () => {
     };
 
     useEffect(() => {
-        setColDatas(columns);
-        setRowDatas([]);
-
+        // setColDatas(columns);
+        // setRowDatas([]);
         const promise = AttendanceService.getClassAttendanceReportByID(5);
-
         promise.then(data => {
             console.log("Got this data ", data);
-            data.map((item, index) => {
+            data.forEach((item, index) => {
                 const isDifferentSlotInDay = hasDifferentSlots(item.attendanceRecords)
                 const rowData: any = {
                     key: `row_${index}`,
@@ -180,13 +178,14 @@ const ClassReport = () => {
                     // attendanceStatus: item
                 };
 
-                const listAttendance = item.attendanceRecords.map((item, i) => {
+                item.attendanceRecords.forEach((item, i) => {
                     //Set collumn datas
                     if (index === 0) {
-                        const date = moment(item.date, 'YYYY/MM/DD', true).format('DD/MM');
-                        const title = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
+                        const date = moment(item.date, 'YYYY-MM-DD', true).format('DD/MM');
+                        console.log("Date of api ", item.date, 'date', date);
+                        const titleCol = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
                         const col = {
-                            title: title,
+                            title: titleCol,
                             dataIndex: `date_${i}`,
                             key: `date_${i}`,
                         };
@@ -194,12 +193,17 @@ const ClassReport = () => {
                     }
                     rowData[`date_${i}`] = <AttendanceStatus status={item.slotNumber} key={`status_${index}-${i}`} />
                 });
+                console.log('Row data => ', rowData);
+
+                setRowDatas(prev => [...prev, rowData])
             })
             console.log("this is col ", colDatas);
             console.log("this is row ", rowDatas);
         }).catch(err => {
             toast.error('Unexpected error occured.')
         })
+
+
     }, [])
 
     return (
