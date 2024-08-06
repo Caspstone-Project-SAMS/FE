@@ -2,10 +2,11 @@ import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import vercel from 'vite-plugin-vercel';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), mkcert()],
+  plugins: [react(), mkcert(), vercel()],
   css: {
     preprocessorOptions: {
       less: {
