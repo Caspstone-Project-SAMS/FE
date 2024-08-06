@@ -111,7 +111,7 @@ const navigateFAP = () => {
   window.open('https://fap.fpt.edu.vn/', '_blank');
 };
 
-const randomDelay = () => Math.floor(Math.random() * 800) + 500;
+const randomDelay = () => Math.floor(Math.random() * 400) + 200;
 
 const checkContainedDate = (item: Date[], sample: Date[]): boolean => {
   // console.log('Item in ', item);

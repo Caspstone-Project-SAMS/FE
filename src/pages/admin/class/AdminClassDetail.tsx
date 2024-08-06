@@ -1,8 +1,8 @@
-import { Card, Col, Input, Layout, Row, Space, Table, Tag, Typography } from 'antd';
+import { Button, Card, Col, Input, Layout, Row, Space, Table, Tag, Typography } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
 import styles from './AdminClass.module.less';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { CiSearch } from 'react-icons/ci';
 import { ClassDetail, Schedule, Student } from '../../../models/Class';
@@ -135,13 +135,13 @@ const AdminClassDetail: React.FC = () => {
       dataIndex: 'scheduleStatus',
       render: (scheduleStatus: boolean) => (
         <div>
-        <Tag 
-          color={scheduleStatus ? 'green' : 'red'} 
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {scheduleStatus ? 'Authenticated' : 'Not Authenticated'}
-        </Tag>
-      </div>
+          <Tag
+            color={scheduleStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {scheduleStatus ? 'Authenticated' : 'Not Authenticated'}
+          </Tag>
+        </div>
       ),
     },
     {
@@ -159,12 +159,17 @@ const AdminClassDetail: React.FC = () => {
 
   return (
     <Content className={styles.accountClassContent}>
-      <ContentHeader
-        contentTitle="Class"
-        previousBreadcrumb={'Home / Class / '}
-        currentBreadcrumb={'Class Detail'}
-        key={''}
-      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <ContentHeader
+          contentTitle="Class"
+          previousBreadcrumb={'Home / Class / '}
+          currentBreadcrumb={'Class Detail'}
+          key={''}
+        />
+        {/* <Link to={'/class/detail/class-report'} state={classID}>
+          <Button>View class report</Button>
+        </Link> */}
+      </div>
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
           <Col span={14}>

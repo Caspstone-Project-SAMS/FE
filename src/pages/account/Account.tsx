@@ -1,7 +1,7 @@
 import { Content, Header } from 'antd/es/layout/layout';
 import React from 'react';
 import styles from './Account.module.less'
-import { Button, Card, Layout, Space, Typography } from 'antd';
+import { Avatar, Button, Card, Layout, Space, Typography } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { RxAvatar } from 'react-icons/rx';
 import useDispatch from '../../redux/UseDispatch';
@@ -44,8 +44,10 @@ const Account: React.FC = () => {
             <Space direction="horizontal" className={styles.card}>
               <Card className={styles.parentCard}>
                 <Space style={{ backgroundColor: 'white' }}>
-                  <RxAvatar size={40} />
-                  <Typography.Title>abc</Typography.Title>
+                  <Avatar
+                    size={70}
+                    src={userDetail?.result?.avatar ? userDetail?.result?.avatar : ''} />
+                  <Typography.Title>{userDetail?.result?.displayName && userDetail?.result?.displayName}</Typography.Title>
                 </Space>
                 <Content>
                   <Space direction="horizontal" className={styles.accountInfo}>
@@ -64,7 +66,7 @@ const Account: React.FC = () => {
                   </Space>
                 </Content>
               </Card>
-              <Card className={styles.parentCard}>
+              {/* <Card className={styles.parentCard}>
                 <Header style={{ backgroundColor: 'white' }}></Header>
                 <Content>
                   <Space direction="horizontal" className={styles.accountInfo}>
@@ -82,10 +84,10 @@ const Account: React.FC = () => {
                     ))}
                   </Space>
                 </Content>
-              </Card>
+              </Card> */}
             </Space>
             <Space style={{ width: '100%', justifyContent: 'end', paddingRight: 40, paddingBottom: 30, paddingTop: 20 }}>
-              <Button className={styles.btn}>Edit</Button>
+              {/* <Button className={styles.btn}>Edit</Button> */}
               <Button className={styles.btnLog} onClick={() => handleLogout()}>Log out</Button>
             </Space>
           </Space>

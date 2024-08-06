@@ -48,7 +48,7 @@ export const NOTIFICATION_API = `${server}/Notification`;
 export const DASHBOARD_API = `${server}/Dashboard`;
 
 //Import Schedules Image
-export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`
+export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`;
 
 //Google
 export const GET_GG_USER_INFO =

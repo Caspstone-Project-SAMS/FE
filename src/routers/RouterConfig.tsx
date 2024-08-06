@@ -37,6 +37,10 @@ const lecture = [
     element: <Class />
   },
   {
+    path: '/class/detail/class-report',
+    element: <ClassReport />
+  },
+  {
     path: '/class/detail',
     element: <AdminClassDetail />
   },
@@ -61,7 +65,7 @@ const lecture = [
     element: <ClassDetails />
   },
   {
-    path: '/report',
+    path: '/class-report',
     element: <ClassReport />
   },
   // {

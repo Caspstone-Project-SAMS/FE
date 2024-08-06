@@ -4,6 +4,7 @@ import {
   Attendance,
   UpdateListAttendance,
 } from '../models/attendance/Attendance';
+import { AttendanceReport } from '../models/attendance/AttendanceReport';
 
 // const headers = {
 //   'Content-Type': 'application/json',
@@ -43,7 +44,6 @@ const updateAttendance = async (
 };
 
 const updateListAttendance = async (data: UpdateListAttendance[]) => {
-  console.log('Data in', Array(data), 'Type of data is ', typeof data);
   const response = await axios.put(
     ATTENDANCE_API + '/update-list-student-status',
     data,
@@ -57,8 +57,21 @@ const updateListAttendance = async (data: UpdateListAttendance[]) => {
   return response.data;
 };
 
+const getClassAttendanceReportByID = async (
+  classId: number,
+): Promise<AttendanceReport[]> => {
+  const response = await axios.get(ATTENDANCE_API + '/attendance-report', {
+    params: {
+      classId,
+    },
+  });
+
+  return response.data;
+};
+
 export const AttendanceService = {
   getAttendanceByScheduleID,
   updateAttendance,
   updateListAttendance,
+  getClassAttendanceReportByID,
 };
