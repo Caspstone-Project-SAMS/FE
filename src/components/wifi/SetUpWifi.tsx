@@ -145,6 +145,12 @@ const SetUpWifi = () => {
                 }
                 handleRememberWifi(wifi) // used wifi will not pushed to top list - error
             }
+            // const wifi = {
+            //     ssid: ssid,
+            //     pass: HelperService.encryptString(pass)
+            // }
+            // handleRememberWifi(wifi) // used wifi will not pushed to top list - error
+
         }
     }
     const getRememberWifi = () => {
@@ -159,6 +165,12 @@ const SetUpWifi = () => {
                 list.forEach(item => {
                     item.pass = HelperService.decryptString(item.pass);
                 });
+                const decryptedList = list.map(item => ({
+                    ...item,
+                    pass: HelperService.decryptString(item.pass)
+                }));
+                console.log("ok ", decryptedList);
+
                 return list
             }
             return []
@@ -187,9 +199,11 @@ const SetUpWifi = () => {
             console.log("Unknown err happen when remember wifi");
         }
     };
+
     useEffect(() => {
+        // console.log("wifi here ", getRememberWifiDecrypt());
         setRememberWifis(getRememberWifiDecrypt())
-    }, [])
+    }, [isModalOpen])
 
     return (
         <div className={styles.setUpWifiCtn}>
