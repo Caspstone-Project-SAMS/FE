@@ -14,7 +14,6 @@ import { UserInfo } from '../../models/UserInfo';
 const Account: React.FC = () => {
 
   const userDetail: UserInfo | undefined = useSelector((state: RootState) => state.auth.userDetail)
-  console.log("test:", userDetail?.result)
   const dispatch = useDispatch();
   const handleLogout = async () => {
     dispatch(logout());
