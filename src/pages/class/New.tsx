@@ -160,7 +160,7 @@ export default function New() {
             SemesterId ?? 0,
             RoomId ?? 0,
             SubjectId ?? 0,
-            LecturerID ?? '',
+            // LecturerID ?? '',
             // CreatedBy,
         );
         setLoading(false);
@@ -174,7 +174,7 @@ export default function New() {
         SemesterId: number,
         RoomId: number,
         SubjectId: number,
-        LecturerID: string,
+        // LecturerID: string,
         // CreatedBy: string,
     ) => {
         const arg = {
@@ -182,7 +182,7 @@ export default function New() {
             SemesterId: SemesterId,
             RoomId: RoomId,
             SubjectId: SubjectId,
-            LecturerID: LecturerID,
+            LecturerID: lectureDetail?.id,
             // CreatedBy: CreatedBy,
         };
         await dispatch(createClass(arg) as any);
@@ -406,20 +406,21 @@ export default function New() {
                         </Select.Option>
                     ))}
                 </Select>
-                <p className={styles.createClassTitle}>Lecturer</p>
+                {/* <p className={styles.createClassTitle}>Lecturer</p>
                 <Select
                     placeholder="Lecturer"
                     value={LecturerID}
                     onChange={(value) => setLecturerID(value)}
                     style={{ marginBottom: '10px', width: '100%' }}
                 >
-                    {lecturer.map((lec) => (
+                    {
+                    lecturer.map((lec) => (
                         <Select.Option key={lec.id} value={lec.id}>
-                            {/* <img alt='lecturer' src={lec.avatar}/> */}
                             <p>{lec.displayName}</p>
                         </Select.Option>
-                    ))}
-                </Select>
+                    ))
+                    }
+                </Select> */}
             </Modal>
         </Content>
     );
