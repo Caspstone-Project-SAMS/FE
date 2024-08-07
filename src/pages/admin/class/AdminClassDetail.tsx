@@ -166,9 +166,9 @@ const AdminClassDetail: React.FC = () => {
           currentBreadcrumb={'Class Detail'}
           key={''}
         />
-        {/* <Link to={'/class/detail/class-report'} state={classID}>
+        <Link to={'/class/detail/class-report'} state={{ classID: classID, classCode: classes?.result.classCode }}>
           <Button>View class report</Button>
-        </Link> */}
+        </Link>
       </div>
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>

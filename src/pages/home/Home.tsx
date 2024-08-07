@@ -66,7 +66,6 @@ const Home: React.FC = () => {
 
   //Return current|next slot, upcoming class, subject prepare, today class
   const lectureDashboardCalculator = () => {
-    console.log("Calendar ", calendar);
     let hasEventToday = false
     let pastEvent = 0;
     const dashboardInfoVal: Dashboard = {
@@ -156,9 +155,9 @@ const Home: React.FC = () => {
     lectureDashboardCalculator()
   }, [calendar])
 
-  useEffect(() => {
-    console.log('dashboard change ', dashBoardInfo);
-  }, [dashBoardInfo])
+  // useEffect(() => {
+  //   console.log('dashboard change ', dashBoardInfo);
+  // }, [dashBoardInfo])
 
   const formatTime = (time: Date) => {
     const hours = time.getHours().toString().padStart(2, '0');

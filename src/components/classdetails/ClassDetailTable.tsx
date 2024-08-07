@@ -364,7 +364,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
             }}
             onSearch={(text) => {
               handleSearch(text);
-              socket.close();
+              // socket.close();
             }}
           // onChange={() => console.log("StudentList ", studentList)}
           // onSearch={() => {

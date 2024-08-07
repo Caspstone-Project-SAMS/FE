@@ -109,14 +109,15 @@ const data: ReportItem[] = [
 
 const ClassReport: React.FC = () => {
     const location = useLocation();
-    const { classId } = location.state || 0;
+    const { classID, classCode } = location.state || 0;
+    console.log("In class report ", location);
 
     const [searchInput, setSearchInput] = useState('');
     const [classes, setClasses] = useState<[]>([]);
-    const [filteredClass, setFilteredClass] = useState<[]>(classes);
 
     const [colDatas, setColDatas] = useState<TableColumnsType<ReportItem>>(columns);
     const [rowDatas, setRowDatas] = useState<any[]>([]);
+    const [filteredList, setFilteredList] = useState<any[]>([]);
     // const handleSearchClass = (value: string) => {
     //     setSearchInput(value);
 
@@ -165,54 +166,73 @@ const ClassReport: React.FC = () => {
 
         return false;
     };
+    const handleSearch = (value: string) => {
+        const filtered = rowDatas.filter((item) => {
+            return (
+                (item.studentName &&
+                    item.studentName.toLowerCase().includes(value.toLowerCase()))
+                ||
+                (item.studentCode &&
+                    item.studentCode.toLowerCase().includes(value.toLowerCase())))
+        }
+        );
+        setFilteredList(filtered);
+    };
 
     useEffect(() => {
-        setColDatas(columns);
-        setRowDatas([]);
+        try {
 
-        const promise = AttendanceService.getClassAttendanceReportByID(classId);
-        promise.then(data => {
-            console.log("Got this data ", data);
-            data.forEach((item, index) => {
-                const isDifferentSlotInDay = hasDifferentSlots(item.attendanceRecords)
-                const rowData: any = {
-                    key: `row_${index}`,
-                    name: item.studentName,
-                    studentCode: item.studentCode,
-                    absentPercent: item.absencePercentage,
-                };
+            // setColDatas(columns);
+            // setRowDatas([]);
 
-                item.attendanceRecords.forEach((item, i) => {
-                    //Set collumn datas
-                    if (index === 0) {
-                        const date = moment(item.date, 'YYYY-MM-DD', true).format('DD/MM');
-                        console.log("Date of api ", item.date, 'date', date);
-                        const titleCol = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
-                        const col = {
-                            title: titleCol,
-                            dataIndex: `date_${i}`,
-                            key: `date_${i}`,
-                            width: 85
-                        };
-                        setColDatas(prev => [...prev, col]);
-                    }
-                    rowData[`date_${i}`] = <AttendanceStatus status={item.slotNumber} key={`status_${index}-${i}`} />
-                });
-                console.log('Row data => ', rowData);
+            const promise = AttendanceService.getClassAttendanceReportByID(classID);
+            promise.then(data => {
+                setColDatas(columns);
+                setRowDatas([]);
+                data.forEach((item, index) => {
+                    const isDifferentSlotInDay = hasDifferentSlots(item.attendanceRecords)
+                    const rowData: any = {
+                        key: `row_${index}`,
+                        name: item.studentName,
+                        studentCode: item.studentCode,
+                        absentPercent: item.absencePercentage,
+                    };
 
-                setRowDatas(prev => [...prev, rowData])
+                    item.attendanceRecords.forEach((item, i) => {
+                        //Set collumn datas
+                        if (index === 0) {
+                            const date = moment(item.date, 'YYYY-MM-DD', true).format('DD/MM');
+                            console.log("Date of api ", item.date, 'date', date);
+                            const titleCol = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
+                            const col = {
+                                title: titleCol,
+                                dataIndex: `date_${i}`,
+                                key: `date_${i}`,
+                                width: 85
+                            };
+                            setColDatas(prev => [...prev, col]);
+                        }
+                        rowData[`date_${i}`] = <AttendanceStatus status={item.slotNumber} key={`status_${index}-${i}`} />
+                    });
+                    console.log('Row data => ', rowData);
+
+                    setRowDatas(prev => [...prev, rowData])
+                })
+                if (rowDatas) {
+                    setFilteredList(rowDatas)
+                }
+            }).catch(err => {
+                toast.error('Unexpected error occured.')
             })
-            console.log("this is col ", colDatas);
-            console.log("this is row ", rowDatas);
-        }).catch(err => {
+        } catch (error) {
             toast.error('Unexpected error occured.')
-        })
-    }, [classId])
+        }
+    }, [classID])
 
-    useEffect(() => {
-        console.log("row ", rowDatas);
-        console.log("col ", colDatas);
-    }, [rowDatas, colDatas])
+    // useEffect(() => {
+    //     console.log("row ", rowDatas);
+    //     console.log("col ", colDatas);
+    // }, [rowDatas, colDatas])
 
     return (
         <Content className={styles.classReportCtn}>
@@ -220,24 +240,24 @@ const ClassReport: React.FC = () => {
                 <ContentHeader
                     contentTitle='Class Report'
                     currentBreadcrumb='Report'
-                    previousBreadcrumb='Class / '
+                    previousBreadcrumb='Class / Detail / '
                 />
             </div>
             <Card className={styles.cardHeader}>
                 <Content>
                     <AntHeader className={styles.tableHeader}>
-                        <p className={styles.tableTitle}>NJS1602</p>
+                        <p className={styles.tableTitle}>{classCode}</p>
                         <Row gutter={[16, 16]}>
                             <Col>
-                                <Input
+                                {/* <Input
                                     placeholder="Search by name"
                                     suffix={<CiSearch />}
                                     variant="filled"
-                                    value={searchInput}
-                                // onChange={(e) => handleSearchClass(e.target.value)}
-                                ></Input>
+                                    // value={searchInput}
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                ></Input> */}
                             </Col>
-                            <Col>
+                            {/* <Col>
                                 <Button
                                     // onClick={showModalCreate}
                                     type="primary"
@@ -245,7 +265,7 @@ const ClassReport: React.FC = () => {
                                 >
                                     Add New
                                 </Button>
-                            </Col>
+                            </Col> */}
                         </Row>
                     </AntHeader>
                 </Content>
