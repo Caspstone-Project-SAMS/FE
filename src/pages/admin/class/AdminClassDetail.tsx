@@ -167,7 +167,7 @@ const AdminClassDetail: React.FC = () => {
           key={''}
         />
         <Link to={'/class/detail/class-report'} state={{ classID: classID, classCode: classes?.result.classCode }}>
-          <Button>View class report</Button>
+          <Button size='large'>View class report</Button>
         </Link>
       </div>
       <Card className={styles.cardHeaderDetail}>

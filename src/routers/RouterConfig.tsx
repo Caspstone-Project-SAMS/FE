@@ -148,6 +148,10 @@ const admin = [
     element: <AdminClassDetail />
   },
   {
+    path: '/class/detail/class-report',
+    element: <ClassReport />
+  },
+  {
     path: '/module',
     element: <Module />
   },
