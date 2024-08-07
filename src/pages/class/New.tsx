@@ -300,15 +300,19 @@ export default function New() {
                                     onChange={(e) => handleSearchClass(e.target.value)}
                                 ></Input>
                             </Col>
-                            <Col>
-                                <Button
-                                    onClick={showModalCreate}
-                                    type="primary"
-                                    icon={<PlusOutlined />}
-                                >
-                                    Add New
-                                </Button>
-                            </Col>
+                            {
+                                lectureDetail?.role.name === 'Admin' && (
+                                    <Col>
+                                        <Button
+                                            onClick={showModalCreate}
+                                            type="primary"
+                                            icon={<PlusOutlined />}
+                                        >
+                                            Add New
+                                        </Button>
+                                    </Col>
+                                )
+                            }
                         </Row>
                     </AntHeader>
                 </Content>
