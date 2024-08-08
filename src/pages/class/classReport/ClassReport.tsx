@@ -59,7 +59,7 @@ const AttendanceStatus: React.FC<{ status: number }> = ({ status }) => {
 const columns: TableColumnsType<ReportItem> = [
     {
         title: 'Students name',
-        width: 200,
+        width: 150,
         dataIndex: 'name',
         key: 'name',
         fixed: 'left',
@@ -73,7 +73,7 @@ const columns: TableColumnsType<ReportItem> = [
     },
     {
         title: 'Absent',
-        width: 100,
+        width: 40,
         dataIndex: 'absentPercent',
         key: 'absentPercent',
         fixed: 'left',

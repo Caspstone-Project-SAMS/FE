@@ -68,42 +68,39 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
         switch (message.Event) {
           case "StudentAttended":
             {
-              //new
-              const studentIDs = message.Data.studentIDs
-              console.log("studentIDS ", studentIDs);
-              if (Array.isArray(studentIDs)) {
-                console.log("Im in the arr ",);
-                studentIDs.map(item => {
-                  console.log("On update item ", item);
-                  const element = document.getElementById(`attendanceStatus-${item}`);
-                  if (element) {
-                    element.innerHTML = 'Attended';
-                    element.style.color = 'green';
-                  }
-                })
+              try {
+                const studentIDs = message.Data.studentIDs
+                console.log("studentIDS ", studentIDs);
+                if (Array.isArray(studentIDs)) {
+                  studentIDs.map(item => {
+                    console.log("On update item ", item);
+                    console.log("List origin ", studentList);
+                    console.log("update list ", updatedList);
+                    const sample = []
+                    for (let i = 0; i < studentList.length; i++) {
+                      const student = studentList[i]
+                      if (student.studentID === item) {
+                        sample.push({ ...student, attendanceStatus: 1 })
+                      } else {
+                        sample.push(student)
+                      }
+                    }
+                    if (sample.length > 0) {
+                      setStudentList(sample);
+                      setUpdatedList(sample);
+                    }
+
+                    // const element = document.getElementById(`attendanceStatus-${item}`);
+                    // if (element) {
+                    //   element.innerHTML = 'Attended';
+                    //   element.style.color = 'green';
+                    // }
+                  })
+                }
+              } catch (error) {
+                toast.error('Unexpected error happened when connecting')
               }
 
-              //old
-              // const data = JSON.parse(message.Data);
-              // console.log("case status change", data.studentID, data.status, studentIDs)
-
-              // const elementId = `attendanceStatus-${data.studentID}`;
-              // const element = document.getElementById(`attendanceStatus-${data.studentID}`);
-
-              // if (element) {
-              //   element.innerHTML = 'Attended';
-              //   element.style.color = 'green';
-              // }
-
-              // const newOne = studentList.map(item => {
-              //   if (item.studentID == data.studentID) {
-              //     item.attendanceStatus = data.status
-              //     return item
-              //   }
-              //   return item
-              // })
-              // console.log("The prev one ", studentList);
-              // console.log("The Edited one ", newOne);
             }
             break;
           default:
@@ -114,6 +111,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
   }
 
   const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {
+    console.log("check this event ", e);
     setUpdatedList((studentList) =>
       studentList.map((item) =>
         item.studentCode === studentCode ? { ...item, attendanceStatus: e.target.value } : item
@@ -336,16 +334,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
         socket.close();
       };
     }
-    // activeWebSocket();
-
-    // return () => {
-    //   socket.close();
-    // };
   }, [isOkOpen])
 
-  // useEffect(() => {
-  //   console.log("Change ", updatedList);
-  // }, [updatedList])
+  useEffect(() => {
+    console.log("Change of update list", updatedList);
+    console.log("Change of student list", studentList);
+  }, [updatedList, studentList])
 
 
   return (
