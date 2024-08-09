@@ -108,6 +108,7 @@ const data: ReportItem[] = [
 const ClassReport: React.FC = () => {
     const location = useLocation();
     const { classID, classCode } = location.state || 0;
+    // console.log("in report ", location);
 
     const [searchInput, setSearchInput] = useState('');
     const [classes, setClasses] = useState<[]>([]);
@@ -205,7 +206,7 @@ const ClassReport: React.FC = () => {
                             };
                             setColDatas(prev => [...prev, col]);
                         }
-                        rowData[`date_${i}`] = <AttendanceStatus status={item.slotNumber} key={`status_${index}-${i}`} />
+                        rowData[`date_${i}`] = <AttendanceStatus status={item.status} key={`status_${index}-${i}`} />
                     });
                     console.log('Row data => ', rowData);
 
