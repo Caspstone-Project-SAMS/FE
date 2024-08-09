@@ -212,7 +212,6 @@ const handleImportStudent = (
             if (col.index !== 'B') {
               rowData[col.param] = cell.value;
             }
-            //  a829c0b5-78dc-4194-a424-08dc8640e68a
             //Check MSSV unique and not contain special char
             if (col.index === 'C') {
               const mssv = cell.value;
@@ -252,9 +251,20 @@ const handleImportStudent = (
 
             //Check email format
             if (col.index === 'E') {
+              const isDuplicated = sample.filter(
+                (item) => item.Email === cell.value,
+              );
               const isValidEmail = ValidateHelper.emailChecker(
                 String(cell.value),
               );
+
+              if (isDuplicated.length > 0) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Duplicated email at cell ${col.index}${i}`,
+                });
+                isValidRecord = false;
+              }
               if (!isValidEmail) {
                 createMsgLog({
                   type: 'warning',
@@ -755,6 +765,17 @@ const handleImportFAPStudent = (
               const isValidEmail = ValidateHelper.emailChecker(
                 String(cell.value),
               );
+              const isDuplicated = sample.filter(
+                (item) => item.email === cell.value,
+              );
+
+              if (isDuplicated.length > 0) {
+                createMsgLog({
+                  type: 'warning',
+                  message: `Duplicated email at cell ${col.index}${i}`,
+                });
+                isValidRecord = false;
+              }
               if (!isValidEmail) {
                 createMsgLog({
                   type: 'warning',
