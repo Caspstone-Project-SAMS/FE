@@ -559,8 +559,13 @@ const handleImportFAPClass = (
             //Check duplicated studentCode?
             if (col.index === 'B') {
               const studentCode = cell.value;
+              // const isDuplicated = sample.filter(
+              //   (item) => item.studentCode === studentCode,
+              // );
               const isDuplicated = sample.filter(
-                (item) => item.studentCode === studentCode,
+                (item) =>
+                  item['studentCode'] === studentCode &&
+                  item['classCode'] === rowData['classCode'],
               );
               if (isDuplicated.length > 0) {
                 createMsgLog({
