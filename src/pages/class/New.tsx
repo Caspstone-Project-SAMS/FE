@@ -165,7 +165,7 @@ export default function New() {
     setIsCheck(false);
   };
 
-  const handleUpdate = async () => {};
+  const handleUpdate = async () => { };
 
   const handleCreate = async () => {
     setLoading(true);
@@ -315,15 +315,19 @@ export default function New() {
                   onChange={(e) => handleSearchClass(e.target.value)}
                 ></Input>
               </Col>
-              <Col>
-                <Button
-                  onClick={showModalCreate}
-                  type="primary"
-                  icon={<PlusOutlined />}
-                >
-                  Add New
-                </Button>
-              </Col>
+              {
+                lectureDetail?.role.name === 'Admin' && (
+                  <Col>
+                    <Button
+                      onClick={showModalCreate}
+                      type="primary"
+                      icon={<PlusOutlined />}
+                    >
+                      Add New
+                    </Button>
+                  </Col>
+                )
+              }
             </Row>
           </AntHeader>
         </Content>
@@ -344,9 +348,9 @@ export default function New() {
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //     onClick: () => handleRowClick(record.ID),
-        // })}
+      // onRow={(record) => ({
+      //     onClick: () => handleRowClick(record.ID),
+      // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Class' : 'Add New Class'}
@@ -362,7 +366,7 @@ export default function New() {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-            // disabled={!isFormValid()}
+          // disabled={!isFormValid()}
           >
             Submit
           </Button>,

@@ -462,6 +462,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                     }}>{item.semesterCode}</Text>,
                 })
             })
+            console.log("semester ", semester);
             setSemesterData(menuData);
         }
     }
@@ -481,7 +482,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
     useEffect(() => {
         console.log("Change ", weekStart, weekEnd);
     }, [weekStart, weekEnd])
-
 
     useEffect(() => {
         // console.log("excel result changed", excelResult);

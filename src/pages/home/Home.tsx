@@ -87,6 +87,7 @@ const Home: React.FC = () => {
     const schedules = calendar.schedule;
     const today = moment(new Date()).format('YYYY-MM-DD');
     if (schedules && schedules.length > 0) {
+      let isSetCurrentClass = false
       //Current date
       const todaySchedules = schedules.map(schedule => {
         if (schedule.date === today) {
@@ -97,10 +98,11 @@ const Home: React.FC = () => {
           if (status === 'current' || status === 'future') {
             if (status === 'current') {
               dashboardInfoVal.curUpClass = { ...schedule, status: status };
-            } else {
+              isSetCurrentClass = true
+            } else if (!isSetCurrentClass) {
               dashboardInfoVal.curUpClass = { ...schedule, status: status };
-              dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
             }
+            dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
             hasEventToday = true;
           }
           if (status === 'past') {

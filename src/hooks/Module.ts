@@ -239,7 +239,12 @@ const stopCheckAttendance = async (
   }
 };
 
-const activeModule = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
+const activeModule = async (
+  ModuleID: number,
+  Mode: number,
+  SessionId: number,
+  token: string,
+) => {
   try {
     const response = await axios.post(
       MODULE_API + '/Activate',
@@ -267,7 +272,12 @@ const activeModule = async (ModuleID: number, Mode: number, SessionId: number, t
   }
 };
 
-const cancelSession = async (ModuleID: number, Mode: number, SessionId: number, token: string) => {
+const cancelSession = async (
+  ModuleID: number,
+  Mode: number,
+  SessionId: number,
+  token: string,
+) => {
   try {
     const response = await axios.post(
       MODULE_API + '/Activate',
@@ -328,10 +338,19 @@ const settingModule = async (
 };
 
 const setUpWifi = async (ssid: string, pass: string) => {
-  return await axios.post(SET_WIFI_API, {
-    ssid,
-    pass,
-  });
+  return await axios.post(
+    SET_WIFI_API,
+    {
+      ssid,
+      pass,
+    },
+    {
+      headers: {
+        'Access-Control-Allow-Private-Network': 'true',
+        'Content-Type': 'application/json',
+      },
+    },
+  );
 };
 
 export const ModuleService = {

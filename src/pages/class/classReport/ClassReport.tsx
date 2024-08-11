@@ -59,28 +59,26 @@ const AttendanceStatus: React.FC<{ status: number }> = ({ status }) => {
 const columns: TableColumnsType<ReportItem> = [
     {
         title: 'Students name',
-        width: 200,
+        width: 150,
         dataIndex: 'name',
         key: 'name',
         fixed: 'left',
     },
     {
         title: 'Code',
-        width: 100,
+        width: 80,
         dataIndex: 'studentCode',
         key: 'studentCode',
         fixed: 'left',
     },
     {
         title: 'Absent',
-        width: 100,
+        width: 60,
         dataIndex: 'absentPercent',
         key: 'absentPercent',
         fixed: 'left',
-        sorter: true,
+        // sorter: true,
     },
-    // { title: '19/02', dataIndex: 'attendanceStatus', key: '1' },
-    // { title: '20/02', dataIndex: 'attendanceStatus', key: '2' },
     // {
     //     title: 'Action',
     //     key: 'operation',
@@ -110,7 +108,7 @@ const data: ReportItem[] = [
 const ClassReport: React.FC = () => {
     const location = useLocation();
     const { classID, classCode } = location.state || 0;
-    console.log("In class report ", location);
+    // console.log("in report ", location);
 
     const [searchInput, setSearchInput] = useState('');
     const [classes, setClasses] = useState<[]>([]);
@@ -181,10 +179,6 @@ const ClassReport: React.FC = () => {
 
     useEffect(() => {
         try {
-
-            // setColDatas(columns);
-            // setRowDatas([]);
-
             const promise = AttendanceService.getClassAttendanceReportByID(classID);
             promise.then(data => {
                 setColDatas(columns);
@@ -195,14 +189,14 @@ const ClassReport: React.FC = () => {
                         key: `row_${index}`,
                         name: item.studentName,
                         studentCode: item.studentCode,
-                        absentPercent: item.absencePercentage,
+                        absentPercent: `${item.absencePercentage}%`,
                     };
 
                     item.attendanceRecords.forEach((item, i) => {
                         //Set collumn datas
                         if (index === 0) {
+                            //format date to dd/mm (slot) for better vision
                             const date = moment(item.date, 'YYYY-MM-DD', true).format('DD/MM');
-                            console.log("Date of api ", item.date, 'date', date);
                             const titleCol = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
                             const col = {
                                 title: titleCol,
@@ -212,7 +206,7 @@ const ClassReport: React.FC = () => {
                             };
                             setColDatas(prev => [...prev, col]);
                         }
-                        rowData[`date_${i}`] = <AttendanceStatus status={item.slotNumber} key={`status_${index}-${i}`} />
+                        rowData[`date_${i}`] = <AttendanceStatus status={item.status} key={`status_${index}-${i}`} />
                     });
                     console.log('Row data => ', rowData);
 
