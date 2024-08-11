@@ -31,17 +31,17 @@ const SemesterDetail: React.FC = () => {
   const [filteredSemesterClass, setFilteredSemesterClass] =
     useState<SemesterClass[]>(semesterClass);
 
-    console.log("clss", semester)
-
   const semesterDetails = [
     { title: 'Semester Code', value: semester?.result.semesterCode },
     {
       title: 'Status',
-      value: semester?.result.semesterStatus ? (
-        <Tag color="green">Active</Tag>
-      ) : (
-        <Tag color="red">Inactive</Tag>
-      ),
+      value: semester?.result.semesterStatus ===1 ? (
+        <Tag color="gray">Not Yet</Tag>
+      ) : semester?.result.semesterStatus === 2 ? (
+        <Tag color="blue">Ongoing</Tag>
+      ) : semester?.result.semesterStatus === 3 ? (
+        <Tag color="green">Finished</Tag>
+      ) : 'Unknown',
       isAuthenticated: true,
     },
     { title: 'Start Date', value: moment(semester?.result.startDate, 'YYYY-MM-DD').format('DD/MM/YYYY') },
@@ -84,16 +84,11 @@ const SemesterDetail: React.FC = () => {
   const columns = [
     {
       key: '1',
-      title: 'Class ID',
-      dataIndex: 'classID',
-    },
-    {
-      key: '2',
       title: 'Class Code',
       dataIndex: 'classCode',
     },
     {
-      key: '3',
+      key: '2',
       title: 'status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
@@ -143,7 +138,6 @@ const SemesterDetail: React.FC = () => {
               dataSource={(!isUpdate ? semesterClass : filteredSemesterClass).map(
                 (item, index) => ({
                   key: index,
-                  classID: item.classID,
                   classCode: item.classCode,
                   classStatus: item.classStatus,
                 }),

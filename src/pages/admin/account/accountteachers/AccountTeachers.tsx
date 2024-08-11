@@ -1,4 +1,4 @@
-import { Button, Card, Layout, Row, Table } from 'antd';
+import { Button, Card, Col, Input, Layout, Row, Table } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useEffect, useState } from 'react';
 // import PageHeaderAdmin from '../../../../components/header/headeradmin/PageHeader';
@@ -9,11 +9,15 @@ import { useNavigate } from 'react-router-dom';
 import { EmployeeService } from '../../../../hooks/Employee';
 import { IoMdInformation } from 'react-icons/io';
 import userIcon from '../../../../assets/imgs/users.png';
+import { CiSearch } from 'react-icons/ci';
 
 const { Header: AntHeader } = Layout;
 
 const AccountTeachers: React.FC = () => {
   const [lecturer, setLecturer] = useState<EmployeeDetail[]>([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [filteredLecturers, setFilteredLecturers] = useState<EmployeeDetail[]>(lecturer);
+  const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
   const handleRowClick = (lecturerID: number) => {
@@ -71,6 +75,47 @@ const AccountTeachers: React.FC = () => {
     },
   ];
 
+  const handleSearchLecturer = (value: string) => {
+    setSearchInput(value);
+    const normalizeString = (str: string) => {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    };
+    const normalizedValue = normalizeString(value).toLowerCase();
+    const filtered = lecturer.filter(
+      (item) => {
+        const normalizedTeacherName = item.displayName
+        ? normalizeString(item.displayName).toLowerCase()
+        : '';
+        const normalizedDepartment = item.department
+        ? normalizeString(item.department).toLowerCase()
+        : '';
+        const normalizedEmail = item.email
+        ? normalizeString(item.email).toLowerCase()
+        : '';
+        const normalizedPhone = item.phoneNumber
+        ? normalizeString(item.phoneNumber).toLowerCase()
+        : '';
+
+        return (
+          normalizedTeacherName.includes(normalizedValue) ||
+          normalizedDepartment.includes(normalizedValue) ||
+          normalizedEmail.includes(normalizedValue) ||
+          normalizedPhone.includes(normalizedValue)
+        );
+      }
+        // (item.displayName &&
+        //   item.displayName.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.email &&
+        //   item.email.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.department &&
+        //   item.department.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.phoneNumber &&
+        //   item.phoneNumber.toLowerCase().includes(value.toLowerCase())),
+    );
+    setFilteredLecturers(filtered);
+    setIsUpdate(true);
+  };
+
   useEffect(() => {
     const response = EmployeeService.getAllEmployee();
 
@@ -95,23 +140,23 @@ const AccountTeachers: React.FC = () => {
         <Content>
           <AntHeader className={styles.tableHeader}>
             <p className={styles.tableTitle}>Teachers</p>
-            {/* <Row gutter={[16, 16]}>
+            <Row gutter={[16, 16]}>
               <Col>
                 <Input
                   placeholder="Search by name or code"
                   suffix={<CiSearch />}
                   variant="filled"
                   value={searchInput}
-                  onChange={(e) => handleSearchStudent(e.target.value)}
+                  onChange={(e) => handleSearchLecturer(e.target.value)}
                 ></Input>
               </Col>
-            </Row> */}
+            </Row>
           </AntHeader>
         </Content>
       </Card>
       <Table
         columns={columns}
-        dataSource={lecturer.map((item, index) => ({
+        dataSource={(!isUpdate ? lecturer : filteredLecturers).map((item, index) => ({
           key: index,
           lecturername: (
             <div style={{ display: 'flex', flexDirection: 'row' }}>

@@ -47,7 +47,7 @@ const Semester: React.FC = () => {
 
   const [semesterID, setSemesterID] = useState(0);
   const [SemesterCode, setSemesterCode] = useState('');
-  const [SemesterStatus, setSemesterStatus] = useState(0);
+  const [SemesterStatus, setSemesterStatus] = useState(1);
   const [StartDate, setStartDate] = useState('');
   const [EndDate, setEndDate] = useState('');
   // const [CreatedBy, setCreatedBy] = useState('');
@@ -106,6 +106,8 @@ const Semester: React.FC = () => {
   useEffect(() => {
     if (searchInput !== '' && semester.length > 0) {
       handleSearchSemester(searchInput);
+    } else if(searchInput === '') {
+      setIsUpdate(false);
     }
   }, [semester, searchInput, handleSearchSemester]);
 
@@ -190,7 +192,7 @@ const Semester: React.FC = () => {
   const resetModalFields = () => {
     setSemesterID(0);
     setSemesterCode('');
-    setSemesterStatus(0);
+    setSemesterStatus(1);
     setStartDate('');
     setEndDate('');
     // setCreatedBy('');

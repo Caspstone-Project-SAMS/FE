@@ -111,5 +111,5 @@ export interface Schedule {
   date: string;
   dateOfWeek: number;
   scheduleStatus: boolean;
-  slot: null;
+  slot: number;
 }

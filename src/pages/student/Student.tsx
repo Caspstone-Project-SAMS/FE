@@ -8,7 +8,7 @@ import { CalendarService } from '../../hooks/Calendar';
 import { Content } from 'antd/es/layout/layout';
 import { ClassService } from '../../hooks/Class';
 import { ClassDetails, Semester } from '../../models/Class';
-import { Table, Collapse } from 'antd';
+import { Table, Collapse, Tag } from 'antd';
 import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 
 const { Panel } = Collapse;
@@ -126,20 +126,24 @@ const Student: React.FC = () => {
         return formattedDate;
       },
     },
-    // {
-    //   title: 'Time',
-    //   key: 'time',
-    //   dataIndex: 'time',
-    //   render: (_, record) => {
-    //     const startTime = studentAttendance?.result.find(
-    //       (attendance) => attendance.slot.slotID === record.slot.slotID
-    //     )?.slot?.startTime;
-    //     const endTime = studentAttendance?.result.find(
-    //       (attendance) => attendance.slot.slotID === record.slot.slotID
-    //     )?.slot?.endTime;
-    //     return startTime - endTime ?? 'N/A';
-    //   },
-    // },
+    {
+      title: 'Time',
+      key: 'time',
+      dataIndex: 'time',
+      render: (_, record) => {
+        const startTime = studentAttendance?.result.find(
+          (attendance) => attendance.slot.slotID === record.slot.slotID
+        )?.slot?.startTime;
+        const endTime = studentAttendance?.result.find(
+          (attendance) => attendance.slot.slotID === record.slot.slotID
+        )?.slot?.endtime;
+        return (
+          <div>
+            {startTime} - {endTime}
+          </div>
+        )
+      },
+    },
     {
       title: 'Room',
       key: 'room',
@@ -157,9 +161,9 @@ const Student: React.FC = () => {
       key: 'status',
       render: (text: number) => {
         return text === 0 ? (
-          <span style={{ color: 'red' }}>Absence</span>
+          <Tag color="red">Absence</Tag>
         ) : (
-          <span style={{ color: 'green' }}>Present</span>
+          <Tag color="green">Present</Tag>
         );
       },
     },

@@ -35,13 +35,13 @@ const Slot: React.FC = () => {
       dataIndex: 'slotstatus',
       render: (status: boolean) => (
         <div>
-        <Tag 
-          color={status ? 'green' : 'red'} 
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {status ? 'active' : 'inactive'}
-        </Tag>
-      </div>
+          <Tag
+            color={status ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {status ? 'active' : 'inactive'}
+          </Tag>
+        </div>
       ),
     },
     {
@@ -81,7 +81,7 @@ const Slot: React.FC = () => {
   const handlePagination = (page: number, pageSize: number) => {
     setCurrentPage(page);
     setPageSize(pageSize);
-  }
+  };
 
   const handleRowClick = (slotID: number) => {
     navigate(`/slot/slot-detail`, {
@@ -107,7 +107,7 @@ const Slot: React.FC = () => {
   //     const filtered = slot.filter(
   //       (item) =>
   //         (item.slotNumber &&
-  //           item.slotNumber.toLowerCase().includes(value.toLowerCase())) 
+  //           item.slotNumber.toLowerCase().includes(value.toLowerCase()))
   //     );
   //     setFilteredStudents(filtered);
   //     setIsUpdate(true);
@@ -124,11 +124,14 @@ const Slot: React.FC = () => {
       <Card className={styles.cardHeader}>
         <Content>
           <AntHeader className={styles.tableHeader}>
-            <p className={styles.tableTitle}
+            <p
+              className={styles.tableTitle}
               onClick={() => {
-                SlotService.getSlotByPage(2)
+                SlotService.getSlotByPage(2);
               }}
-            >Slots</p>
+            >
+              Slots
+            </p>
             {/* <Row gutter={[16, 16]}>
               <Col>
                 <Input
@@ -145,23 +148,27 @@ const Slot: React.FC = () => {
       </Card>
       <Table
         columns={columns}
-        dataSource={(slot).map(
-          (item, index) => ({
-            key: index,
-            slotnumber: item.slotNumber,
-            order: item.order,
-            slotstatus: item.status,
-            starttime: item.startTime,
-            endtime: item.endtime,
-            slotID: item.slotID
-          }),
-        )}
+        dataSource={slot.map((item, index) => ({
+          key: index,
+          slotnumber: item.slotNumber,
+          order: item.order,
+          slotstatus: item.status,
+          starttime: (typeof item.startTime === 'string'
+            ? item.startTime
+            : String(item.startTime ?? '')
+          ).slice(0, 5),
+          endtime: (typeof item.endtime === 'string'
+            ? item.endtime
+            : String(item.endtime ?? '')
+          ).slice(0, 5),
+          slotID: item.slotID,
+        }))}
         pagination={{
-          showSizeChanger: true
+          showSizeChanger: true,
         }}
-      // onRow={(record) => ({
-      //   onClick: () => handleRowClick(record.slotID),
-      // })}
+        // onRow={(record) => ({
+        //   onClick: () => handleRowClick(record.slotID),
+        // })}
       ></Table>
     </Content>
   );

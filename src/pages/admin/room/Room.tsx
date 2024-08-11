@@ -57,6 +57,8 @@ const Room: React.FC = () => {
   const failMessage = useSelector((state: RootState) => state.room.roomDetail);
   const successMessage = useSelector((state: RootState) => state.room.message);
 
+  console.log('sss', isUpdate)
+
   const handleSearchRoom = useCallback(
     (value: string) => {
       setSearchInput(value);
@@ -74,6 +76,7 @@ const Room: React.FC = () => {
   const fetchRooms = useCallback(async () => {
     try {
       const data = await RoomService.getAllRoom();
+      console.log('aaaaa')
       setRoom(data || []);
     } catch (error) {
       console.log('get room error: ', error);
@@ -82,10 +85,12 @@ const Room: React.FC = () => {
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
-
+console.log('room', room)
   useEffect(() => {
     if (searchInput !== '' && room.length > 0) {
       handleSearchRoom(searchInput);
+    } else if(searchInput === '') {
+      setIsUpdate(false);
     }
   }, [room, searchInput, handleSearchRoom]);
 

@@ -14,6 +14,11 @@ import {
   Radio,
   Button,
   TimePicker,
+  Switch,
+  Table,
+  Pagination,
+  Select,
+  Tag,
 } from 'antd';
 import dayjs from 'dayjs';
 import { Content } from 'antd/es/layout/layout';
@@ -29,7 +34,7 @@ import type {
 } from '../../../models/module/Module';
 import { ModuleService } from '../../../hooks/Module';
 import { CalendarService } from '../../../hooks/Calendar';
-import { Schedules } from '../../../models/calendar/Schedule';
+import { ScheduleResult, Schedules } from '../../../models/calendar/Schedule';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import {
@@ -44,13 +49,22 @@ const { Panel } = Collapse;
 const ModuleDetail: React.FC = () => {
   const location = useLocation();
   const [module, setModule] = useState<ModuleByID>();
+  const [lecturerId, setLecturerId] = useState('');
   const [moduleActivity, setModuleActivity] = useState<ModuleActivity[]>([]);
   const [moduleID, setModuleID] = useState<number>(0);
+  const [listScheduleId, setListScheduleId] = useState<number[]>([]);
+  const [scheduleList, setScheduleList] = useState<ScheduleResult[]>([]);
+  const [filteredScheduleList, setFilteredScheduleList] = useState<
+    ScheduleResult[]
+  >([]);
   const [schedule, setSchedule] = useState<Schedules>();
   const [activeKey, setActiveKey] = useState<string | string[]>();
   const [AutoPrepare, setAutoPrepare] = useState(false);
   const [PreparedTime, setPreparedTime] = useState('');
   const [reload, setReload] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const pageSizeOptions = [10, 20, 30, 50];
 
   const dispatch = useDispatch();
   const token = useSelector(
@@ -61,14 +75,15 @@ const ModuleDetail: React.FC = () => {
   const successMessage = useSelector(
     (state: RootState) => state.module.moduleDetail,
   );
-  console.log('succccc', successMessage);
+
+
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage);
       dispatch(clearModuleMessages());
     }
-    if (failMessage && failMessage.data.error.title) {
-      message.error(`${failMessage.data.error.title}`);
+    if (failMessage && failMessage.data.error) {
+      message.error(`${failMessage.data.error.Errors}`);
       dispatch(clearModuleMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -76,11 +91,32 @@ const ModuleDetail: React.FC = () => {
   // const [isUpdate, setIsUpdate] = useState(false);
   // const [searchInput, setSearchInput] = useState('');
 
-  console.log('schedule', schedule);
-
   const autoPrepareStatus = module?.result.autoPrepare;
   const status = module?.result.status;
   const mode = module?.result.mode;
+  const autoReset = module?.result.autoReset;
+
+  useEffect(() => {
+    const getAllSchedule = async () => {
+      if (lecturerId !== '') {
+        const response = await CalendarService.getAllSchedule(lecturerId);
+        setScheduleList(response?.result || []);
+      }
+    };
+    getAllSchedule();
+  }, [lecturerId]);
+
+  useEffect(() => {
+    setFilteredScheduleList(
+      Array.isArray(scheduleList)
+        ? scheduleList.filter((schedule) =>
+            listScheduleId.includes(schedule.scheduleID),
+          )
+        : [],
+    );
+  }, [listScheduleId, scheduleList]);
+
+  console.log('module', module);
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID },
@@ -88,34 +124,81 @@ const ModuleDetail: React.FC = () => {
     {
       title: 'Mode',
       value: (
-        <span style={{ color: mode === 1 ? 'green' : 'blue' }}>
-          {mode === 1 ? 'Register' : 'Attendance'}
-        </span>
+        <div>
+          <Tag
+            color={mode === 1 ? 'green' : 'blue'}
+            style={{ fontWeight: 'bold', fontSize: '10px', textAlign: 'center' }}
+          >
+            {mode === 1 ? 'Register' : 'Attendance'}
+          </Tag>
+        </div>
       ),
     },
     {
       title: 'Status',
       value: (
-        <span style={{ color: status ? 'green' : 'red' }}>
+        <Tag
+          color={status ? 'green' : 'red'}
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
           {status ? 'active' : 'inactive'}
-        </span>
+        </Tag>
       ),
       status: true,
     },
     {
       title: 'Auto Prepare',
       value: (
-        <span style={{ color: autoPrepareStatus ? 'green' : 'red' }}>
-          {autoPrepareStatus ? 'Auto' : 'Not auto'}
-        </span>
+        <Tag
+          color={autoPrepareStatus ? 'green' : 'red'}
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {autoPrepareStatus ? 'Auto' : 'Not Auto'}
+        </Tag>
       ),
     },
     {
       title: 'Prepare Time',
-      value: module?.result.preparedTime,
+      value: (typeof module?.result?.preparedTime === 'string'
+        ? module.result.preparedTime
+        : String(module?.result?.preparedTime ?? '')
+      ).slice(0, 5),
     },
-    { title: 'Auto Reset', value: module?.result.autoReset },
+    {
+      title: 'Auto Reset',
+      value: (
+        <Tag
+          color={autoReset ? 'green' : 'red'}
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {autoReset ? 'Auto' : 'Not Auto'}
+        </Tag>
+      ),
+    },
     { title: 'Reset Time', value: module?.result.resetTime },
+  ];
+
+  const columns = [
+    {
+      key: '1',
+      title: 'Date',
+      dataIndex: 'date',
+    },
+    {
+      key: '2',
+      title: 'Slot',
+      dataIndex: 'slot',
+    },
+    {
+      key: '3',
+      title: 'Time',
+      dataIndex: 'time',
+    },
+    {
+      key: '4',
+      title: 'Class',
+      dataIndex: 'class',
+    },
   ];
 
   useEffect(() => {
@@ -123,6 +206,11 @@ const ModuleDetail: React.FC = () => {
       setModuleID(location.state.moduleID);
     }
   }, [location.state]);
+
+  console.log('id', lecturerId);
+  console.log('schedule', scheduleList);
+  console.log('scheduleId', listScheduleId);
+  console.log('schedulefilter', filteredScheduleList);
 
   useEffect(() => {
     if (moduleID !== 0) {
@@ -133,6 +221,7 @@ const ModuleDetail: React.FC = () => {
           setModule(data || undefined);
           setAutoPrepare(data?.result.autoPrepare || false);
           setPreparedTime(data?.result.preparedTime || '');
+          setLecturerId(data?.result.employee.userId || '');
           setModuleActivity(data?.result.moduleActivities || []);
         })
         .catch((error) => {
@@ -181,6 +270,19 @@ const ModuleDetail: React.FC = () => {
   ];
 
   const data = moduleActivity;
+  const paginatedData = moduleActivity.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (value: number) => {
+    setPageSize(value);
+    setCurrentPage(1);
+  };
 
   return (
     <Content className={styles.moduleContent}>
@@ -270,32 +372,44 @@ const ModuleDetail: React.FC = () => {
               >
                 <div className={styles.moduleSettingsContainer}>
                   <b className={styles.moduleSettingsTitle}>Module Setting</b>
-                  <div className={styles.settingItem}>
-                    <p className={styles.settingLabel}>Auto Prepare:</p>
-                    <Radio.Group
-                      onChange={(e) => setAutoPrepare(e.target.value)}
-                      value={AutoPrepare}
-                      className={styles.radioGroup}
-                      optionType="button"
-                    >
-                      <Radio value={true}>Yes</Radio>
-                      <Radio value={false}>No</Radio>
-                    </Radio.Group>
-                  </div>
-                  <div className={styles.settingItem}>
-                    <p className={styles.settingLabel}>Prepare Time</p>
-                    <TimePicker
-                      placeholder="Prepare Time"
-                      value={PreparedTime ? dayjs(PreparedTime, 'HH:mm') : null}
-                      onChange={(time, timeString) => {
-                        if (typeof timeString === 'string') {
-                          setPreparedTime(timeString);
-                        }
-                      }}
-                      format="HH:mm"
-                      className={styles.timePicker}
-                    />
-                  </div>
+
+                  <Col>
+                    <b>Preparation</b>
+                    <hr className={styles.lines} />
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Auto Prepare:
+                        </span>
+                        <Switch
+                          checked={AutoPrepare}
+                          onChange={(checked) => setAutoPrepare(checked)}
+                        />
+                        <p className={styles.suggestText}>Turn on or off auto prepare attendance data of class schedule</p>
+                      </div>
+                    </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Prepare Time
+                        </span>
+                        <TimePicker
+                          placeholder="Prepare Time"
+                          value={
+                            PreparedTime ? dayjs(PreparedTime, 'HH:mm') : null
+                          }
+                          onChange={(time, timeString) => {
+                            if (typeof timeString === 'string') {
+                              setPreparedTime(timeString);
+                            }
+                          }}
+                          format="HH:mm"
+                          className={styles.timePicker}
+                        />
+                        <p className={styles.suggestText}>Set auto prepare time attendance data of class schedule</p>
+                      </div>
+                    </div>
+                  </Col>
                   <div className={styles.submitButtonContainer}>
                     <Button
                       onClick={handleSubmit}
@@ -343,7 +457,7 @@ const ModuleDetail: React.FC = () => {
                     scrollableTarget="scrollableDiv"
                   > */}
                   <List
-                    dataSource={data}
+                    dataSource={paginatedData}
                     renderItem={(item) => (
                       <Collapse
                         style={{ width: '100%', marginTop: 5, marginBottom: 5 }}
@@ -369,11 +483,14 @@ const ModuleDetail: React.FC = () => {
                           }
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
-                          onClick={() =>
+                          onClick={() => {
+                            setListScheduleId(
+                              item.preparationTask.preparedSchedules,
+                            );
                             getScheduleByID(
                               item.preparationTask.preparedScheduleId,
-                            )
-                          }
+                            );
+                          }}
                         >
                           <List.Item key={item.moduleActivityId}>
                             {/* <List.Item.Meta
@@ -429,7 +546,7 @@ const ModuleDetail: React.FC = () => {
                                   Fingers
                                 </span>
                               </div>
-                              <br/>
+                              <br />
                               <b>{item.title}</b>
                               <p>{item.description}</p>
                               <p>
@@ -465,32 +582,81 @@ const ModuleDetail: React.FC = () => {
                                   )}
                               </p>
                             </div>
-                            <div style={{ width: '20%' }}>
-                              <p>
-                                <b>Date:</b> {schedule?.result.date}
-                              </p>
-                              <p>
-                                <b>Class:</b> {schedule?.result.class.classCode}
-                              </p>
-                            </div>
-                            <div style={{ width: '20%' }}>
-                              <p>
-                                <b>Slot:</b> {schedule?.result.slot.slotNumber}
-                              </p>
-                              <p>
-                                <b>Time:</b>{' '}
-                                {schedule?.result.slot.startTime +
-                                  '-' +
-                                  schedule?.result.slot.endtime}
-                              </p>
-                            </div>
+                            {item.preparationTask.preparedScheduleId && (
+                              <>
+                                <div style={{ width: '20%' }}>
+                                  <p>
+                                    <b>Date:</b> {schedule?.result.date}
+                                  </p>
+                                  <p>
+                                    <b>Class:</b>{' '}
+                                    {schedule?.result.class.classCode}
+                                  </p>
+                                </div>
+                                <div style={{ width: '20%' }}>
+                                  <p>
+                                    <b>Slot:</b>{' '}
+                                    {schedule?.result.slot.slotNumber}
+                                  </p>
+                                  <p>
+                                    <b>Time:</b>{' '}
+                                    {schedule?.result.slot.startTime +
+                                      '-' +
+                                      schedule?.result.slot.endtime}
+                                  </p>
+                                </div>
+                              </>
+                            )}
                           </List.Item>
+                          {filteredScheduleList.length > 0 && (
+                            <Table
+                              columns={columns}
+                              dataSource={filteredScheduleList.map(
+                                (item, index) => ({
+                                  key: index,
+                                  date: item.date,
+                                  slot: item.slot.slotNumber,
+                                  time: (
+                                    <div>
+                                      {item.slot.startTime} -{' '}
+                                      {item.slot.endtime}
+                                    </div>
+                                  ),
+                                  class: item.class.classCode,
+                                }),
+                              )}
+                              pagination={false}
+                            ></Table>
+                          )}
                         </Panel>
                       </Collapse>
                     )}
                   />
                   {/* </InfiniteScroll> */}
                 </div>
+                <Row style={{ marginTop: 10 }}>
+                  <Col>
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={moduleActivity.length}
+                      onChange={handlePageChange}
+                    />
+                  </Col>
+                  <Col>
+                    <Select
+                      value={pageSize}
+                      onChange={handlePageSizeChange}
+                      style={{ width: 120, marginLeft: 16 }}
+                    >
+                      {pageSizeOptions.map((size) => (
+                        <Select.Option key={size} value={size}>
+                          {size} per page
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Col>
+                </Row>
               </TabPane>
             </Tabs>
           </Col>

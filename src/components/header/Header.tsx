@@ -9,6 +9,7 @@ import {
   Menu,
   MenuProps,
   Empty,
+  Progress,
 } from 'antd';
 import './Header.css';
 import styles from '../header/contentHeader/index.module.less';
@@ -243,6 +244,10 @@ const Headers: React.FC = () => {
     <AntHeader style={{ padding: '0 20px' }} color="white" className="header">
       <p className="headerTitle">Student Attendance Management System</p>
       <div className="leftHeaderUserInfo">
+        {/* <Button className="circular-button" type="link" shape="circle">
+          <Progress type="circle" percent={30} size={40} />
+        </Button> */}
+
         <Dropdown
           arrow
           open={onOpen}

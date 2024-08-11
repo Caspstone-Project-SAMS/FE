@@ -34,7 +34,7 @@ export interface Slot {
     status: boolean;
     order: number;
     startTime: string;
-    endTime: string;
+    endtime: string;
 }
 
 export interface Room {

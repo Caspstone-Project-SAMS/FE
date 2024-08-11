@@ -93,6 +93,8 @@ const Subject: React.FC = () => {
   useEffect(() => {
     if (searchInput !== '' && subject.length > 0) {
       handleSearchSubject(searchInput);
+    } else if(searchInput === '') {
+      setIsUpdate(false);
     }
   }, [subject, searchInput, handleSearchSubject]);
 

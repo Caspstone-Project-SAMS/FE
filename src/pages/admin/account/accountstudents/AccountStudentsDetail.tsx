@@ -13,6 +13,7 @@ import {
   Row,
   Spin,
   Table,
+  Tag,
 } from 'antd';
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import Lottie from 'react-lottie';
@@ -45,6 +46,7 @@ import {
 import { SessionServive } from '../../../../hooks/Session';
 import modules from '../../../../assets/imgs/module.png';
 import { Select } from 'antd';
+import moment from 'moment';
 
 const { Option } = Select;
 
@@ -334,10 +336,9 @@ const AccountStudentsDetail: React.FC = () => {
     { title: 'Student Name', value: student?.result.displayName },
     { title: 'Student Code', value: student?.result.studentCode },
     { title: 'Address', value: student?.result.address },
-    { title: 'Date Of Birth', value: student?.result.dob },
+    { title: 'Date Of Birth', value: moment(student?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY') },
     { title: 'Email', value: student?.result.email },
     { title: 'Phone Number', value: student?.result.phoneNumber },
-    { title: 'Address', value: student?.result.address },
     // {
     //   title: 'Authenticated',
     //   value: student?.isAuthenticated ? 'true' : 'false',
@@ -556,28 +557,26 @@ const AccountStudentsDetail: React.FC = () => {
   const columns = [
     {
       key: '1',
-      title: 'Class ID',
-      dataIndex: 'classID',
-    },
-    {
-      key: '2',
       title: 'Class Code',
       dataIndex: 'classCode',
     },
     {
-      key: '3',
+      key: '2',
       title: 'status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-          <p style={{ color: classStatus ? 'green' : 'red' }}>
+          <Tag
+            color={classStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
             {classStatus ? 'active' : 'inactive'}
-          </p>
+          </Tag>
         </div>
       ),
     },
     {
-      key: '4',
+      key: '3',
       title: 'Absence',
       dataIndex: 'absencePercentage',
       render: (absencePercentage: number) => (
@@ -1221,7 +1220,7 @@ const AccountStudentsDetail: React.FC = () => {
                       onClick={() => showModalUpdate()}
                       style={{ width: ' 100%', marginTop: 5 }}
                     >
-                      Update Fingerprint
+                      Update Fingerprints
                     </Button>
                   </Row>
                 )}
@@ -1304,7 +1303,6 @@ const AccountStudentsDetail: React.FC = () => {
                     : filteredSemesterClass
                   ).map((item, index) => ({
                     key: index,
-                    classID: item.classID,
                     classCode: item.classCode,
                     classStatus: item.classStatus,
                     absencePercentage: item.absencePercentage,
