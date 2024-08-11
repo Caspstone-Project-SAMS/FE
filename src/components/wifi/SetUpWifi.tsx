@@ -124,33 +124,28 @@ const SetUpWifi = () => {
             toast.error('Password must contains at least 8 characters!', { duration: 2200 });
         }
         if (isValid) {
-            // const promise = ModuleService.setUpWifi(ssid, pass);
-            // promise.then(data => {
-            //     isSuccess = true;
+            try {
+                const promise2 = await ModuleService.setUpWifi(ssid, pass);
+                if (promise2) {
+                    toast.success('Sent to wifi successfully, please check on module!')
+                    const wifi = {
+                        ssid: ssid,
+                        pass: HelperService.encryptString(pass)
+                    }
+                    handleRememberWifi(wifi) // used wifi will not pushed to top list - error
+                }
+            } catch (error) {
+                toast.error('Unknown error occured')
+            }
+            // const promise2 = await ModuleService.setUpWifi(ssid, pass);
+            // if (promise2) {
             //     toast.success('Sent to wifi successfully, please check on module!')
             //     const wifi = {
             //         ssid: ssid,
             //         pass: HelperService.encryptString(pass)
             //     }
-            //     handleRememberWifi(wifi)
-            // }).catch(err => {
-            //     toast.error('Connect failed, please check wifi name and password again')
-            // })
-            const promise2 = await ModuleService.setUpWifi(ssid, pass);
-            if (promise2) {
-                toast.success('Sent to wifi successfully, please check on module!')
-                const wifi = {
-                    ssid: ssid,
-                    pass: HelperService.encryptString(pass)
-                }
-                handleRememberWifi(wifi) // used wifi will not pushed to top list - error
-            }
-            // const wifi = {
-            //     ssid: ssid,
-            //     pass: HelperService.encryptString(pass)
+            //     handleRememberWifi(wifi) // used wifi will not pushed to top list - error
             // }
-            // handleRememberWifi(wifi) // used wifi will not pushed to top list - error
-
         }
     }
     const getRememberWifi = () => {
