@@ -18,6 +18,8 @@ const Account: React.FC = () => {
   const handleLogout = async () => {
     dispatch(logout());
   };
+
+  console.log(userDetail)
   const teacherDetails = [
     { label: 'Name', value: userDetail?.result?.displayName },
     { label: 'Email', value: userDetail?.result?.email },

@@ -131,11 +131,11 @@ const Sidebar: React.FC = () => {
                   key: '/class',
                   icon: <GiBookshelf />,
                 },
-                {
-                  label: 'Students',
-                  key: '/student',
-                  icon: <PiStudent />,
-                },
+                // {
+                //   label: 'Students',
+                //   key: '/student',
+                //   icon: <PiStudent />,
+                // },
                 {
                   label: 'Calendar',
                   key: '/calendar',

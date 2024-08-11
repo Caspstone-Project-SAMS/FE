@@ -15,10 +15,28 @@ export interface Schedules {
     date: string;
     dateOfWeek: number;
     scheduleStatus: boolean;
+    slotID: number;
     slot: Slot;
+    classID: number;
     class: Class;
     room: null;
   }
+}
+export interface Scheduless {
+  title: string;
+  result: ScheduleResult[];
+}
+
+export interface ScheduleResult {
+  scheduleID: number;
+  date: string;
+  dateOfWeek: number;
+  scheduleStatus: boolean;
+  slotID: number;
+  slot: Slot;
+  classID: number;
+  class: Class;
+  room: null;
 }
 
 export interface Slot {
@@ -28,10 +46,16 @@ export interface Slot {
   order: number;
   startTime: string;
   endtime: string;
+  schedules: [];
+  createdBy: string;
+  createdAt: string;
+  isDeleted: boolean;
 }
 
 export interface Class {
   classID: number;
   classCode: string;
   classStatus: boolean;
+  roomID: number;
+  subjectID: number;
 }

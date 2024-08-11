@@ -1,4 +1,14 @@
-import { Card, Col, Input, Layout, Row, Space, Table, Typography } from 'antd';
+import {
+  Card,
+  Col,
+  Input,
+  Layout,
+  Row,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useEffect, useState } from 'react';
 import personIcon from '../../../../assets/imgs/person-icon.jpg';
@@ -14,6 +24,7 @@ import {
 } from '../../../../models/employee/Employee';
 import { EmployeeService } from '../../../../hooks/Employee';
 import { CiSearch } from 'react-icons/ci';
+import moment from 'moment';
 
 const { Header: AntHeader } = Layout;
 
@@ -31,7 +42,10 @@ const AccountTeacherDetail: React.FC = () => {
   const lecturerDetails = [
     { title: 'Name', value: lecturer?.result.displayName },
     { title: 'Address', value: lecturer?.result.address },
-    { title: 'Birthday', value: lecturer?.result.dob },
+    {
+      title: 'Birthday',
+      value: moment(lecturer?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+    },
     { title: 'Email', value: lecturer?.result.email },
     { title: 'Phone', value: lecturer?.result.phoneNumber },
     { title: 'Department', value: lecturer?.result.department },
@@ -40,43 +54,50 @@ const AccountTeacherDetail: React.FC = () => {
   const columnsClass = [
     {
       key: '1',
-      title: 'Class ID',
-      dataIndex: 'classID',
-    },
-    {
-      key: '2',
       title: 'Class Code',
       dataIndex: 'classCode',
     },
     {
-      key: '4',
+      key: '2',
       title: 'Status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-          <p style={{ color: classStatus ? 'green' : 'red' }}>
+          <Tag
+            color={classStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
             {classStatus ? 'active' : 'inactive'}
-          </p>
+          </Tag>
         </div>
       ),
-    },
-    {
-      key: '5',
-      title: 'Slot',
-      dataIndex: 'slot',
     },
   ];
 
   const columnsModule = [
     {
       key: '1',
-      title: 'Module ID',
+      title: 'Module',
       dataIndex: 'moduleID',
     },
     {
       key: '2',
       title: 'Mode',
       dataIndex: 'mode',
+      render: (mode: number) => (
+        <div>
+          <Tag
+            color={mode === 1 ? 'green' : 'blue'}
+            style={{
+              fontWeight: 'bold',
+              fontSize: '10px',
+              textAlign: 'center',
+            }}
+          >
+            {mode === 1 ? 'Register' : 'Attendance'}
+          </Tag>
+        </div>
+      ),
     },
     {
       key: '4',
@@ -84,9 +105,12 @@ const AccountTeacherDetail: React.FC = () => {
       dataIndex: 'moduleStatus',
       render: (moduleStatus: boolean) => (
         <div>
-          <p style={{ color: moduleStatus ? 'green' : 'red' }}>
+          <Tag
+            color={moduleStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
             {moduleStatus ? 'active' : 'inactive'}
-          </p>
+          </Tag>
         </div>
       ),
     },
@@ -96,9 +120,12 @@ const AccountTeacherDetail: React.FC = () => {
       dataIndex: 'autoPrepare',
       render: (autoPrepare: boolean) => (
         <div>
-          <p style={{ color: autoPrepare ? 'green' : 'red' }}>
-            {autoPrepare ? 'Auto' : 'Not auto'}
-          </p>
+          <Tag
+            color={autoPrepare ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {autoPrepare ? 'Auto' : 'Not Auto'}
+          </Tag>
         </div>
       ),
     },
@@ -113,9 +140,12 @@ const AccountTeacherDetail: React.FC = () => {
       dataIndex: 'autoReset',
       render: (autoReset: boolean) => (
         <div>
-          <p style={{ color: autoReset ? 'green' : 'red' }}>
-            {autoReset ? 'Auto' : 'Not auto'}
-          </p>
+          <Tag
+            color={autoReset ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {autoReset ? 'Auto' : 'Not Auto'}
+          </Tag>
         </div>
       ),
     },
@@ -231,7 +261,6 @@ const AccountTeacherDetail: React.FC = () => {
                 : filteredLecturerClass
               ).map((item, index) => ({
                 key: index,
-                classID: item.classID,
                 classCode: item.classCode,
                 classStatus: item.classStatus,
               }))}
@@ -258,7 +287,10 @@ const AccountTeacherDetail: React.FC = () => {
                 mode: item.mode,
                 moduleStatus: item.status,
                 autoPrepare: item.autoPrepare,
-                preparedTime: item.preparedTime,
+                preparedTime: (typeof item.preparedTime === 'string'
+                  ? item.preparedTime
+                  : String(item.preparedTime ?? '')
+                ).slice(0, 5),
                 autoReset: item.autoReset,
               }))}
               pagination={{

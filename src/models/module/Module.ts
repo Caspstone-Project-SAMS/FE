@@ -48,7 +48,7 @@ export interface ModuleDetail {
 }
 
 interface Employee {
-  userID: string;
+  userId: string;
   employeeID: string;
   displayName: string;
   avatar: string;
@@ -74,7 +74,7 @@ export interface ModuleActivity {
 interface PrepareTask{
   progress: number;
   preparedScheduleId: number;
-  preparedSchedules: [];
+  preparedSchedules: number[];
   totalFingers: number,
   uploadedFingers: number,
 }
@@ -93,6 +93,7 @@ export interface ActiveModuleFail {
   data: {
     error: {
       title: string;
+      Errors: string;
     };
   };
 }

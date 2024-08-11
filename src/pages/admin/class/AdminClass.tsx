@@ -106,7 +106,7 @@ const AdminClass: React.FC = () => {
       dispatch(clearClassMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.title}`);
+      message.error(`${failMessage.data.data.data.errors}`);
       dispatch(clearClassMessages());
     }
   }, [successMessage, failMessage, dispatch]);

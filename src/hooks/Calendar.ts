@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
 import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
-import { Schedules } from '../models/calendar/Schedule';
+import { Schedules, Scheduless } from '../models/calendar/Schedule';
 
 type ScheduleList = {
   date: string;
@@ -36,6 +36,27 @@ const getScheduleByLecturer = async (
     },
   });
   return response.data;
+};
+
+const getAllSchedule = async (lecturerId: string): Promise<Scheduless | null> => {
+  try {
+    const response = await axios.get(`${SCHEDULE_API}/test-get-all`, {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+        lecturerId,
+      },
+      headers: {
+        accept: '*/*',
+      },
+    });
+    console.log('abcd: ', response.data);
+    return response.data as Scheduless;
+  } catch (error) {
+    console.error('Error on get All Schedule: ', error);
+    return null;
+  }
 };
 
 const getScheduleByWeek = async (
@@ -109,6 +130,43 @@ const importSchedulesByImg = async (previewImgData: any) => {
   }
 };
 
+const addScheduleToClass = async (
+  Date: string,
+  SlotId: number,
+  ClassId: number,
+  RoomId: number | null
+) => {
+  try {
+    const response = await axios.post(
+      `${SCHEDULE_API}/create`, // Ensure this is the correct API endpoint
+      {
+        Date,
+        SlotId,
+        ClassId,
+        RoomId
+      },
+      {
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'application/json-patch+json'
+        }
+      }
+    );
+
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
+
 export const CalendarService = {
   getAllSemester,
   getScheduleByLecturer,
@@ -117,4 +175,6 @@ export const CalendarService = {
   getScheduleByWeek,
   getScheduleByID,
   importSchedulesByImg,
+  getAllSchedule,
+  addScheduleToClass,
 };

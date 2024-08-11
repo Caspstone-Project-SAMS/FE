@@ -24,7 +24,7 @@ export interface SemesterDetail {
   result: {
     semesterID: number;
     semesterCode: string;
-    semesterStatus: boolean;
+    semesterStatus: number;
     startDate: string;
     endDate: string;
     classes: SemesterClass[]

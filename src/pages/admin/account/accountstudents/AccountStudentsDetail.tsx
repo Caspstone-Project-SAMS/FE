@@ -13,6 +13,7 @@ import {
   Row,
   Spin,
   Table,
+  Tag,
 } from 'antd';
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import Lottie from 'react-lottie';
@@ -45,6 +46,7 @@ import {
 import { SessionServive } from '../../../../hooks/Session';
 import modules from '../../../../assets/imgs/module.png';
 import { Select } from 'antd';
+import moment from 'moment';
 
 const { Option } = Select;
 
@@ -165,10 +167,10 @@ const AccountStudentsDetail: React.FC = () => {
         if (fingerTwo === true) {
           if (length === 2) {
             if (selectedFingers.includes(fingerId)) {
-              length - 1
+              length - 1;
               setNext(true);
               setProgressStep1(3);
-              setProgressStep2(1);   
+              setProgressStep2(1);
             }
           }
           if (next === true) {
@@ -334,10 +336,9 @@ const AccountStudentsDetail: React.FC = () => {
     { title: 'Student Name', value: student?.result.displayName },
     { title: 'Student Code', value: student?.result.studentCode },
     { title: 'Address', value: student?.result.address },
-    { title: 'Date Of Birth', value: student?.result.dob },
+    { title: 'Date Of Birth', value: moment(student?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY') },
     { title: 'Email', value: student?.result.email },
     { title: 'Phone Number', value: student?.result.phoneNumber },
-    { title: 'Address', value: student?.result.address },
     // {
     //   title: 'Authenticated',
     //   value: student?.isAuthenticated ? 'true' : 'false',
@@ -556,28 +557,26 @@ const AccountStudentsDetail: React.FC = () => {
   const columns = [
     {
       key: '1',
-      title: 'Class ID',
-      dataIndex: 'classID',
-    },
-    {
-      key: '2',
       title: 'Class Code',
       dataIndex: 'classCode',
     },
     {
-      key: '3',
+      key: '2',
       title: 'status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-          <p style={{ color: classStatus ? 'green' : 'red' }}>
+          <Tag
+            color={classStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
             {classStatus ? 'active' : 'inactive'}
-          </p>
+          </Tag>
         </div>
       ),
     },
     {
-      key: '4',
+      key: '3',
       title: 'Absence',
       dataIndex: 'absencePercentage',
       render: (absencePercentage: number) => (
@@ -755,7 +754,6 @@ const AccountStudentsDetail: React.FC = () => {
     }
   };
 
-
   console.log('one', fingerOne);
   console.log('two', fingerTwo);
 
@@ -866,28 +864,6 @@ const AccountStudentsDetail: React.FC = () => {
 
               <div>
                 <Col>
-                  {student.result.fingerprintTemplates.length === 0 && (
-                    <Row>
-                      <Button
-                        style={{ width: '100%', marginBottom: 10 }}
-                        type="primary"
-                        block
-                        onClick={() => {
-                          showModalRegister();
-                          // activeModuleRegisterThree(moduleID, 3);
-                        }}
-                        disabled={
-                          isActiveModule ||
-                          !moduleID ||
-                          status === 'fail' ||
-                          !sessionID ||
-                          disable
-                        }
-                      >
-                        <p>Register Fingerprints</p>
-                      </Button>
-                    </Row>
-                  )}
                   <Row>
                     <Col
                       span={24}
@@ -1244,7 +1220,29 @@ const AccountStudentsDetail: React.FC = () => {
                       onClick={() => showModalUpdate()}
                       style={{ width: ' 100%', marginTop: 5 }}
                     >
-                      Update Fingerprint
+                      Update Fingerprints
+                    </Button>
+                  </Row>
+                )}
+                {student.result.fingerprintTemplates.length === 0 && (
+                  <Row>
+                    <Button
+                      style={{ width: '100%', marginBottom: 10 }}
+                      type="primary"
+                      block
+                      onClick={() => {
+                        showModalRegister();
+                        // activeModuleRegisterThree(moduleID, 3);
+                      }}
+                      disabled={
+                        isActiveModule ||
+                        !moduleID ||
+                        status === 'fail' ||
+                        !sessionID ||
+                        disable
+                      }
+                    >
+                      <p>Register Fingerprints</p>
                     </Button>
                   </Row>
                 )}
@@ -1305,7 +1303,6 @@ const AccountStudentsDetail: React.FC = () => {
                     : filteredSemesterClass
                   ).map((item, index) => ({
                     key: index,
-                    classID: item.classID,
                     classCode: item.classCode,
                     classStatus: item.classStatus,
                     absencePercentage: item.absencePercentage,
@@ -1333,13 +1330,28 @@ const AccountStudentsDetail: React.FC = () => {
         width={800}
         // bodyStyle={{ minHeight: '300px' }}
         footer={[
-          <Button key="cancel" onClick={handleExit}>
+          <Button
+            key="cancel"
+            onClick={() => {
+              Modal.confirm({
+                title: 'Confirm Cancel',
+                content: 'Are you sure you want to cancel progress?',
+                onOk: handleExit,
+              });
+            }}
+          >
             Cancel
           </Button>,
           <Button
             key="submit"
             type="primary"
-            onClick={handleConfirmUpload}
+            onClick={() => {
+              Modal.confirm({
+                title: 'Confirm Submission',
+                content: 'Are you sure you want to submit the fingerprint?',
+                onOk: handleConfirmUpload,
+              });
+            }}
             // disabled={progressStep2 !== 3}
           >
             Submit

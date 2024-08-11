@@ -11,7 +11,7 @@ import {
   Row,
   Table,
   Form,
-  Tag
+  Tag,
 } from 'antd';
 import styles from './AccountStudents.module.less';
 import { Student } from '../../../../models/student/Student';
@@ -77,6 +77,8 @@ const AccountStudents: React.FC = () => {
     });
   };
 
+  console.log('suces', successMessage)
+
   const handlePagination = async (page: number, pageSize: number) => {
     setCurrentPage(page);
     setPageSize(pageSize);
@@ -113,13 +115,13 @@ const AccountStudents: React.FC = () => {
       dataIndex: 'isAuthenticated',
       render: (isAuthenticated: boolean) => (
         <div>
-        <Tag 
-          color={isAuthenticated ? 'green' : 'red'} 
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}
-        </Tag>
-      </div>
+          <Tag
+            color={isAuthenticated ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}
+          </Tag>
+        </div>
       ),
     },
     {
@@ -171,19 +173,47 @@ const AccountStudents: React.FC = () => {
       dispatch(clearStudentMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.title}`);
+      message.error(`${failMessage.data.data.data.errors}`);
       dispatch(clearStudentMessages());
     }
   }, [successMessage, failMessage, dispatch]);
 
   const handleSearchStudent = (value: string) => {
     setSearchInput(value);
+    const normalizeString = (str: string) => {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    };
+    const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = student.filter(
-      (item) =>
-        (item.studentName &&
-          item.studentName.toLowerCase().includes(value.toLowerCase())) ||
-        (item.studentCode &&
-          item.studentCode.toLowerCase().includes(value.toLowerCase())),
+      (item) => {
+        const normalizedStudentName = item.studentName
+        ? normalizeString(item.studentName).toLowerCase()
+        : '';
+        const normalizedStudentCode = item.studentCode
+        ? normalizeString(item.studentCode).toLowerCase()
+        : '';
+        const normalizedEmail = item.email
+        ? normalizeString(item.email).toLowerCase()
+        : '';
+        const normalizedPhone = item.phoneNumber
+        ? normalizeString(item.phoneNumber).toLowerCase()
+        : '';
+
+        return (
+          normalizedStudentName.includes(normalizedValue) ||
+          normalizedStudentCode.includes(normalizedValue) ||
+          normalizedEmail.includes(normalizedValue) ||
+          normalizedPhone.includes(normalizedValue)
+        );
+      }
+        // (item.studentName &&
+        //   item.studentName.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.studentCode &&
+        //   item.studentCode.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.email &&
+        //   item.email.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.phoneNumber &&
+        //   item.phoneNumber.toLowerCase().includes(value.toLowerCase())),
     );
     setFilteredStudents(filtered);
     setIsUpdate(true);
@@ -214,7 +244,7 @@ const AccountStudents: React.FC = () => {
   const validateStudentCode = (code: string) => {
     if (!code) {
       return 'Student Code is required';
-    } else if (!/^[A-Z]{2}\d{6}$/.test(code)) {
+    } else if (!/^[a-zA-Z]{2}\d{6}$/.test(code)) {
       return 'Student Code must be in the format: AA123456';
     }
     return '';
@@ -235,8 +265,9 @@ const AccountStudents: React.FC = () => {
 
     if (!StudentCode) {
       validationErrors.studentCode = 'Student Code is required';
-    } else if (!/^[A-Z]{2}\d{6}$/.test(StudentCode)) {
-      validationErrors.studentCode = 'Student Code must be in the format: AA123456';
+    } else if (!/^[a-zA-Z]{2}\d{6}$/.test(StudentCode)) {
+      validationErrors.studentCode =
+        'Student Code must be in the format: AA123456';
     }
 
     if (!DisplayName) {
@@ -343,10 +374,10 @@ const AccountStudents: React.FC = () => {
           }))}
         pagination={{
           showSizeChanger: true,
-          current: currentPage,
-          pageSize: pageSize,
-          total: totalRecords,
-          onChange: handlePagination,
+          // current: currentPage,
+          // pageSize: pageSize,
+          // total: totalRecords,
+          // onChange: handlePagination,
         }}
       ></Table>
       <Modal
@@ -374,26 +405,32 @@ const AccountStudents: React.FC = () => {
           onChange={handleStudentCodeChange}
           style={{ marginBottom: '10px' }}
         />
-        {errors.studentCode && <p className={styles.errorText}>{errors.studentCode}</p>}
-        
+        {errors.studentCode && (
+          <p className={styles.errorText}>{errors.studentCode}</p>
+        )}
+
         <p className={styles.createStudentTitle}>Student Name</p>
         <Input
           placeholder="Student Name"
           value={DisplayName}
           onChange={(e) => {
             setErrors((prevErrors) => ({ ...prevErrors, displayName: '' }));
-            setDisplayName(e.target.value)}}
+            setDisplayName(e.target.value);
+          }}
           style={{ marginBottom: '10px' }}
         />
-        {errors.displayName && <p className={styles.errorText}>{errors.displayName}</p>}
-        
+        {errors.displayName && (
+          <p className={styles.errorText}>{errors.displayName}</p>
+        )}
+
         <p className={styles.createStudentTitle}>Email</p>
         <Input
           placeholder="Email"
           value={Email}
-          onChange={(e) =>{
+          onChange={(e) => {
             setErrors((prevErrors) => ({ ...prevErrors, email: '' }));
-            setEmail(e.target.value)}}
+            setEmail(e.target.value);
+          }}
           style={{ marginBottom: '10px' }}
         />
         {errors.email && <p className={styles.errorText}>{errors.email}</p>}
