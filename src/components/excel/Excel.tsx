@@ -484,7 +484,6 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                         });
                     }
                 })
-                console.log("subjects ", subjects);
                 setSubjectData(subjects);
             }
         }).catch(err => {
