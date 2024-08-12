@@ -139,7 +139,7 @@ const Student: React.FC = () => {
         )?.slot?.endtime;
         return (
           <div>
-            {startTime} - {endTime}
+            {(typeof startTime === 'string' ? startTime : String(startTime ?? '')).slice(0, 5)} - {(typeof endTime === 'string' ? endTime : String(endTime ?? '')).slice(0, 5)}
           </div>
         )
       },

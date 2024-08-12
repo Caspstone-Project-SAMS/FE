@@ -110,6 +110,15 @@ export interface Schedule {
   scheduleID: number;
   date: string;
   dateOfWeek: number;
-  scheduleStatus: boolean;
-  slot: number;
+  scheduleStatus: number;
+  slot: Slot;
+}
+
+export interface Slot {
+  endtime: string;
+  order: number;
+  slotID: number;
+  slotNumber: number;
+  startTime: string;
+  status: boolean;
 }

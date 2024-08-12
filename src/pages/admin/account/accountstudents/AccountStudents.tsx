@@ -162,7 +162,7 @@ const AccountStudents: React.FC = () => {
       .catch((error) => {
         console.log('get student error: ', error);
       });
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     if (successMessage) {
@@ -244,7 +244,7 @@ const AccountStudents: React.FC = () => {
   const validateStudentCode = (code: string) => {
     if (!code) {
       return 'Student Code is required';
-    } else if (!/^[a-zA-Z]{2}\d{6}$/.test(code)) {
+    } else if (!/^[A-Za-z]+\d{6}$/.test(code)) {
       return 'Student Code must be in the format: AA123456';
     }
     return '';
@@ -265,7 +265,7 @@ const AccountStudents: React.FC = () => {
 
     if (!StudentCode) {
       validationErrors.studentCode = 'Student Code is required';
-    } else if (!/^[a-zA-Z]{2}\d{6}$/.test(StudentCode)) {
+    } else if (!/^[A-Za-z]+\d{6}$/.test(StudentCode)) {
       validationErrors.studentCode =
         'Student Code must be in the format: AA123456';
     }

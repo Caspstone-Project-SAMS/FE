@@ -137,7 +137,7 @@ const ClassDetails: React.FC = () => {
     } catch (error) {
       console.log('error at auto connect module', error);
     }
-  }, [moduleID, token, dispatch]); // Add dependencies here
+  }, [moduleID, token, dispatch]);
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -456,7 +456,6 @@ const ClassDetails: React.FC = () => {
       <Spin size="medium" />
     </span>
   );
-  console.log('exit', exit)
 
   const activeModuleCheckAttendance = async (moduleID: number, SessionId: number) => {
     if (exit === true) {

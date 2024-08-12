@@ -70,6 +70,8 @@ const AdminClassDetail: React.FC = () => {
   const [reload, setReload] = useState(0);
   const dispatch = useDispatch();
 
+  console.log('schedule', classSchedule)
+
   const failMessage = useSelector(
     (state: RootState) => state.student.message?.data.data.data.errors,
   );
@@ -217,28 +219,33 @@ const AdminClassDetail: React.FC = () => {
     },
     {
       key: '2',
+      title: 'Time',
+      dataIndex: 'time',
+    },
+    {
+      key: '3',
+      title: 'Slot',
+      dataIndex: 'slot',
+    },
+    {
+      key: '4',
       title: 'Date Of Week',
       dataIndex: 'dateOfWeek',
     },
     {
-      key: '3',
+      key: '5',
       title: 'Status',
       dataIndex: 'scheduleStatus',
-      render: (scheduleStatus: boolean) => (
+      render: (scheduleStatus: number) => (
         <div>
           <Tag
-            color={scheduleStatus ? 'green' : 'red'}
+            color={scheduleStatus === 1 || scheduleStatus === 0 ? 'gray' : scheduleStatus === 2 ? 'blue' : scheduleStatus === 3 ? 'green' : 'white'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {scheduleStatus ? 'active' : 'inactive'}
+            {scheduleStatus === 1 || scheduleStatus === 0 ? 'Not Yet' : scheduleStatus === 2 ? 'Ongoing' : scheduleStatus === 3 ? 'Finished' : 'undefined'}
           </Tag>
         </div>
       ),
-    },
-    {
-      key: '4',
-      title: 'Slot',
-      dataIndex: 'slot',
     },
   ];
 
@@ -490,9 +497,22 @@ const AdminClassDetail: React.FC = () => {
               dataSource={classSchedule.map((item, index) => ({
                 key: index,
                 date: moment(item.date, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+                time: (
+                  <div>
+                  {(typeof item.slot.startTime === 'string'
+                    ? item.slot.startTime
+                    : String(item.slot.startTime ?? ''))
+                    .slice(0, 5)} 
+                  - 
+                  {(typeof item.slot.endtime === 'string'
+                    ? item.slot.endtime
+                    : String(item.slot.endtime ?? ''))
+                    .slice(0, 5)}
+                </div>
+                ),
+                slot: item.slot.slotNumber,
                 dateOfWeek: item.dateOfWeek,
                 scheduleStatus: item.scheduleStatus,
-                slot: item.slot,
               }))}
               pagination={{
                 showSizeChanger: true,
@@ -579,9 +599,13 @@ const AdminClassDetail: React.FC = () => {
                     style={{ marginBottom: '10px', width: '100%' }}
                     filterOption={(input, option) => {
                       const children = option?.children as unknown as string;
-                      return children
-                        .toLowerCase()
-                        .includes(input.toLowerCase());
+                      const normalizeString = (str: string) => {
+                        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                      };
+                      
+                      const normalizedChildren = normalizeString(children).toLowerCase();
+                      const normalizedInput = normalizeString(input).toLowerCase();
+                      return normalizedChildren.includes(normalizedInput);
                     }}
                   >
                     {student.map((stu) => (
