@@ -284,7 +284,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
               key={`radio_${record.studentID}`}
               name="radiogroup"
               onChange={e => handleRadioChange(e, record.studentCode!)}
-              value={record.attendanceStatus}
+              value={record.attendanceStatus ? record.attendanceStatus : 2}
               disabled={!isUpdate}
             // defaultValue={
             //   record.attendanceStatus !== 0 ? (

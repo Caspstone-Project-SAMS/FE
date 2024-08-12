@@ -1,10 +1,8 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import styles from '../Class.module.less'
 import { Content } from 'antd/es/layout/layout'
-import { Button, Card, Col, Input, Layout, Row, Table, TableColumnsType, Typography } from 'antd';
+import { Button, Card, Col, Layout, Row, Table, TableColumnsType, Typography } from 'antd';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
-import { CiSearch } from 'react-icons/ci';
-import { PlusOutlined } from '@ant-design/icons';
 import { FiCheck } from 'react-icons/fi';
 import { IoIosMore } from 'react-icons/io';
 import { CgClose } from 'react-icons/cg';
@@ -13,13 +11,6 @@ import toast from 'react-hot-toast';
 import moment from 'moment';
 import { AttendanceRecord } from '../../../models/attendance/AttendanceReport';
 import { useLocation } from 'react-router-dom';
-
-interface DataType {
-    key: React.Key;
-    name: string;
-    absentPercent: number;
-    attendanceStatus: ReactElement;
-}
 
 interface ReportItem {
     key: React.Key;
@@ -66,42 +57,18 @@ const columns: TableColumnsType<ReportItem> = [
     },
     {
         title: 'Code',
-        width: 80,
+        width: 100,
         dataIndex: 'studentCode',
         key: 'studentCode',
         fixed: 'left',
     },
     {
         title: 'Absent',
-        width: 60,
+        width: 100,
         dataIndex: 'absentPercent',
         key: 'absentPercent',
         fixed: 'left',
         // sorter: true,
-    },
-    // {
-    //     title: 'Action',
-    //     key: 'operation',
-    //     fixed: 'right',
-    //     width: 100,
-    //     render: () => <a>action</a>,
-    // },
-];
-
-const data: ReportItem[] = [
-    {
-        key: '1',
-        name: 'John Brown',
-        absentPercent: 20,
-        studentCode: 'SE123',
-        attendanceStatus: <AttendanceStatus status={0} key={1} />,
-    },
-    {
-        key: '2',
-        name: 'Jim Green',
-        absentPercent: 18,
-        studentCode: 'SE123',
-        attendanceStatus: <AttendanceStatus status={1} key={2} />,
     },
 ];
 
@@ -208,7 +175,7 @@ const ClassReport: React.FC = () => {
                         }
                         rowData[`date_${i}`] = <AttendanceStatus status={item.status} key={`status_${index}-${i}`} />
                     });
-                    console.log('Row data => ', rowData);
+                    // console.log('Row data => ', rowData);
 
                     setRowDatas(prev => [...prev, rowData])
                 })
@@ -230,43 +197,42 @@ const ClassReport: React.FC = () => {
 
     return (
         <Content className={styles.classReportCtn}>
-            <div>
+            <div
+                className={styles.header}
+            >
                 <ContentHeader
                     contentTitle='Class Report'
                     currentBreadcrumb='Report'
                     previousBreadcrumb='Class / Detail / '
                 />
+                <Button
+                    onClick={() => { AttendanceService.downloadReportExcel(classID, classCode) }}
+                >
+                    Download Report
+                </Button>
             </div>
             <Card className={styles.cardHeader}>
                 <Content>
                     <AntHeader className={styles.tableHeader}>
                         <p className={styles.tableTitle}>{classCode}</p>
-                        <Row gutter={[16, 16]}>
-                            <Col>
-                                {/* <Input
-                                    placeholder="Search by name"
-                                    suffix={<CiSearch />}
-                                    variant="filled"
-                                    // value={searchInput}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                ></Input> */}
-                            </Col>
-                            {/* <Col>
-                                <Button
-                                    // onClick={showModalCreate}
-                                    type="primary"
-                                    icon={<PlusOutlined />}
-                                >
-                                    Add New
-                                </Button>
-                            </Col> */}
-                        </Row>
+                        <div className={styles.meaningIllustration}>
+                            <div className={styles.row}>
+                                <div style={{ backgroundColor: '#FBBF24' }} className={styles.block}></div>
+                                <span>Not yet</span>
+                            </div>
+                            <div className={styles.row}>
+                                <div style={{ backgroundColor: '#00d749' }} className={styles.block}></div>
+                                <span>Attended</span>
+                            </div>
+                            <div className={styles.row}>
+                                <div style={{ backgroundColor: '#ff5151' }} className={styles.block}></div>
+                                <span>Absent</span>
+                            </div>
+                        </div>
                     </AntHeader>
                 </Content>
             </Card>
-            <div style={{
-                //  width: '60%'
-            }}>
+            <div>
                 <Table
                     columns={colDatas}
                     dataSource={rowDatas}
