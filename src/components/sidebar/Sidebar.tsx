@@ -42,6 +42,7 @@ const Sidebar: React.FC = () => {
           padding: 0,
           display: 'flex',
           justifyContent: 'center',
+          borderBottom: '1px solid #d9d9d9'
         }}
       >
         <div className="demo-logo">
@@ -55,6 +56,7 @@ const Sidebar: React.FC = () => {
         </div>
       </Header>
       <Menu
+        // style={{ borderTop: '1px solid #d9d9d9' }}
         onClick={(item) => {
           navigate(item.key);
         }}

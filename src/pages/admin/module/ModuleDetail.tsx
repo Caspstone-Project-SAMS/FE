@@ -110,8 +110,8 @@ const ModuleDetail: React.FC = () => {
     setFilteredScheduleList(
       Array.isArray(scheduleList)
         ? scheduleList.filter((schedule) =>
-            listScheduleId.includes(schedule.scheduleID),
-          )
+          listScheduleId.includes(schedule.scheduleID),
+        )
         : [],
     );
   }, [listScheduleId, scheduleList]);
@@ -222,7 +222,13 @@ const ModuleDetail: React.FC = () => {
           setAutoPrepare(data?.result.autoPrepare || false);
           setPreparedTime(data?.result.preparedTime || '');
           setLecturerId(data?.result.employee.userId || '');
-          setModuleActivity(data?.result.moduleActivities || []);
+          //Newest on top
+          if (data && data.result.moduleActivities) {
+            const reverseList = data.result.moduleActivities.reverse()
+            setModuleActivity(reverseList);
+          } else {
+            setModuleActivity([]);
+          }
         })
         .catch((error) => {
           console.log('get module by id error: ', error);
@@ -364,7 +370,7 @@ const ModuleDetail: React.FC = () => {
               <TabPane
                 tab={
                   <span>
-                    <SettingOutlined />
+                    <SettingOutlined style={{ marginRight: 5 }} />
                     Settings
                   </span>
                 }
@@ -423,7 +429,7 @@ const ModuleDetail: React.FC = () => {
               <TabPane
                 tab={
                   <span>
-                    <HistoryOutlined />
+                    <HistoryOutlined style={{ marginRight: 5 }} />
                     History
                   </span>
                 }
@@ -434,8 +440,8 @@ const ModuleDetail: React.FC = () => {
                   style={{
                     height: 'auto',
                     overflow: 'auto',
-                    padding: '0 16px',
-                    border: '1px solid rgba(140, 140, 140, 0.35)',
+                    // padding: '0 16px',
+                    // border: '1px solid rgba(140, 140, 140, 0.35)',
                   }}
                 >
                   {/* <InfiniteScroll

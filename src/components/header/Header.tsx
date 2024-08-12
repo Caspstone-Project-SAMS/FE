@@ -206,10 +206,10 @@ const Headers: React.FC = () => {
                               item.notificationType.typeName === 'Information'
                                 ? 'green'
                                 : item.notificationType.typeName === 'Error'
-                                ? 'red'
-                                : item.notificationType.typeName === 'Warning'
-                                ? 'orange'
-                                : 'inherit', // Fallback color
+                                  ? 'red'
+                                  : item.notificationType.typeName === 'Warning'
+                                    ? 'orange'
+                                    : 'inherit', // Fallback color
                           }}
                         >
                           {item.description}
@@ -241,7 +241,7 @@ const Headers: React.FC = () => {
   };
 
   return (
-    <AntHeader style={{ padding: '0 20px' }} color="white" className="header">
+    <AntHeader style={{ padding: '0 20px', borderBottom: '1px solid #d9d9d9' }} color="white" className="header">
       <p className="headerTitle">Student Attendance Management System</p>
       <div className="leftHeaderUserInfo">
         {/* <Button className="circular-button" type="link" shape="circle">
