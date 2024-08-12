@@ -257,7 +257,29 @@
     padding: 20px;
     overflow-y: auto;
 
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
+    .meaningIllustration {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        .row {
+            display: flex;
+            align-items: center;
+            height: 20px;
+
+            .block {
+                width: 16px;
+                height: 16px;
+                margin-right: 8px;
+            }
+        }
+    }
 }
 
 //Attendance status
