@@ -68,7 +68,6 @@ const columns: TableColumnsType<ReportItem> = [
         dataIndex: 'absentPercent',
         key: 'absentPercent',
         fixed: 'left',
-        // sorter: true,
     },
 ];
 

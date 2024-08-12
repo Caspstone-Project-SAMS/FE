@@ -542,7 +542,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 className={styles.importExcelBtn}
                 icon={<FolderAddOutlined />}
             >
-                Import Excel
+                {fileType === 'class' ? ('Import Student To Class') : ('Import Excel')}
             </Button>
             <Modal
                 title={
