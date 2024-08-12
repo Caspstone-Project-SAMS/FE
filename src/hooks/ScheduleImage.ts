@@ -3,21 +3,18 @@ import { ScheduleImage } from '../models/calendar/ScheduleImage';
 
 interface ImportScheduleParams {
   Image: File;
-  SemesterId: number;
   UserId: string;
   RecommendationRate: number;
 }
 
 const previewScheduleImage = async ({
   Image,
-  SemesterId,
   UserId,
   RecommendationRate,
-}: ImportScheduleParams): Promise<ScheduleImage | null> => {
+}: ImportScheduleParams): Promise<ScheduleImage> => {
   try {
     const formData = new FormData();
     formData.append('Image', Image, Image.name);
-    formData.append('SemesterId', SemesterId.toString());
     formData.append('UserId', UserId);
     formData.append('RecommendationRate', RecommendationRate.toString());
 

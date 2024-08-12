@@ -10,6 +10,7 @@ import {
   Typography,
   Tooltip,
   Spin,
+  Checkbox,
 } from 'antd';
 import styles from './ScheduleImport.module.less';
 import { Link } from 'react-router-dom';
@@ -51,6 +52,7 @@ const ScheduleImport: React.FC = () => {
 
   const [isSubmitAble, setIsSubmitAble] = useState<boolean>(false);
   const [onShowResult, setOnShowResult] = useState<boolean>(false);
+  const [isImportEntireSemester, setIsImportEntireSemester] = useState<boolean>(false)
   const [resultImport, setResultImport] = useState<{ title: string, isSuccess: boolean }>({ title: '', isSuccess: false });
   const [errLogs, setErrLogs] = useState<Message[]>([]);
   const [warningLogs, setWarningLogs] = useState<Message[]>([]);
@@ -75,6 +77,7 @@ const ScheduleImport: React.FC = () => {
     setDate([]);
     setSlot([]);
 
+    setImageFile(null)
     setImagePreview('')
     //after submit to system
     setOnShowResult(false);
@@ -102,8 +105,8 @@ const ScheduleImport: React.FC = () => {
 
         return formatString('error', errItem)
       })
-      console.log('This is importedList ', importedList);
-      console.log('This is errorList ', errorList);
+      // console.log('This is importedList ', importedList);
+      // console.log('This is errorList ', errorList);
 
       setOnShowResult(true);
       setResultImport({ title: title ? title : '', isSuccess: isSuccess ? isSuccess : false });
@@ -124,18 +127,13 @@ const ScheduleImport: React.FC = () => {
       message.error('Please upload an image file first.');
       return;
     }
-    if (semesterId === null) {
-      message.error('Please select a semester to import.');
-      return;
-    }
 
     setLoading(true);
     setTimeout(() => {
       const response = ScheduleImageService.previewScheduleImage({
         Image: imageFile,
-        SemesterId: semesterId!,
         UserId: UserId!,
-        RecommendationRate: RecommendationRate,
+        RecommendationRate: 70
       });
 
       response.then(
@@ -152,16 +150,15 @@ const ScheduleImport: React.FC = () => {
         );
       }).finally(() => {
         setLoading(false);
-        // resetFields();
       })
-    }, 450)
+    }, 420)
   };
 
   const handleSubmit = async () => {
     if (schedule && schedule.result) {
       const result = {
         UserID: UserId,
-        SemesterID: semesterId,
+        ApplyToSemester: isImportEntireSemester,
         ...schedule.result
       }
       const promise = await CalendarService.importSchedulesByImg(result);
@@ -195,7 +192,6 @@ const ScheduleImport: React.FC = () => {
 
   return (
     <Content className={styles.slotContent}>
-
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
         <Link to={'/calendar'} style={{ display: 'flex', alignItems: 'center' }}>
           <BiArrowBack size={20} style={{ cursor: 'pointer' }} onClick={() => { }} />
@@ -243,9 +239,20 @@ const ScheduleImport: React.FC = () => {
                   style={{ margin: '8px' }}
                   icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
+              {
+                isSubmitAble && (
+                  <Checkbox
+                    checked={isImportEntireSemester}
+                    onChange={() => { setIsImportEntireSemester(!isImportEntireSemester) }}
+                    style={{ margin: '20px 0 10px' }}
+                  >
+                    <b>Import for ENTIRE Semester</b>
+                  </Checkbox>
+                )
+              }
 
-              <p className={styles.createClassTitle} style={{ marginTop: '10px' }}>Semester Code</p>
-              <Select
+              {/* <p className={styles.createClassTitle} style={{ marginTop: '10px' }}>Semester Code</p> */}
+              {/* <Select
                 placeholder="Semester Code"
                 value={semesterId}
                 onChange={(value) => setSemesterId(value)}
@@ -278,17 +285,32 @@ const ScheduleImport: React.FC = () => {
                   }
                 }}
                 style={{ marginBottom: '26px' }}
-              />
+              /> */}
               {
                 isSubmitAble ? (
-                  <Button onClick={handleSubmit} style={{ width: '100%' }} type="primary">
-                    Import into system
-                  </Button>
+                  <>
+                    <Button
+                      className={styles.btn}
+                      onClick={handleSubmit} style={{ margin: '0px 0px 10px' }} type="primary">
+                      Import into system
+                    </Button>
+
+                    <Button
+                      danger
+                      type='dashed'
+                      onClick={() => { resetFields() }}
+                      className={styles.btn}
+                    >
+                      Clear Data
+                    </Button>
+                  </>
                 ) : (
                   <Spin
                     spinning={loading}
                   >
-                    <Button onClick={handleCreatePreview} style={{ width: '100%' }} type="primary">
+                    <Button
+                      className={styles.btn}
+                      onClick={handleCreatePreview} style={{ marginTop: 20 }} type="primary">
                       Preview data
                     </Button>
                   </Spin>
@@ -313,7 +335,16 @@ const ScheduleImport: React.FC = () => {
             >
               <thead>
                 <tr>
-                  <th>{schedule?.result.year}</th>
+                  <th style={{ textAlign: 'left', width: 'fit-content' }}>
+                    <div>
+                      {schedule?.result.year}
+                    </div>
+                    <div>
+                      {schedule.result.semesterFound === true ? (`Semester: ${schedule.result.semesterCode}`) : (
+                        `Semester: Not found`
+                      )}
+                    </div>
+                  </th>
                   {date.map((date, index) => (
                     <th key={index}>{date.dateString}</th>
                   ))}

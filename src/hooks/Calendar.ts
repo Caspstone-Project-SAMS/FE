@@ -38,7 +38,9 @@ const getScheduleByLecturer = async (
   return response.data;
 };
 
-const getAllSchedule = async (lecturerId: string): Promise<Scheduless | null> => {
+const getAllSchedule = async (
+  lecturerId: string,
+): Promise<Scheduless | null> => {
   try {
     const response = await axios.get(`${SCHEDULE_API}/test-get-all`, {
       params: {
@@ -134,7 +136,7 @@ const addScheduleToClass = async (
   Date: string,
   SlotId: number,
   ClassId: number,
-  RoomId: number | null
+  RoomId: number | null,
 ) => {
   try {
     const response = await axios.post(
@@ -143,14 +145,14 @@ const addScheduleToClass = async (
         Date,
         SlotId,
         ClassId,
-        RoomId
+        RoomId,
       },
       {
         headers: {
-          'accept': '*/*',
-          'Content-Type': 'application/json-patch+json'
-        }
-      }
+          accept: '*/*',
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
     );
 
     console.log(response.data);
@@ -165,7 +167,6 @@ const addScheduleToClass = async (
     }
   }
 };
-
 
 export const CalendarService = {
   getAllSemester,
