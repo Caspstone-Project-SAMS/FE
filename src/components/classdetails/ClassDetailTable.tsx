@@ -1,5 +1,5 @@
 import styles from './ClassDetail.module.less';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { RadioChangeEvent, TableProps } from 'antd';
 import { Layout, Table, Typography, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
@@ -19,13 +19,14 @@ const { Header: AntHeader } = Layout;
 
 type props = {
   scheduleID: string,
-  isOkOpen: boolean
+  isOkOpen: boolean,
+  studentAttendedList: string[]
 }
 type ColumnsType<T> = TableProps<T>['columns'];
 
 let socket
 
-const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
+const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttendedList }) => {
 
   const userToken = useSelector((state: RootState) => state.auth.userDetail?.token)
 
@@ -40,6 +41,9 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
   const [loadingState, setLoadingState] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(35);
   const [isUpdate, setIsUpdate] = useState(false);
+
+  const radioGroupRef = useRef<HTMLDivElement>(null);
+  const [hasChange, setHasChange] = useState(false);
 
 
   const toggleUpdateAttendance = () => {
@@ -76,31 +80,41 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
                     console.log("On update item ", item);
                     console.log("List origin ", studentList);
                     console.log("update list ", updatedList);
-                    const sample = []
-                    for (let i = 0; i < studentList.length; i++) {
-                      const student = studentList[i]
-                      if (student.studentID === item) {
-                        sample.push({ ...student, attendanceStatus: 1 })
-                      } else {
-                        sample.push(student)
+                    // const sample = []
+                    // for (let i = 0; i < studentList.length; i++) {
+                    //   const student = studentList[i]
+                    //   if (student.studentID === item) {
+                    //     sample.push({ ...student, attendanceStatus: 1 })
+                    //   } else {
+                    //     sample.push(student)
+                    //   }
+                    // }
+                    // if (sample.length > 0) {
+                    //   setStudentList(sample);
+                    //   setUpdatedList(sample);
+                    // }
+
+                    const element = document.getElementById(`attendanceStatus-${item}`);
+                    if (element) {
+                      element.innerHTML = 'Attended';
+                      element.style.color = 'green';
+                    }
+                    const elementCheckBox = document.getElementById(`radio_${item}`) as HTMLInputElement
+                    console.log("Element check box, ", elementCheckBox);
+                    if (elementCheckBox) {
+                      // Find the radio input with value 1 and check it
+                      const radioInput = elementCheckBox.querySelector('input[value="1"]') as HTMLInputElement;
+                      console.log("radioInput ", radioInput);
+
+                      if (radioInput) {
+                        radioInput.checked = true;
                       }
                     }
-                    if (sample.length > 0) {
-                      setStudentList(sample);
-                      setUpdatedList(sample);
-                    }
-
-                    // const element = document.getElementById(`attendanceStatus-${item}`);
-                    // if (element) {
-                    //   element.innerHTML = 'Attended';
-                    //   element.style.color = 'green';
-                    // }
                   })
                 }
               } catch (error) {
                 toast.error('Unexpected error happened when connecting')
               }
-
             }
             break;
           default:
@@ -266,10 +280,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
         return (
           <>
             <Radio.Group
-              key={`radio_${index}`}
+              ref={radioGroupRef}
+              key={`radio_${record.studentID}`}
               name="radiogroup"
               onChange={e => handleRadioChange(e, record.studentCode!)}
-              value={record.attendanceStatus}
+              value={record.attendanceStatus ? record.attendanceStatus : 2}
               disabled={!isUpdate}
             // defaultValue={
             //   record.attendanceStatus !== 0 ? (
@@ -341,6 +356,25 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
     console.log("Change of student list", studentList);
   }, [updatedList, studentList])
 
+  useEffect(() => {
+    const sample: Attendance[] = []
+    const formatNew = studentAttendedList.map(item => {
+      for (let i = 0; i < studentList.length; i++) {
+        const student = studentList[i]
+        if (student.studentID === item) {
+          sample.push({ ...student, attendanceStatus: 1 })
+        } else {
+          sample.push(student)
+        }
+      }
+    })
+    console.log("On sample ", sample);
+    console.log("format new", formatNew);
+    if (sample.length > 0) {
+      setStudentList(sample);
+      setUpdatedList(sample);
+    }
+  }, [studentAttendedList])
 
   return (
     <Content className={styles.classDetailContent}>

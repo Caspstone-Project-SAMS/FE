@@ -62,6 +62,8 @@ const ClassDetails: React.FC = () => {
 
   //Temp fix------------
   const [isOkOpen, setIsOkOpen] = useState(false);
+  const [studentAttendedList, setStudentAttendedList] = useState<string[]>([]);
+
   //Temp fix------------
 
   const [change, setChange] = useState(0);
@@ -178,64 +180,76 @@ const ClassDetails: React.FC = () => {
         //   break;
         // }
         case 'ModuleConnected': {
-          console.log('c', moduleDetail);
-          const data = message.Data;
-          const moduleId = data.ModuleId;
-          modifyModuleConnection(moduleId, 1);
-          if (moduleID === moduleId) {
-            const specificModule = moduleDetail.find(
-              (module) => module.moduleID === moduleId,
-            );
-            autoConnectModule().then(() => {
-              setModuleByID(specificModule as ModuleDetail | undefined);
-              console.log('run');
-            }).catch((error) => {
+          // console.log('c', moduleDetail);
+          // const data = message.Data;
+          // const moduleId = data.ModuleId;
+          // modifyModuleConnection(moduleId, 1);
+          // if (moduleID === moduleId) {
+          //   const specificModule = moduleDetail.find(
+          //     (module) => module.moduleID === moduleId,
+          //   );
+          //   autoConnectModule().then(() => {
+          //     setModuleByID(specificModule as ModuleDetail | undefined);
+          //     console.log('run');
+          //   }).catch((error) => {
 
-              console.log('Error in autoConnectModule:', error);
-            });
-          }
-          setModuleDetail([...moduleDetail]);
+          //     console.log('Error in autoConnectModule:', error);
+          //   });
+          // }
+          // setModuleDetail([...moduleDetail]);
 
 
           break;
         }
         case 'ModuleLostConnected': {
-          const data = message.Data;
-          const moduleId = data.ModuleId;
-          modifyModuleConnection(moduleId, 2);
-          if (moduleID === moduleId) {
-            const specificModule = moduleDetail.find(
-              (module) => module.moduleID === moduleId,
-            );
-            autoConnectModule().then(() => {
-              setModuleByID(specificModule as ModuleDetail | undefined);
-              console.log('run');
-            }).catch((error) => {
+          // const data = message.Data;
+          // const moduleId = data.ModuleId;
+          // modifyModuleConnection(moduleId, 2);
+          // if (moduleID === moduleId) {
+          //   const specificModule = moduleDetail.find(
+          //     (module) => module.moduleID === moduleId,
+          //   );
+          //   autoConnectModule().then(() => {
+          //     setModuleByID(specificModule as ModuleDetail | undefined);
+          //     console.log('run');
+          //   }).catch((error) => {
 
-              console.log('Error in autoConnectModule:', error);
-            });
-          }
-          setModuleDetail([...moduleDetail]);
-          break;
+          //     console.log('Error in autoConnectModule:', error);
+          //   });
+          // }
+          // setModuleDetail([...moduleDetail]);
         }
+          break;
         case 'PreparationProgress': {
           const data = message.Data;
           const socketSessionId = data.SessionId as number;
           const progress = data.Progress as number;
           if (socketSessionId === sessionID) setPreparationProgress(progress);
           if (progress === 100) {
-            ws.close();
-            setIsOkOpen(true);
+            // ws.close();
+            // setIsOkOpen(true);
+          }
+        }
+          break;
+        case "StudentAttended":
+          {
+            try {
+              const studentIDs = message.Data.studentIDs
+              console.log("studentIDS ", studentIDs);
+              if (Array.isArray(studentIDs)) {
+                setStudentAttendedList(studentIDs);
+              }
+            } catch (error) {
+              toast.error('Unexpected error happened when connecting')
+            }
           }
           break;
-        }
         default: {
           console.log('Undefined Event!');
-          break;
         }
+          break;
       }
     };
-
     ws.onclose = () => {
       console.log('WebSocket connection closed');
     };
@@ -717,7 +731,7 @@ const ClassDetails: React.FC = () => {
           </Card>
         </Col>
 
-        <ClassDetailTable scheduleID={scheduleID} isOkOpen={isOkOpen} />
+        <ClassDetailTable scheduleID={scheduleID} isOkOpen={isOkOpen} studentAttendedList={studentAttendedList} />
       </Row>
 
       <Modal

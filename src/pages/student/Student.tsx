@@ -155,6 +155,18 @@ const Student: React.FC = () => {
         return room ?? 'N/A';
       },
     },
+    // {
+    //   title: 'Status',
+    //   dataIndex: 'attendanceStatus',
+    //   key: 'status',
+    //   render: (text: number) => {
+    //     return text === 0 ? (
+    //       <Tag color="red">Absence</Tag>
+    //     ) : (
+    //       <Tag color="green">Present</Tag>
+    //     );
+    //   },
+    // },
     {
       title: 'Status',
       dataIndex: 'attendanceStatus',
@@ -162,9 +174,9 @@ const Student: React.FC = () => {
       render: (text: number) => {
         return text === 0 ? (
           <Tag color="yellow">Not yet</Tag>
-        ) : text === 1 ?(
+        ) : text === 1 ? (
           <Tag color="green">Attended</Tag>
-        ) : text === 2 ?(
+        ) : text === 2 ? (
           <Tag color="red">Absence</Tag>
         ) : 'undefined';
       },

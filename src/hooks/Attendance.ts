@@ -5,6 +5,8 @@ import {
   UpdateListAttendance,
 } from '../models/attendance/Attendance';
 import { AttendanceReport } from '../models/attendance/AttendanceReport';
+import { HelperService } from './helpers/helperFunc';
+import toast from 'react-hot-toast';
 
 // const headers = {
 //   'Content-Type': 'application/json',
@@ -69,9 +71,33 @@ const getClassAttendanceReportByID = async (
   return response.data;
 };
 
+const downloadReportExcel = async (classId: string, classCode: string) => {
+  try {
+    const response = await axios(`${ATTENDANCE_API}/attendance-report`, {
+      params: {
+        classId: classId,
+        isExport: true,
+      },
+      responseType: 'blob',
+    });
+
+    const blobFile = response.data;
+    HelperService.downloadFile(blobFile, `Class_Report_${classCode}`);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response.status === 400) {
+        toast.error('No data available for export.');
+      } else {
+        toast.error('Unknown error occured');
+      }
+    }
+  }
+};
+
 export const AttendanceService = {
   getAttendanceByScheduleID,
   updateAttendance,
   updateListAttendance,
   getClassAttendanceReportByID,
+  downloadReportExcel,
 };
