@@ -123,6 +123,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
       };
     }
   }
+  const updateStatusManual = () => {
+    setUpdatedList(updatedList.map(item => ({
+      ...item,
+      attendanceStatus: item.attendanceStatus === 0 ? 2 : item.attendanceStatus
+    })));
+  }
 
   const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {
     console.log("check this event ", e);
@@ -153,7 +159,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
           studentID: studentID,
           scheduleID: Number(scheduleID),
           attendanceTime: currentTime,
-          attendanceStatus: attendanceStatus
+          attendanceStatus: attendanceStatus === 0 ? 2 : attendanceStatus
         }
       }
     }).filter(item => item !== undefined);
@@ -168,7 +174,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
     })
   }
   const handleCancel = () => {
-    setIsUpdate(false)
+    setIsUpdate(false);
     setUpdatedList(studentList);
   }
   const handleSearch = (value: string) => {
@@ -285,6 +291,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
               name="radiogroup"
               onChange={e => handleRadioChange(e, record.studentCode!)}
               value={record.attendanceStatus ? record.attendanceStatus : 2}
+              // value={record.attendanceStatus && record.attendanceStatus}
               disabled={!isUpdate}
             // defaultValue={
             //   record.attendanceStatus !== 0 ? (
@@ -379,7 +386,11 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
   return (
     <Content className={styles.classDetailContent}>
       <AntHeader className={styles.classDetailHeader}>
-        <Typography.Title level={3} style={{ marginTop: 5 }}>
+        <Typography.Title level={3} style={{ marginTop: 5 }}
+          onClick={() => {
+            console.log("update list ", updatedList);
+          }}
+        >
           Student
         </Typography.Title>
         <div className={styles.studentTableCtn}>
@@ -401,7 +412,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
           />
           <Tooltip placement="top" title={'Update Attendance'}>
             <Button
-              onClick={() => setIsUpdate(true)}
+              onClick={() => {
+                setIsUpdate(true)
+                updateStatusManual();
+              }}
               type={isUpdate ? 'primary' : 'dashed'}
               shape="default"
               icon={<BiCalendarEdit />}
