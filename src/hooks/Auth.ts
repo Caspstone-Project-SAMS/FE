@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { GET_GG_USER_INFO, USER_AUTH_API } from '.';
 import { UserInfo } from '../models/UserInfo';
 import { GGUserInfo } from '../models/auth/GoogleResponse';
@@ -31,10 +31,100 @@ const getGGInfo = async (access_token: string): Promise<GGUserInfo> => {
   return response.data as GGUserInfo;
 };
 
+const resetPassword = async (
+  UserId: string,
+  OldPassword: string,
+  NewPassword: string,
+  ConfirmPassword: string,
+) => {
+  try {
+    const response = await axios.post(
+      'http://34.81.224.196/api/Auth/reset-password',
+      {
+        UserId,
+        OldPassword,
+        NewPassword,
+        ConfirmPassword,
+      },
+      {
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'application/json-patch+json',
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
+const editProfile = async (
+  UserId: string,
+  Email: string,
+  PhoneNumber: string,
+  Avatar: File | null,
+  DisplayName: string,
+  Address: string,
+  DOB: string,
+  Gender: number,
+  FirstName: string,
+  LastName: string,
+) => {
+  try {
+    console.log('test', Avatar)
+    const formData = new FormData();
+    formData.append('Email', Email);
+    if(Avatar !== null) formData.append('Avatar', Avatar, Avatar.name);
+    formData.append('DisplayName', DisplayName);
+    formData.append('Address', Address);
+    formData.append('DOB', DOB)
+    const response = await axios.put(
+      `http://34.81.224.196/api/User/${UserId}`,
+      {
+        Email,
+        PhoneNumber,
+        Avatar,
+        DisplayName,
+        Address,
+        DOB,
+        Gender,
+        FirstName,
+        LastName
+      },
+      {
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
 const AuthService = {
   login,
   getGGInfo,
   loginGG,
+  resetPassword,
+  editProfile
 };
 
 export default AuthService;

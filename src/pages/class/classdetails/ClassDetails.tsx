@@ -1,7 +1,7 @@
 import styles from '../Class.module.less';
 import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Content } from 'antd/es/layout/layout';
 import {
   Badge,
@@ -19,6 +19,9 @@ import {
   Spin,
   Popconfirm,
   PopconfirmProps,
+  List,
+  Avatar,
+  Popover,
 } from 'antd';
 
 import module from '../../../assets/imgs/module.png';
@@ -33,9 +36,15 @@ import { HelperService } from '../../../hooks/helpers/helperFunc';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import { ModuleService } from '../../../hooks/Module';
-import { ModuleByID, ModuleDetail } from '../../../models/module/Module';
+import {
+  ModuleActivity,
+  ModuleByID,
+  ModuleDetail,
+} from '../../../models/module/Module';
 import moduleImg from '../../../assets/imgs/module00.png';
 import { activeModule, clearModuleMessages } from '../../../redux/slice/Module';
+import modules from '../../../assets/imgs/module.png';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 const { Option } = Select;
 
 const ClassDetails: React.FC = () => {
@@ -69,6 +78,7 @@ const ClassDetails: React.FC = () => {
   const [change, setChange] = useState(0);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [preparationProgress, setPreparationProgress] = useState(0);
 
@@ -91,6 +101,22 @@ const ClassDetails: React.FC = () => {
 
   const [searchModuleID, setSearchModuleID] = useState<number | undefined>(
     undefined,
+  );
+
+  const [moduleActivity, setModuleActivity] = useState<ModuleActivity[]>([]);
+
+  const popoverContent = (
+    <Space direction="vertical" size="small">
+      <Button type="text" onClick={() => handleStart()}>
+        Start
+      </Button>
+      <Button type="text" onClick={() => handleReset()}>
+        Stop
+      </Button>
+      <Button type="text" onClick={() => handleSync()}>
+        Sync
+      </Button>
+    </Space>
   );
 
   useEffect(() => {
@@ -125,6 +151,28 @@ const ClassDetails: React.FC = () => {
   //   }
   // }, [moduleID]);
 
+  useEffect(() => {
+    if (scheduleID !== 0) {
+      const response = ModuleService.getModuleActivityByScheduleID(scheduleID);
+
+      response
+        .then((data) => {
+          //Newest on top
+          if (data && data.result) {
+            const reverseList = data.result.reverse();
+            setModuleActivity(reverseList);
+          } else {
+            setModuleActivity([]);
+          }
+        })
+        .catch((error) => {
+          console.log('get module by id error: ', error);
+        });
+    }
+  }, [scheduleID]);
+
+  const list = moduleActivity;
+
   const autoConnectModule = useCallback(async () => {
     try {
       const arg = {
@@ -133,7 +181,7 @@ const ClassDetails: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
-      console.log("testttt");
+      console.log('testttt');
     } catch (error) {
       console.log('error at auto connect module', error);
     }
@@ -149,7 +197,7 @@ const ClassDetails: React.FC = () => {
     [moduleDetail],
   );
 
-  console.log('session', sessionID)
+  console.log('session', sessionID);
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -198,55 +246,56 @@ const ClassDetails: React.FC = () => {
           // }
           // setModuleDetail([...moduleDetail]);
 
-
           break;
         }
-        case 'ModuleLostConnected': {
-          // const data = message.Data;
-          // const moduleId = data.ModuleId;
-          // modifyModuleConnection(moduleId, 2);
-          // if (moduleID === moduleId) {
-          //   const specificModule = moduleDetail.find(
-          //     (module) => module.moduleID === moduleId,
-          //   );
-          //   autoConnectModule().then(() => {
-          //     setModuleByID(specificModule as ModuleDetail | undefined);
-          //     console.log('run');
-          //   }).catch((error) => {
-
-          //     console.log('Error in autoConnectModule:', error);
-          //   });
-          // }
-          // setModuleDetail([...moduleDetail]);
-        }
-          break;
-        case 'PreparationProgress': {
-          const data = message.Data;
-          const socketSessionId = data.SessionId as number;
-          const progress = data.Progress as number;
-          if (socketSessionId === sessionID) setPreparationProgress(progress);
-          if (progress === 100) {
-            // ws.close();
-            // setIsOkOpen(true);
+        case 'ModuleLostConnected':
+          {
+            // const data = message.Data;
+            // const moduleId = data.ModuleId;
+            // modifyModuleConnection(moduleId, 2);
+            // if (moduleID === moduleId) {
+            //   const specificModule = moduleDetail.find(
+            //     (module) => module.moduleID === moduleId,
+            //   );
+            //   autoConnectModule().then(() => {
+            //     setModuleByID(specificModule as ModuleDetail | undefined);
+            //     console.log('run');
+            //   }).catch((error) => {
+            //     console.log('Error in autoConnectModule:', error);
+            //   });
+            // }
+            // setModuleDetail([...moduleDetail]);
           }
-        }
           break;
-        case "StudentAttended":
+        case 'PreparationProgress':
+          {
+            const data = message.Data;
+            const socketSessionId = data.SessionId as number;
+            const progress = data.Progress as number;
+            if (socketSessionId === sessionID) setPreparationProgress(progress);
+            if (progress === 100) {
+              // ws.close();
+              // setIsOkOpen(true);
+            }
+          }
+          break;
+        case 'StudentAttended':
           {
             try {
-              const studentIDs = message.Data.studentIDs
-              console.log("studentIDS ", studentIDs);
+              const studentIDs = message.Data.studentIDs;
+              console.log('studentIDS ', studentIDs);
               if (Array.isArray(studentIDs)) {
                 setStudentAttendedList(studentIDs);
               }
             } catch (error) {
-              toast.error('Unexpected error happened when connecting')
+              toast.error('Unexpected error happened when connecting');
             }
           }
           break;
-        default: {
-          console.log('Undefined Event!');
-        }
+        default:
+          {
+            console.log('Undefined Event!');
+          }
           break;
       }
     };
@@ -261,7 +310,14 @@ const ClassDetails: React.FC = () => {
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, moduleDetail, modifyModuleConnection, sessionID, autoConnectModule, moduleID]);
+  }, [
+    token,
+    moduleDetail,
+    modifyModuleConnection,
+    sessionID,
+    autoConnectModule,
+    moduleID,
+  ]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -316,8 +372,8 @@ const ClassDetails: React.FC = () => {
         status === 'past'
           ? 'Past'
           : status === 'current'
-            ? 'On going'
-            : 'Future';
+          ? 'On going'
+          : 'Future';
 
       setClassInfo([
         { label: 'Class', value: classCode },
@@ -356,7 +412,7 @@ const ClassDetails: React.FC = () => {
       );
       return response;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -367,7 +423,7 @@ const ClassDetails: React.FC = () => {
     };
   }, []); // Empty dependency array means this runs on unmount only
 
-  const handleReset = async () => {
+  const handleReset = async (moduleID: number) => {
     const StopAttendance = {
       ScheduleID: scheduleID,
     };
@@ -396,6 +452,46 @@ const ClassDetails: React.FC = () => {
       return response;
     } catch (error: any) {
       message.error(error.errors);
+      console.log(error.errors);
+    }
+  };
+
+  const handleSync = async (moduleID: number) => {
+    const SyncingAttendanceData = {
+      ScheduleID: scheduleID,
+    };
+    try {
+      const response = await ModuleService.syncAttendanceData(
+        moduleID,
+        12,
+        SyncingAttendanceData,
+        token,
+      );
+      console.log(response);
+      message.success(response.title);
+      return response;
+    } catch (error: any) {
+      message.error(error.errors);
+      console.log(error);
+    }
+  };
+
+  const handleStart = async (moduleID: number) => {
+    const StartAttendance = {
+      ScheduleID: scheduleID,
+    };
+    try {
+      const response = await ModuleService.startCheckAttendance(
+        moduleID,
+        10,
+        StartAttendance,
+        token,
+      );
+      message.success(response.title);
+      return response;
+    } catch (error: any) {
+      message.error(error.errors);
+      console.log(error);
     }
   };
 
@@ -457,7 +553,10 @@ const ClassDetails: React.FC = () => {
     </span>
   );
 
-  const activeModuleCheckAttendance = async (moduleID: number, SessionId: number) => {
+  const activeModuleCheckAttendance = async (
+    moduleID: number,
+    SessionId: number,
+  ) => {
     if (exit === true) {
       const arg = {
         ModuleID: moduleID,
@@ -626,8 +725,8 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.status === 1
                             ? 'available'
                             : moduleByID?.status === 0
-                              ? 'unavailable'
-                              : ''}
+                            ? 'unavailable'
+                            : ''}
                         </p>
                       </span>
                       <span>
@@ -650,14 +749,14 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.mode === 1
                             ? 'Register'
                             : moduleByID?.mode === 2
-                              ? 'Attendance'
-                              : ''}
+                            ? 'Attendance'
+                            : ''}
                         </p>
                       </span>
                     </div>
                   </div>
                 </Col>
-                <Col style={{ marginTop: 20 }}>
+                <Col style={{ marginTop: 10 }}>
                   <Button
                     style={{ width: '100%' }}
                     type="primary"
@@ -670,47 +769,7 @@ const ClassDetails: React.FC = () => {
                     <p>Select Module</p>
                   </Button>
                 </Col>
-              </Col>
-
-              <hr className={styles.hrVertical} />
-
-              <Col
-                span={10}
-                style={{
-                  marginRight: 10,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <Row className={styles.btnGroup}>
-                  <div style={{ marginBottom: '10px', width: '100%' }}>
-                    {/* <BtnDecoration
-                      btnFuncName="Import templates"
-                      btnTitle="Fingerprint"
-                      imgDecor={fingerprintIcon}
-                      key={'fingerprintImport'}
-                      isActiveModule={isActiveModule}
-                      moduleID={moduleID}
-                      setIsActiveModule={setIsActiveModule}
-                    /> */}
-                  </div>
-                  <Popconfirm
-                    title="Disconnect Online Attendance Tracking"
-                    description="Are you sure to disconnect?"
-                    onConfirm={handleReset}
-                    onCancel={cancel}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button
-                      danger
-                      type='primary'
-                      style={{ alignSelf: 'end', marginBottom: '12px' }}
-                    >
-                      Disconnect tracking
-                    </Button>
-                  </Popconfirm>
+                <Col style={{ marginTop: 10 }}>
                   <BtnDecoration
                     btnFuncName="Prepare Data"
                     btnTitle="Fingerprints"
@@ -725,13 +784,206 @@ const ClassDetails: React.FC = () => {
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
                     preparationProgress={preparationProgress}
                   />
-                </Row>
+                </Col>
+              </Col>
+
+              <hr className={styles.hrVertical} />
+
+              <Col
+                span={12}
+                style={{
+                  marginRight: 10,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'flex-start',
+                }}
+              >
+                {/* <Row className={styles.btnGroup}> */}
+                {/* <div style={{ marginBottom: '10px', width: '100%' }}>
+                    <BtnDecoration
+                      btnFuncName="Import templates"
+                      btnTitle="Fingerprint"
+                      imgDecor={fingerprintIcon}
+                      key={'fingerprintImport'}
+                      isActiveModule={isActiveModule}
+                      moduleID={moduleID}
+                      setIsActiveModule={setIsActiveModule}
+                    />
+                  </div> */}
+                {/* <Popconfirm
+                    title="Disconnect Online Attendance Tracking"
+                    description="Are you sure to disconnect?"
+                    onConfirm={handleReset}
+                    onCancel={cancel}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button
+                      danger
+                      type='primary'
+                      style={{ alignSelf: 'end', marginBottom: '12px' }}
+                    >
+                      Disconnect tracking
+                    </Button>
+                  </Popconfirm> */}
+                <List
+                  className="demo-loadmore-list"
+                  itemLayout="horizontal"
+                  dataSource={list}
+                  style={{
+                    width: '100%',
+                    borderRadius: 10,
+                    height: 300,
+                    overflowY: 'auto',
+                  }}
+                  renderItem={(item) => (
+                    <List.Item
+                      style={{
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: 10,
+                        marginBottom: 10,
+                      }}
+                      // actions={[
+                      //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                      //     start
+                      //   </a>,
+                      //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                      //     stop
+                      //   </a>,
+                      //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                      //     sync
+                      //   </a>,
+                      // ]}
+                    >
+                      <List.Item.Meta
+                        avatar={
+                          <div style={{ marginLeft: 10 }}>
+                            <b>Module {item.module.moduleID}</b>
+                            <br />
+                            <Avatar
+                              src={modules}
+                              style={{
+                                width: '120px',
+                                height: '80px',
+                                borderRadius: 5,
+                              }}
+                            />
+                          </div>
+                        }
+                        // title={
+                        //   <a href="https://ant.design">{item.name?.last}</a>
+                        // }
+                        // title={`Module ${item.module.moduleID}`}
+                        // description="a"
+                      />
+                      {/* <div style={{width:'10%', marginRight: 40}}>
+                            <b>{'Module' + item.module.moduleID}</b>
+                            <br/>
+                            <img alt='module' src={modules} style={{height:25, width:25}}/>
+                          </div>
+                          <div style={{width:'25%'}}>
+                            {item.startTime}
+                          </div> */}
+                      <div>
+                        <b>Time:</b>{' '}
+                        {new Date(item.startTime).toLocaleString('en-GB', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: false,
+                        })}
+                        <div>
+                          <b>Uploaded:</b>{' '}
+                          <div
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              backgroundColor: '#f5f5f5',
+                              borderRadius: '5px',
+                              padding: '0px 5px',
+                              fontSize: '10px',
+                              color: '#333',
+                              border: '1px solid #ddd',
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontWeight: 'bold',
+                                marginRight: '5px',
+                              }}
+                            >
+                              {item.preparationTask.uploadedFingers}
+                            </span>
+                            <span
+                              style={{
+                                fontWeight: 'bold',
+                                color: '#108ee9',
+                                marginRight: '5px',
+                              }}
+                            >
+                              /
+                            </span>
+                            <span
+                              style={{
+                                fontWeight: 'bold',
+                                marginRight: '5px',
+                              }}
+                            >
+                              {item.preparationTask.totalFingers}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                color: '#555',
+                              }}
+                            >
+                              Fingers
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Space>
+                        <Popover
+                          placement="bottomRight"
+                          content={
+                            <Space direction="vertical" size="small">
+                              <Button type="text" onClick={() => handleStart(item.module.moduleID)}>
+                                Start
+                              </Button>
+                              <Button type="text" onClick={() => handleReset(item.module.moduleID)}>
+                                Stop
+                              </Button>
+                              <Button type="text" onClick={() => handleSync(item.module.moduleID)}>
+                                Sync
+                              </Button>
+                            </Space>
+                          }
+                          trigger="click"
+                        >
+                          <Button style={{ marginBottom: 50 }} type="link">
+                            <BsThreeDotsVertical size={25} />
+                          </Button>
+                        </Popover>
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+                {/* </Row> */}
               </Col>
             </Row>
           </Card>
         </Col>
 
-        <ClassDetailTable scheduleID={scheduleID} isOkOpen={isOkOpen} studentAttendedList={studentAttendedList} />
+        <ClassDetailTable
+          scheduleID={scheduleID}
+          isOkOpen={isOkOpen}
+          studentAttendedList={studentAttendedList}
+        />
       </Row>
 
       <Modal
@@ -818,10 +1070,11 @@ const ClassDetails: React.FC = () => {
                       <Button
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
-                        className={`${styles.unselectedModule} ${moduleID === item.moduleID
-                          ? styles.selectedModule
-                          : ''
-                          }`}
+                        className={`${styles.unselectedModule} ${
+                          moduleID === item.moduleID
+                            ? styles.selectedModule
+                            : ''
+                        }`}
                         disabled={isActiveModule}
                       >
                         <Row>

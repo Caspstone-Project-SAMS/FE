@@ -60,7 +60,7 @@ const updateSemester = createAsyncThunk(
   async (
     arg: {
       SemesterCode: string;
-      SemesterStatus: number;
+      // SemesterStatus: number;
       StartDate: string;
       EndDate: string;
       semesterID: number;
@@ -68,11 +68,11 @@ const updateSemester = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const { SemesterCode, SemesterStatus, StartDate, EndDate, semesterID } =
+      const { SemesterCode, StartDate, EndDate, semesterID } =
         arg;
       const updateSemesterResponse = await SemesterService.updateSemester(
         SemesterCode,
-        SemesterStatus,
+        // SemesterStatus,
         StartDate,
         EndDate,
         semesterID,

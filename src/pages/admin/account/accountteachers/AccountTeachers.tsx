@@ -20,7 +20,7 @@ const AccountTeachers: React.FC = () => {
   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
-  const handleRowClick = (lecturerID: number) => {
+  const handleRowClick = (lecturerID: string) => {
     navigate(`/teacher/teacher-detail`, {
       state: { lecturerID: lecturerID },
     });

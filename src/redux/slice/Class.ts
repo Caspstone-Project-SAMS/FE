@@ -64,6 +64,58 @@ const createClass = createAsyncThunk(
   },
 );
 
+const updateClass = createAsyncThunk(
+  'class/update',
+  async (
+    arg: {
+      ClassID: number
+      ClassCode: string;
+      SemesterId: number;
+      RoomId: number;
+      SubjectId: number;
+      LecturerID: string;
+      // CreatedBy: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const {
+        ClassID,
+        ClassCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
+        LecturerID,
+        // CreatedBy,
+      } = arg;
+      const createClassResponse = await ClassService.updateClass(
+        ClassID,
+        ClassCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
+        LecturerID,
+        // CreatedBy,
+      );
+      return createClassResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in create class', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
+
 const ClassSlice = createSlice({
   name: 'class',
   initialState,
@@ -100,9 +152,35 @@ const ClassSlice = createSlice({
         message: { data: action.payload || 'Failed to create class' },
       };
     });
+    builder.addCase(updateClass.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(updateClass.fulfilled, (state, action) => {
+      const { payload } = action;
+      // message.success("Class created successfully");
+      return {
+        ...state,
+        loading: false,
+        classDetail: payload,
+        message: undefined,
+      };
+    });
+    builder.addCase(updateClass.rejected, (state, action) => {
+      // message.error("Class created successfully");
+      // const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        classDetail: undefined,
+        message: { data: action.payload || 'Failed to update class' },
+      };
+    });
   },
 });
 
 export const { clearClassMessages } = ClassSlice.actions;
-export { createClass };
+export { createClass, updateClass };
 export default ClassSlice.reducer;

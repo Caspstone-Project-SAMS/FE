@@ -53,70 +53,93 @@ const initialState: ModuleState = {
 // );
 
 const activeModule = createAsyncThunk(
-    'module/active',
-    async (
-      arg: {
-        ModuleID: number;
-        Mode: number;
-        SessionId: number;
-        token: string;
-      },
-      { rejectWithValue },
-    ) => {
-      try {
-        const { ModuleID, Mode, SessionId, token } = arg;
-        const activeModuleResponse = await ModuleService.activeModule(
-          ModuleID,
-          Mode,
-          SessionId,
-          token,
-        );
-        console.log("active", activeModuleResponse);
-        return activeModuleResponse;
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          console.log('Error:', error.response.data);
-          return rejectWithValue(error.response.data);
-        } else {
-          console.log('Unexpectedd error:', error);
-          return rejectWithValue({ error });
-        }
+  'module/active',
+  async (
+    arg: {
+      ModuleID: number;
+      Mode: number;
+      SessionId: number;
+      token: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { ModuleID, Mode, SessionId, token } = arg;
+      const activeModuleResponse = await ModuleService.activeModule(
+        ModuleID,
+        Mode,
+        SessionId,
+        token,
+      );
+      console.log('active', activeModuleResponse);
+      return activeModuleResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('Error:', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log('Unexpectedd error:', error);
+        return rejectWithValue({ error });
       }
     }
-  );
+  },
+);
 
-  const settingModules = createAsyncThunk(
-    'module/setting',
-    async (
-      arg: {
-        moduleID: number;
-        AutoPrepare: boolean;
-        PreparedTime: string;
-        token: string;
-      },
-      { rejectWithValue },
-    ) => {
-      try {
-        const { moduleID, AutoPrepare, PreparedTime, token } = arg;
-        const settingModuleResponse = await ModuleService.settingModule(
-          moduleID,
-          AutoPrepare,
-          PreparedTime,
-          token,
-        );
-        console.log("setting", settingModuleResponse);
-        return settingModuleResponse;
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          console.log('Error:', error.response.data);
-          return rejectWithValue(error.response.data);
-        } else {
-          console.log('Unexpectedd error:', error);
-          return rejectWithValue({ error });
-        }
+const settingModules = createAsyncThunk(
+  'module/setting',
+  async (
+    arg: {
+      moduleID: number;
+      AutoPrepare: boolean;
+      PreparedTime: string;
+      AttendanceDurationMinutes: number;
+      ConnectionLifeTimeSeconds: number;
+      ConnectionSound: boolean;
+      ConnectionSoundDurationMs: number;
+      AttendanceSound: boolean;
+      AttendanceSoundDurationMs: number;
+      token: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const {
+        moduleID,
+        AutoPrepare,
+        PreparedTime,
+        AttendanceDurationMinutes,
+        ConnectionLifeTimeSeconds,
+        ConnectionSound,
+        ConnectionSoundDurationMs,
+        AttendanceSound,
+        AttendanceSoundDurationMs,
+        token,
+      } = arg;
+      const settingModuleResponse = await ModuleService.settingModule(
+        moduleID,
+        AutoPrepare,
+        PreparedTime,
+        AttendanceDurationMinutes,
+        ConnectionLifeTimeSeconds,
+        ConnectionSound,
+        ConnectionSoundDurationMs,
+        AttendanceSound,
+        AttendanceSoundDurationMs,
+        token,
+      );
+      console.log('setting', settingModuleResponse);
+      return settingModuleResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('Error:', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log('Unexpectedd error:', error);
+        return rejectWithValue({ error });
       }
     }
-  );
+  },
+);
 
 const ModuleSlice = createSlice({
   name: 'module',
@@ -136,7 +159,7 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(activeModule.fulfilled, (state, action) => {
       const { payload } = action;
-    //   message.success("Active module successfully");
+      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -145,7 +168,7 @@ const ModuleSlice = createSlice({
       };
     });
     builder.addCase(activeModule.rejected, (state, action) => {
-    //   message.error("Active module faillllll");
+      //   message.error("Active module faillllll");
       return {
         ...state,
         loading: false,
@@ -162,7 +185,7 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(settingModules.fulfilled, (state, action) => {
       const { payload } = action;
-    //   message.success("Active module successfully");
+      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -171,7 +194,7 @@ const ModuleSlice = createSlice({
       };
     });
     builder.addCase(settingModules.rejected, (state, action) => {
-    //   message.error("Active module faillllll");
+      //   message.error("Active module faillllll");
       return {
         ...state,
         loading: false,

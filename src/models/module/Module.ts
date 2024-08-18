@@ -14,6 +14,12 @@ export interface ModuleByID {
     autoPrepare: boolean;
     preparedMinBeforeSlot?: null;
     preparedTime?: null;
+    connectionLifeTimeSeconds?: number;
+    connectionSound: boolean,
+    connectionSoundDurationMs: number,
+    attendanceSound: boolean,
+    attendanceSoundDurationMs: number,
+    attendanceDurationMinutes: number,
     autoReset: boolean;
     resetMinAfterSlot?: null;
     resetMinBeforeSlot?: null;
@@ -26,6 +32,11 @@ export interface ModuleByID {
     isDeleted: boolean;
     connectionStatus: number;
   };
+}
+
+export interface ModuleActivityBySchedule {
+  title: string;
+  result: ModuleActivity[];
 }
 
 export interface ModuleDetail {
@@ -69,6 +80,7 @@ export interface ModuleActivity {
   endTime: string;
   errors: [];
   preparationTask: PrepareTask;
+  module: ModuleBySchedule;
 }
 
 interface PrepareTask{
@@ -79,6 +91,13 @@ interface PrepareTask{
   uploadedFingers: number,
 }
 
+export interface ModuleBySchedule {
+  moduleID: number;
+  status: number;
+  connectionStatus?: boolean;
+  mode: number;
+  autoPrepare: boolean;
+}
 export interface ActiveModule {
   StatusCode: number;
   Title: string;

@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import { MODULE_API, SET_WIFI_API } from '.';
-import { ActiveModule, Module, ModuleByID } from '../models/module/Module';
+import { MODULE_ACTIVITY_API, MODULE_API, SET_WIFI_API } from '.';
+import { ActiveModule, Module, ModuleActivityBySchedule, ModuleByID } from '../models/module/Module';
 import { useSelector } from 'react-redux';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 
@@ -16,6 +16,14 @@ interface UpdateMode {
 }
 
 interface StopAttendance {
+  ScheduleID: number;
+}
+
+interface SyncingAttendanceData {
+  ScheduleID: number;
+}
+
+interface StartAttendance {
   ScheduleID: number;
 }
 
@@ -74,6 +82,20 @@ const getModuleByID = async (moduleID: number): Promise<ModuleByID | null> => {
     return response.data as ModuleByID;
   } catch (error) {
     console.error('Error on get Module by ID: ', error);
+    return null;
+  }
+};
+
+const getModuleActivityByScheduleID = async (scheduleID: number): Promise<ModuleActivityBySchedule | null> => {
+  try {
+    const response = await axios.get(`${MODULE_ACTIVITY_API}?scheduleId=${scheduleID}`, {
+      headers: {
+        accept: '*/*',
+      },
+    });
+    return response.data as ModuleActivityBySchedule;
+  } catch (error) {
+    console.error('Error on get Module by ScheduleID: ', error);
     return null;
   }
 };
@@ -239,6 +261,77 @@ const stopCheckAttendance = async (
   }
 };
 
+const syncAttendanceData = async (
+  ModuleID: number,
+  Mode: number,
+  SyncingAttendanceData: { ScheduleID: number },
+  token: string,
+  // StartAttendance: Schedule,
+  // StopAttendance: Schedule
+) => {
+  try {
+    const response = await axios.post(
+      'http://34.81.224.196/api/Module/Activate',
+      {
+        ModuleID,
+        Mode,
+        SyncingAttendanceData,
+      },
+      {
+        headers: {
+          'Accept': '*/*',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
+    );
+    console.log('asddc', response);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error.message);
+      throw new Error(error.response.data);
+    }
+    console.log('Unexpected error:', error.message);
+    throw new Error(error.message);
+  }
+};
+
+const startCheckAttendance = async (
+  ModuleID: number,
+  Mode: number,
+  StartAttendance: { ScheduleID: number }, // Adjusted type for StartAttendance
+  token: string
+) => {
+  try {
+    const response = await axios.post(
+      'http://34.81.224.196/api/Module/Activate',
+      {
+        ModuleID,
+        Mode,
+        StartAttendance,
+      },
+      {
+        headers: {
+          'Accept': '*/*',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json-patch+json',
+        },
+      }
+    );
+    console.log('Response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error response:', error.response.data);
+      throw new Error(error.response.data);
+    } else {
+      console.log('Unexpected error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
 const activeModule = async (
   ModuleID: number,
   Mode: number,
@@ -309,6 +402,12 @@ const settingModule = async (
   moduleID: number,
   AutoPrepare: boolean,
   PreparedTime: string,
+  AttendanceDurationMinutes:number,
+  ConnectionLifeTimeSeconds: number,
+  ConnectionSound: boolean,
+  ConnectionSoundDurationMs: number,
+  AttendanceSound: boolean,
+  AttendanceSoundDurationMs: number,
   token: string,
 ) => {
   try {
@@ -317,6 +416,12 @@ const settingModule = async (
       {
         AutoPrepare,
         PreparedTime,
+        AttendanceDurationMinutes,
+        ConnectionLifeTimeSeconds,
+        ConnectionSound,
+        ConnectionSoundDurationMs,
+        AttendanceSound,
+        AttendanceSoundDurationMs,
       },
       {
         headers: {
@@ -364,5 +469,8 @@ export const ModuleService = {
   setUpWifi,
   activeModuleAttendance,
   stopCheckAttendance,
+  syncAttendanceData,
+  startCheckAttendance,
   settingModule,
+  getModuleActivityByScheduleID,
 };

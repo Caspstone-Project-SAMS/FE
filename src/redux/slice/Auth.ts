@@ -5,6 +5,11 @@ import AuthService from '../../hooks/Auth';
 import toast from 'react-hot-toast';
 import axios, { AxiosError } from 'axios';
 import { HelperService } from '../../hooks/helpers/helperFunc';
+import {
+  AuthSuccessMessage,
+  AuthFailMessage,
+} from '../../models/auth/ResetPassword';
+import { UserService } from '../../hooks/User';
 // import axios, { Axios, AxiosError } from 'axios';
 
 // import { history } from '../../hooks/helpers/history';
@@ -14,6 +19,10 @@ interface AuthState {
   googleAuth?: GoogleLogin_OnSuccess;
   userDetail?: UserInfo;
   loadingStatus: boolean;
+  success?: AuthSuccessMessage;
+  fail?: AuthFailMessage;
+  data?: UserInfo;
+  userID?: string;
 }
 
 const initialState: AuthState = {
@@ -21,6 +30,10 @@ const initialState: AuthState = {
   googleAuth: undefined,
   userDetail: undefined,
   loadingStatus: false,
+  success: undefined,
+  fail: undefined,
+  data: undefined,
+  userID: undefined,
 };
 const curDate = new Date();
 const fakeUser = {
@@ -52,11 +65,17 @@ const fakeLogin = createAction('auth/fakeLogin');
 
 const updateUser = createAction('auth/updateUser');
 
+// const updateName = createAction('auth/updateName', (name) => {
+//   return {
+//     payload: name
+//   }
+// });
+
 const login = createAsyncThunk(
   'auth/login',
   async (
     arg: { username: string; password: string; isRemember: boolean },
-    { rejectWithValue },
+    { rejectWithValue, dispatch },
   ) => {
     const { username, password, isRemember } = arg;
     try {
@@ -86,6 +105,7 @@ const login = createAsyncThunk(
         localStorage.setItem('session', JSON.stringify(session));
       }
       console.log('User result here ', result);
+      dispatch(getUserByID({ UserId: result?.result?.id || '' }));
       return result;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -139,6 +159,133 @@ const loginGG = createAsyncThunk(
   },
 );
 
+const resetPassword = createAsyncThunk(
+  'auth/reset-password',
+  async (
+    arg: {
+      UserId: string;
+      OldPassword: string;
+      NewPassword: string;
+      ConfirmPassword: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { UserId, OldPassword, NewPassword, ConfirmPassword } = arg;
+      const resetPasswordResponse = await AuthService.resetPassword(
+        UserId,
+        OldPassword,
+        NewPassword,
+        ConfirmPassword,
+      );
+      return resetPasswordResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in reset password', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
+const editProfile = createAsyncThunk(
+  'auth/edit-profile',
+  async (
+    arg: {
+      UserId: string;
+      Email: string;
+      PhoneNumber: string;
+      Avatar: File | null;
+      DisplayName: string;
+      Address: string;
+      DOB: string;
+      Gender: number;
+      FirstName: string;
+      LastName: string;
+    },
+    { rejectWithValue, dispatch },
+  ) => {
+    try {
+      const {
+        UserId,
+        Email,
+        PhoneNumber,
+        Avatar,
+        DisplayName,
+        Address,
+        DOB,
+        Gender,
+        FirstName,
+        LastName,
+      } = arg;
+      const editProfileResponse = await AuthService.editProfile(
+        UserId,
+        Email,
+        PhoneNumber,
+        Avatar,
+        DisplayName,
+        Address,
+        DOB,
+        Gender,
+        FirstName,
+        LastName,
+      );
+      dispatch(getUserByID({ UserId: UserId }));
+      return editProfileResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in reset password', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
+const getUserByID = createAsyncThunk(
+  'user/get-user-by-id',
+  async (
+    arg: {
+      UserId: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { UserId } = arg;
+      const getUserByIDResponse = await UserService.getUserByID(UserId);
+      return getUserByIDResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in reset password', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
 const AuthSlice = createSlice({
   name: 'auth',
   initialState,
@@ -152,19 +299,39 @@ const AuthSlice = createSlice({
       state.googleAuth = undefined;
       state.userDetail = undefined;
     },
+    clearResetPasswordMessages: (state) => {
+      state.success = undefined;
+      state.fail = undefined;
+    },
   },
   extraReducers: (builder) => {
     //CreateAction
-    builder.addCase(updateUser, (state) => {
-      const userAuth = localStorage.getItem('userAuth');
-      if (userAuth) {
-        const userInfo: UserInfo = HelperService.decryptString(userAuth);
+    // builder.addCase(updateUser, (state) => {
+    //   const userAuth = localStorage.getItem('userAuth');
+    //   if (userAuth) {
+    //     const userInfo: UserInfo = HelperService.decryptString(userAuth);
 
-        state.authStatus = true;
-        state.loadingStatus = false;
-        state.userDetail = userInfo;
-      }
-    });
+    //     state.authStatus = true;
+    //     state.loadingStatus = false;
+    //     state.userDetail = userInfo;
+    //   }
+    // });
+    // builder.addCase(updateName, (state, {payload}) => {
+    //   const {name} = payload
+    //   console.log("in the udpate name", name);
+    //     if(payload && state && state.userDetail && state.userDetail.result){
+    //       return {
+    //         ...state,
+    //         userDetail: {
+    //           ...state.userDetail,
+    //           result: {
+    //             ...state.userDetail.result,
+    //             displayName: name
+    //           }
+    //         }
+    //       }
+    //     }
+    // });
 
     //AsyncThunk
     builder.addCase(login.pending, (state) => {
@@ -180,6 +347,7 @@ const AuthSlice = createSlice({
         authStatus: true,
         loadingStatus: false,
         userDetail: payload,
+        userID: payload?.result?.id,
       };
     });
     builder.addCase(login.rejected, (state) => {
@@ -219,11 +387,72 @@ const AuthSlice = createSlice({
       state.loadingStatus = false;
       // state.userDetail = fakeUser;
     });
+    builder.addCase(resetPassword.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(resetPassword.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        success: payload,
+        fail: undefined,
+      };
+    });
+    builder.addCase(resetPassword.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        success: undefined,
+        fail: { data: action.payload || 'Failed to reset password' },
+      };
+    });
+    builder.addCase(editProfile.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(editProfile.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        success: payload,
+        fail: undefined,
+      };
+    });
+    builder.addCase(editProfile.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        success: undefined,
+        fail: { data: action.payload || 'Failed to edit profile' },
+      };
+    });
+    builder.addCase(getUserByID.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        data: payload,
+      };
+    });
   },
 });
 
-export { login, loginGG, fakeLogin, updateUser };
-export const { logout } = AuthSlice.actions;
+export {
+  login,
+  loginGG,
+  fakeLogin,
+  updateUser,
+  resetPassword,
+  editProfile,
+  updateName,
+};
+export const { logout, clearResetPasswordMessages } = AuthSlice.actions;
 
 export default AuthSlice.reducer;
 

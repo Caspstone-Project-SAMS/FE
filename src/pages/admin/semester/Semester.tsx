@@ -9,7 +9,6 @@ import {
   Radio,
   Row,
   Table,
-  DatePicker,
   Tag,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
@@ -32,6 +31,8 @@ import { SemesterService } from '../../../hooks/Semester';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { IoMdInformation } from 'react-icons/io';
+import DatePicker from 'react-datepicker'; // Importing a different DatePicker
+import 'react-datepicker/dist/react-datepicker.css'; // Importing styles for the new DatePicker
 
 const { Header: AntHeader } = Layout;
 
@@ -47,10 +48,9 @@ const Semester: React.FC = () => {
 
   const [semesterID, setSemesterID] = useState(0);
   const [SemesterCode, setSemesterCode] = useState('');
-  const [SemesterStatus, setSemesterStatus] = useState(1);
-  const [StartDate, setStartDate] = useState('');
-  const [EndDate, setEndDate] = useState('');
-  // const [CreatedBy, setCreatedBy] = useState('');
+  // const [SemesterStatus, setSemesterStatus] = useState(1);
+  const [StartDate, setStartDate] = useState<Date | null>(null); // Changed to Date type
+  const [EndDate, setEndDate] = useState<Date | null>(null); // Changed to Date type
 
   const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
@@ -130,9 +130,9 @@ const Semester: React.FC = () => {
     if (item) {
       setSemesterID(item.semesterID!);
       setSemesterCode(item.semesterCode!);
-      setSemesterStatus(item.semesterStatus!);
-      setStartDate(item.startDate!);
-      setEndDate(item.endDate!);
+      // setSemesterStatus(item.semesterStatus!);
+      setStartDate(item.startDate ? new Date(item.startDate) : null); // Convert to Date
+      setEndDate(item.endDate ? new Date(item.endDate) : null); // Convert to Date
     } else {
       resetModalFields();
     }
@@ -153,10 +153,9 @@ const Semester: React.FC = () => {
     setLoading(true);
     await CreatedNewSemester(
       SemesterCode,
-      SemesterStatus,
-      StartDate,
-      EndDate,
-      // CreatedBy,
+      // SemesterStatus,
+      StartDate ? moment(StartDate).format('YYYY-MM-DD') : '',
+      EndDate ? moment(EndDate).format('YYYY-MM-DD') : '',
     );
     setLoading(false);
     setIsModalVisible(false);
@@ -173,9 +172,9 @@ const Semester: React.FC = () => {
     setLoading(true);
     await updateExistingSemester(
       SemesterCode,
-      SemesterStatus,
-      StartDate,
-      EndDate,
+      // SemesterStatus,
+      StartDate ? moment(StartDate).format('YYYY-MM-DD') : '',
+      EndDate ? moment(EndDate).format('YYYY-MM-DD') : '',
       semesterID,
     );
     setLoading(false);
@@ -192,10 +191,9 @@ const Semester: React.FC = () => {
   const resetModalFields = () => {
     setSemesterID(0);
     setSemesterCode('');
-    setSemesterStatus(1);
-    setStartDate('');
-    setEndDate('');
-    // setCreatedBy('');
+    // setSemesterStatus(1);
+    setStartDate(null); // Reset to null
+    setEndDate(null); // Reset to null
     setIsCheck(false);
     setErrors({
       semesterCode: '',
@@ -256,17 +254,15 @@ const Semester: React.FC = () => {
 
   const CreatedNewSemester = async (
     SemesterCode: string,
-    SemesterStatus: number,
+    // SemesterStatus: number,
     StartDate: string,
     EndDate: string,
-    // CreatedBy: string,
   ) => {
     const arg = {
       SemesterCode: SemesterCode,
-      SemesterStatus: SemesterStatus,
+      // SemesterStatus: SemesterStatus,
       StartDate: StartDate,
       EndDate: EndDate,
-      // CreatedBy: CreatedBy,
     };
     await dispatch(createSemester(arg) as any);
     setIsCheck(false);
@@ -274,14 +270,14 @@ const Semester: React.FC = () => {
 
   const updateExistingSemester = async (
     SemesterCode: string,
-    SemesterStatus: number,
+    // SemesterStatus: number,
     StartDate: string,
     EndDate: string,
     semesterID: number,
   ) => {
     const arg = {
       SemesterCode: SemesterCode,
-      SemesterStatus: SemesterStatus,
+      // SemesterStatus: SemesterStatus,
       StartDate: StartDate,
       EndDate: EndDate,
       semesterID: semesterID,
@@ -304,11 +300,10 @@ const Semester: React.FC = () => {
   const validateInputs = () => {
     const errors: any = {};
     if (!SemesterCode) errors.semesterCode = 'Semester Code is required';
-    if (SemesterStatus === null)
-      errors.semesterStatus = 'Semester Status is required';
+    // if (SemesterStatus === null)
+    //   errors.semesterStatus = 'Semester Status is required';
     if (!StartDate) errors.startDate = 'Start Date is required';
     if (!EndDate) errors.endDate = 'End Date is required';
-    // if (!isCheck && !CreatedBy) errors.createdBy = 'Created By is required';
     return errors;
   };
 
@@ -415,14 +410,10 @@ const Semester: React.FC = () => {
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.register.semesterID),
-        // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Semester' : 'Add New Semester'}
         visible={isModalVisible}
-        // onOk={isCheck ? handleUpdate : handleCreate}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -433,7 +424,6 @@ const Semester: React.FC = () => {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-            // disabled={!isFormValid()}
           >
             Submit
           </Button>,
@@ -452,7 +442,7 @@ const Semester: React.FC = () => {
         {errors.semesterCode && (
           <p className={styles.errorText}>{errors.semesterCode}</p>
         )}
-        <p className={styles.createSemesterTitle}>Semester Status</p>
+        {/* <p className={styles.createSemesterTitle}>Semester Status</p>
         <Radio.Group
           onChange={(e) => {
             setSemesterStatus(e.target.value);
@@ -467,50 +457,43 @@ const Semester: React.FC = () => {
         </Radio.Group>
         {errors.semesterStatus && (
           <p className={styles.errorText}>{errors.semesterStatus}</p>
-        )}
+        )} */}
         <p className={styles.createSemesterTitle}>Start Date</p>
         <DatePicker
-          placeholder="Start Date"
-          value={StartDate ? moment(StartDate, 'YYYY-MM-DD') : null}
-          onChange={(date, dateString) => {
-            setStartDate(`${dateString}`);
+          placeholderText="Start Date"
+          selected={StartDate}
+          onChange={(date) => {
+            setStartDate(date);
+            if (date) {
+              const endDate = new Date(date);
+              endDate.setDate(endDate.getDate() + 90); 
+              setEndDate(endDate);
+            }
             setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
           }}
-          format="YYYY-MM-DD"
-          style={{ marginBottom: '10px', width: '100%' }}
+          dateFormat="dd-MM-yyyy"
+          className={styles.datePicker}
         />
         {errors.startDate && (
           <p className={styles.errorText}>{errors.startDate}</p>
         )}
         <p className={styles.createSemesterTitle}>End Date</p>
         <DatePicker
-          placeholder="End Date"
-          value={EndDate ? moment(EndDate, 'YYYY-MM-DD') : null}
-          onChange={(date, dateString) => {
-            setEndDate(`${dateString}`);
+          placeholderText="End Date"
+          selected={EndDate}
+          onChange={(date) => {
+            setEndDate(date);
+            if (date) {
+              const startDate = new Date(date);
+              startDate.setDate(startDate.getDate() - 90); 
+              setStartDate(startDate);
+            }
             setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
           }}
-          format="YYYY-MM-DD"
-          style={{ marginBottom: '10px', width: '100%' }}
+          dateFormat="dd-MM-yyyy"
+          className={styles.datePicker}
         />
         {errors.endDate && <p className={styles.errorText}>{errors.endDate}</p>}
-
-        {/* {!isCheck && (
-          <>
-            <p className={styles.createSemesterTitle}>Create By</p>
-            <Input
-              placeholder="Created By"
-              value={CreatedBy}
-              onChange={(e) => {
-                setCreatedBy(e.target.value);
-                setErrors((prevErrors) => ({ ...prevErrors, createdBy: '' }));
-              }}
-            />
-            {errors.createdBy && (
-              <p className={styles.errorText}>{errors.createdBy}</p>
-            )}
-          </>
-        )} */}
       </Modal>
     </Content>
   );

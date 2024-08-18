@@ -61,7 +61,7 @@ const createSemester = async (
 
 const updateSemester = async (
   SemesterCode: string,
-  SemesterStatus: number,
+  // SemesterStatus: number,
   StartDate: string,
   EndDate: string,
   semesterID: number,
@@ -71,7 +71,7 @@ const updateSemester = async (
       `${SEMESTER_API}?id=${semesterID}`,
       {
         SemesterCode,
-        SemesterStatus,
+        // SemesterStatus,
         StartDate,
         EndDate,
       },
