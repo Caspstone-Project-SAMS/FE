@@ -31,8 +31,8 @@ import { SemesterService } from '../../../hooks/Semester';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { IoMdInformation } from 'react-icons/io';
-import DatePicker from 'react-datepicker'; // Importing a different DatePicker
-import 'react-datepicker/dist/react-datepicker.css'; // Importing styles for the new DatePicker
+import DatePicker from 'react-datepicker'; 
+import 'react-datepicker/dist/react-datepicker.css'; 
 
 const { Header: AntHeader } = Layout;
 
@@ -49,8 +49,8 @@ const Semester: React.FC = () => {
   const [semesterID, setSemesterID] = useState(0);
   const [SemesterCode, setSemesterCode] = useState('');
   // const [SemesterStatus, setSemesterStatus] = useState(1);
-  const [StartDate, setStartDate] = useState<Date | null>(null); // Changed to Date type
-  const [EndDate, setEndDate] = useState<Date | null>(null); // Changed to Date type
+  const [StartDate, setStartDate] = useState<Date | null>(null); 
+  const [EndDate, setEndDate] = useState<Date | null>(null); 
 
   const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
@@ -131,8 +131,8 @@ const Semester: React.FC = () => {
       setSemesterID(item.semesterID!);
       setSemesterCode(item.semesterCode!);
       // setSemesterStatus(item.semesterStatus!);
-      setStartDate(item.startDate ? new Date(item.startDate) : null); // Convert to Date
-      setEndDate(item.endDate ? new Date(item.endDate) : null); // Convert to Date
+      setStartDate(item.startDate ? new Date(item.startDate) : null); 
+      setEndDate(item.endDate ? new Date(item.endDate) : null); 
     } else {
       resetModalFields();
     }
@@ -192,8 +192,8 @@ const Semester: React.FC = () => {
     setSemesterID(0);
     setSemesterCode('');
     // setSemesterStatus(1);
-    setStartDate(null); // Reset to null
-    setEndDate(null); // Reset to null
+    setStartDate(null); 
+    setEndDate(null); 
     setIsCheck(false);
     setErrors({
       semesterCode: '',

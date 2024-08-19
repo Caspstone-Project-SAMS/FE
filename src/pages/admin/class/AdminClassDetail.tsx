@@ -40,7 +40,7 @@ import {
 import { SlotService } from '../../../hooks/Slot';
 import moment from 'moment';
 import { RoomService } from '../../../hooks/Room';
-import DatePicker from 'react-datepicker'; // Importing the normal react-datepicker
+import DatePicker from 'react-datepicker'; 
 import 'react-datepicker/dist/react-datepicker.css';
 
 const { Header: AntHeader } = Layout;
@@ -652,7 +652,7 @@ const AdminClassDetail: React.FC = () => {
                   <p className={styles.createClassTitle}>Date</p>
                   <DatePicker
                     placeholderText="Date"
-                    selected={date} // Using the selected prop
+                    selected={date} 
                     onChange={(date) => {
                       setDate(date); // Setting the date directly
                       setErrors((prevErrors) => ({
