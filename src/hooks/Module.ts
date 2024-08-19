@@ -364,6 +364,37 @@ const activeModule = async (
   }
 };
 
+const applySettingModule = async (
+  ModuleID: number,
+  Mode: number,
+  token: string,
+) => {
+  try {
+    const response = await axios.post(
+      MODULE_API + '/Activate',
+      {
+        ModuleID,
+        Mode,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          Authorization: `Bearer ` + token,
+        },
+      },
+    );
+    console.log('vvedf', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
 const cancelSession = async (
   ModuleID: number,
   Mode: number,
@@ -472,4 +503,5 @@ export const ModuleService = {
   startCheckAttendance,
   settingModule,
   getModuleActivityByScheduleID,
+  applySettingModule,
 };

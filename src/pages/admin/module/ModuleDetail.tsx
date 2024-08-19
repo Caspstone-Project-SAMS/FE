@@ -39,6 +39,7 @@ import { ScheduleResult, Schedules } from '../../../models/calendar/Schedule';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import {
+  applySetting,
   clearModuleMessages,
   settingModules,
 } from '../../../redux/slice/Module';
@@ -90,7 +91,11 @@ const ModuleDetail: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
-      message.error(`${failMessage.data.error.Errors}`);
+      if (failMessage.data.error.title == 'Apply configurations failed') {
+        message.error(`${failMessage.data.error.title}`);
+      } else {
+        message.error(`${failMessage.data.error.errors}`);
+      }
       dispatch(clearModuleMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -304,6 +309,15 @@ const ModuleDetail: React.FC = () => {
       token,
     );
     setReload((prev) => prev + 1);
+  };
+
+  const handleApply = async () => {
+    const arg ={
+      ModuleID: moduleID,
+      Mode: 13,
+      token: token
+    };
+    await dispatch(applySetting(arg) as any);
   };
 
   const handlePanelChange = (key: string | string[]) => {
@@ -604,6 +618,12 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <div className={styles.submitButtonContainer}>
+                    <Button
+                      onClick={handleApply}
+                      className={styles.submitButton}
+                    >
+                      Apply
+                    </Button>
                     <Button
                       onClick={handleSubmit}
                       className={styles.submitButton}

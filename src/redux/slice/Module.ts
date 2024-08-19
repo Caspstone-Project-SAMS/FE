@@ -97,6 +97,37 @@ const activeModule = createAsyncThunk(
   },
 );
 
+const applySetting = createAsyncThunk(
+  'module/apply',
+  async (
+    arg: {
+      ModuleID: number;
+      Mode: number;
+      token: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { ModuleID, Mode, token } = arg;
+      const applyModuleResponse = await ModuleService.applySettingModule(
+        ModuleID,
+        Mode,
+        token,
+      );
+      console.log('active', applyModuleResponse);
+      return applyModuleResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('Error:', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log('Unexpectedd error:', error);
+        return rejectWithValue({ error });
+      }
+    }
+  },
+);
+
 const startCheckAttendances = createAsyncThunk(
   'module/start-attendance',
   async (
@@ -270,7 +301,6 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(activeModule.fulfilled, (state, action) => {
       const { payload } = action;
-      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -279,7 +309,6 @@ const ModuleSlice = createSlice({
       };
     });
     builder.addCase(activeModule.rejected, (state, action) => {
-      //   message.error("Active module faillllll");
       return {
         ...state,
         loading: false,
@@ -296,7 +325,6 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(settingModules.fulfilled, (state, action) => {
       const { payload } = action;
-      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -305,7 +333,6 @@ const ModuleSlice = createSlice({
       };
     });
     builder.addCase(settingModules.rejected, (state, action) => {
-      //   message.error("Active module faillllll");
       return {
         ...state,
         loading: false,
@@ -321,7 +348,6 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(startCheckAttendances.fulfilled, (state, action) => {
       const { payload } = action;
-      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -345,7 +371,6 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(syncAttendance.fulfilled, (state, action) => {
       const { payload } = action;
-      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -369,7 +394,6 @@ const ModuleSlice = createSlice({
     });
     builder.addCase(stopCheckAttendances.fulfilled, (state, action) => {
       const { payload } = action;
-      //   message.success("Active module successfully");
       return {
         ...state,
         loading: false,
@@ -385,9 +409,33 @@ const ModuleSlice = createSlice({
         message: { data: action.payload || 'Failed to stop check attendance' },
       };
     });
+
+    builder.addCase(applySetting.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(applySetting.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: payload,
+        message: undefined,
+      };
+    });
+    builder.addCase(applySetting.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: undefined,
+        message: { data: action.payload || 'Failed to apply module setting' },
+      };
+    });
   },
 });
 
 export const { clearModuleMessages } = ModuleSlice.actions;
-export { activeModule, settingModules, startCheckAttendances, syncAttendance, stopCheckAttendances };
+export { activeModule, settingModules, startCheckAttendances, syncAttendance, stopCheckAttendances, applySetting };
 export default ModuleSlice.reducer;

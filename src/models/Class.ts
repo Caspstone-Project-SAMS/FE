@@ -95,6 +95,11 @@ export interface Lecturer {
   avatar: string;
   email: string;
   department: string;
+  address: string;
+  firstName: string;
+  lastName: string;
+  gender: number;
+  phoneNumber: string;
 }
 
 export interface Student {

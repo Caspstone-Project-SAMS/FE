@@ -654,7 +654,7 @@ const AdminClassDetail: React.FC = () => {
                     placeholderText="Date"
                     selected={date} 
                     onChange={(date) => {
-                      setDate(date); // Setting the date directly
+                      setDate(date);
                       setErrors((prevErrors) => ({
                         ...prevErrors,
                         date: '',
