@@ -49,9 +49,7 @@ const Headers: React.FC = () => {
   const userDetail: UserInfo | undefined = useSelector(
     (state: RootState) => state.auth.userDetail,
   );
-  const user = useSelector(
-    (state: RootState) => state.auth.data,
-  );
+  const user = useSelector((state: RootState) => state.auth.data);
   const name = user?.result?.displayName;
   const avatar = user?.result?.avatar;
   const dispatch = useDispatch();
@@ -209,10 +207,12 @@ const Headers: React.FC = () => {
                               item.notificationType.typeName === 'Information'
                                 ? 'green'
                                 : item.notificationType.typeName === 'Error'
-                                  ? 'red'
-                                  : item.notificationType.typeName === 'Warning'
-                                    ? 'orange'
-                                    : 'inherit', // Fallback color
+                                ? 'red'
+                                : item.notificationType.typeName === 'Warning'
+                                ? 'orange'
+                                : 'inherit', // Fallback color
+                                display: 'block', 
+                                whiteSpace: 'pre-wrap', 
                           }}
                         >
                           {item.description}
@@ -244,7 +244,11 @@ const Headers: React.FC = () => {
   };
 
   return (
-    <AntHeader style={{ padding: '0 20px', borderBottom: '1px solid #d9d9d9' }} color="white" className="header">
+    <AntHeader
+      style={{ padding: '0 20px', borderBottom: '1px solid #d9d9d9' }}
+      color="white"
+      className="header"
+    >
       <p className="headerTitle">Student Attendance Management System</p>
       <div className="leftHeaderUserInfo">
         {/* <Button className="circular-button" type="link" shape="circle">
@@ -297,9 +301,7 @@ const Headers: React.FC = () => {
           >
             {name ? user?.result?.displayName : 'Name'}
           </Title>
-          <Text className="narrowTypography">
-            {user?.result?.role.name}
-          </Text>
+          <Text className="narrowTypography">{user?.result?.role.name}</Text>
         </div>
         <Dropdown
           menu={{ items }}

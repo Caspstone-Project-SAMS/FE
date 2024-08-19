@@ -15,6 +15,9 @@ import Button from '@mui/material/Button';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import CustomInput from './CustomInput';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import './DatePickerStyles.css';
 
 //APP
 export default function AccountCard(props: any) {
@@ -22,6 +25,11 @@ export default function AccountCard(props: any) {
   const [value, setValue] = React.useState('one');
   const [phone, setPhone] = useState(props.Phone || props.user.phone || '');
 
+  // const formatDate = (dateString: any) => {
+  //   if (!dateString) return '';
+  //   const [year, month, day] = dateString.split('-');
+  //   return `${day}/${month}/${year}`;
+  // };
   const [formValues, setFormValues] = useState({
     fullName: props.Name || props.user.fullName || '',
     address: props.Address || props.user.address || '',
@@ -31,8 +39,34 @@ export default function AccountCard(props: any) {
     lastName: props.LastName || props.user.lastName || '',
     phone: phone,
     email: props.Email || props.user.email || '',
-    password: '',
+
   });
+
+  const initialFormValues = {
+    fullName: props.user.fullName,
+    address: props.user.address,
+    dob: props.user.dob,
+    gender: props.user.gender,
+    firstName: props.user.firstName,
+    lastName: props.user.lastName,
+    phone: props.user.phone,
+    email: props.user.email,
+
+  };
+
+  const handleReset = () => {
+    props.Name=props.user.fullName
+    props.Address=props.user.address
+    props.DOB = props.user.dob
+    props.Gender = props.user.gender
+    props.FirstName = props.user.firstName
+    props.LastName = props.user.lastName
+    props.Phone = props.user.phone
+    props.Email = props.user.email
+    setFormValues(initialFormValues);
+  };
+  
+  
 
   //   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
   //     setValue(newValue);
@@ -109,27 +143,28 @@ export default function AccountCard(props: any) {
   //BUTTON STATES
   const [edit, update] = useState({
     required: true,
-    disabled: false,
-    isEdit: true,
+    disabled: true,
+    isEdit: false,
   });
+
+  console.log('ddd', edit.isEdit);
 
   // EDIT -> UPDATE
   const changeButton = (event: any) => {
     event.preventDefault();
-    user.showPassword = false;
     edit.disabled = !edit.disabled;
     edit.isEdit = !edit.isEdit;
     update({ ...edit });
-    console.log('user: ', user);
   };
 
-  // TOGGLE PASSWORD VISIBILITY
-  const handlePassword = () => {
-    user.showPassword = !user.showPassword;
-    setUser({ ...user });
+  const handleDateChange = (date: Date | null) => {
+    setFormValues((prev) => ({
+      ...prev,
+      dob: date,
+    }));
+    props.setDOB(date ? date.toISOString().split('T')[0] : '');
   };
 
-  //RETURN
   return (
     <Card variant="outlined" sx={{ height: '100%', width: '100%' }}>
       {/* MAIN CONTENT CONTAINER */}
@@ -137,9 +172,8 @@ export default function AccountCard(props: any) {
         <CardContent
           sx={{
             p: 3,
-            height: '400px',
+            height: '420px',
             textAlign: { xs: 'center', md: 'start' },
-            overflowY: 'auto',
           }}
         >
           {/* FIELDS */}
@@ -198,19 +232,18 @@ export default function AccountCard(props: any) {
                 ></CustomInput>
               </Grid>
               <Grid item xs={6}>
-                <CustomInput
-                  id="dob"
-                  name="dob"
-                  value={formValues.dob}
-                  onChange={handleChange}
-                  title="Birthday"
-                  dis={edit.disabled}
-                  req={edit.required}
-                  type="date" // Changed to date input
-                  inputProps={{
-                    pattern: '\\d{2}:\\d{2}:\\d{4}', // Added pattern for dd:mm:yyyy
-                  }}
-                ></CustomInput>
+                <label style={{ fontWeight: 'bold' }} htmlFor="date">
+                  Birthday
+                </label>
+                <br />
+                <DatePicker
+                  selected={formValues.dob}
+                  onChange={(date) => handleDateChange(date)}
+                  dateFormat="dd/MM/yyyy"
+                  disabled={edit.disabled}
+                  className="custom-datepicker"
+                  onKeyDown={(e) => e.preventDefault()}
+                />
               </Grid>
 
               {/* ROW 2: GENDER */}
@@ -226,7 +259,9 @@ export default function AccountCard(props: any) {
                   req={edit.required}
                   //MAP THRU OPTIONS
                   content={genderSelect.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
                   ))}
                 ></CustomInput>
               </Grid>
@@ -299,23 +334,35 @@ export default function AccountCard(props: any) {
               {/* BUTTON */}
               <Grid
                 container
-                direction="column"
+                direction="row"
                 justifyContent="flex-end"
-                alignItems="flex-end"
-                item
-                xs={12}
-                style={{ height: '100%' }}
+                alignItems="center"
+                spacing={2}
               >
-                <Button
-                  sx={{ p: '1rem 2rem', my: 2, height: '3rem' }}
-                  component="button"
-                  size="large"
-                  variant="contained"
-                  color="primary"
-                  onClick={() => props.submit()}
-                >
-                  {edit.isEdit === false ? 'UPDATE' : 'EDIT'}
-                </Button>
+                {/* <Grid item>
+                  <Button
+                    sx={{ p: '1rem 2rem', my: 2, height: '3rem' }}
+                    component="button"
+                    size="large"
+                    variant="outlined"
+                    color="inherit"
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </Button>
+                </Grid> */}
+                <Grid item>
+                  <Button
+                    sx={{ p: '1rem 2rem', my: 2, height: '3rem' }}
+                    component="button"
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                    onClick={edit.isEdit ? props.submit : changeButton}
+                  >
+                    {edit.isEdit ? 'EDIT' : 'ENABLE UPDATE'}
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </FormControl>

@@ -87,7 +87,11 @@ const ModuleDetail: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
+      if (successMessage.title == 'Apply configuration successfully') {
+        message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
+      }
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
@@ -237,12 +241,20 @@ const ModuleDetail: React.FC = () => {
           setModule(data || undefined);
           setAutoPrepare(data?.result.autoPrepare || false);
           setPreparedTime(data?.result.preparedTime || '');
-          setConnectionLifeTimeSeconds(data?.result.connectionLifeTimeSeconds || 0);
+          setConnectionLifeTimeSeconds(
+            data?.result.connectionLifeTimeSeconds || 0,
+          );
           setConnectionSound(data?.result.connectionSound || false);
-          setConnectionSoundDurationMs(data?.result.connectionSoundDurationMs || 0);
+          setConnectionSoundDurationMs(
+            data?.result.connectionSoundDurationMs || 0,
+          );
           setAttendanceSound(data?.result.attendanceSound || false);
-          setAttendanceSoundDurationMs(data?.result.attendanceSoundDurationMs || 0);
-          setAttendanceDurationMinutes(data?.result.attendanceDurationMinutes || 0)
+          setAttendanceSoundDurationMs(
+            data?.result.attendanceSoundDurationMs || 0,
+          );
+          setAttendanceDurationMinutes(
+            data?.result.attendanceDurationMinutes || 0,
+          );
           setLecturerId(data?.result.employee.userId || '');
           //Newest on top
           if (data && data.result.moduleActivities) {
@@ -312,10 +324,10 @@ const ModuleDetail: React.FC = () => {
   };
 
   const handleApply = async () => {
-    const arg ={
+    const arg = {
       ModuleID: moduleID,
       Mode: 13,
-      token: token
+      token: token,
     };
     await dispatch(applySetting(arg) as any);
   };
@@ -481,27 +493,30 @@ const ModuleDetail: React.FC = () => {
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
-                        <p className={styles.settingLabel}>
-                          Duration Time
-                        </p>
-                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-
-                        <TimePicker
-                          placeholder="Duration Time"
-                          value={
-                            AttendanceDurationMinutes !== null
-                              ? dayjs().minute(AttendanceDurationMinutes)
-                              : null
-                          }
-                          onChange={(time) => {
-                            if (time) {
-                              const minutes = time.minute(); // Extract minutes from the selected time
-                              setAttendanceDurationMinutes(minutes);
-                            }
+                        <p className={styles.settingLabel}>Duration Time</p>
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
                           }}
-                          format="mm" // Display only minutes
-                          className={styles.timePicker}
-                        /><span> minutes</span>
+                        >
+                          <TimePicker
+                            placeholder="Duration Time"
+                            value={
+                              AttendanceDurationMinutes !== null
+                                ? dayjs().minute(AttendanceDurationMinutes)
+                                : null
+                            }
+                            onChange={(time) => {
+                              if (time) {
+                                const minutes = time.minute(); // Extract minutes from the selected time
+                                setAttendanceDurationMinutes(minutes);
+                              }
+                            }}
+                            format="mm" // Display only minutes
+                            className={styles.timePicker}
+                          />
+                          <span> minutes</span>
                         </div>
                         <p className={styles.suggestText}>
                           Set duration time for check attendance
@@ -520,10 +535,10 @@ const ModuleDetail: React.FC = () => {
                         <br />
                         <InputNumber
                           placeholder="Connection Life Time (second)"
-                          value={ConnectionLifeTimeSeconds} 
+                          value={ConnectionLifeTimeSeconds}
                           onChange={(value) => {
                             if (value !== null) {
-                              setConnectionLifeTimeSeconds(value); 
+                              setConnectionLifeTimeSeconds(value);
                             }
                           }}
                           min={0}
@@ -685,7 +700,21 @@ const ModuleDetail: React.FC = () => {
                                 <b>{item.title}</b>
                               </div>
                               <div style={{ width: '60%' }}>
-                                {item.description}
+                                <b
+                                  style={{
+                                    color: item.description
+                                      .toLowerCase()
+                                      .includes('failed')
+                                      ? 'red'
+                                      : item.description
+                                          .toLowerCase()
+                                          .includes('successfully')
+                                      ? 'green'
+                                      : 'black',
+                                  }}
+                                >
+                                  {item.description}
+                                </b>
                               </div>
                               <div style={{ width: '20%' }}>
                                 <Progress
@@ -827,12 +856,14 @@ const ModuleDetail: React.FC = () => {
                               dataSource={filteredScheduleList.map(
                                 (item, index) => ({
                                   key: index,
-                                  date: new Date(item.date).toLocaleDateString('en-GB'),
+                                  date: new Date(item.date).toLocaleDateString(
+                                    'en-GB',
+                                  ),
                                   slot: item.slot.slotNumber,
                                   time: (
                                     <div>
-                                      {(item.slot.startTime).slice(0, 5)} -{' '}
-                                      {(item.slot.endtime).slice(0, 5)}
+                                      {item.slot.startTime.slice(0, 5)} -{' '}
+                                      {item.slot.endtime.slice(0, 5)}
                                     </div>
                                   ),
                                   class: item.class.classCode,

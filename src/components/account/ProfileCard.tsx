@@ -103,19 +103,19 @@ export default function ProfileCard(props: any) {
         <Grid container>
           <Grid item xs={6}>
             <Typography style={styles.details}>Department</Typography>
-            <Typography style={styles.details}>Detail 2</Typography>
-            <Typography style={styles.details}>Detail 3</Typography>
+            {/* <Typography style={styles.details}>Detail 2</Typography>
+            <Typography style={styles.details}>Detail 3</Typography> */}
           </Grid>
           {/* VALUES */}
           <Grid item xs={6} sx={{ textAlign: "end" }}>
             <Typography style={styles.value}>{props.department}</Typography>
-            <Typography style={styles.value}>{props.dt2}</Typography>
-            <Typography style={styles.value}>{props.dt3}</Typography>
+            {/* <Typography style={styles.value}>{props.dt2}</Typography>
+            <Typography style={styles.value}>{props.dt3}</Typography> */}
           </Grid>
         </Grid>
 
         {/* BUTTON */}
-        <Grid item style={styles.details} sx={{ width: "100%" }}>
+        {/* <Grid item style={styles.details} sx={{ width: "100%" }}>
           <Button
             variant="contained"
             color="primary"
@@ -123,7 +123,7 @@ export default function ProfileCard(props: any) {
           >
             View Public Profile
           </Button>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       {/* File Input */}

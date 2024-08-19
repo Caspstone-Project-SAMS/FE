@@ -661,6 +661,7 @@ const AdminClassDetail: React.FC = () => {
                       }));
                     }}
                     dateFormat="dd-MM-yyyy"
+                    className={styles.datePicker}
                     // style={{ marginBottom: '10px', width: '100%' }}
                   />
                   {errors.date && (
@@ -677,7 +678,7 @@ const AdminClassDetail: React.FC = () => {
                       }));
                       setSlotId(value);
                     }}
-                    showSearch
+                    // showSearch
                     style={{ marginBottom: '10px', width: '100%' }}
                     filterOption={(input, option) => {
                       const children = option?.children as unknown as string;
@@ -688,7 +689,7 @@ const AdminClassDetail: React.FC = () => {
                   >
                     {Slot.map((slot) => (
                       <Select.Option key={slot.slotID} value={slot.slotID}>
-                        {slot.slotNumber}
+                        Slot {slot.slotNumber}
                       </Select.Option>
                     ))}
                   </Select>
@@ -714,7 +715,7 @@ const AdminClassDetail: React.FC = () => {
                   >
                     {Room.map((room) => (
                       <Select.Option key={room.roomID} value={room.roomID}>
-                        {room.roomName}
+                        {"Room "+room.roomName}
                       </Select.Option>
                     ))}
                   </Select>
