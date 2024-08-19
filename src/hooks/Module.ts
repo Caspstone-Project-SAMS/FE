@@ -253,11 +253,11 @@ const stopCheckAttendance = async (
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('Error:', error.message);
-      throw new Error(error.response.data);
+      console.log('Error:', error);
+      throw error.response.data;
     }
     console.log('Unexpected error:', error.message);
-    throw new Error(error.message);
+    throw error.message;
   }
 };
 
@@ -289,11 +289,11 @@ const syncAttendanceData = async (
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('Error:', error.message);
-      throw new Error(error.response.data);
+      console.log('Error:', error);
+      throw error.response.data;
     }
     console.log('Unexpected error:', error.message);
-    throw new Error(error.message);
+    throw error.message;
   }
 };
 
@@ -323,12 +323,11 @@ const startCheckAttendance = async (
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('Error response:', error.response.data);
-      throw new Error(error.response.data);
-    } else {
-      console.log('Unexpected error:', error.message);
-      throw new Error(error.message);
+      console.log('Error:', error);
+      throw error.response.data;
     }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
   }
 };
 

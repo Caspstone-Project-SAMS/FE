@@ -42,7 +42,7 @@ import {
   ModuleDetail,
 } from '../../../models/module/Module';
 import moduleImg from '../../../assets/imgs/module00.png';
-import { activeModule, clearModuleMessages } from '../../../redux/slice/Module';
+import { activeModule, clearModuleMessages, startCheckAttendances, stopCheckAttendances, syncAttendance } from '../../../redux/slice/Module';
 import modules from '../../../assets/imgs/module.png';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 const { Option } = Select;
@@ -105,20 +105,6 @@ const ClassDetails: React.FC = () => {
 
   const [moduleActivity, setModuleActivity] = useState<ModuleActivity[]>([]);
 
-  const popoverContent = (
-    <Space direction="vertical" size="small">
-      <Button type="text" onClick={() => handleStart()}>
-        Start
-      </Button>
-      <Button type="text" onClick={() => handleReset()}>
-        Stop
-      </Button>
-      <Button type="text" onClick={() => handleSync()}>
-        Sync
-      </Button>
-    </Space>
-  );
-
   useEffect(() => {
     if (successMessage) {
       if (exit === false) {
@@ -131,7 +117,12 @@ const ClassDetails: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error.title) {
-      message.error(`${failMessage.data.error.title}`);
+      // message.error(`${failMessage.data.error.errors}`);
+      if (failMessage.data.error.title == 'Syncing data failed') {
+        message.error(`${failMessage.data.error.title}`);
+      } else {
+        message.error(`${failMessage.data.error.errors}`);
+      }
       setStatus('fail');
       dispatch(clearModuleMessages());
     }
@@ -423,77 +414,147 @@ const ClassDetails: React.FC = () => {
     };
   }, []); // Empty dependency array means this runs on unmount only
 
+  // const handleReset = async (moduleID: number) => {
+  //   const StopAttendance = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.stopCheckAttendance(
+  //       moduleID,
+  //       4,
+  //       StopAttendance,
+  //       token,
+  //     );
+  //     // const arg = {
+  //     //   ModuleID: moduleID,
+  //     //   Mode: 6,
+  //     //   token: token,
+  //     // };
+
+  //     // await dispatch(activeModule(arg) as any);
+  //     setIsCheckAttendance(false);
+  //     setIsModalVisible(false);
+  //     setIsActiveModule(false);
+  //     setExit(true);
+  //     // setModuleID(0);
+  //     // setStatus('');
+  //     // setModuleByID(undefined);
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error.errors);
+  //   }
+  // };
+
+  // const handleSync = async (moduleID: number) => {
+  //   const SyncingAttendanceData = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.syncAttendanceData(
+  //       moduleID,
+  //       12,
+  //       SyncingAttendanceData,
+  //       token,
+  //     );
+  //     console.log(response);
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const handleStart = async (moduleID: number) => {
+  //   const StartAttendance = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.startCheckAttendance(
+  //       moduleID,
+  //       10,
+  //       StartAttendance,
+  //       token,
+  //     );
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const handleStart = async (moduleID: number) => {
+  //   const StartAttendance = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.startCheckAttendance(
+  //       moduleID,
+  //       10,
+  //       StartAttendance,
+  //       token,
+  //     );
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const StartAttendance = {
+  //   ScheduleID: scheduleID,
+  // };
+
   const handleReset = async (moduleID: number) => {
     const StopAttendance = {
       ScheduleID: scheduleID,
     };
-    try {
-      const response = await ModuleService.stopCheckAttendance(
-        moduleID,
-        4,
-        StopAttendance,
-        token,
-      );
-      // const arg = {
-      //   ModuleID: moduleID,
-      //   Mode: 6,
-      //   token: token,
-      // };
+    const arg ={
+      ModuleID: moduleID,
+      Mode: 4,
+      StopAttendance: StopAttendance,
+      token: token
+    };
+    await dispatch(stopCheckAttendances(arg) as any);
 
-      // await dispatch(activeModule(arg) as any);
       setIsCheckAttendance(false);
       setIsModalVisible(false);
       setIsActiveModule(false);
       setExit(true);
-      // setModuleID(0);
-      // setStatus('');
-      // setModuleByID(undefined);
-      message.success(response.title);
-      return response;
-    } catch (error: any) {
-      message.error(error.errors);
-      console.log(error.errors);
-    }
-  };
 
-  const handleSync = async (moduleID: number) => {
-    const SyncingAttendanceData = {
-      ScheduleID: scheduleID,
-    };
-    try {
-      const response = await ModuleService.syncAttendanceData(
-        moduleID,
-        12,
-        SyncingAttendanceData,
-        token,
-      );
-      console.log(response);
-      message.success(response.title);
-      return response;
-    } catch (error: any) {
-      message.error(error.errors);
-      console.log(error);
-    }
+
   };
 
   const handleStart = async (moduleID: number) => {
     const StartAttendance = {
       ScheduleID: scheduleID,
     };
-    try {
-      const response = await ModuleService.startCheckAttendance(
-        moduleID,
-        10,
-        StartAttendance,
-        token,
-      );
-      message.success(response.title);
-      return response;
-    } catch (error: any) {
-      message.error(error.errors);
-      console.log(error);
-    }
+    const arg ={
+      ModuleID: moduleID,
+      Mode: 10,
+      StartAttendance: StartAttendance,
+      token: token
+    };
+    await dispatch(startCheckAttendances(arg) as any);
   };
+
+  const handleSync = async (moduleID: number) => {
+    const SyncingAttendanceData = {
+      ScheduleID: scheduleID,
+    };
+    const arg ={
+      ModuleID: moduleID,
+      Mode: 12,
+      SyncingAttendanceData: SyncingAttendanceData,
+      token: token
+    };
+    await dispatch(syncAttendance(arg) as any);
+  };
+
 
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);

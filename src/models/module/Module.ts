@@ -1,7 +1,7 @@
 export interface Module {
   isSuccess: boolean;
   title: string;
-  errors?: null;
+  errors?: string;
   result: ModuleDetail[];
 }
 

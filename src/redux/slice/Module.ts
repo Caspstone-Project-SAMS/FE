@@ -4,6 +4,18 @@ import { ActiveModule, ActiveModuleFail } from '../../models/module/Module';
 import { ModuleService } from '../../hooks/Module';
 import { message } from 'antd';
 
+interface StartAttendance {
+  ScheduleID: number;
+}
+
+interface SyncingAttendanceData {
+  ScheduleID: number;
+}
+
+interface StopAttendance {
+  ScheduleID: number;
+}
+
 interface ModuleState {
   message?: ActiveModuleFail;
   moduleDetail?: ActiveModule;
@@ -73,6 +85,105 @@ const activeModule = createAsyncThunk(
       );
       console.log('active', activeModuleResponse);
       return activeModuleResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('Error:', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log('Unexpectedd error:', error);
+        return rejectWithValue({ error });
+      }
+    }
+  },
+);
+
+const startCheckAttendances = createAsyncThunk(
+  'module/start-attendance',
+  async (
+    arg: {
+      ModuleID: number;
+      Mode: number;
+      StartAttendance: StartAttendance;
+      token: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { ModuleID, Mode, StartAttendance, token } = arg;
+      const StartAttendanceResponse = await ModuleService.startCheckAttendance(
+        ModuleID,
+        Mode,
+        StartAttendance,
+        token,
+      );
+      console.log('active', StartAttendanceResponse);
+      return StartAttendanceResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('Error:', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log('Unexpectedd error:', error);
+        return rejectWithValue({ error });
+      }
+    }
+  },
+);
+
+const stopCheckAttendances = createAsyncThunk(
+  'module/stop-attendance',
+  async (
+    arg: {
+      ModuleID: number;
+      Mode: number;
+      StopAttendance: StopAttendance;
+      token: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { ModuleID, Mode, StopAttendance, token } = arg;
+      const StopAttendanceResponse = await ModuleService.stopCheckAttendance(
+        ModuleID,
+        Mode,
+        StopAttendance,
+        token,
+      );
+      console.log('active', StopAttendanceResponse);
+      return StopAttendanceResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log('Error:', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else {
+        console.log('Unexpectedd error:', error);
+        return rejectWithValue({ error });
+      }
+    }
+  },
+);
+
+const syncAttendance = createAsyncThunk(
+  'module/sync-attendance',
+  async (
+    arg: {
+      ModuleID: number;
+      Mode: number;
+      SyncingAttendanceData: SyncingAttendanceData;
+      token: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { ModuleID, Mode, SyncingAttendanceData, token } = arg;
+      const SyncAttendanceResponse = await ModuleService.syncAttendanceData(
+        ModuleID,
+        Mode,
+        SyncingAttendanceData,
+        token,
+      );
+      console.log('active', SyncAttendanceResponse);
+      return SyncAttendanceResponse;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         console.log('Error:', error.response.data);
@@ -202,9 +313,81 @@ const ModuleSlice = createSlice({
         message: { data: action.payload || 'Failed to setting module' },
       };
     });
+    builder.addCase(startCheckAttendances.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(startCheckAttendances.fulfilled, (state, action) => {
+      const { payload } = action;
+      //   message.success("Active module successfully");
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: payload,
+        message: undefined,
+      };
+    });
+    builder.addCase(startCheckAttendances.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: undefined,
+        message: { data: action.payload || 'Failed to start attendance' },
+      };
+    });
+    builder.addCase(syncAttendance.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(syncAttendance.fulfilled, (state, action) => {
+      const { payload } = action;
+      //   message.success("Active module successfully");
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: payload,
+        message: undefined,
+      };
+    });
+    builder.addCase(syncAttendance.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: undefined,
+        message: { data: action.payload || 'Failed to sync attendance' },
+      };
+    });
+    builder.addCase(stopCheckAttendances.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(stopCheckAttendances.fulfilled, (state, action) => {
+      const { payload } = action;
+      //   message.success("Active module successfully");
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: payload,
+        message: undefined,
+      };
+    });
+    builder.addCase(stopCheckAttendances.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        moduleDetail: undefined,
+        message: { data: action.payload || 'Failed to stop check attendance' },
+      };
+    });
   },
 });
 
 export const { clearModuleMessages } = ModuleSlice.actions;
-export { activeModule, settingModules };
+export { activeModule, settingModules, startCheckAttendances, syncAttendance, stopCheckAttendances };
 export default ModuleSlice.reducer;

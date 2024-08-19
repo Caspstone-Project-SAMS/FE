@@ -502,18 +502,18 @@ const ModuleDetail: React.FC = () => {
                         </span>
                         <br />
                         <InputNumber
-                          placeholder="Connection Life Time (ms)"
-                          value={ConnectionLifeTimeSeconds * 1000} // Convert seconds to milliseconds for display
+                          placeholder="Connection Life Time (second)"
+                          value={ConnectionLifeTimeSeconds} 
                           onChange={(value) => {
                             if (value !== null) {
-                              setConnectionLifeTimeSeconds(value / 1000); // Convert milliseconds back to seconds
+                              setConnectionLifeTimeSeconds(value); 
                             }
                           }}
                           min={0}
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' millisecond'}
+                        {' second'}
                         <p className={styles.suggestText}>
                           Set connection life time for module with millisecond
                         </p>
