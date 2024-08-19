@@ -137,11 +137,47 @@ const createClass = async (
   }
 };
 
+const updateClass = async (
+  ClassID: number,
+  ClassCode: string,
+  SemesterId: number,
+  RoomId: number,
+  SubjectId: number,
+  LecturerID: string,
+  // CreatedBy: string,
+) => {
+  try {
+    const response = await axios.put(
+      `${CLASS_API}/${ClassID}`,
+      {
+        ClassCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
+        LecturerID,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('abccccccccc', error.message);
+      throw new AxiosError(error.response);
+    }
+    return isRejectedWithValue(error.message);
+  }
+};
+
 export const ClassService = {
   downloadTemplateExcel,
   getAllClass,
   getClassByID,
   createClass,
+  updateClass,
   getClassBySemesterID,
   getByClassLecturer,
 };

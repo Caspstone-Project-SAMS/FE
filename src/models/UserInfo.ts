@@ -20,11 +20,16 @@ export interface UserDetail {
   lockoutEnd?: string;
   lockoutEnabled: string;
   filePath?: string;
+  address?: string;
+  dob: string;
   displayName?: string;
   role: Role;
   createdBy?: string;
   createdAt: Date;
   avatar?: string;
+  gender?: number;
+  firstName: string;
+  lastName: string;
 }
 
 interface Role {

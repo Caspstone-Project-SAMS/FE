@@ -26,6 +26,8 @@ export const SUBJECT_API = `${server}/Subject`;
 export const MODULE_API = `${server}/Module`;
 export const SET_WIFI_API = `http://192.168.4.1/connect-to`;
 
+//Module activity
+export const MODULE_ACTIVITY_API = `${server}/ModuleActivity`;
 //Slot
 export const SLOT_API = `${server}/Slot`;
 
@@ -49,6 +51,10 @@ export const DASHBOARD_API = `${server}/Dashboard`;
 
 //Import Schedules Image
 export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`;
+
+//User
+
+export const USER_API = `${server}/User`;
 
 //Google
 export const GET_GG_USER_INFO =

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { EMPLOYEE_API } from '.';
 import { Employee, EmployeeDetails } from '../models/employee/Employee';
 
-const getEmployeeByID = async (lecturerID: number): Promise<EmployeeDetails | null> => {
+const getEmployeeByID = async (lecturerID: string): Promise<EmployeeDetails | null> => {
     try {
       const response = await axios.get(`${EMPLOYEE_API}/${lecturerID}`, {
         headers: {

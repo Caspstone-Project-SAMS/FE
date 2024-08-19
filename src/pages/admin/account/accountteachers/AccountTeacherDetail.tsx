@@ -33,7 +33,7 @@ const AccountTeacherDetail: React.FC = () => {
   const [lecturer, setLecturer] = useState<EmployeeDetails>();
   const [lecturerClass, setLecturerClass] = useState<ManageClass[]>([]);
   const [lecturerModule, setLecturerModule] = useState<ManageModule[]>([]);
-  const [lecturerID, setLecturerID] = useState<number>(0);
+  const [lecturerID, setLecturerID] = useState<string>('');
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [filteredLecturerClass, setFilteredLecturerClass] =
@@ -160,7 +160,7 @@ const AccountTeacherDetail: React.FC = () => {
   console.log('lecturer', lecturer);
 
   useEffect(() => {
-    if (lecturerID !== 0) {
+    if (lecturerID !== '') {
       const response = EmployeeService.getEmployeeByID(lecturerID);
 
       response

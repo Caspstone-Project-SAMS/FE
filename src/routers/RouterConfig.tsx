@@ -79,6 +79,14 @@ const lecture = [
     element: <LecturerModuleDetail />
   },
   // {
+  //   path: '/account/reset-password',
+  //   element: <ResetPassword />
+  // },
+  // {
+  //   path: '/account/edit-account',
+  //   element: <EditAccount />
+  // },
+  // {
   //   path: '/import-schedule',
   //   element: <ScheduleImport />
   // },

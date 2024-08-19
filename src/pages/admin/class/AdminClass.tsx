@@ -13,14 +13,18 @@ import {
   Tag,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './AdminClass.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 
-import { CiSearch } from 'react-icons/ci';
+import { CiEdit, CiSearch } from 'react-icons/ci';
 import { PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearClassMessages, createClass } from '../../../redux/slice/Class';
+import {
+  clearClassMessages,
+  createClass,
+  updateClass,
+} from '../../../redux/slice/Class';
 
 const { Header: AntHeader } = Layout;
 
@@ -39,6 +43,7 @@ import { ClassService } from '../../../hooks/Class';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../../redux/Store';
 import { IoMdInformation } from 'react-icons/io';
+import { MdDeleteForever } from 'react-icons/md';
 
 const AdminClass: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
@@ -64,6 +69,7 @@ const AdminClass: React.FC = () => {
   const [RoomId, setRoomId] = useState<number | null>(null);
   const [SubjectId, setSubjectId] = useState<number | null>(null);
   const [LecturerID, setLecturerID] = useState<string | null>(null);
+  const [classID, setClassID] = useState(0);
 
   // Error state
   const [errors, setErrors] = useState<{
@@ -85,17 +91,72 @@ const AdminClass: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    const response = ClassService.getAllClass();
+  const handleSearchClass = useCallback(
+    (value: string) => {
+      setSearchInput(value);
 
-    response
-      .then((data) => {
-        setClasses(data?.result || []);
-      })
-      .catch((error) => {
-        console.log('get class error: ', error);
+      const normalizeString = (str: string) => {
+        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+
+      const normalizedValue = normalizeString(value).toLowerCase();
+
+      const filtered = classes.filter((item) => {
+        const normalizedClassCode = item.classCode
+          ? normalizeString(item.classCode).toLowerCase()
+          : '';
+        const normalizedLecturerName = item.lecturer.displayName
+          ? normalizeString(item.lecturer.displayName).toLowerCase()
+          : '';
+        const normalizedSemesterCode = item.semester.semesterCode
+          ? normalizeString(item.semester.semesterCode).toLowerCase()
+          : '';
+
+        return (
+          normalizedClassCode.includes(normalizedValue) ||
+          normalizedLecturerName.includes(normalizedValue) ||
+          normalizedSemesterCode.includes(normalizedValue)
+        );
       });
-  }, [reload]);
+
+      setFilteredClass(filtered);
+      setIsUpdate(true);
+    },
+    [classes],
+  );
+
+  // useEffect(() => {
+  //   const response = ClassService.getAllClass();
+
+  //   response
+  //     .then((data) => {
+  //       setClasses(data?.result || []);
+  //     })
+  //     .catch((error) => {
+  //       console.log('get class error: ', error);
+  //     });
+  // }, [reload]);
+
+  const fetchClasses = useCallback(async () => {
+    try {
+      const data = await ClassService.getAllClass();
+      setClasses(data?.result || []);
+    } catch (error) {
+      console.log('get class error: ', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
+
+  useEffect(() => {
+    if (searchInput !== '' && classes.length > 0) {
+      handleSearchClass(searchInput);
+    } else if (searchInput === '') {
+      setIsUpdate(false);
+    }
+  }, [classes, searchInput, handleSearchClass]);
 
   useEffect(() => {
     if (successMessage) {
@@ -111,43 +172,36 @@ const AdminClass: React.FC = () => {
     }
   }, [successMessage, failMessage, dispatch]);
 
-  const handleSearchClass = (value: string) => {
-    setSearchInput(value);
-
-    const normalizeString = (str: string) => {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    };
-
-    const normalizedValue = normalizeString(value).toLowerCase();
-
-    const filtered = classes.filter((item) => {
-      const normalizedClassCode = item.classCode
-        ? normalizeString(item.classCode).toLowerCase()
-        : '';
-      const normalizedLecturerName = item.lecturer.displayName
-        ? normalizeString(item.lecturer.displayName).toLowerCase()
-        : '';
-      const normalizedSemesterCode = item.semester.semesterCode
-        ? normalizeString(item.semester.semesterCode).toLowerCase()
-        : '';
-
-      return (
-        normalizedClassCode.includes(normalizedValue) ||
-        normalizedLecturerName.includes(normalizedValue) ||
-        normalizedSemesterCode.includes(normalizedValue)
-      );
-    });
-
-    setFilteredClass(filtered);
-    setIsUpdate(true);
-  };
-
   const showModalCreate = () => {
     getAllSmester();
     getAllRoom();
     getAllSubject();
     getAllLecturer();
     setIsCheck(false);
+    setIsModalVisible(true);
+  };
+
+  const showModalUpdate = (item?: ClassDetails) => {
+    setIsCheck(true);
+    getAllSmester();
+    getAllRoom();
+    getAllSubject();
+    getAllLecturer();
+    if (item) {
+      const classCodeParts = item.classCode.split(/[-_]/);
+      const classCodePart1 = classCodeParts[0] || '';
+      const classCodePart2 = classCodeParts[1] || '';
+      setClassID(item.classID);
+      setRoomId(item.room.roomID!);
+      setSubjectId(item.subject.subjectID!);
+      setClassName(classCodePart1);
+      // setClassCode(classCodePart2);
+      setSubjectCode(classCodePart2);
+      setSemesterId(item.semester.semesterID!);
+      setLecturerID(item.lecturer.id);
+    } else {
+      resetModalFields();
+    }
     setIsModalVisible(true);
   };
 
@@ -193,7 +247,25 @@ const AdminClass: React.FC = () => {
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchClasses();
+  };
+
+  const handleUpdate = async () => {
+    if (!validateFields()) return;
+
+    setLoading(true);
+    await updateExistClass(
+      classID ?? 0,
+      ClassCode,
+      SemesterId ?? 0,
+      RoomId ?? 0,
+      SubjectId ?? 0,
+      LecturerID ?? '',
+    );
+    setLoading(false);
+    setIsModalVisible(false);
+    resetModalFields();
+    fetchClasses();
   };
 
   const createNewClass = async (
@@ -212,6 +284,26 @@ const AdminClass: React.FC = () => {
     };
     await dispatch(createClass(arg) as any);
     setIsCheck(false);
+  };
+
+  const updateExistClass = async (
+    ClassID: number,
+    ClassCode: string,
+    SemesterId: number,
+    RoomId: number,
+    SubjectId: number,
+    LecturerID: string,
+  ) => {
+    const arg = {
+      ClassID: ClassID,
+      ClassCode: ClassCode,
+      SemesterId: SemesterId,
+      RoomId: RoomId,
+      SubjectId: SubjectId,
+      LecturerID: LecturerID,
+    };
+    await dispatch(updateClass(arg) as any);
+    // setIsCheck(false);
   };
 
   const getAllSmester = async () => {
@@ -267,6 +359,11 @@ const AdminClass: React.FC = () => {
     },
     {
       key: '5',
+      title: 'Action',
+      dataIndex: 'action',
+    },
+    {
+      key: '6',
       title: 'Info',
       dataIndex: 'info',
       render: (classID: number) => (
@@ -348,6 +445,31 @@ const AdminClass: React.FC = () => {
             semestercode: item.semester.semesterCode,
             lecturer: item.lecturer.displayName,
             classStatus: item.classStatus,
+            action: (
+              <div>
+                <Button
+                  shape="circle"
+                  style={{ border: 'none', backgroundColor: 'white' }}
+                >
+                  <CiEdit
+                    onClick={() => {
+                      setIsCheck(true);
+                      showModalUpdate(item);
+                    }}
+                    size={20}
+                    style={{ color: 'blue' }}
+                  />
+                </Button>
+
+                {/* <Button
+                  shape="circle"
+                  style={{ border: 'none', backgroundColor: 'white' }}
+                  onClick={() => deleteRoom(item.roomID!)}
+                >
+                  <MdDeleteForever size={20} style={{ color: 'red' }} />
+                </Button> */}
+              </div>
+            ),
             info: item.classID,
             ID: item.classID,
           }),
@@ -368,7 +490,7 @@ const AdminClass: React.FC = () => {
             key="submit"
             type="primary"
             loading={loading}
-            onClick={handleCreate}
+            onClick={isCheck ? handleUpdate : handleCreate}
           >
             Submit
           </Button>,
@@ -386,11 +508,13 @@ const AdminClass: React.FC = () => {
           value={ClassName}
           onChange={(e) => {
             setErrors((prevErrors) => ({ ...prevErrors, className: '' }));
-            setClassName(e.target.value)
+            setClassName(e.target.value);
           }}
           style={{ marginBottom: '10px' }}
         />
-        {errors.className && <p className={styles.errorText}>{errors.className}</p>}
+        {errors.className && (
+          <p className={styles.errorText}>{errors.className}</p>
+        )}
 
         <p className={styles.createClassTitle}>Semester Code</p>
         <Select
@@ -398,9 +522,16 @@ const AdminClass: React.FC = () => {
           value={SemesterId}
           onChange={(value) => {
             setErrors((prevErrors) => ({ ...prevErrors, semesterId: '' }));
-            setSemesterId(value)
+            setSemesterId(value);
           }}
+          showSearch
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            return children
+              .toLowerCase()
+              .includes(input.toLowerCase());
+          }}
         >
           {semester.map((sem) => (
             <Select.Option key={sem.semesterID} value={sem.semesterID}>
@@ -418,9 +549,16 @@ const AdminClass: React.FC = () => {
           value={RoomId}
           onChange={(value) => {
             setErrors((prevErrors) => ({ ...prevErrors, roomId: '' }));
-            setRoomId(value)
+            setRoomId(value);
           }}
+          showSearch
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            return children
+              .toLowerCase()
+              .includes(input.toLowerCase());
+          }}
         >
           {room.map((room) => (
             <Select.Option key={room.roomID} value={room.roomID}>
@@ -449,7 +587,9 @@ const AdminClass: React.FC = () => {
             </Select.Option>
           ))}
         </Select>
-        {errors.subjectId && <p className={styles.errorText}>{errors.subjectId}</p>}
+        {errors.subjectId && (
+          <p className={styles.errorText}>{errors.subjectId}</p>
+        )}
 
         <p className={styles.createClassTitle}>Lecturer</p>
         <Select
@@ -457,8 +597,9 @@ const AdminClass: React.FC = () => {
           value={LecturerID}
           onChange={(value) => {
             setErrors((prevErrors) => ({ ...prevErrors, lecturerId: '' }));
-            setLecturerID(value)
+            setLecturerID(value);
           }}
+          showSearch
           style={{ marginBottom: '10px', width: '100%' }}
         >
           {lecturer.map((lec) => (

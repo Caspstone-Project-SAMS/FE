@@ -1,101 +1,249 @@
-import { Content, Header } from 'antd/es/layout/layout';
-import React from 'react';
-import styles from './Account.module.less'
-import { Avatar, Button, Card, Layout, Space, Typography } from 'antd';
-import { BsThreeDotsVertical } from 'react-icons/bs';
-import { RxAvatar } from 'react-icons/rx';
+import React, { useEffect, useState } from 'react';
+import {
+  message,
+} from 'antd';
 import useDispatch from '../../redux/UseDispatch';
-import { logout } from '../../redux/slice/Auth';
-import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
+import { clearResetPasswordMessages, editProfile, updateName } from '../../redux/slice/Auth';
+
 import { UserInfo } from '../../models/UserInfo';
 
-const Account: React.FC = () => {
+// IMPORTS
+import Grid from '@mui/material/Grid';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import ProfileCard from '../../components/account/ProfileCard';
+import SettingsCard from '../../components/account/SettingsCard';
+import { EmployeeService } from '../../hooks/Employee';
+import { EmployeeDetails } from '../../models/employee/Employee';
 
-  const userDetail: UserInfo | undefined = useSelector((state: RootState) => state.auth.userDetail)
+// FONTS
+// import "@fontsource/roboto/300.css";
+// import "@fontsource/roboto/400.css";
+// import "@fontsource/roboto/500.css";
+// import "@fontsource/roboto/700.css";
+
+// STYLE & THEME
+const theme = createTheme();
+
+const EditAccount: React.FC = () => {
+  const UserId = useSelector(
+    (state: RootState) => state.auth.userDetail?.result?.id,
+  );
+
+  const user = useSelector(
+    (state: RootState) => state.auth.data,
+  );
+
+
+  const failMessage = useSelector((state: RootState) => state.auth.fail);
+  const successMessage = useSelector(
+    (state: RootState) => state.auth.success?.title,
+  );
+
   const dispatch = useDispatch();
-  const handleLogout = async () => {
-    dispatch(logout());
+  const [loading, setLoading] = useState(false);
+  const [isCheck, setIsCheck] = useState(false);
+
+  const [Email, setEmail] = useState('');
+  const [PhoneNumber, setPhoneNumber] = useState('');
+  const [Avatar, setAvatar] = useState<File | null>(null);
+  const [DisplayName, setDisplayName] = useState('');
+  const [Address, setAddress] = useState('');
+  const [DOB, setDOB] = useState('');
+  const [Gender, setGender] = useState();
+  const [FirstName, setFirstName] = useState('');
+  const [LastName, setLastName] = useState('');
+
+  const [lecturer, setLecturer] = useState<EmployeeDetails>();
+
+console.log('data', user)
+
+  const [errors, setErrors] = useState({
+    OldPassword: '',
+    NewPassword: '',
+    ConfirmPassword: '',
+  });
+
+  const [text, setText] = useState('');
+
+  const mainUser = {
+    // DEFAULT VALUES
+    title: 'CEO of Apple',
+    dt1: 32,
+    dt2: 40,
+    dt3: 50,
+    firstName: user?.result?.firstName,
+    lastName: user?.result?.lastName,
+    gender: user?.result?.gender,
+    phone: user?.result?.phoneNumber,
+    email: user?.result?.email,
+    pass: 'password123',
   };
 
-  console.log(userDetail)
-  const teacherDetails = [
-    { label: 'Name', value: userDetail?.result?.displayName },
-    { label: 'Email', value: userDetail?.result?.email },
-    { label: 'Phone', value: userDetail?.result?.phoneNumber },
-  ];
-  return (
-    <Content className={styles.content}>
-      <ContentHeader contentTitle='Account Details' previousBreadcrumb='Teachers / ' currentBreadcrumb='Teachers details' key={'account-header'} />
+  const fullName = `${mainUser.firstName} ${mainUser.lastName}`;
 
-      <Layout style={{ backgroundColor: 'white', marginRight: '20px' }}>
-        <Header
-          style={{
-            paddingLeft: '20px',
-            paddingRight: '20px'
-          }}
-          className={styles.accountHeader}>
-          <Space direction="horizontal">
-            <Typography.Title level={3}>About Me</Typography.Title>
-          </Space>
-        </Header>
-        <Content>
-          <Space direction="vertical" className={styles.spaceCard}>
-            <Space direction="horizontal" className={styles.card}>
-              <Card className={styles.parentCard}>
-                <Space style={{ backgroundColor: 'white' }}>
-                  <Avatar
-                    size={70}
-                    src={userDetail?.result?.avatar ? userDetail?.result?.avatar : ''} />
-                  <Typography.Title>{userDetail?.result?.displayName && userDetail?.result?.displayName}</Typography.Title>
-                </Space>
-                <Content>
-                  <Space direction="horizontal" className={styles.accountInfo}>
-                    {teacherDetails.map((detail) => (
-                      <Space
-                        direction="vertical"
-                        className={styles.accountDetails}
-                        key={detail.label}
-                      >
-                        <Typography.Text className={styles.textTitle}>{detail.label}</Typography.Text>
-                        <Typography.Title level={4}>
-                          {detail.value}
-                        </Typography.Title>
-                      </Space>
-                    ))}
-                  </Space>
-                </Content>
-              </Card>
-              {/* <Card className={styles.parentCard}>
-                <Header style={{ backgroundColor: 'white' }}></Header>
-                <Content>
-                  <Space direction="horizontal" className={styles.accountInfo}>
-                    {teacherDetails.map((detail) => (
-                      <Space
-                        direction="vertical"
-                        className={styles.accountDetails}
-                        key={detail.label}
-                      >
-                        <Typography.Text className={styles.textTitle}>{detail.label}</Typography.Text>
-                        <Typography.Title level={4}>
-                          {detail.value}
-                        </Typography.Title>
-                      </Space>
-                    ))}
-                  </Space>
-                </Content>
-              </Card> */}
-            </Space>
-            <Space style={{ width: '100%', justifyContent: 'end', paddingRight: 40, paddingBottom: 30, paddingTop: 20 }}>
-              {/* <Button className={styles.btn}>Edit</Button> */}
-              <Button className={styles.btnLog} onClick={() => handleLogout()}>Log out</Button>
-            </Space>
-          </Space>
-        </Content>
-      </Layout>
-    </Content>
+  useEffect(() => {
+    if (successMessage) {
+      message.success(successMessage);
+      resetFields();
+      dispatch(clearResetPasswordMessages());
+    }
+    if (failMessage && failMessage.data) {
+      message.error(`${failMessage.data.data.data.errors}`);
+      dispatch(clearResetPasswordMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
+  
+  const employeeID: string = user?.result?.employeeID || '';
+  useEffect(() => {
+    
+    if (employeeID !== "") {
+      const response = EmployeeService.getEmployeeByID(employeeID);
+
+      response
+        .then((data) => {
+          setLecturer(data || undefined);
+        })
+        .catch((error) => {
+          console.log('get employee by id error: ', error);
+        });
+    }
+  }, [employeeID]);
+
+  const resetFields = () => {
+    setAvatar(null);
+    setErrors({
+      NewPassword: '',
+      OldPassword: '',
+      ConfirmPassword: '',
+    });
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    if (UserId) {
+      // dispatch(updateName({name: DisplayName}))
+      await editSpecificProfile(UserId, Email, PhoneNumber, Avatar, DisplayName, Address, DOB, Gender, FirstName, LastName);
+    }
+    setLoading(false);
+    resetFields();
+  };
+
+  const editSpecificProfile = async (
+    UserId: string,
+    Email: string,
+    PhoneNumber: string,
+    Avatar: File | null,
+    DisplayName: string,
+    Address: string,
+    DOB: string,
+    Gender: number,
+    FirstName: string,
+    LastName: string,
+  ) => {
+    const arg = {
+      UserId: UserId,
+      Email: Email,
+      PhoneNumber: PhoneNumber,
+      Avatar: Avatar,
+      DisplayName: DisplayName,
+      Address: Address,
+      DOB: DOB,
+      Gender: Gender,
+      FirstName: FirstName,
+      LastName: LastName,
+    };
+    await dispatch(editProfile(arg) as any);
+    setIsCheck(false);
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline>
+        {/* BACKGROUND */}
+        <Grid container direction="column" sx={{ overflowX: 'hidden' }}>
+          <Grid item xs={12} md={6}>
+            <img
+              alt="avatar"
+              style={{
+                width: '100vw',
+                height: '35vh',
+                objectFit: 'cover',
+                objectPosition: '50% 50%',
+                position: 'relative',
+              }}
+              src="https://iris2.gettimely.com/images/default-cover-image.jpg"
+            />
+          </Grid>
+
+          {/* COMPONENTS */}
+          <Grid
+            container
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={3}
+            sx={{
+              position: 'absolute',
+              top: '20vh',
+              px: { xs: 0, md: 7 },
+              width: '90%',
+            }}
+          >
+            {/* PROFILE CARD */}
+            <Grid item md={3}>
+              <ProfileCard
+                sub={mainUser.title}
+                dt1={mainUser.dt1}
+                dt2={mainUser.dt2}
+                dt3={mainUser.dt3}
+                img={user?.result?.avatar}
+                Avatar={Avatar}
+                setAvatar={setAvatar}
+                name={user?.result?.displayName}
+                role={user?.result?.role.name}
+                department={lecturer?.result.department}
+              ></ProfileCard>
+            </Grid>
+
+            {/* SETTINGS CARD */}
+            <Grid item md={9}>
+              <SettingsCard
+                expose={(v: string) => setText(v)}
+                fullName={user?.result?.displayName}
+                phone={mainUser.phone}
+                email={mainUser.email}
+                Email={Email}
+                setEmail={setEmail}
+                Phone={PhoneNumber}
+                setPhone={setPhoneNumber}
+                Name={DisplayName}
+                setName={setDisplayName}
+                address={user?.result?.address}
+                Address={Address}
+                setAddress={setAddress}
+                dob={user?.result?.dob}
+                DOB={DOB}
+                setDOB={setDOB}
+                pass={mainUser.pass}
+                gender={mainUser.gender}
+                Gender={Gender}
+                setGender={setGender}
+                firstName={mainUser.firstName}
+                FirstName={FirstName}
+                setFirstName={setFirstName}
+                lastName={mainUser.lastName}
+                LastName={LastName}
+                setLastName={setLastName}
+                submit={handleSubmit}
+                loading={loading}
+              ></SettingsCard>
+            </Grid>
+          </Grid>
+        </Grid>
+      </CssBaseline>
+    </ThemeProvider>
   );
 };
 
-export default Account;
+export default EditAccount;

@@ -19,6 +19,7 @@ import {
   Pagination,
   Select,
   Tag,
+  InputNumber,
 } from 'antd';
 import dayjs from 'dayjs';
 import { Content } from 'antd/es/layout/layout';
@@ -38,6 +39,7 @@ import { ScheduleResult, Schedules } from '../../../models/calendar/Schedule';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import {
+  applySetting,
   clearModuleMessages,
   settingModules,
 } from '../../../redux/slice/Module';
@@ -61,6 +63,13 @@ const ModuleDetail: React.FC = () => {
   const [activeKey, setActiveKey] = useState<string | string[]>();
   const [AutoPrepare, setAutoPrepare] = useState(false);
   const [PreparedTime, setPreparedTime] = useState('');
+  const [AttendanceDurationMinutes, setAttendanceDurationMinutes] = useState(0);
+  const [ConnectionLifeTimeSeconds, setConnectionLifeTimeSeconds] = useState(0);
+  const [ConnectionSound, setConnectionSound] = useState(true);
+  const [ConnectionSoundDurationMs, setConnectionSoundDurationMs] = useState(0);
+  const [AttendanceSound, setAttendanceSound] = useState(true);
+  const [AttendanceSoundDurationMs, setAttendanceSoundDurationMs] = useState(0);
+
   const [reload, setReload] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -76,14 +85,17 @@ const ModuleDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
-
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage);
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
-      message.error(`${failMessage.data.error.Errors}`);
+      if (failMessage.data.error.title == 'Apply configurations failed') {
+        message.error(`${failMessage.data.error.title}`);
+      } else {
+        message.error(`${failMessage.data.error.errors}`);
+      }
       dispatch(clearModuleMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -110,8 +122,8 @@ const ModuleDetail: React.FC = () => {
     setFilteredScheduleList(
       Array.isArray(scheduleList)
         ? scheduleList.filter((schedule) =>
-          listScheduleId.includes(schedule.scheduleID),
-        )
+            listScheduleId.includes(schedule.scheduleID),
+          )
         : [],
     );
   }, [listScheduleId, scheduleList]);
@@ -127,7 +139,11 @@ const ModuleDetail: React.FC = () => {
         <div>
           <Tag
             color={mode === 1 ? 'green' : 'blue'}
-            style={{ fontWeight: 'bold', fontSize: '10px', textAlign: 'center' }}
+            style={{
+              fontWeight: 'bold',
+              fontSize: '10px',
+              textAlign: 'center',
+            }}
           >
             {mode === 1 ? 'Register' : 'Attendance'}
           </Tag>
@@ -221,10 +237,16 @@ const ModuleDetail: React.FC = () => {
           setModule(data || undefined);
           setAutoPrepare(data?.result.autoPrepare || false);
           setPreparedTime(data?.result.preparedTime || '');
+          setConnectionLifeTimeSeconds(data?.result.connectionLifeTimeSeconds || 0);
+          setConnectionSound(data?.result.connectionSound || false);
+          setConnectionSoundDurationMs(data?.result.connectionSoundDurationMs || 0);
+          setAttendanceSound(data?.result.attendanceSound || false);
+          setAttendanceSoundDurationMs(data?.result.attendanceSoundDurationMs || 0);
+          setAttendanceDurationMinutes(data?.result.attendanceDurationMinutes || 0)
           setLecturerId(data?.result.employee.userId || '');
           //Newest on top
           if (data && data.result.moduleActivities) {
-            const reverseList = data.result.moduleActivities.reverse()
+            const reverseList = data.result.moduleActivities.reverse();
             setModuleActivity(reverseList);
           } else {
             setModuleActivity([]);
@@ -250,20 +272,52 @@ const ModuleDetail: React.FC = () => {
     moduleID: number,
     AutoPrepare: boolean,
     PreparedTime: string,
+    AttendanceDurationMinutes: number,
+    ConnectionLifeTimeSeconds: number,
+    ConnectionSound: boolean,
+    ConnectionSoundDurationMs: number,
+    AttendanceSound: boolean,
+    AttendanceSoundDurationMs: number,
     token: string,
   ) => {
     const arg = {
       moduleID: moduleID,
       AutoPrepare: AutoPrepare,
       PreparedTime: PreparedTime,
+      AttendanceDurationMinutes: AttendanceDurationMinutes,
+      ConnectionLifeTimeSeconds: ConnectionLifeTimeSeconds,
+      ConnectionSound: ConnectionSound,
+      ConnectionSoundDurationMs: ConnectionSoundDurationMs,
+      AttendanceSound: AttendanceSound,
+      AttendanceSoundDurationMs: AttendanceSoundDurationMs,
       token: token,
     };
     await dispatch(settingModules(arg) as any);
   };
 
   const handleSubmit = async () => {
-    await settingModule(moduleID, AutoPrepare, PreparedTime, token);
+    await settingModule(
+      moduleID,
+      AutoPrepare,
+      PreparedTime,
+      AttendanceDurationMinutes,
+      ConnectionLifeTimeSeconds,
+      ConnectionSound,
+      ConnectionSoundDurationMs,
+      AttendanceSound,
+      AttendanceSoundDurationMs,
+      token,
+    );
     setReload((prev) => prev + 1);
+  };
+
+  const handleApply = async () => {
+    const arg ={
+      ModuleID: moduleID,
+      Mode: 13,
+      token: token
+    };
+    await dispatch(applySetting(arg) as any);
   };
 
   const handlePanelChange = (key: string | string[]) => {
@@ -391,7 +445,10 @@ const ModuleDetail: React.FC = () => {
                           checked={AutoPrepare}
                           onChange={(checked) => setAutoPrepare(checked)}
                         />
-                        <p className={styles.suggestText}>Turn on or off auto prepare attendance data of class schedule</p>
+                        <p className={styles.suggestText}>
+                          Turn on or off auto prepare attendance data of class
+                          schedule
+                        </p>
                       </div>
                     </div>
                     <div className={styles.settingItem}>
@@ -412,11 +469,161 @@ const ModuleDetail: React.FC = () => {
                           format="HH:mm"
                           className={styles.timePicker}
                         />
-                        <p className={styles.suggestText}>Set auto prepare time attendance data of class schedule</p>
+                        <p className={styles.suggestText}>
+                          Set auto prepare time attendance data of class
+                          schedule
+                        </p>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>
+                    <b>Check Attendance Duration</b>
+                    <hr className={styles.lines} />
+                    <div className={styles.settingItem}>
+                      <div>
+                        <p className={styles.settingLabel}>
+                          Duration Time
+                        </p>
+                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+
+                        <TimePicker
+                          placeholder="Duration Time"
+                          value={
+                            AttendanceDurationMinutes !== null
+                              ? dayjs().minute(AttendanceDurationMinutes)
+                              : null
+                          }
+                          onChange={(time) => {
+                            if (time) {
+                              const minutes = time.minute(); // Extract minutes from the selected time
+                              setAttendanceDurationMinutes(minutes);
+                            }
+                          }}
+                          format="mm" // Display only minutes
+                          className={styles.timePicker}
+                        /><span> minutes</span>
+                        </div>
+                        <p className={styles.suggestText}>
+                          Set duration time for check attendance
+                        </p>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>
+                    <b>Activities</b>
+                    <hr className={styles.lines} />
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Connection Life Time
+                        </span>
+                        <br />
+                        <InputNumber
+                          placeholder="Connection Life Time (second)"
+                          value={ConnectionLifeTimeSeconds} 
+                          onChange={(value) => {
+                            if (value !== null) {
+                              setConnectionLifeTimeSeconds(value); 
+                            }
+                          }}
+                          min={0}
+                          step={1} // Set the step to 1 millisecond
+                          className={styles.inputNumber}
+                        />{' '}
+                        {' second'}
+                        <p className={styles.suggestText}>
+                          Set connection life time for module with millisecond
+                        </p>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>
+                    <b>Connection Sound</b>
+                    <hr className={styles.lines} />
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>Sound:</span>
+                        <Switch
+                          checked={ConnectionSound}
+                          onChange={(checked) => setConnectionSound(checked)}
+                        />
+                        <p className={styles.suggestText}>
+                          Turn on or off sound when connecting module
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Connection Sound Duration
+                        </span>
+                        <br />
+                        <InputNumber
+                          placeholder="Connection Sound Duration (ms)"
+                          value={ConnectionSoundDurationMs} // Convert seconds to milliseconds for display
+                          onChange={(value) => {
+                            if (value !== null) {
+                              setConnectionSoundDurationMs(value); // Convert milliseconds back to seconds
+                            }
+                          }}
+                          min={0}
+                          step={1} // Set the step to 1 millisecond
+                          className={styles.inputNumber}
+                        />{' '}
+                        {' millisecond'}
+                        <p className={styles.suggestText}>
+                          Set connection time duration for module
+                        </p>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>
+                    <b>Attendance Sound</b>
+                    <hr className={styles.lines} />
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>Sound:</span>
+                        <Switch
+                          checked={AttendanceSound}
+                          onChange={(checked) => setAttendanceSound(checked)}
+                        />
+                        <p className={styles.suggestText}>
+                          Turn on or off sound when check attendance
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Attendance Sound Duration
+                        </span>
+                        <br />
+                        <InputNumber
+                          placeholder="Attendance Sound Duration (ms)"
+                          value={AttendanceSoundDurationMs} // Convert seconds to milliseconds for display
+                          onChange={(value) => {
+                            if (value !== null) {
+                              setAttendanceSoundDurationMs(value); // Convert milliseconds back to seconds
+                            }
+                          }}
+                          min={0}
+                          step={1} // Set the step to 1 millisecond
+                          className={styles.inputNumber}
+                        />{' '}
+                        {' millisecond'}
+                        <p className={styles.suggestText}>
+                          Set connection time duration for module
+                        </p>
                       </div>
                     </div>
                   </Col>
                   <div className={styles.submitButtonContainer}>
+                    <Button
+                      onClick={handleApply}
+                      className={styles.submitButton}
+                    >
+                      Apply
+                    </Button>
                     <Button
                       onClick={handleSubmit}
                       className={styles.submitButton}
@@ -620,12 +827,12 @@ const ModuleDetail: React.FC = () => {
                               dataSource={filteredScheduleList.map(
                                 (item, index) => ({
                                   key: index,
-                                  date: item.date,
+                                  date: new Date(item.date).toLocaleDateString('en-GB'),
                                   slot: item.slot.slotNumber,
                                   time: (
                                     <div>
-                                      {item.slot.startTime} -{' '}
-                                      {item.slot.endtime}
+                                      {(item.slot.startTime).slice(0, 5)} -{' '}
+                                      {(item.slot.endtime).slice(0, 5)}
                                     </div>
                                   ),
                                   class: item.class.classCode,

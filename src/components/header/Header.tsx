@@ -49,8 +49,11 @@ const Headers: React.FC = () => {
   const userDetail: UserInfo | undefined = useSelector(
     (state: RootState) => state.auth.userDetail,
   );
-  const name = userDetail?.result?.displayName;
-  const avatar = userDetail?.result?.avatar;
+  const user = useSelector(
+    (state: RootState) => state.auth.data,
+  );
+  const name = user?.result?.displayName;
+  const avatar = user?.result?.avatar;
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
@@ -292,10 +295,10 @@ const Headers: React.FC = () => {
             level={5}
             className="narrowTypography"
           >
-            {name ? userDetail?.result?.displayName : 'Name'}
+            {name ? user?.result?.displayName : 'Name'}
           </Title>
           <Text className="narrowTypography">
-            {userDetail?.result?.role.name}
+            {user?.result?.role.name}
           </Text>
         </div>
         <Dropdown

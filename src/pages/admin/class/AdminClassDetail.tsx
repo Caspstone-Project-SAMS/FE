@@ -2,7 +2,6 @@ import {
   Button,
   Card,
   Col,
-  DatePicker,
   Input,
   Layout,
   message,
@@ -41,6 +40,8 @@ import {
 import { SlotService } from '../../../hooks/Slot';
 import moment from 'moment';
 import { RoomService } from '../../../hooks/Room';
+import DatePicker from 'react-datepicker'; 
+import 'react-datepicker/dist/react-datepicker.css';
 
 const { Header: AntHeader } = Layout;
 
@@ -56,7 +57,7 @@ const AdminClassDetail: React.FC = () => {
   const [StudentCode, setStudentCode] = useState('');
   const [classes, setClasses] = useState<ClassDetail>();
   const [ClassId, setClassID] = useState<number>(0);
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date | null>(null);
   const [SlotId, setSlotId] = useState(0);
   const [RoomId, setRoomId] = useState(0 || null);
 
@@ -70,7 +71,7 @@ const AdminClassDetail: React.FC = () => {
   const [reload, setReload] = useState(0);
   const dispatch = useDispatch();
 
-  console.log('schedule', classSchedule)
+  console.log('schedule', classSchedule);
 
   const failMessage = useSelector(
     (state: RootState) => state.student.message?.data.data.data.errors,
@@ -99,7 +100,7 @@ const AdminClassDetail: React.FC = () => {
     }
   }, [successMessage, failMessage, dispatch]);
 
-  console.log('class', classes)
+  console.log('class', classes);
 
   const classDetails = [
     { title: 'Class Code', value: classes?.result.classCode },
@@ -155,27 +156,27 @@ const AdminClassDetail: React.FC = () => {
     const filtered = classes?.result.students.filter(
       (item) => {
         const normalizedStudentName = item.displayName
-        ? normalizeString(item.displayName).toLowerCase()
-        : '';
+          ? normalizeString(item.displayName).toLowerCase()
+          : '';
         const normalizedStudentCode = item.studentCode
-        ? normalizeString(item.studentCode).toLowerCase()
-        : '';
+          ? normalizeString(item.studentCode).toLowerCase()
+          : '';
         const normalizedEmail = item.email
-        ? normalizeString(item.email).toLowerCase()
-        : '';
-        
+          ? normalizeString(item.email).toLowerCase()
+          : '';
+
         return (
           normalizedStudentName.includes(normalizedValue) ||
           normalizedStudentCode.includes(normalizedValue) ||
           normalizedEmail.includes(normalizedValue)
         );
-      }
-        // (item.displayName &&
-        //   item.displayName.toLowerCase().includes(value.toLowerCase())) ||
-        // (item.email &&
-        //   item.email.toLowerCase().includes(value.toLowerCase())) ||
-        // (item.studentCode &&
-        //   item.studentCode.toLowerCase().includes(value.toLowerCase())),
+      },
+      // (item.displayName &&
+      //   item.displayName.toLowerCase().includes(value.toLowerCase())) ||
+      // (item.email &&
+      //   item.email.toLowerCase().includes(value.toLowerCase())) ||
+      // (item.studentCode &&
+      //   item.studentCode.toLowerCase().includes(value.toLowerCase())),
     );
     setFilteredStudentClass(filtered ?? []);
     setIsUpdate(true);
@@ -239,10 +240,24 @@ const AdminClassDetail: React.FC = () => {
       render: (scheduleStatus: number) => (
         <div>
           <Tag
-            color={scheduleStatus === 1 || scheduleStatus === 0 ? 'gray' : scheduleStatus === 2 ? 'blue' : scheduleStatus === 3 ? 'green' : 'white'}
+            color={
+              scheduleStatus === 1 || scheduleStatus === 0
+                ? 'gray'
+                : scheduleStatus === 2
+                ? 'blue'
+                : scheduleStatus === 3
+                ? 'green'
+                : 'white'
+            }
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {scheduleStatus === 1 || scheduleStatus === 0 ? 'Not Yet' : scheduleStatus === 2 ? 'Ongoing' : scheduleStatus === 3 ? 'Finished' : 'undefined'}
+            {scheduleStatus === 1 || scheduleStatus === 0
+              ? 'Not Yet'
+              : scheduleStatus === 2
+              ? 'Ongoing'
+              : scheduleStatus === 3
+              ? 'Finished'
+              : 'undefined'}
           </Tag>
         </div>
       ),
@@ -292,7 +307,7 @@ const AdminClassDetail: React.FC = () => {
     setStudentCode('');
     setSlotId(0);
     setRoomId(null);
-    setDate('');
+    setDate(null);
     // setRoomId(null);
     // setSemesterId(null);
     // setSubjectId(null);
@@ -329,7 +344,7 @@ const AdminClassDetail: React.FC = () => {
   const handleAddSchedule = async () => {
     if (!validateFieldsAddSchedule()) return;
     setLoading(true);
-    await addSchedule(date, SlotId, ClassId, RoomId);
+    await addSchedule(date ? moment(date).format('YYYY-MM-DD') : '', SlotId, ClassId, RoomId);
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
@@ -499,16 +514,16 @@ const AdminClassDetail: React.FC = () => {
                 date: moment(item.date, 'YYYY-MM-DD').format('DD/MM/YYYY'),
                 time: (
                   <div>
-                  {(typeof item.slot.startTime === 'string'
-                    ? item.slot.startTime
-                    : String(item.slot.startTime ?? ''))
-                    .slice(0, 5)} 
-                  - 
-                  {(typeof item.slot.endtime === 'string'
-                    ? item.slot.endtime
-                    : String(item.slot.endtime ?? ''))
-                    .slice(0, 5)}
-                </div>
+                    {(typeof item.slot.startTime === 'string'
+                      ? item.slot.startTime
+                      : String(item.slot.startTime ?? '')
+                    ).slice(0, 5)}
+                    -
+                    {(typeof item.slot.endtime === 'string'
+                      ? item.slot.endtime
+                      : String(item.slot.endtime ?? '')
+                    ).slice(0, 5)}
+                  </div>
                 ),
                 slot: item.slot.slotNumber,
                 dateOfWeek: item.dateOfWeek,
@@ -600,11 +615,15 @@ const AdminClassDetail: React.FC = () => {
                     filterOption={(input, option) => {
                       const children = option?.children as unknown as string;
                       const normalizeString = (str: string) => {
-                        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                        return str
+                          .normalize('NFD')
+                          .replace(/[\u0300-\u036f]/g, '');
                       };
-                      
-                      const normalizedChildren = normalizeString(children).toLowerCase();
-                      const normalizedInput = normalizeString(input).toLowerCase();
+
+                      const normalizedChildren =
+                        normalizeString(children).toLowerCase();
+                      const normalizedInput =
+                        normalizeString(input).toLowerCase();
                       return normalizedChildren.includes(normalizedInput);
                     }}
                   >
@@ -613,6 +632,11 @@ const AdminClassDetail: React.FC = () => {
                         key={stu.studentID}
                         value={stu.studentCode}
                       >
+                        {/* <img
+                          alt="student"
+                          src={stu.avatar}
+                          style={{ height: 20, width: 20, marginRight: 8 }}
+                        /> */}
                         {stu.studentCode + '-' + stu.studentName}
                       </Select.Option>
                     ))}
@@ -627,17 +651,17 @@ const AdminClassDetail: React.FC = () => {
                 <>
                   <p className={styles.createClassTitle}>Date</p>
                   <DatePicker
-                    placeholder="Date"
-                    value={date ? moment(date, 'YYYY-MM-DD') : null}
-                    onChange={(date, dateString) => {
-                      setDate(`${dateString}`);
+                    placeholderText="Date"
+                    selected={date} 
+                    onChange={(date) => {
+                      setDate(date);
                       setErrors((prevErrors) => ({
                         ...prevErrors,
                         date: '',
                       }));
                     }}
-                    format="YYYY-MM-DD"
-                    style={{ marginBottom: '10px', width: '100%' }}
+                    dateFormat="dd-MM-yyyy"
+                    // style={{ marginBottom: '10px', width: '100%' }}
                   />
                   {errors.date && (
                     <p className={styles.errorText}>{errors.date}</p>
