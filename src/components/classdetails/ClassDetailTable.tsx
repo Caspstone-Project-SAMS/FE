@@ -369,7 +369,6 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
   }, [isOkOpen])
 
   useEffect(() => {
-    console.log("is manual ", isManual);
     if (studentAttendedList.length > 0 && !isManual) {
       const uniqueStudents = new Map();
 

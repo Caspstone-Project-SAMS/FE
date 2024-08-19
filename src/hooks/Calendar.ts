@@ -80,8 +80,11 @@ const getScheduleByWeek = async (
   return response.data;
 };
 
-const importExcelSchedule = async (data: ScheduleList[]) => {
-  const res = await axios.post(SCHEDULE_API, data);
+const importExcelSchedule = async (
+  data: ScheduleList[],
+  semesterId: number,
+) => {
+  const res = await axios.post(SCHEDULE_API, data, { params: { semesterId } });
   return res.data;
 };
 

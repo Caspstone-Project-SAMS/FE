@@ -309,7 +309,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     ]
                                     const result: any[] = [];
                                     console.log("Data ", excelData);
-                                    const weekArr = HelperService.getWeeks(weekStart, weekEnd);
+                                    const weekArr = HelperService.getWeeks(weekStart, weekEnd, 'DD/MM', 'DD/MM', false);
                                     weekArr.forEach(week => {
                                         const days = HelperService.getDaysOfWeek(week);
                                         days.forEach((day, index) => {
@@ -335,29 +335,33 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     // console.log("Done - this is schedule valid", result);
                                     const mergedArr = [...formatExcelData, ...result];
                                     console.log("mergedArr", mergedArr);
-                                    const promise = RequestHelpers.postExcelSchedule(mergedArr);
-                                    promise.then(data => {
-                                        saveInfo(data)
-                                    }).catch(err => {
-                                        saveInfo(err)
-                                    })
+                                    if (selectedSemester) {
+                                        const promise = RequestHelpers.postExcelSchedule(mergedArr, selectedSemester);
+                                        promise.then(data => {
+                                            saveInfo(data)
+                                        }).catch(err => {
+                                            saveInfo(err)
+                                        })
+                                    }
                                 } else {
                                     setOnValidateServer(false)
                                     setOnValidateExcel(true)
-                                    message.warning('Start week time can not further than end week ')
+                                    message.warning('Start week time can not further than end week!!!')
                                 }
                             } else {
                                 message.info('Choose week start and week end before continue!')
                             }
                         } else {
-                            const result = RequestHelpers.postExcelSchedule(excelData);
-                            result.then(data => {
-                                // console.log("Post schedule success ", data);
-                                saveInfo(data)
-                            }).catch(err => {
-                                // console.log("Post schedule error ", err);
-                                saveInfo(err)
-                            })
+                            if (selectedSemester) {
+                                const result = RequestHelpers.postExcelSchedule(excelData, selectedSemester);
+                                result.then(data => {
+                                    // console.log("Post schedule success ", data);
+                                    saveInfo(data)
+                                }).catch(err => {
+                                    // console.log("Post schedule error ", err);
+                                    saveInfo(err)
+                                })
+                            }
                         }
                     }
                     break;
@@ -498,11 +502,11 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
             setWeeks(HelperService.generateWeekFromCur());
         }
         if (semester && semester.length === 0) {
-            dispatch(getAllSemester())
-            handleFormatSubject()
+            dispatch(getAllSemester());
+            handleFormatSubject();
         } else {
-            handleFormatSubject()
-            handleFormatSemester()
+            handleFormatSubject();
+            handleFormatSemester();
         }
     }, [semester])
 
