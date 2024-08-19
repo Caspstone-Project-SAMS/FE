@@ -8,6 +8,7 @@ import {
   Input,
   Layout,
   message,
+  Popconfirm,
   Space,
   Typography,
 } from 'antd';
@@ -132,7 +133,9 @@ const ResetPasswordCard: React.FC = () => {
           </Space>
         </Header> */}
         <Content style={{ width: '40%', marginLeft: 20 }}>
-          <p className={styles.resetPasswordTitle}>Current Password</p>
+          <label style={{ fontWeight: 'bold' }} htmlFor="date">
+            Current Password
+          </label>
           <Input.Password
             placeholder="Old Password"
             type="password"
@@ -141,12 +144,14 @@ const ResetPasswordCard: React.FC = () => {
               setErrors((prevErrors) => ({ ...prevErrors, OldPassword: '' }));
               setOldPassword(e.target.value);
             }}
-            style={{ marginBottom: '10px' }}
+            style={{ marginBottom: '10px', height: 40, marginTop: 10 }}
           />
           {errors.OldPassword && (
             <p className={styles.errorText}>{errors.OldPassword}</p>
           )}
-          <p className={styles.resetPasswordTitle}>Password</p>
+          <label style={{ fontWeight: 'bold' }} htmlFor="date">
+            New Password
+          </label>{' '}
           <Input.Password
             placeholder="New Password"
             type="password"
@@ -155,12 +160,14 @@ const ResetPasswordCard: React.FC = () => {
               setErrors((prevErrors) => ({ ...prevErrors, NewPassword: '' }));
               setNewPassword(e.target.value);
             }}
-            style={{ marginBottom: '10px' }}
+            style={{ marginBottom: '10px', height: 40, marginTop: 10 }}
           />
           {errors.NewPassword && (
             <p className={styles.errorText}>{errors.NewPassword}</p>
           )}
-          <p className={styles.resetPasswordTitle}>Confirm Password</p>
+          <label style={{ fontWeight: 'bold' }} htmlFor="date">
+            Confirm Password
+          </label>{' '}
           <Input.Password
             placeholder="Confirm Password"
             type="password"
@@ -172,12 +179,26 @@ const ResetPasswordCard: React.FC = () => {
               }));
               setConfirmPassword(e.target.value);
             }}
-            style={{ marginBottom: '10px' }}
+            style={{ marginBottom: '10px', height: 40, marginTop: 10 }}
           />
           {errors.ConfirmPassword && (
             <p className={styles.errorText}>{errors.ConfirmPassword}</p>
           )}
-          <Button type='primary' style={{marginBottom: 20}} onClick={handleSubmit}>Submit</Button>
+          <Popconfirm
+            title="Are you sure you want to reset your password?"
+            onConfirm={handleSubmit}
+            onCancel={() => message.info('Password reset cancelled')}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="primary"
+              style={{ marginBottom: 20 }}
+              loading={loading}
+            >
+              Submit
+            </Button>
+          </Popconfirm>
         </Content>
       </Layout>
     </Content>

@@ -472,6 +472,7 @@ const Semester: React.FC = () => {
             setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
           }}
           dateFormat="dd-MM-yyyy"
+          onKeyDown={(e) => e.preventDefault()}
           className={styles.datePicker}
         />
         {errors.startDate && (
@@ -491,6 +492,7 @@ const Semester: React.FC = () => {
             setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
           }}
           dateFormat="dd-MM-yyyy"
+          onKeyDown={(e) => e.preventDefault()}
           className={styles.datePicker}
         />
         {errors.endDate && <p className={styles.errorText}>{errors.endDate}</p>}

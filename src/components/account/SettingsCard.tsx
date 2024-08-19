@@ -83,7 +83,7 @@ export default function SettingsCard(props: any) {
 
   //RETURN
   return (
-    <Card variant="outlined" sx={{ height: '100%', width: '100%' }}>
+    <Card variant="outlined" sx={{ height: '115%', width: '100%' }}>
       {/* TABS */}
       <br></br>
       <Tabs
