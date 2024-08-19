@@ -120,12 +120,18 @@ const getScheduleByID = async (
   }
 };
 
-const importSchedulesByImg = async (previewImgData: any) => {
+const importSchedulesByImg = async (previewImgData: any, token: string) => {
   try {
     const response = await axios.post(
       `${SCHEDULE_API}/import-schedules`,
       previewImgData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
     );
+
     console.log('response back in importSchedulesByImg', response);
     return response.data;
   } catch (error) {
