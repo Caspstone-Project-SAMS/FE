@@ -43,7 +43,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
   const [isUpdate, setIsUpdate] = useState(false);
 
   const radioGroupRef = useRef<HTMLDivElement>(null);
-  const [hasChange, setHasChange] = useState(false);
+  const [isManual, setIsManual] = useState(false);
 
 
   const toggleUpdateAttendance = () => {
@@ -123,6 +123,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
       };
     }
   }
+  const updateStatusManual = () => {
+    setUpdatedList(updatedList.map(item => ({
+      ...item,
+      attendanceStatus: item.attendanceStatus === 0 ? 2 : item.attendanceStatus
+    })));
+  }
 
   const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {
     console.log("check this event ", e);
@@ -153,30 +159,36 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
           studentID: studentID,
           scheduleID: Number(scheduleID),
           attendanceTime: currentTime,
-          attendanceStatus: attendanceStatus
+          attendanceStatus: attendanceStatus === 0 ? 2 : attendanceStatus
         }
       }
     }).filter(item => item !== undefined);
 
     const response = AttendanceService.updateListAttendance(fmtUpdatedList);
     response.then(data => {
+      setIsManual(true);
       setIsUpdate(false);
-      setStudentList(updatedList)
+      getScheduleDetail()
       toast.success('Update Attendance Successfully!')
     }).catch(err => {
       toast.error('Something went wrong, please try again later');
     })
   }
   const handleCancel = () => {
-    setIsUpdate(false)
+    setIsManual(false);
+    setIsUpdate(false);
     setUpdatedList(studentList);
   }
   const handleSearch = (value: string) => {
-    const filtered = studentList.filter((item) =>
-      item.studentCode!.toLowerCase().includes(value.toLowerCase()) ||
-      item.studentName!.toLowerCase().includes(value.toLowerCase())
-    );
-    setUpdatedList(filtered);
+    if (value.length === 0) {
+      setUpdatedList(studentList)
+    } else {
+      const filtered = studentList.filter((item) =>
+        item.studentCode!.toLowerCase().includes(value.toLowerCase()) ||
+        item.studentName!.toLowerCase().includes(value.toLowerCase())
+      );
+      setUpdatedList(filtered);
+    }
   };
 
   const columns: ColumnsType<Attendance> = [
@@ -285,6 +297,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
               name="radiogroup"
               onChange={e => handleRadioChange(e, record.studentCode!)}
               value={record.attendanceStatus ? record.attendanceStatus : 2}
+              // value={record.attendanceStatus && record.attendanceStatus}
               disabled={!isUpdate}
             // defaultValue={
             //   record.attendanceStatus !== 0 ? (
@@ -325,7 +338,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
     setPageSize(size);
   };
 
-  useEffect(() => {
+  const getScheduleDetail = () => {
     const response = AttendanceService.getAttendanceByScheduleID(scheduleID);
     setLoadingState(true);
 
@@ -339,6 +352,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
       setLoadingState(false)
       console.log(err);
     })
+  }
+
+  useEffect(() => {
+    getScheduleDetail()
   }, [])
 
   useEffect(() => {
@@ -352,34 +369,43 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
   }, [isOkOpen])
 
   useEffect(() => {
+    if (studentAttendedList.length > 0 && !isManual) {
+      const uniqueStudents = new Map();
+
+      studentAttendedList.map(item => {
+        for (let i = 0; i < studentList.length; i++) {
+          const student = studentList[i]
+          if (student.studentID && student.studentID === item) {
+            uniqueStudents.set(student.studentID, { ...student, attendanceStatus: 1 });
+          } else {
+            uniqueStudents.set(student.studentID, student);
+          }
+        }
+      })
+
+      const result = Array.from(uniqueStudents.values())
+      console.log("uniqueStudents", result);
+      if (result.length > 0) {
+        setStudentList(Array.from(uniqueStudents.values()));
+        setUpdatedList(Array.from(uniqueStudents.values()));
+        setIsManual(false);
+      }
+    }
+  }, [studentAttendedList])
+
+  useEffect(() => {
     console.log("Change of update list", updatedList);
     console.log("Change of student list", studentList);
   }, [updatedList, studentList])
 
-  useEffect(() => {
-    const sample: Attendance[] = []
-    const formatNew = studentAttendedList.map(item => {
-      for (let i = 0; i < studentList.length; i++) {
-        const student = studentList[i]
-        if (student.studentID === item) {
-          sample.push({ ...student, attendanceStatus: 1 })
-        } else {
-          sample.push(student)
-        }
-      }
-    })
-    console.log("On sample ", sample);
-    console.log("format new", formatNew);
-    if (sample.length > 0) {
-      setStudentList(sample);
-      setUpdatedList(sample);
-    }
-  }, [studentAttendedList])
-
   return (
     <Content className={styles.classDetailContent}>
       <AntHeader className={styles.classDetailHeader}>
-        <Typography.Title level={3} style={{ marginTop: 5 }}>
+        <Typography.Title level={3} style={{ marginTop: 5 }}
+          onClick={() => {
+            console.log("update list ", updatedList);
+          }}
+        >
           Student
         </Typography.Title>
         <div className={styles.studentTableCtn}>
@@ -401,7 +427,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
           />
           <Tooltip placement="top" title={'Update Attendance'}>
             <Button
-              onClick={() => setIsUpdate(true)}
+              onClick={() => {
+                setIsUpdate(true)
+                updateStatusManual();
+              }}
               type={isUpdate ? 'primary' : 'dashed'}
               shape="default"
               icon={<BiCalendarEdit />}

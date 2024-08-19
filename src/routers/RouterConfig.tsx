@@ -21,11 +21,13 @@ import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
 import SlotDetail from '../pages/admin/slot/SlotDetail';
 import AdminClassDetail from '../pages/admin/class/AdminClassDetail';
+import LecturerModule from '../pages/module/LecturerModule'
 import Module from '../pages/admin/module/Module';
 import ModuleDetail from '../pages/admin/module/ModuleDetail';
 import ScheduleImport from '../pages/schedule/ScheduleImport';
 import AccountTeacherDetail from '../pages/admin/account/accountteachers/AccountTeacherDetail';
 import ClassReport from '../pages/class/classReport/ClassReport';
+import LecturerModuleDetail from '../pages/module/LecturerModuleDetail';
 
 const lecture = [
   {
@@ -67,6 +69,14 @@ const lecture = [
   {
     path: '/class-report',
     element: <ClassReport />
+  },
+  {
+    path: '/module',
+    element: <LecturerModule />
+  },
+  {
+    path: '/module/module-detail',
+    element: <LecturerModuleDetail />
   },
   // {
   //   path: '/account/reset-password',

@@ -144,6 +144,11 @@ const Sidebar: React.FC = () => {
                   icon: <CiCalendar />,
                 },
                 {
+                  label: 'Module',
+                  key: '/module',
+                  icon: <MdViewModule />,
+                },
+                {
                   label: 'Account',
                   key: '/account',
                   icon: <MdOutlineManageAccounts />,

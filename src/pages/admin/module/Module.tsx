@@ -7,16 +7,15 @@ import { useNavigate } from 'react-router-dom';
 import type { Module, ModuleDetail } from '../../../models/module/Module';
 import { ModuleService } from '../../../hooks/Module';
 import { IoMdInformation } from 'react-icons/io';
-import SetUpWifi from '../../../components/wifi/SetUpWifi';
 import { CiSearch } from 'react-icons/ci';
 
 const { Header: AntHeader } = Layout;
 
 const Module: React.FC = () => {
   const [module, setModule] = useState<ModuleDetail[]>([]);
-    const [searchInput, setSearchInput] = useState('');
-    const [filteredModules, setFilteredModules] = useState<ModuleDetail[]>(module);
-    const [isUpdate, setIsUpdate] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [filteredModules, setFilteredModules] = useState<ModuleDetail[]>(module);
+  const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
   const handleRowClick = (moduleID: number) => {
