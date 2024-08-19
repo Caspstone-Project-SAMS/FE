@@ -5,10 +5,8 @@ import {
   Upload,
   message,
   Select,
-  Input,
   Image,
   Typography,
-  Tooltip,
   Spin,
   Checkbox,
 } from 'antd';
@@ -16,7 +14,6 @@ import styles from './ScheduleImport.module.less';
 import { Link } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
 import { CalendarService } from '../../hooks/Calendar';
-import { Semester } from '../../models/Class';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { ScheduleImageService } from '../../hooks/ScheduleImage';
@@ -29,12 +26,20 @@ import standbyImg from '../../assets/imgs/logo-removebg-preview.png'
 import { BiArrowBack } from "react-icons/bi";
 import { ScheduleImageResponse } from '../../models/schedule/ScheduleImageResponse';
 import MessageCard from '../../components/excel/messageCard/MessageCard';
+import { HelperService } from '../../hooks/helpers/helperFunc';
+import { Semester } from '../../models/calendar/Semester';
+import moment from 'moment';
 
 const { Text, Title } = Typography
 
 type Message = {
   message: string
   type: 'warning' | 'error' | 'success',
+}
+
+type Week = {
+  label: string,
+  value: string
 }
 
 const ScheduleImport: React.FC = () => {
@@ -45,6 +50,7 @@ const ScheduleImport: React.FC = () => {
 
   const [semester, setSemester] = useState<Semester[]>([]);
   const [semesterId, setSemesterId] = useState<number | null>(null);
+  const [semesterCode, setSemesterCode] = useState<string>('');
   const [RecommendationRate, setRecommendationRate] = useState(70);
   const [date, setDate] = useState<ScheduleDate[]>([]);
   const [slot, setSlot] = useState<ScheduleSlot[]>([]);
@@ -52,11 +58,21 @@ const ScheduleImport: React.FC = () => {
 
   const [isSubmitAble, setIsSubmitAble] = useState<boolean>(false);
   const [onShowResult, setOnShowResult] = useState<boolean>(false);
-  const [isImportEntireSemester, setIsImportEntireSemester] = useState<boolean>(false)
+  const [isImportForSemester, setIsImportForSemester] = useState<boolean>(false)
   const [resultImport, setResultImport] = useState<{ title: string, isSuccess: boolean }>({ title: '', isSuccess: false });
   const [errLogs, setErrLogs] = useState<Message[]>([]);
   const [warningLogs, setWarningLogs] = useState<Message[]>([]);
   const [successLogs, setSuccessLogs] = useState<Message[]>([]);
+
+  // const semesters = useSelector((state: RootState) => state.globalSemester);
+  const [weeks, setWeeks] = useState<Week[]>([]);
+  const [weekStart, setWeekStart] = useState<string>('');
+  const [weekEnd, setWeekEnd] = useState<string>('');
+  const [selectedSemester, setSelectedSemester] = useState<Semester>(
+    { endDate: '', semesterCode: '', semesterID: 0, semesterStatus: 0, startDate: '' }
+  );
+
+  // const [isImportForSemester, setIsImportForSemester] = useState<boolean>(false);
 
   const UserId = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id,
@@ -80,6 +96,10 @@ const ScheduleImport: React.FC = () => {
     setImageFile(null)
     setImagePreview('')
     //after submit to system
+    setSemesterId(null);
+    setSemesterCode('');
+    setWeekStart('');
+    setWeekEnd('');
     setOnShowResult(false);
     setSuccessLogs([]);
     setWarningLogs([]);
@@ -117,8 +137,15 @@ const ScheduleImport: React.FC = () => {
     }
   }
 
-  const getAllSmester = async () => {
+  const getAllSemester = async () => {
     const response = await CalendarService.getAllSemester();
+    if (response) {
+      response.forEach(item => {
+        if (item.semesterStatus === 2) {
+          setSelectedSemester(item);
+        }
+      })
+    }
     setSemester(response || []);
   };
 
@@ -138,6 +165,8 @@ const ScheduleImport: React.FC = () => {
 
       response.then(
         data => {
+          setSemesterCode(data.result.semesterCode);
+          setSemesterId(data.result.semesterId);
           setSchedule(data || undefined);
           setDate(data?.result.dates || []);
           setSlot(data?.result.slots || []);
@@ -155,10 +184,28 @@ const ScheduleImport: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (schedule && schedule.result) {
+    if (schedule && schedule.result && isImportForSemester) {
+      const isValid = HelperService.isStartWeekSooner(weekStart, weekEnd);
+      if (isValid) {
+        const startDate = moment(weekStart.split(' - ')[0], 'DD/MM', true).format('YYYY-DD-MM')
+        const endDate = moment(weekEnd.split(' - ')[1], 'DD/MM', true).format('YYYY-DD-MM')
+
+        if (startDate && endDate) {
+          const result = {
+            UserID: UserId,
+            StartDate: startDate,
+            EndDate: endDate,
+            ...schedule.result
+          }
+          const promise = await CalendarService.importSchedulesByImg(result);
+          handleResponseImportByImage(promise);
+        }
+      } else {
+        message.warning('Start week time can not further than end week!!!')
+      }
+    } else if (schedule && schedule.result) {
       const result = {
         UserID: UserId,
-        ApplyToSemester: isImportEntireSemester,
         ...schedule.result
       }
       const promise = await CalendarService.importSchedulesByImg(result);
@@ -185,9 +232,43 @@ const ScheduleImport: React.FC = () => {
   }
 
   useEffect(() => {
-    getAllSmester();
+    getAllSemester();
     setIsSubmitAble(false);
   }, [])
+  // After preview data, can select the day import then 
+  useEffect(() => {
+    console.log("SemesterID change ", semesterId);
+
+    if (semesterId !== null && semester.length > 0) {
+      let startDay = '';
+      let endDay = '';
+      semester.forEach(item => {
+        if (item.semesterID === semesterId) {
+          startDay = item.startDate;
+          endDay = item.endDate;
+        }
+      })
+      if (startDay && endDay) {
+        const weekArr = HelperService.getWeeks(startDay, endDay, 'YYYY-MM-DD', 'DD/MM', true)
+        if (weekArr) {
+          const fmtData = weekArr.map((item, i) => {
+            if (i === 0) {
+              setWeekStart(item);
+            }
+            if (i === weekArr.length - 1) {
+              setWeekEnd(item);
+            }
+            return { label: item, value: item }
+          })
+          setWeeks(fmtData);
+        }
+      }
+    }
+  }, [semesterId])
+
+  useEffect(() => {
+    console.log("chag ", weekStart, weekEnd);
+  }, [weekStart, weekEnd])
 
 
   return (
@@ -241,13 +322,38 @@ const ScheduleImport: React.FC = () => {
               </Upload>
               {
                 isSubmitAble && (
-                  <Checkbox
-                    checked={isImportEntireSemester}
-                    onChange={() => { setIsImportEntireSemester(!isImportEntireSemester) }}
-                    style={{ margin: '20px 0 10px' }}
-                  >
-                    <b>Import for ENTIRE Semester</b>
-                  </Checkbox>
+                  <>
+                    <Checkbox
+                      checked={isImportForSemester}
+                      onChange={() => { setIsImportForSemester(!isImportForSemester) }}
+                      style={{ margin: '20px 0 10px' }}
+                    >
+                      <b>Import for Semester {semesterCode}</b>
+                    </Checkbox>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                      <Select
+                        disabled={!isImportForSemester}
+                        showSearch
+                        placeholder="Start week"
+                        optionFilterProp="label"
+                        onChange={val => setWeekStart(val)}
+                        value={weekStart}
+                        options={weeks}
+                        style={{ minWidth: '8vw' }}
+                      />
+                      <div>TO</div>
+                      <Select
+                        disabled={!isImportForSemester}
+                        showSearch
+                        placeholder="Start week"
+                        optionFilterProp="label"
+                        onChange={val => setWeekEnd(val)}
+                        value={weekEnd}
+                        options={weeks}
+                        style={{ minWidth: '8vw' }}
+                      />
+                    </div>
+                  </>
                 )
               }
 

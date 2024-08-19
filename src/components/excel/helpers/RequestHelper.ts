@@ -149,8 +149,14 @@ const postExcelClass = async (
     });
 };
 
-const postExcelSchedule = async (scheduleList): Promise<Result> => {
-  const response = CalendarService.importExcelSchedule(scheduleList);
+const postExcelSchedule = async (
+  scheduleList,
+  semesterId: number,
+): Promise<Result> => {
+  const response = CalendarService.importExcelSchedule(
+    scheduleList,
+    semesterId,
+  );
   const result: Result = {
     successLogs: [],
     errorLogs: [],
