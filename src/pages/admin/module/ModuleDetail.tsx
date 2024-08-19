@@ -467,9 +467,11 @@ const ModuleDetail: React.FC = () => {
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
-                        <span className={styles.settingLabel}>
+                        <p className={styles.settingLabel}>
                           Duration Time
-                        </span>
+                        </p>
+                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+
                         <TimePicker
                           placeholder="Duration Time"
                           value={
@@ -485,7 +487,8 @@ const ModuleDetail: React.FC = () => {
                           }}
                           format="mm" // Display only minutes
                           className={styles.timePicker}
-                        />
+                        /><span> minutes</span>
+                        </div>
                         <p className={styles.suggestText}>
                           Set duration time for check attendance
                         </p>
@@ -543,10 +546,10 @@ const ModuleDetail: React.FC = () => {
                         <br />
                         <InputNumber
                           placeholder="Connection Sound Duration (ms)"
-                          value={ConnectionSoundDurationMs * 1000} // Convert seconds to milliseconds for display
+                          value={ConnectionSoundDurationMs} // Convert seconds to milliseconds for display
                           onChange={(value) => {
                             if (value !== null) {
-                              setConnectionSoundDurationMs(value / 1000); // Convert milliseconds back to seconds
+                              setConnectionSoundDurationMs(value); // Convert milliseconds back to seconds
                             }
                           }}
                           min={0}
@@ -583,10 +586,10 @@ const ModuleDetail: React.FC = () => {
                         <br />
                         <InputNumber
                           placeholder="Attendance Sound Duration (ms)"
-                          value={AttendanceSoundDurationMs * 1000} // Convert seconds to milliseconds for display
+                          value={AttendanceSoundDurationMs} // Convert seconds to milliseconds for display
                           onChange={(value) => {
                             if (value !== null) {
-                              setAttendanceSoundDurationMs(value / 1000); // Convert milliseconds back to seconds
+                              setAttendanceSoundDurationMs(value); // Convert milliseconds back to seconds
                             }
                           }}
                           min={0}
