@@ -77,6 +77,9 @@ const ScheduleImport: React.FC = () => {
   const UserId = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id,
   );
+  const userDetail = useSelector(
+    (state: RootState) => state.auth.userDetail
+  );
 
   const handleUploadChange = (info: any) => {
     if (info.file.status === 'done') {
@@ -187,8 +190,8 @@ const ScheduleImport: React.FC = () => {
     if (schedule && schedule.result && isImportForSemester) {
       const isValid = HelperService.isStartWeekSooner(weekStart, weekEnd);
       if (isValid) {
-        const startDate = moment(weekStart.split(' - ')[0], 'DD/MM', true).format('YYYY-DD-MM')
-        const endDate = moment(weekEnd.split(' - ')[1], 'DD/MM', true).format('YYYY-DD-MM')
+        const startDate = moment(weekStart.split(' - ')[0], 'DD/MM', true).format('YYYY-MM-DD')
+        const endDate = moment(weekEnd.split(' - ')[1], 'DD/MM', true).format('YYYY-MM-DD')
 
         if (startDate && endDate) {
           const result = {
@@ -197,8 +200,11 @@ const ScheduleImport: React.FC = () => {
             EndDate: endDate,
             ...schedule.result
           }
-          const promise = await CalendarService.importSchedulesByImg(result);
-          handleResponseImportByImage(promise);
+          //Bi loi khi het han token ----need fix
+          if (userDetail && userDetail.token) {
+            const promise = await CalendarService.importSchedulesByImg(result, userDetail.token);
+            handleResponseImportByImage(promise);
+          }
         }
       } else {
         message.warning('Start week time can not further than end week!!!')
@@ -208,8 +214,10 @@ const ScheduleImport: React.FC = () => {
         UserID: UserId,
         ...schedule.result
       }
-      const promise = await CalendarService.importSchedulesByImg(result);
-      handleResponseImportByImage(promise);
+      if (userDetail && userDetail.token) {
+        const promise = await CalendarService.importSchedulesByImg(result, userDetail.token);
+        handleResponseImportByImage(promise);
+      }
     }
   }
 
