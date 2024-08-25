@@ -77,7 +77,7 @@ export default function New() {
     semesterId?: string;
     roomId?: string;
     subjectId?: string;
-    lecturerId?: string;
+    // lecturerId?: string;
   }>({});
   const handleRowClick = (classID: number) => {
     navigate(`/class/detail`, {
@@ -233,7 +233,7 @@ export default function New() {
     if (SemesterId === null) newErrors.semesterId = 'Semester is required';
     if (RoomId === null) newErrors.roomId = 'Room is required';
     if (SubjectId === null) newErrors.subjectId = 'Subject is required';
-    if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
+    // if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -539,21 +539,42 @@ export default function New() {
           </Button>,
         ]}
       >
-        <p className={styles.createClassTitle}>Class Code: {ClassCode}</p>
+        <p
+          className={styles.createClassTitle}
+          style={{ fontSize: '1rem', margin: '5px 0px 10px' }}
+        >
+          Class Code: {ClassCode}
+        </p>
         <p className={styles.createClassTitle}>Class Name</p>
         <Input
           placeholder="Class Name"
-          // value={SubjectCode ? `${ClassCode}_${SubjectCode}` : ClassCode}
           value={ClassName}
-          onChange={(e) => setClassName(e.target.value)}
+          onChange={(e) => {
+            setErrors((prevErrors) => ({ ...prevErrors, className: '' }));
+            setClassName(e.target.value);
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.className && (
+          <p className={styles.errorText}>{errors.className}</p>
+        )}
+
         <p className={styles.createClassTitle}>Semester Code</p>
         <Select
           placeholder="Semester Code"
           value={SemesterId}
-          onChange={(value) => setSemesterId(value)}
+          onChange={(value) => {
+            setErrors((prevErrors) => ({ ...prevErrors, semesterId: '' }));
+            setSemesterId(value);
+          }}
+          showSearch
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            return children
+              .toLowerCase()
+              .includes(input.toLowerCase());
+          }}
         >
           {semester.map((sem) => (
             <Select.Option key={sem.semesterID} value={sem.semesterID}>
@@ -561,12 +582,26 @@ export default function New() {
             </Select.Option>
           ))}
         </Select>
+        {errors.semesterId && (
+          <p className={styles.errorText}>{errors.semesterId}</p>
+        )}
+
         <p className={styles.createClassTitle}>Room Name</p>
         <Select
           placeholder="Room Name"
           value={RoomId}
-          onChange={(value) => setRoomId(value)}
+          onChange={(value) => {
+            setErrors((prevErrors) => ({ ...prevErrors, roomId: '' }));
+            setRoomId(value);
+          }}
+          showSearch
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            return children
+              .toLowerCase()
+              .includes(input.toLowerCase());
+          }}
         >
           {room.map((room) => (
             <Select.Option key={room.roomID} value={room.roomID}>
@@ -574,12 +609,15 @@ export default function New() {
             </Select.Option>
           ))}
         </Select>
+        {errors.roomId && <p className={styles.errorText}>{errors.roomId}</p>}
+
         <p className={styles.createClassTitle}>Subject Code</p>
         <Select
           placeholder="Subject Code"
           value={SubjectId}
           onChange={(value) => {
             setSubjectId(value);
+            setErrors((prevErrors) => ({ ...prevErrors, subjectId: '' }));
             setSubjectCode(
               subject.find((sub) => sub.subjectID === value)?.subjectCode || '',
             );
@@ -592,6 +630,10 @@ export default function New() {
             </Select.Option>
           ))}
         </Select>
+        {errors.subjectId && (
+          <p className={styles.errorText}>{errors.subjectId}</p>
+        )}
+
         {/* <p className={styles.createClassTitle}>Lecturer</p>
                 <Select
                     placeholder="Lecturer"
