@@ -4,13 +4,13 @@ import { SubjectMessage } from '../../models/subject/Subject';
 import { AxiosError } from 'axios';
 
 interface SubjectState {
-  message: string | undefined;
+  message?: SubjectMessage | string;
   subjectDetail?: SubjectMessage;
   loading: boolean;
 }
 
 const initialState: SubjectState = {
-  message: '',
+  message: undefined,
   subjectDetail: undefined,
   loading: false,
 };
@@ -90,6 +90,37 @@ const updateSubject = createAsyncThunk(
   },
 );
 
+const deleteSubject = createAsyncThunk(
+  'subject/delete',
+  async (
+    arg: {
+      subjectID: number;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { subjectID } = arg;
+      const deleteSubjectResponse = await SubjectService.deleteSubject(
+        subjectID,
+      );
+      return deleteSubjectResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in delete subject', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
 const SubjectSlice = createSlice({
   name: 'subject',
   initialState,
@@ -146,9 +177,32 @@ const SubjectSlice = createSlice({
         message: undefined,
       };
     });
+    builder.addCase(deleteSubject.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(deleteSubject.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        subjectDetail: undefined,
+        message: payload,
+      };
+    });
+    builder.addCase(deleteSubject.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        subjectDetail: { data: action.payload || 'Failed to delete subject' },
+        message: undefined,
+      };
+    });
   },
 });
 
 export const { clearSubjectMessages } = SubjectSlice.actions;
-export { createSubject, updateSubject };
+export { createSubject, updateSubject, deleteSubject };
 export default SubjectSlice.reducer;

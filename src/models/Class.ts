@@ -17,15 +17,16 @@ export interface ExcelClassList {
 export interface ClassMessage {
   data: {
     data: {
-      data: {
-        isSuccess?: boolean;
-        title?: string;
-        errors?: string[];
-        result?: null;
-      };
-      status: boolean;
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
     };
+    status: boolean;
   };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }
 
 export interface ClassFail {
@@ -116,7 +117,9 @@ export interface Schedule {
   date: string;
   dateOfWeek: number;
   scheduleStatus: number;
+  attended: number;
   slot: Slot;
+  room: RoomSchedule;
 }
 
 export interface Slot {
@@ -126,4 +129,11 @@ export interface Slot {
   slotNumber: number;
   startTime: string;
   status: boolean;
+}
+
+export interface RoomSchedule {
+  roomID: number;
+  roomName: string;
+  roomDescription: string;
+  roomStatus: boolean;
 }

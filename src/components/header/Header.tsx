@@ -38,7 +38,15 @@ const ColorList = [
 
 type FilterNotiFication = 'all' | 'today' | 'past';
 
-const Headers: React.FC = () => {
+interface HeadersProps {
+  handleNavigateScript: () => void;
+  handleNavigateHome: () => void;
+}
+
+const Headers: React.FC<HeadersProps> = ({
+  handleNavigateScript,
+  handleNavigateHome,
+}) => {
   const userID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id,
   );
@@ -125,9 +133,20 @@ const Headers: React.FC = () => {
       key: '1',
       style: { padding: 0 },
       label: (
-        <Button type="text" onClick={handleLogout}>
-          Log out
-        </Button>
+        <>
+          <Button type="text" onClick={handleNavigateHome}>
+            Home
+          </Button>
+          <br />
+
+          <Button type="text" onClick={handleNavigateScript}>
+            Script
+          </Button>
+          <br />
+          <Button type="text" onClick={handleLogout}>
+            Log out
+          </Button>
+        </>
       ),
     },
   ];
@@ -185,7 +204,15 @@ const Headers: React.FC = () => {
             notification.map((item, index) =>
               item ? (
                 <React.Fragment key={index}>
-                  <Menu.Item key={index}>
+                  <Menu.Item
+                    key={index}
+                    className={`${styles.notiItemCtn} ${
+                      item.read
+                        ? styles.readNotification
+                        : styles.unreadNotification
+                    }`}
+                    style={{marginBottom:5}}
+                  >
                     <div className={styles.notiItemCtn}>
                       <div className={styles.imageCtn}>
                         <Avatar
@@ -211,8 +238,8 @@ const Headers: React.FC = () => {
                                 : item.notificationType.typeName === 'Warning'
                                 ? 'orange'
                                 : 'inherit', // Fallback color
-                                display: 'block', 
-                                whiteSpace: 'pre-wrap', 
+                            display: 'block',
+                            whiteSpace: 'pre-wrap',
                           }}
                         >
                           {item.description}
@@ -263,7 +290,7 @@ const Headers: React.FC = () => {
           placement="bottomRight"
           trigger={['click']}
         >
-          <Badge dot>
+          <Badge count={notification.length}>
             <Button shape="circle" icon={<PiBellBold />} size="large" />
           </Badge>
         </Dropdown>

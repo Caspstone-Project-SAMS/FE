@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ClassDetails } from '../../models/Class';
 import { Semester } from '../../models/calendar/Semester';
 import { Room } from '../../models/room/Room';
@@ -22,7 +22,7 @@ import {
   Table,
   Tag,
 } from 'antd';
-import { clearClassMessages, createClass } from '../../redux/slice/Class';
+import { clearClassMessages, createClass, deleteClass, updateClass } from '../../redux/slice/Class';
 import { CalendarService } from '../../hooks/Calendar';
 import { RoomService } from '../../hooks/Room';
 import { SubjectService } from '../../hooks/Subject';
@@ -30,10 +30,11 @@ import { EmployeeService } from '../../hooks/Employee';
 import { Content } from 'antd/es/layout/layout';
 import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 import Excel from '../../components/excel/Excel';
-import { CiSearch } from 'react-icons/ci';
+import { CiEdit, CiSearch } from 'react-icons/ci';
 import { PlusOutlined } from '@ant-design/icons';
 import styles from './Class.module.less';
 import { IoMdInformation } from 'react-icons/io';
+import { MdDeleteForever } from 'react-icons/md';
 
 const { Header: AntHeader } = Layout;
 
@@ -48,7 +49,6 @@ export default function New() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCheck, setIsCheck] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [reload, setReload] = useState(0);
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const dispatch = useDispatch();
@@ -61,84 +61,121 @@ export default function New() {
   const [RoomId, setRoomId] = useState<number | null>(null);
   const [SubjectId, setSubjectId] = useState<number | null>(null);
   const [LecturerID, setLecturerID] = useState<string | null>(null);
+  const [classID, setClassID] = useState(0);
   // const [CreatedBy, setCreatedBy] = useState('');
 
   const lectureDetail = useSelector(
     (state: RootState) => state.auth.userDetail?.result,
   );
-  const failMessage = useSelector((state: RootState) => state.class.message);
+  const failMessage = useSelector((state: RootState) => state.class.classDetail);
   const successMessage = useSelector(
-    (state: RootState) => state.class.classDetail?.title,
+    (state: RootState) => state.class.message,
   );
 
-  console.log('ssdsdc', successMessage);
-
+  const [errors, setErrors] = useState<{
+    className?: string;
+    semesterId?: string;
+    roomId?: string;
+    subjectId?: string;
+    lecturerId?: string;
+  }>({});
   const handleRowClick = (classID: number) => {
     navigate(`/class/detail`, {
       state: { classID: classID },
     });
   };
 
-  useEffect(() => {
-    if (lectureDetail?.id) {
-      const id = lectureDetail.id;
-      const response = ClassService.getByClassLecturer(id);
+  // useEffect(() => {
+  //   if (lectureDetail?.id) {
+  //     const id = lectureDetail.id;
+  //     const response = ClassService.getByClassLecturer(id);
 
-      response
-        .then((data) => {
-          setClasses(data?.result || []);
-          // setFilteredRoom(data || []);
-        })
-        .catch((error) => {
-          console.log('get class error: ', error);
-        });
+  //     response
+  //       .then((data) => {
+  //         setClasses(data?.result || []);
+  //         // setFilteredRoom(data || []);
+  //       })
+  //       .catch((error) => {
+  //         console.log('get class error: ', error);
+  //       });
+  //   }
+  // }, [reload]);
+
+  const fetchClasses = useCallback(async () => {
+    try {
+      if (lectureDetail?.id) {
+        const id = lectureDetail.id;
+        const data = await ClassService.getByClassLecturer(id);
+        setClasses(data?.result || []);
+      }
+
+    } catch (error) {
+      console.log('get class error: ', error);
     }
-  }, [reload]);
+  }, []);
+
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
+
+  const handleSearchClass = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+
+      const normalizeString = (str: string) => {
+        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+
+      const normalizedValue = normalizeString(value).toLowerCase();
+
+      const filtered = classes.filter((item) => {
+        const normalizedClassCode = item.classCode
+          ? normalizeString(item.classCode).toLowerCase()
+          : '';
+        const normalizedLecturerName = item.lecturer.displayName
+          ? normalizeString(item.lecturer.displayName).toLowerCase()
+          : '';
+        const normalizedSemesterCode = item.semester.semesterCode
+          ? normalizeString(item.semester.semesterCode).toLowerCase()
+          : '';
+
+        return (
+          normalizedClassCode.includes(normalizedValue) ||
+          normalizedLecturerName.includes(normalizedValue) ||
+          normalizedSemesterCode.includes(normalizedValue)
+        );
+      });
+
+      setFilteredClass(filtered);
+      setIsUpdate(true);
+    },
+    [classes],
+  );
+
+  useEffect(() => {
+    if (searchInput !== '' && classes.length > 0) {
+      handleSearchClass(searchInput);
+    } else if (searchInput === '') {
+      setIsUpdate(false);
+    }
+  }, [classes, searchInput, handleSearchClass]);
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
+      if (successMessage === 'Update class successfully' || successMessage === 'Create new class successfully') {
+        message.success(successMessage);
+      } else {
+        message.success(successMessage.title);
+      }
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearClassMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.title}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearClassMessages());
     }
   }, [successMessage, failMessage, dispatch]);
-
-  const handleSearchClass = (value: string) => {
-    setSearchInput(value);
-
-    const normalizeString = (str: string) => {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    };
-
-    const normalizedValue = normalizeString(value).toLowerCase();
-
-    const filtered = classes.filter((item) => {
-      const normalizedClassCode = item.classCode
-        ? normalizeString(item.classCode).toLowerCase()
-        : '';
-      const normalizedLecturerName = item.lecturer.displayName
-        ? normalizeString(item.lecturer.displayName).toLowerCase()
-        : '';
-      const normalizedSemesterCode = item.semester.semesterCode
-        ? normalizeString(item.semester.semesterCode).toLowerCase()
-        : '';
-
-      return (
-        normalizedClassCode.includes(normalizedValue) ||
-        normalizedLecturerName.includes(normalizedValue) ||
-        normalizedSemesterCode.includes(normalizedValue)
-      );
-    });
-
-    setFilteredClass(filtered);
-    setIsUpdate(true);
-  };
 
   const showModalCreate = () => {
     getAllSmester();
@@ -146,6 +183,30 @@ export default function New() {
     getAllSubject();
     getAllLecturer();
     setIsCheck(false);
+    setIsModalVisible(true);
+  };
+
+  const showModalUpdate = (item?: ClassDetails) => {
+    setIsCheck(true);
+    getAllSmester();
+    getAllRoom();
+    getAllSubject();
+    getAllLecturer();
+    if (item) {
+      const classCodeParts = item.classCode.split(/[-_]/);
+      const classCodePart1 = classCodeParts[0] || '';
+      const classCodePart2 = classCodeParts[1] || '';
+      setClassID(item.classID);
+      setRoomId(item.room.roomID!);
+      setSubjectId(item.subject.subjectID!);
+      setClassName(classCodePart1);
+      // setClassCode(classCodePart2);
+      setSubjectCode(classCodePart2);
+      setSemesterId(item.semester.semesterID!);
+      setLecturerID(item.lecturer.id);
+    } else {
+      resetModalFields();
+    }
     setIsModalVisible(true);
   };
 
@@ -163,11 +224,41 @@ export default function New() {
     setSubjectId(null);
     setLecturerID(null);
     setIsCheck(false);
+    setErrors({});
   };
 
-  const handleUpdate = async () => { };
+  const validateFields = () => {
+    const newErrors: any = {};
+    if (!ClassName) newErrors.className = 'Class Name is required';
+    if (SemesterId === null) newErrors.semesterId = 'Semester is required';
+    if (RoomId === null) newErrors.roomId = 'Room is required';
+    if (SubjectId === null) newErrors.subjectId = 'Subject is required';
+    if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
+  const handleUpdate = async () => {
+    if (!validateFields()) return;
+
+    setLoading(true);
+    await updateExistClass(
+      classID ?? 0,
+      ClassCode,
+      SemesterId ?? 0,
+      RoomId ?? 0,
+      SubjectId ?? 0,
+      // LecturerID ?? '',
+    );
+    setLoading(false);
+    setIsModalVisible(false);
+    resetModalFields();
+    fetchClasses();
+  };
   const handleCreate = async () => {
+    console.log('create')
+    if (!validateFields()) return;
+
     setLoading(true);
     await createNewClass(
       ClassCode,
@@ -175,12 +266,11 @@ export default function New() {
       RoomId ?? 0,
       SubjectId ?? 0,
       // LecturerID ?? '',
-      // CreatedBy,
     );
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchClasses();
   };
 
   const createNewClass = async (
@@ -201,6 +291,26 @@ export default function New() {
     };
     await dispatch(createClass(arg) as any);
     setIsCheck(false);
+  };
+
+  const updateExistClass = async (
+    ClassID: number,
+    ClassCode: string,
+    SemesterId: number,
+    RoomId: number,
+    SubjectId: number,
+    // LecturerID: string,
+  ) => {
+    const arg = {
+      ClassID: ClassID,
+      ClassCode: ClassCode,
+      SemesterId: SemesterId,
+      RoomId: RoomId,
+      SubjectId: SubjectId,
+      LecturerID: lectureDetail?.id,
+    };
+    await dispatch(updateClass(arg) as any);
+    // setIsCheck(false);
   };
 
   const getAllSmester = async () => {
@@ -236,24 +346,36 @@ export default function New() {
     },
     {
       key: '3',
-      title: 'Lecturer',
-      dataIndex: 'lecturer',
+      title: 'Room',
+      dataIndex: 'room',
     },
     {
       key: '4',
-      title: 'status',
-      dataIndex: 'classStatus',
-      render: (classStatus: boolean) => (
-        <Tag
-          color={classStatus ? 'green' : 'red'}
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {classStatus ? 'active' : 'inactive'}
-        </Tag>
-      ),
+      title: 'Subject',
+      dataIndex: 'subject',
     },
     {
       key: '5',
+      title: 'status',
+      dataIndex: 'classStatus',
+      render: (classStatus: boolean) => (
+        <div>
+          <Tag
+            color={classStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {classStatus ? 'active' : 'inactive'}
+          </Tag>
+        </div>
+      ),
+    },
+    {
+      key: '6',
+      title: 'Action',
+      dataIndex: 'action',
+    },
+    {
+      key: '7',
       title: 'Info',
       dataIndex: 'info',
       render: (classID: number) => (
@@ -288,7 +410,17 @@ export default function New() {
     }
   }, [ClassName, SubjectCode]);
 
-  console.log('code', ClassCode);
+  const deleteSpecificClass = async (classID: number) => {
+    Modal.confirm({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this class?',
+      onOk: async () => {
+        const arg = { ClassID: classID };
+        await dispatch(deleteClass(arg) as any);
+        fetchClasses();
+      },
+    });
+  };
 
   return (
     <Content className={styles.accountClassContent}>
@@ -315,6 +447,15 @@ export default function New() {
                   onChange={(e) => handleSearchClass(e.target.value)}
                 ></Input>
               </Col>
+              <Col>
+                <Button
+                  onClick={showModalCreate}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
+                  Add New
+                </Button>
+              </Col>
               {
                 lectureDetail?.role.name === 'Admin' && (
                   <Col>
@@ -339,8 +480,34 @@ export default function New() {
             key: index,
             classcode: item.classCode,
             semestercode: item.semester.semesterCode,
-            lecturer: item.lecturer.displayName,
+            room: item.room.roomName,
+            subject: item.subject.subjectName,
             classStatus: item.classStatus,
+            action: (
+              <div>
+                <Button
+                  shape="circle"
+                  style={{ border: 'none', backgroundColor: 'white' }}
+                >
+                  <CiEdit
+                    onClick={() => {
+                      setIsCheck(true);
+                      showModalUpdate(item);
+                    }}
+                    size={20}
+                    style={{ color: 'blue' }}
+                  />
+                </Button>
+
+                <Button
+                  shape="circle"
+                  style={{ border: 'none', backgroundColor: 'white' }}
+                  onClick={() => deleteSpecificClass(item.classID!)}
+                >
+                  <MdDeleteForever size={20} style={{ color: 'red' }} />
+                </Button>
+              </div>
+            ),
             info: item.classID,
             ID: item.classID,
           }),

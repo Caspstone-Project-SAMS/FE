@@ -48,12 +48,12 @@ const createSemester = async (
         },
       },
     );
-    console.log(response.data);
+    console.log('sad', response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -81,12 +81,12 @@ const updateSemester = async (
         },
       },
     );
-    console.log(response.data);
+    console.log('sad', response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -97,9 +97,12 @@ const deleteSemester = async (semesterID: number) => {
     const response = await axios.delete(SEMESTER_API + '/' + semesterID);
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on delete Semester: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response.data)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 

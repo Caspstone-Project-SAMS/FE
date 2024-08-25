@@ -39,7 +39,7 @@ const createRoom = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log("abc", error.message)
-      throw new AxiosError(error.response)
+      throw new AxiosError(error.response.data)
     }
     return isRejectedWithValue(error.message)
   }
@@ -72,7 +72,7 @@ const updateRoom = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log("abc", error.message)
-      throw new AxiosError(error.response)
+      throw new AxiosError(error.response.data)
     }
     return isRejectedWithValue(error.message)
   }
@@ -83,9 +83,12 @@ const deleteRoom = async (roomID: number) => {
     const response = await axios.delete(ROOM_API + '/' + roomID);
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on delete Room: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response.data)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 

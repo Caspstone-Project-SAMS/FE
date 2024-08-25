@@ -66,9 +66,9 @@ const AccountStudents: React.FC = () => {
     email: '',
   });
 
-  const failMessage = useSelector((state: RootState) => state.student.message);
+  const failMessage = useSelector((state: RootState) => state.student.studentDetail);
   const successMessage = useSelector(
-    (state: RootState) => state.student.studentDetail?.title,
+    (state: RootState) => state.student.message,
   );
 
   const handleRowClick = (studentID: string) => {
@@ -163,17 +163,22 @@ const AccountStudents: React.FC = () => {
         console.log('get student error: ', error);
       });
   }, [reload]);
-
+console.log('sucesss', successMessage)
+console.log('fail', failMessage)
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
+      if (successMessage === 'Update student successfully' || successMessage === 'Create new student successfully') {
+        message.success(successMessage);
+      } else {
+        message.success(successMessage.title);
+      }
       setReload((prevReload) => prevReload + 1);
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearStudentMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearStudentMessages());
     }
   }, [successMessage, failMessage, dispatch]);

@@ -370,6 +370,8 @@ const applySettingModule = async (
   token: string,
 ) => {
   try {
+    console.log('ModuleID', ModuleID);
+    console.log('Mode', Mode);
     const response = await axios.post(
       MODULE_API + '/Activate',
       {

@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Class, ClassFail } from '../../models/Class';
+import { Class, ClassFail, ClassMessage } from '../../models/Class';
 import { ClassService } from '../../hooks/Class';
 import { AxiosError } from 'axios';
 import { message } from 'antd';
 
 interface ClassState {
-  message?: ClassFail;
-  classDetail?: Class;
+  message?: ClassMessage | string;
+  classDetail?: ClassMessage;
   loading: boolean;
 }
 
@@ -68,7 +68,7 @@ const updateClass = createAsyncThunk(
   'class/update',
   async (
     arg: {
-      ClassID: number
+      ClassID: number;
       ClassCode: string;
       SemesterId: number;
       RoomId: number;
@@ -115,6 +115,34 @@ const updateClass = createAsyncThunk(
   },
 );
 
+const deleteClass = createAsyncThunk(
+  'class/delete',
+  async (
+    arg: {
+      ClassID: number;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { ClassID } = arg;
+      const deleteClassResponse = await ClassService.deleteClass(ClassID);
+      return deleteClassResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in delete class', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
 
 const ClassSlice = createSlice({
   name: 'class',
@@ -138,8 +166,8 @@ const ClassSlice = createSlice({
       return {
         ...state,
         loading: false,
-        classDetail: payload,
-        message: undefined,
+        classDetail: undefined,
+        message: payload,
       };
     });
     builder.addCase(createClass.rejected, (state, action) => {
@@ -148,8 +176,8 @@ const ClassSlice = createSlice({
       return {
         ...state,
         loading: false,
-        classDetail: undefined,
-        message: { data: action.payload || 'Failed to create class' },
+        classDetail: { data: action.payload || 'Failed to create class' },
+        message: undefined,
       };
     });
     builder.addCase(updateClass.pending, (state) => {
@@ -164,8 +192,8 @@ const ClassSlice = createSlice({
       return {
         ...state,
         loading: false,
-        classDetail: payload,
-        message: undefined,
+        classDetail: undefined,
+        message: payload,
       };
     });
     builder.addCase(updateClass.rejected, (state, action) => {
@@ -174,13 +202,36 @@ const ClassSlice = createSlice({
       return {
         ...state,
         loading: false,
+        classDetail: { data: action.payload || 'Failed to update class' },
+        message: undefined,
+      };
+    });
+    builder.addCase(deleteClass.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(deleteClass.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
         classDetail: undefined,
-        message: { data: action.payload || 'Failed to update class' },
+        message: payload,
+      };
+    });
+    builder.addCase(deleteClass.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        classDetail: { data: action.payload || 'Failed to delete class' },
+        message: undefined,
       };
     });
   },
 });
 
 export const { clearClassMessages } = ClassSlice.actions;
-export { createClass, updateClass };
+export { createClass, updateClass, deleteClass };
 export default ClassSlice.reducer;

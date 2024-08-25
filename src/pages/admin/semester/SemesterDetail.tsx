@@ -38,7 +38,7 @@ const SemesterDetail: React.FC = () => {
       value: semester?.result.semesterStatus ===1 ? (
         <Tag color="gray">Not Yet</Tag>
       ) : semester?.result.semesterStatus === 2 ? (
-        <Tag color="blue">Ongoing</Tag>
+        <Tag color="blue">On-going</Tag>
       ) : semester?.result.semesterStatus === 3 ? (
         <Tag color="green">Finished</Tag>
       ) : 'Unknown',

@@ -219,43 +219,43 @@ const ClassDetails: React.FC = () => {
         //   break;
         // }
         case 'ModuleConnected': {
-          // console.log('c', moduleDetail);
-          // const data = message.Data;
-          // const moduleId = data.ModuleId;
-          // modifyModuleConnection(moduleId, 1);
-          // if (moduleID === moduleId) {
-          //   const specificModule = moduleDetail.find(
-          //     (module) => module.moduleID === moduleId,
-          //   );
-          //   autoConnectModule().then(() => {
-          //     setModuleByID(specificModule as ModuleDetail | undefined);
-          //     console.log('run');
-          //   }).catch((error) => {
+          console.log('c', moduleDetail);
+          const data = message.Data;
+          const moduleId = data.ModuleId;
+          modifyModuleConnection(moduleId, 1);
+          if (moduleID === moduleId) {
+            const specificModule = moduleDetail.find(
+              (module) => module.moduleID === moduleId,
+            );
+            // autoConnectModule().then(() => {
+              setModuleByID(specificModule as ModuleDetail | undefined);
+            //   console.log('run');
+            // }).catch((error) => {
 
-          //     console.log('Error in autoConnectModule:', error);
-          //   });
-          // }
-          // setModuleDetail([...moduleDetail]);
+            //   console.log('Error in autoConnectModule:', error);
+            // });
+          }
+          setModuleDetail([...moduleDetail]);
 
           break;
         }
         case 'ModuleLostConnected':
           {
-            // const data = message.Data;
-            // const moduleId = data.ModuleId;
-            // modifyModuleConnection(moduleId, 2);
-            // if (moduleID === moduleId) {
-            //   const specificModule = moduleDetail.find(
-            //     (module) => module.moduleID === moduleId,
-            //   );
-            //   autoConnectModule().then(() => {
-            //     setModuleByID(specificModule as ModuleDetail | undefined);
-            //     console.log('run');
-            //   }).catch((error) => {
-            //     console.log('Error in autoConnectModule:', error);
-            //   });
-            // }
-            // setModuleDetail([...moduleDetail]);
+            const data = message.Data;
+            const moduleId = data.ModuleId;
+            modifyModuleConnection(moduleId, 2);
+            if (moduleID === moduleId) {
+              const specificModule = moduleDetail.find(
+                (module) => module.moduleID === moduleId,
+              );
+              // autoConnectModule().then(() => {
+                setModuleByID(specificModule as ModuleDetail | undefined);
+              //   console.log('run');
+              // }).catch((error) => {
+              //   console.log('Error in autoConnectModule:', error);
+              // });
+            }
+            setModuleDetail([...moduleDetail]);
           }
           break;
         case 'PreparationProgress':
@@ -306,7 +306,7 @@ const ClassDetails: React.FC = () => {
     moduleDetail,
     modifyModuleConnection,
     sessionID,
-    autoConnectModule,
+    // autoConnectModule,
     moduleID,
   ]);
 

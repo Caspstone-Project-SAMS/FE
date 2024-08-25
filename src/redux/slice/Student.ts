@@ -4,8 +4,16 @@ import { StudentFail } from '../../models/student/Student';
 import { AxiosError } from 'axios';
 import { CalendarService } from '../../hooks/Calendar';
 
+interface StudentList {
+  StudentCode: string;
+  ClassCode: string;
+}
+
+interface StudentIDs {
+  studentID: string;
+}
 interface StudentState {
-  message?: StudentFail;
+  message?: StudentFail | string;
   studentDetail?: StudentFail;
   loading: boolean;
 }
@@ -56,22 +64,55 @@ const addStudentToClasses = createAsyncThunk(
   async (
     arg: {
       semesterId: number;
-      StudentCode: string;
-      ClassCode: string;
+      students: StudentList[];
     },
     { rejectWithValue },
   ) => {
     try {
-      const { semesterId, StudentCode, ClassCode } = arg;
+      const { semesterId, students } = arg;
       const addStudentResponse = await StudentService.addStudentToClass(
         semesterId,
-        StudentCode,
-        ClassCode,
+        students,
       );
       return addStudentResponse;
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error('Error in add student to class', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
+const deleteStudentOfClasses = createAsyncThunk(
+  'student/delete',
+  async (
+    arg: {
+      classID: number;
+      students: StudentIDs[];
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { classID, students } = arg;
+      // console.log('class', classID);
+      // console.log('studnet', students);
+      const deleteStudentResponse = await StudentService.deleteStudentOfClass(
+        classID,
+        students,
+      );
+      return deleteStudentResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in delete student of class', {
           data: error.message,
         });
         // message.error(error.message.data.title);
@@ -98,15 +139,85 @@ const addScheduleToClasses = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      
       const { Date, SlotId, ClassId, RoomId } = arg;
       const addScheduleResponse = await CalendarService.addScheduleToClass(
-        Date, SlotId, ClassId, RoomId
+        Date,
+        SlotId,
+        ClassId,
+        RoomId,
       );
       return addScheduleResponse;
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error('Error in add schedule to class', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
+const updateScheduleOfClasses = createAsyncThunk(
+  'schedule/update',
+  async (
+    arg: {
+      scheduleID: number;
+      Date: string;
+      SlotId: number;
+      RoomId: number | null;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { scheduleID, Date, SlotId, RoomId } = arg;
+      const updateScheduleResponse =
+        await CalendarService.updateScheduleOfClass(
+          scheduleID,
+          Date,
+          SlotId,
+          RoomId,
+        );
+      return updateScheduleResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in update schedule of class', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
+const deleteScheduleOfClasses = createAsyncThunk(
+  'schedule/delete',
+  async (
+    arg: {
+      scheduleID: number;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { scheduleID } = arg;
+      const deleteScheduleResponse =
+        await CalendarService.deleteScheduleOfClass(scheduleID);
+      return deleteScheduleResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in delete schedule of class', {
           data: error.message,
         });
         // message.error(error.message.data.title);
@@ -142,16 +253,16 @@ const StudentSlice = createSlice({
       return {
         ...state,
         loading: false,
-        studentDetail: payload,
-        message: undefined,
+        studentDetail: undefined,
+        message: payload,
       };
     });
     builder.addCase(createStudent.rejected, (state, action) => {
       return {
         ...state,
         loading: false,
-        studentDetail: undefined,
-        message: { data: action.payload || 'Failed to create student' },
+        studentDetail: { data: action.payload || 'Failed to create student' },
+        message: undefined,
       };
     });
     builder.addCase(addStudentToClasses.pending, (state) => {
@@ -165,16 +276,18 @@ const StudentSlice = createSlice({
       return {
         ...state,
         loading: false,
-        studentDetail: payload,
-        message: undefined,
+        studentDetail: undefined,
+        message: payload,
       };
     });
     builder.addCase(addStudentToClasses.rejected, (state, action) => {
       return {
         ...state,
         loading: false,
-        studentDetail: undefined,
-        message: { data: action.payload || 'Failed to add student to class' },
+        studentDetail: {
+          data: action.payload || 'Failed to add student to class',
+        },
+        message: undefined,
       };
     });
     builder.addCase(addScheduleToClasses.pending, (state) => {
@@ -188,21 +301,105 @@ const StudentSlice = createSlice({
       return {
         ...state,
         loading: false,
-        studentDetail: payload,
-        message: undefined,
+        studentDetail: undefined,
+        message: payload,
       };
     });
     builder.addCase(addScheduleToClasses.rejected, (state, action) => {
       return {
         ...state,
         loading: false,
+        studentDetail: {
+          data: action.payload || 'Failed to add schedule to class',
+        },
+        message: undefined,
+      };
+    });
+    builder.addCase(updateScheduleOfClasses.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(updateScheduleOfClasses.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
         studentDetail: undefined,
-        message: { data: action.payload || 'Failed to add schedule to class' },
+        message: payload,
+      };
+    });
+    builder.addCase(updateScheduleOfClasses.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        studentDetail: {
+          data: action.payload || 'Failed to update schedule of class',
+        },
+        message: undefined,
+      };
+    });
+    builder.addCase(deleteScheduleOfClasses.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(deleteScheduleOfClasses.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        studentDetail: undefined,
+        message: payload,
+      };
+    });
+    builder.addCase(deleteScheduleOfClasses.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        studentDetail: {
+          data: action.payload || 'Failed to delete schedule of class',
+        },
+        message: undefined,
+      };
+    });
+    builder.addCase(deleteStudentOfClasses.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(deleteStudentOfClasses.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        studentDetail: undefined,
+        message: payload,
+      };
+    });
+    builder.addCase(deleteStudentOfClasses.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        studentDetail: {
+          data: action.payload || 'Failed to delete student of class',
+        },
+        message: undefined,
       };
     });
   },
 });
 
 export const { clearStudentMessages } = StudentSlice.actions;
-export { createStudent, addStudentToClasses, addScheduleToClasses };
+export {
+  createStudent,
+  addStudentToClasses,
+  addScheduleToClasses,
+  updateScheduleOfClasses,
+  deleteScheduleOfClasses,
+  deleteStudentOfClasses,
+};
 export default StudentSlice.reducer;

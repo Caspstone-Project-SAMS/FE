@@ -44,7 +44,7 @@ const EditAccount: React.FC = () => {
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [isCheck, setIsCheck] = useState(false);
+  const [isCheck, setIsCheck] = useState(0);
 
   const [Email, setEmail] = useState('');
   const [PhoneNumber, setPhoneNumber] = useState('');
@@ -52,7 +52,7 @@ const EditAccount: React.FC = () => {
   const [DisplayName, setDisplayName] = useState('');
   const [Address, setAddress] = useState('');
   const [DOB, setDOB] = useState('');
-  const [Gender, setGender] = useState();
+  const [Gender, setGender] = useState(0);
   const [FirstName, setFirstName] = useState('');
   const [LastName, setLastName] = useState('');
 
@@ -166,7 +166,6 @@ const EditAccount: React.FC = () => {
       LastName: LastName,
     };
     await dispatch(editProfile(arg) as any);
-    setIsCheck(false);
   };
 
   return (
@@ -176,7 +175,7 @@ const EditAccount: React.FC = () => {
         <Box
           sx={{
             minHeight: '100vh',
-            backgroundColor: '#f5f5f5', // Set your desired background color
+            backgroundColor: '#f5f5f5', 
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -211,7 +210,7 @@ const EditAccount: React.FC = () => {
                 px: { xs: 0, md: 7 },
                 width: '90%',
                 paddingBottom: 10,
-                overflowY: 'auto', // Enable vertical scrolling if needed
+                overflowY: 'auto',
                 flexGrow: 1,
               }}
             >

@@ -25,6 +25,7 @@ import { RootState } from '../../../redux/Store';
 import {
   clearSemesterMessages,
   createSemester,
+  deleteSemester,
   updateSemester,
 } from '../../../redux/slice/Semester';
 import { SemesterService } from '../../../hooks/Semester';
@@ -52,7 +53,6 @@ const Semester: React.FC = () => {
   const [StartDate, setStartDate] = useState<Date | null>(null); 
   const [EndDate, setEndDate] = useState<Date | null>(null); 
 
-  const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
@@ -63,6 +63,8 @@ const Semester: React.FC = () => {
     endDate: '',
     createdBy: '',
   });
+
+  console.log('start', StartDate)
 
   const handleRowClick = (semesterID: number) => {
     navigate(`/semester/semester-detail`, {
@@ -76,6 +78,8 @@ const Semester: React.FC = () => {
   const successMessage = useSelector(
     (state: RootState) => state.semester.message,
   );
+
+  console.log('successMessage', successMessage);
 
   const handleSearchSemester = useCallback(
     (value: string) => {
@@ -113,14 +117,17 @@ const Semester: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
+      if (successMessage === 'Update Semester Successfully' || successMessage === 'Create Semester Successfully') {
+        message.success(successMessage);
+      } else {
+        message.success(successMessage.title);
+      }
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearSemesterMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearSemesterMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -285,13 +292,13 @@ const Semester: React.FC = () => {
     await dispatch(updateSemester(arg) as any);
   };
 
-  const deleteSemester = async (semesterID: number) => {
+  const deleteSpecificSemester = async (semesterID: number) => {
     Modal.confirm({
       title: 'Confirm Deletion',
       content: 'Are you sure you want to delete this semester?',
       onOk: async () => {
-        await SemesterService.deleteSemester(semesterID);
-        message.success('Semester deleted successfully');
+        const arg = {semesterID: semesterID};
+        await dispatch(deleteSemester(arg) as any);
         fetchSemesters();
       },
     });
@@ -363,7 +370,7 @@ const Semester: React.FC = () => {
                   {item.semesterStatus === 1
                     ? 'Not Yet'
                     : item.semesterStatus === 2
-                    ? 'Ongoing'
+                    ? 'On-going'
                     : item.semesterStatus === 3
                     ? 'Finished'
                     : 'Unknown'}
@@ -396,7 +403,7 @@ const Semester: React.FC = () => {
                   style={{ border: 'none', backgroundColor: 'white' }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteSemester(item.semesterID!);
+                    deleteSpecificSemester(item.semesterID!);
                   }}
                 >
                   <MdDeleteForever size={20} style={{ color: 'red' }} />

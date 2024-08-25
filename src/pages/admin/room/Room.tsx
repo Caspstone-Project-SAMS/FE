@@ -24,6 +24,7 @@ import { RootState } from '../../../redux/Store';
 import {
   clearRoomMessages,
   createRoom,
+  deleteRoom,
   updateRoom,
 } from '../../../redux/slice/Room';
 import { PlusOutlined } from '@ant-design/icons';
@@ -43,8 +44,6 @@ const Room: React.FC = () => {
   const [RoomDescription, setRoomDescription] = useState('');
   const [RoomStatus, setRoomStatus] = useState(0);
   // const [CreateBy, setCreateBy] = useState('');
-
-  const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
@@ -57,7 +56,7 @@ const Room: React.FC = () => {
   const failMessage = useSelector((state: RootState) => state.room.roomDetail);
   const successMessage = useSelector((state: RootState) => state.room.message);
 
-  console.log('sss', isUpdate)
+  console.log('fail', successMessage)
 
   const handleSearchRoom = useCallback(
     (value: string) => {
@@ -85,7 +84,7 @@ const Room: React.FC = () => {
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
-console.log('room', room)
+
   useEffect(() => {
     if (searchInput !== '' && room.length > 0) {
       handleSearchRoom(searchInput);
@@ -96,13 +95,17 @@ console.log('room', room)
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
+      if (successMessage === 'Update Room Successfully' || successMessage === 'Create Room Successfully') {
+        message.success(successMessage);
+      } else {
+        message.success(successMessage.title);
+      }
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearRoomMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearRoomMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -224,13 +227,13 @@ console.log('room', room)
     await dispatch(updateRoom(arg) as any);
   };
 
-  const deleteRoom = async (roomID: number) => {
+  const deleteSpecificRoom = async (roomID: number) => {
     Modal.confirm({
       title: 'Confirm Deletion',
       content: 'Are you sure you want to delete this room?',
       onOk: async () => {
-        await RoomService.deleteRoom(roomID);
-        message.success('Room deleted successfully');
+        const arg = { roomID: roomID };
+        await dispatch(deleteRoom(arg) as any);
         fetchRooms();
       },
     });
@@ -315,7 +318,7 @@ console.log('room', room)
               <Button
                 shape="circle"
                 style={{ border: 'none', backgroundColor: 'white' }}
-                onClick={() => deleteRoom(item.roomID!)}
+                onClick={() => deleteSpecificRoom(item.roomID!)}
               >
                 <MdDeleteForever size={20} style={{ color: 'red' }} />
               </Button>

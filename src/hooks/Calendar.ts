@@ -149,7 +149,7 @@ const addScheduleToClass = async (
 ) => {
   try {
     const response = await axios.post(
-      `${SCHEDULE_API}/create`, // Ensure this is the correct API endpoint
+      `${SCHEDULE_API}/create`,
       {
         Date,
         SlotId,
@@ -169,7 +169,63 @@ const addScheduleToClass = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.error('Error:', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
+const updateScheduleOfClass = async (
+  scheduleID: number,
+  Date: string,
+  SlotId: number,
+  RoomId: number | null,
+) => {
+  try {
+    console.log('scheduleID', scheduleID);
+    const response = await axios.put(
+      `${SCHEDULE_API}/${scheduleID}`,
+      {
+        Date,
+        SlotId,
+        RoomId,
+      },
+      {
+        headers: {
+          accept: '*/*',
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
+    );
+
+    
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
+const deleteScheduleOfClass = async (scheduleID: number) => {
+  try {
+    const response = await axios.delete(`${SCHEDULE_API}/${scheduleID}`, {
+      headers: {
+        accept: '*/*',
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
     } else {
       console.error('Error:', error.message);
       throw new Error(error.message);
@@ -187,4 +243,6 @@ export const CalendarService = {
   importSchedulesByImg,
   getAllSchedule,
   addScheduleToClass,
+  updateScheduleOfClass,
+  deleteScheduleOfClass,
 };
