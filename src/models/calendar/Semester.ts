@@ -9,15 +9,31 @@ export interface Semester {
 export interface SemesterMessage {
   data: {
     data: {
-      data: {
-        isSuccess?: boolean;
-        title?: string;
-        errors?: string[];
-        result?: null;
-      };
-      status: boolean;
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
     };
+    status: boolean;
   };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
+}
+
+export interface SlotMessage {
+  data: {
+    data: {
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
+    };
+    status: boolean;
+  };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }
 
 export interface SemesterDetail {
@@ -27,8 +43,8 @@ export interface SemesterDetail {
     semesterStatus: number;
     startDate: string;
     endDate: string;
-    classes: SemesterClass[]
-  }
+    classes: SemesterClass[];
+  };
 }
 
 export interface SemesterClass {

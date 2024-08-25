@@ -9,15 +9,16 @@ export interface Subject {
 export interface SubjectMessage {
   data: {
     data: {
-      data: {
-        isSuccess?: boolean;
-        title?: string;
-        errors?: string[];
-        result?: null;
-      };
-      status: boolean;
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
     };
+    status: boolean;
   };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }
 
 interface SubjectDetail {

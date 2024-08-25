@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   clearClassMessages,
   createClass,
+  deleteClass,
   updateClass,
 } from '../../../redux/slice/Class';
 
@@ -56,7 +57,6 @@ const AdminClass: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCheck, setIsCheck] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [reload, setReload] = useState(0);
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const dispatch = useDispatch();
@@ -80,9 +80,9 @@ const AdminClass: React.FC = () => {
     lecturerId?: string;
   }>({});
 
-  const failMessage = useSelector((state: RootState) => state.class.message);
+  const failMessage = useSelector((state: RootState) => state.class.classDetail);
   const successMessage = useSelector(
-    (state: RootState) => state.class.classDetail?.title,
+    (state: RootState) => state.class.message,
   );
 
   const handleRowClick = (classID: number) => {
@@ -160,14 +160,17 @@ const AdminClass: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
+      if (successMessage === 'Update class successfully' || successMessage === 'Create new class successfully') {
+        message.success(successMessage);
+      } else {
+        message.success(successMessage.title);
+      }
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearClassMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearClassMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -339,11 +342,21 @@ const AdminClass: React.FC = () => {
     },
     {
       key: '3',
+      title: 'Room',
+      dataIndex: 'room',
+    },
+    {
+      key: '4',
       title: 'Lecturer',
       dataIndex: 'lecturer',
     },
     {
-      key: '4',
+      key: '5',
+      title: 'Subject',
+      dataIndex: 'subject',
+    },
+    {
+      key: '6',
       title: 'status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
@@ -358,12 +371,12 @@ const AdminClass: React.FC = () => {
       ),
     },
     {
-      key: '5',
+      key: '7',
       title: 'Action',
       dataIndex: 'action',
     },
     {
-      key: '6',
+      key: '8',
       title: 'Info',
       dataIndex: 'info',
       render: (classID: number) => (
@@ -397,6 +410,18 @@ const AdminClass: React.FC = () => {
       setClassCode('');
     }
   }, [ClassName, SubjectCode]);
+
+  const deleteSpecificClass = async (classID: number) => {
+    Modal.confirm({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this class?',
+      onOk: async () => {
+        const arg = { ClassID: classID };
+        await dispatch(deleteClass(arg) as any);
+        fetchClasses();
+      },
+    });
+  };
 
   return (
     <Content className={styles.accountClassContent}>
@@ -443,7 +468,9 @@ const AdminClass: React.FC = () => {
             key: index,
             classcode: item.classCode,
             semestercode: item.semester.semesterCode,
+            room: item.room.roomName,
             lecturer: item.lecturer.displayName,
+            subject: item.subject.subjectName,
             classStatus: item.classStatus,
             action: (
               <div>
@@ -461,13 +488,13 @@ const AdminClass: React.FC = () => {
                   />
                 </Button>
 
-                {/* <Button
+                <Button
                   shape="circle"
                   style={{ border: 'none', backgroundColor: 'white' }}
-                  onClick={() => deleteRoom(item.roomID!)}
+                  onClick={() => deleteSpecificClass(item.classID!)}
                 >
                   <MdDeleteForever size={20} style={{ color: 'red' }} />
-                </Button> */}
+                </Button>
               </div>
             ),
             info: item.classID,

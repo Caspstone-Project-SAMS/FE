@@ -53,8 +53,13 @@ export const DASHBOARD_API = `${server}/Dashboard`;
 export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`;
 
 //User
-
 export const USER_API = `${server}/User`;
+
+//Script 
+export const SCRIPT_API = `${server}/Script`;
+
+//Student Class
+export const STUDENT_CLASS_API = `${server}/StudentClass`;
 
 //Google
 export const GET_GG_USER_INFO =

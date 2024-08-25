@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Input,
   Layout,
@@ -14,18 +15,18 @@ import {
   Typography,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './AdminClass.module.less';
 import { Link, useLocation } from 'react-router-dom';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
-import { CiSearch } from 'react-icons/ci';
+import { CiEdit, CiSearch } from 'react-icons/ci';
 import {
   ClassDetail,
   Schedule,
   Student as Students,
 } from '../../../models/Class';
 import { ClassService } from '../../../hooks/Class';
-import { PlusOutlined } from '@ant-design/icons';
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import { StudentService } from '../../../hooks/StudentList';
@@ -36,12 +37,18 @@ import {
   addScheduleToClasses,
   addStudentToClasses,
   clearStudentMessages,
+  deleteScheduleOfClasses,
+  deleteStudentOfClasses,
 } from '../../../redux/slice/Student';
 import { SlotService } from '../../../hooks/Slot';
 import moment from 'moment';
 import { RoomService } from '../../../hooks/Room';
-import DatePicker from 'react-datepicker'; 
+import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { MdDeleteForever } from 'react-icons/md';
+import { updateScheduleOfClasses } from '../../../redux/slice/Student';
+import { CalendarService } from '../../../hooks/Calendar';
+import { FcDeleteDatabase } from 'react-icons/fc';
 
 const { Header: AntHeader } = Layout;
 
@@ -54,30 +61,32 @@ const AdminClassDetail: React.FC = () => {
   const [student, setStudent] = useState<Student[]>([]);
   const [Slot, setSlot] = useState<Slot[]>([]);
   const [Room, setRoom] = useState<Room[]>([]);
-  const [StudentCode, setStudentCode] = useState('');
+  const [StudentCode, setStudentCode] = useState<string[]>([]);
   const [classes, setClasses] = useState<ClassDetail>();
   const [ClassId, setClassID] = useState<number>(0);
   const [date, setDate] = useState<Date | null>(null);
   const [SlotId, setSlotId] = useState(0);
-  const [RoomId, setRoomId] = useState(0 || null);
+  const [RoomId, setRoomId] = useState<number | null>(0);
+  const [scheduleID, setScheduleID] = useState<number>(0);
+
+  const [studentID, setStudentID] = useState<string[]>([]);
 
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [filteredStudentClass, setFilteredStudentClass] =
     useState<Students[]>(classStudent);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCheck, setIsCheck] = useState(false);
+  const [isCheck, setIsCheck] = useState('');
   const [loading, setLoading] = useState(false);
-  const [reload, setReload] = useState(0);
+  const [selectAll, setSelectAll] = useState(false);
+  const [disabled, setDisabled] = useState(true);
   const dispatch = useDispatch();
 
-  console.log('schedule', classSchedule);
-
   const failMessage = useSelector(
-    (state: RootState) => state.student.message?.data.data.data.errors,
+    (state: RootState) => state.student.studentDetail,
   );
   const successMessage = useSelector(
-    (state: RootState) => state.student.studentDetail?.title,
+    (state: RootState) => state.student.message,
   );
 
   const [errors, setErrors] = useState<{
@@ -86,21 +95,58 @@ const AdminClassDetail: React.FC = () => {
     date?: string;
   }>({});
 
+  const handleSelectStudent = (id: string, checked: boolean) => {
+    if (checked) {
+      setStudentID((prev) => [...prev, id]);
+    } else {
+      setStudentID((prev) => prev.filter((student) => student !== id));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = (!isUpdate ? classStudent : filteredStudentClass).map(
+        (item) => item.id,
+      );
+      setStudentID(allIds);
+      setSelectAll(true);
+    } else {
+      setStudentID([]);
+      setSelectAll(false);
+    }
+  };
+
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
+      message.success(successMessage.title);
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearStudentMessages());
     }
-    if (failMessage) {
-      message.error(`${failMessage}`);
+    if (failMessage && failMessage.data.data.errors) {
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearStudentMessages());
+    } else if (failMessage?.data.data) {
+      message.error(`${failMessage.data.data}`);
     }
   }, [successMessage, failMessage, dispatch]);
-
-  console.log('class', classes);
+  const showModalUpdateSchedule = (item?: Schedule) => {
+    getAllSlot();
+    getAllRoom();
+    setIsCheck('updateSchedule');
+    if (item) {
+      setDate(new Date(item.date!));
+      setSlotId(item.slot.slotID!);
+      setRoomId(
+        item.room === null
+          ? Number(classes?.result.room.roomID)
+          : Number(item.room.roomID),
+      );
+    } else {
+      resetModalFields();
+    }
+    setIsModalVisible(true);
+  };
 
   const classDetails = [
     { title: 'Class Code', value: classes?.result.classCode },
@@ -116,10 +162,10 @@ const AdminClassDetail: React.FC = () => {
     { title: 'Semester', value: classes?.result.semester.semesterCode },
     { title: 'Room', value: classes?.result.room.roomName },
     { title: 'Subject', value: classes?.result.subject.subjectName },
-    {
-      title: 'Lecturer',
-      value: classes?.result.lecturer.displayName,
-    },
+    // {
+    //   title: 'Lecturer',
+    //   value: classes?.result.lecturer.displayName,
+    // },
   ];
 
   useEffect(() => {
@@ -128,59 +174,90 @@ const AdminClassDetail: React.FC = () => {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    if (ClassId !== 0) {
-      const response = ClassService.getClassByID(ClassId);
+  const handleSearchStudent = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+      const normalizeString = (str: string) => {
+        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+      const normalizedValue = normalizeString(value).toLowerCase();
+      const filtered = classStudent.filter(
+        (item) => {
+          const normalizedStudentName = item.displayName
+            ? normalizeString(item.displayName).toLowerCase()
+            : '';
+          const normalizedStudentCode = item.studentCode
+            ? normalizeString(item.studentCode).toLowerCase()
+            : '';
+          const normalizedEmail = item.email
+            ? normalizeString(item.email).toLowerCase()
+            : '';
 
-      response
-        .then((data) => {
-          setClasses(data || undefined);
-          setClassStudent(data?.result.students || []);
-          setClassSchedule(data?.result.schedules || []);
-          setSemesterId(data?.result.semester.semesterID || 0);
-          setClassCode(data?.result.classCode || '');
-          setFilteredStudentClass(data?.result.students || []);
-        })
-        .catch((error) => {
-          console.log('get class by id error: ', error);
-        });
+          return (
+            normalizedStudentName.includes(normalizedValue) ||
+            normalizedStudentCode.includes(normalizedValue) ||
+            normalizedEmail.includes(normalizedValue)
+          );
+        },
+        // (item.displayName &&
+        //   item.displayName.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.email &&
+        //   item.email.toLowerCase().includes(value.toLowerCase())) ||
+        // (item.studentCode &&
+        //   item.studentCode.toLowerCase().includes(value.toLowerCase())),
+      );
+      setFilteredStudentClass(filtered ?? []);
+      setIsUpdate(true);
+    },
+    [classStudent],
+  );
+
+  const fetchAll = useCallback(async () => {
+    try {
+      if (ClassId !== 0) {
+        const data = await ClassService.getClassByID(ClassId);
+        setClasses(data || undefined);
+        setClassStudent(data?.result.students || []);
+        setClassSchedule(data?.result.schedules || []);
+        setSemesterId(data?.result.semester.semesterID || 0);
+        setClassCode(data?.result.classCode || '');
+        setFilteredStudentClass(data?.result.students || []);
+      }
+    } catch (error) {
+      console.log('get all error: ', error);
     }
-  }, [ClassId, reload]);
+  }, [ClassId]);
 
-  const handleSearchStudent = (value: string) => {
-    setSearchInput(value);
-    const normalizeString = (str: string) => {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    };
-    const normalizedValue = normalizeString(value).toLowerCase();
-    const filtered = classes?.result.students.filter(
-      (item) => {
-        const normalizedStudentName = item.displayName
-          ? normalizeString(item.displayName).toLowerCase()
-          : '';
-        const normalizedStudentCode = item.studentCode
-          ? normalizeString(item.studentCode).toLowerCase()
-          : '';
-        const normalizedEmail = item.email
-          ? normalizeString(item.email).toLowerCase()
-          : '';
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
-        return (
-          normalizedStudentName.includes(normalizedValue) ||
-          normalizedStudentCode.includes(normalizedValue) ||
-          normalizedEmail.includes(normalizedValue)
-        );
-      },
-      // (item.displayName &&
-      //   item.displayName.toLowerCase().includes(value.toLowerCase())) ||
-      // (item.email &&
-      //   item.email.toLowerCase().includes(value.toLowerCase())) ||
-      // (item.studentCode &&
-      //   item.studentCode.toLowerCase().includes(value.toLowerCase())),
-    );
-    setFilteredStudentClass(filtered ?? []);
-    setIsUpdate(true);
-  };
+  useEffect(() => {
+    if (searchInput !== '' && classStudent.length > 0) {
+      handleSearchStudent(searchInput);
+    } else if (searchInput === '') {
+      setIsUpdate(false);
+    }
+  }, [classStudent, searchInput, handleSearchStudent]);
+
+  // useEffect(() => {
+  //   if (ClassId !== 0) {
+  //     const response = ClassService.getClassByID(ClassId);
+
+  //     response
+  //       .then((data) => {
+  //         setClasses(data || undefined);
+  //         setClassStudent(data?.result.students || []);
+  //         setClassSchedule(data?.result.schedules || []);
+  //         setSemesterId(data?.result.semester.semesterID || 0);
+  //         setClassCode(data?.result.classCode || '');
+  //         setFilteredStudentClass(data?.result.students || []);
+  //       })
+  //       .catch((error) => {
+  //         console.log('get class by id error: ', error);
+  //       });
+  //   }
+  // }, [ClassId, reload]);
 
   const columnsStudent = [
     {
@@ -210,6 +287,28 @@ const AdminClassDetail: React.FC = () => {
         </div>
       ),
     },
+    // {
+    //   key: '5',
+    //   title: 'Action',
+    //   dataIndex: 'action',
+    // },
+    {
+      title: (
+        <Checkbox
+          disabled={disabled}
+          checked={selectAll}
+          onChange={(e) => handleSelectAll(e.target.checked)}
+        />
+      ),
+      dataIndex: 'select',
+      render: (_: any, item: any) => (
+        <Checkbox
+          disabled={disabled}
+          checked={studentID.includes(item.id)}
+          onChange={(e) => handleSelectStudent(item.id, e.target.checked)}
+        />
+      ),
+    },
   ];
 
   const columnsSchedule = [
@@ -230,11 +329,16 @@ const AdminClassDetail: React.FC = () => {
     },
     {
       key: '4',
+      title: 'Room',
+      dataIndex: 'room',
+    },
+    {
+      key: '5',
       title: 'Date Of Week',
       dataIndex: 'dateOfWeek',
     },
     {
-      key: '5',
+      key: '6',
       title: 'Status',
       dataIndex: 'scheduleStatus',
       render: (scheduleStatus: number) => (
@@ -254,13 +358,47 @@ const AdminClassDetail: React.FC = () => {
             {scheduleStatus === 1 || scheduleStatus === 0
               ? 'Not Yet'
               : scheduleStatus === 2
-              ? 'Ongoing'
+              ? 'On-going'
               : scheduleStatus === 3
-              ? 'Finished'
+              ? 'Ended'
               : 'undefined'}
           </Tag>
         </div>
       ),
+    },
+    {
+      key: '7',
+      title: 'Attendance Status',
+      dataIndex: 'attendanceStatus',
+      render: (attendanceStatus: number) => (
+        <div>
+          <Tag
+            color={
+              attendanceStatus === 1 || attendanceStatus === 0
+                ? 'gray'
+                : attendanceStatus === 2
+                ? 'green'
+                : attendanceStatus === 3
+                ? 'red'
+                : 'white'
+            }
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {attendanceStatus === 1 || attendanceStatus === 0
+              ? 'Not Yet'
+              : attendanceStatus === 2
+              ? 'Attended'
+              : attendanceStatus === 3
+              ? 'Absence'
+              : 'undefined'}
+          </Tag>
+        </div>
+      ),
+    },
+    {
+      key: '8',
+      title: 'Action',
+      dataIndex: 'action',
     },
   ];
 
@@ -272,7 +410,15 @@ const AdminClassDetail: React.FC = () => {
 
   const getAllStudent = async () => {
     const response = await StudentService.getAllStudent();
-    setStudent(response || []);
+    const students = response || [];
+    const filteredStudents = students.filter(
+      (stu) =>
+        !classStudent.some(
+          (classStu) => classStu.studentCode === stu.studentCode,
+        ),
+    );
+
+    setStudent(filteredStudents);
   };
   const getAllSlot = async () => {
     const response = await SlotService.getAllSlot();
@@ -284,15 +430,30 @@ const AdminClassDetail: React.FC = () => {
   };
   const showModalAddStudent = () => {
     getAllStudent();
-    setIsCheck(false);
+    setIsCheck('addStudent');
     setIsModalVisible(true);
   };
 
   const showModalAddShedule = () => {
     getAllSlot();
     getAllRoom();
-    setIsCheck(true);
+    setIsCheck('addSchedule');
     setIsModalVisible(true);
+  };
+
+  const handleUpdateSchedule = async () => {
+    if (!validateFieldsAddSchedule()) return;
+    setLoading(true);
+    await updateSchedule(
+      scheduleID,
+      date ? moment(date).format('YYYY-MM-DD') : '',
+      SlotId,
+      RoomId,
+    );
+    setLoading(false);
+    setIsModalVisible(false);
+    resetModalFields();
+    fetchAll();
   };
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -304,15 +465,16 @@ const AdminClassDetail: React.FC = () => {
   };
 
   const resetModalFields = () => {
-    setStudentCode('');
+    setStudentCode([]);
     setSlotId(0);
     setRoomId(null);
     setDate(null);
+    setScheduleID(0);
     // setRoomId(null);
     // setSemesterId(null);
     // setSubjectId(null);
     // setLecturerID(null);
-    setIsCheck(false);
+    setIsCheck('');
     // setErrors({});
   };
 
@@ -334,35 +496,44 @@ const AdminClassDetail: React.FC = () => {
   const handleAddStudent = async () => {
     if (!validateFieldsAddStudent()) return;
     setLoading(true);
-    await addStudent(semesterId, StudentCode ?? '', ClassCode);
+    await addStudent(semesterId, StudentCode, ClassCode);
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchAll();
   };
 
   const handleAddSchedule = async () => {
     if (!validateFieldsAddSchedule()) return;
     setLoading(true);
-    await addSchedule(date ? moment(date).format('YYYY-MM-DD') : '', SlotId, ClassId, RoomId);
+    await addSchedule(
+      date ? moment(date).format('YYYY-MM-DD') : '',
+      SlotId,
+      ClassId,
+      RoomId,
+    );
     setLoading(false);
     setIsModalVisible(false);
     resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    fetchAll();
   };
 
   const addStudent = async (
     semesterId: number,
-    StudentCode: string,
+    StudentCode: string[],
     ClassCode: string,
   ) => {
+    const students = StudentCode.map((code) => ({
+      StudentCode: code,
+      ClassCode,
+    }));
+
     const arg = {
       semesterId: semesterId,
-      StudentCode: StudentCode,
-      ClassCode: ClassCode,
+      students,
     };
     await dispatch(addStudentToClasses(arg) as any);
-    setIsCheck(false);
+    setIsCheck('');
   };
 
   const addSchedule = async (
@@ -378,6 +549,71 @@ const AdminClassDetail: React.FC = () => {
       RoomId: RoomId,
     };
     await dispatch(addScheduleToClasses(arg) as any);
+  };
+
+  const updateSchedule = async (
+    scheduleID: number,
+    Date: string,
+    SlotId: number,
+    RoomId: number | null,
+  ) => {
+    const arg = {
+      scheduleID: scheduleID,
+      Date: Date,
+      SlotId: SlotId,
+      RoomId: RoomId,
+    };
+    setDate(null);
+    setSlotId(0);
+    setRoomId(0 || null);
+    await dispatch(updateScheduleOfClasses(arg) as any);
+  };
+
+  const deleteSchedule = async (scheduleID: number) => {
+    Modal.confirm({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this schedule?',
+      onOk: async () => {
+        const arg = { scheduleID: scheduleID };
+        await dispatch(deleteScheduleOfClasses(arg) as any);
+        fetchAll();
+      },
+    });
+  };
+
+  const deleteSpecificStudent = async (studnetId: string) => {
+    const studentID = [studnetId];
+    Modal.confirm({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this student?',
+      onOk: async () => {
+        const arg = { classID: ClassId, students: studentID };
+        await dispatch(deleteStudentOfClasses(arg) as any);
+        fetchAll();
+        // setStudentID([]);
+      },
+    });
+  };
+
+  const deleteSelectedStudent = async () => {
+    const students = studentID.map((id) => ({
+      studentID: id,
+    }));
+    //  console.log('students', students)
+    Modal.confirm({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete all selected students?',
+      onOk: async () => {
+        const arg = { classID: ClassId, students: students };
+        await dispatch(deleteStudentOfClasses(arg) as any);
+        fetchAll();
+        setStudentID([]);
+      },
+    });
+  };
+
+  const accessDeleteStudents = async () => {
+    setDisabled((prevDisabled) => !prevDisabled);
   };
 
   return (
@@ -526,8 +762,39 @@ const AdminClassDetail: React.FC = () => {
                   </div>
                 ),
                 slot: item.slot.slotNumber,
+                room:
+                  item.room === null
+                    ? classes?.result.room.roomName
+                    : item.room.roomName,
                 dateOfWeek: item.dateOfWeek,
                 scheduleStatus: item.scheduleStatus,
+                attendanceStatus: item.attended,
+                action: (
+                  <div>
+                    <Button
+                      shape="circle"
+                      style={{ border: 'none', backgroundColor: 'white' }}
+                    >
+                      <CiEdit
+                        onClick={() => {
+                          setIsCheck('updateSchedule');
+                          setScheduleID(item.scheduleID);
+                          showModalUpdateSchedule(item);
+                        }}
+                        size={20}
+                        style={{ color: 'blue' }}
+                      />
+                    </Button>
+
+                    <Button
+                      shape="circle"
+                      style={{ border: 'none', backgroundColor: 'white' }}
+                      onClick={() => deleteSchedule(item.scheduleID!)}
+                    >
+                      <MdDeleteForever size={20} style={{ color: 'red' }} />
+                    </Button>
+                  </div>
+                ),
               }))}
               pagination={{
                 showSizeChanger: true,
@@ -560,6 +827,25 @@ const AdminClassDetail: React.FC = () => {
                         Add New
                       </Button>
                     </Col>
+                    <Col>
+                      <Button
+                        disabled={disabled}
+                        onClick={deleteSelectedStudent}
+                        type="primary"
+                        icon={<MinusOutlined />}
+                        style={{ backgroundColor: 'red' }}
+                      >
+                        Remove Students
+                      </Button>
+                    </Col>
+                    <Col>
+                      <Button
+                        onClick={accessDeleteStudents}
+                        type="dashed"
+                        icon={<FcDeleteDatabase />}
+                        style={{ backgroundColor: 'white', borderRadius: 2 }}
+                      ></Button>
+                    </Col>
                   </Row>
                 </AntHeader>
               </Content>
@@ -573,6 +859,18 @@ const AdminClassDetail: React.FC = () => {
                   studentEmail: item.email,
                   studentCode: item.studentCode,
                   absencePercentage: item.absencePercentage,
+                  // action: (
+                  //   <div>
+                  //     <Button
+                  //       shape="circle"
+                  //       style={{ border: 'none', backgroundColor: 'white' }}
+                  //       onClick={() => (deleteSpecificStudent(item.id))}
+                  //       >
+                  //       <MdDeleteForever size={20} style={{ color: 'red' }} />
+                  //     </Button>
+                  //   </div>
+                  // ),
+                  id: item.id,
                 }),
               )}
               pagination={{
@@ -580,7 +878,15 @@ const AdminClassDetail: React.FC = () => {
               }}
             ></Table>
             <Modal
-              title={isCheck ? 'Add Schedule To Class' : 'Add Student To Class'}
+              title={
+                isCheck === 'addSchedule'
+                  ? 'Add Schedule To Class'
+                  : isCheck === 'updateSchedule'
+                  ? 'Update Schedule'
+                  : isCheck === 'addStudent'
+                  ? 'Add Student To Class'
+                  : ''
+              }
               open={isModalVisible}
               onCancel={handleCancel}
               footer={[
@@ -591,16 +897,25 @@ const AdminClassDetail: React.FC = () => {
                   key="submit"
                   type="primary"
                   loading={loading}
-                  onClick={isCheck ? handleAddSchedule : handleAddStudent}
+                  onClick={
+                    isCheck === 'addSchedule'
+                      ? handleAddSchedule
+                      : isCheck === 'updateSchedule'
+                      ? handleUpdateSchedule
+                      : isCheck === 'addStudent'
+                      ? handleAddStudent
+                      : undefined
+                  }
                 >
                   Submit
                 </Button>,
               ]}
             >
-              {!isCheck && (
+              {isCheck === 'addStudent' && (
                 <>
                   <p className={styles.createClassTitle}>Students</p>
                   <Select
+                    mode="multiple"
                     placeholder="Students"
                     value={StudentCode}
                     onChange={(value) => {
@@ -608,7 +923,7 @@ const AdminClassDetail: React.FC = () => {
                         ...prevErrors,
                         StudentCode: '',
                       }));
-                      setStudentCode(value);
+                      setStudentCode(value as string[]);
                     }}
                     showSearch
                     style={{ marginBottom: '10px', width: '100%' }}
@@ -647,12 +962,12 @@ const AdminClassDetail: React.FC = () => {
                   )}
                 </>
               )}
-              {isCheck && (
+              {(isCheck === 'addSchedule' || isCheck === 'updateSchedule') && (
                 <>
                   <p className={styles.createClassTitle}>Date</p>
                   <DatePicker
                     placeholderText="Date"
-                    selected={date} 
+                    selected={date}
                     onChange={(date) => {
                       setDate(date);
                       setErrors((prevErrors) => ({
@@ -715,7 +1030,7 @@ const AdminClassDetail: React.FC = () => {
                   >
                     {Room.map((room) => (
                       <Select.Option key={room.roomID} value={room.roomID}>
-                        {"Room "+room.roomName}
+                        {'Room ' + room.roomName}
                       </Select.Option>
                     ))}
                   </Select>

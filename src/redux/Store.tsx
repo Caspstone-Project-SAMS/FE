@@ -9,6 +9,8 @@ import Subject from './slice/Subject';
 import Class from './slice/Class';
 import GlobalSemester from './slice/global/GlobalSemester';
 import Module from './slice/Module';
+import Slot from './slice/Slot';
+import Script from './slice/Script';
 
 const Store = configureStore({
   reducer: {
@@ -21,6 +23,8 @@ const Store = configureStore({
     class: Class,
     globalSemester: GlobalSemester,
     module: Module,
+    slot: Slot,
+    script: Script
   },
 });
 

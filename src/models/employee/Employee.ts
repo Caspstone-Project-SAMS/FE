@@ -45,6 +45,9 @@ export interface ManageClass {
   classID: number;
   classCode: string;
   classStatus: number;
+  semesterCode: string;
+  subjectCode: string;
+  roomName: string;
 }
 
 export interface ManageModule {

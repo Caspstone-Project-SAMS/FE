@@ -39,7 +39,6 @@ export default function AccountCard(props: any) {
     lastName: props.LastName || props.user.lastName || '',
     phone: phone,
     email: props.Email || props.user.email || '',
-
   });
 
   const initialFormValues = {
@@ -51,18 +50,25 @@ export default function AccountCard(props: any) {
     lastName: props.user.lastName,
     phone: props.user.phone,
     email: props.user.email,
-
   };
 
   const handleReset = () => {
-    props.Name=props.user.fullName
-    props.Address=props.user.address
-    props.DOB = props.user.dob
-    props.Gender = props.user.gender
-    props.FirstName = props.user.firstName
-    props.LastName = props.user.lastName
-    props.Phone = props.user.phone
-    props.Email = props.user.email
+    // props.Name=props.user.fullName
+    // props.Address=props.user.address
+    // props.DOB = props.user.dob
+    // props.Gender = props.user.gender
+    // props.FirstName = props.user.firstName
+    // props.LastName = props.user.lastName
+    // props.Phone = props.user.phone
+    // props.Email = props.user.email
+    props.setEmail('')
+    props.setPhone('');
+    props.setName('');
+    props.setAddress('');
+    props.setDOB('');
+    props.setGender(0);
+    props.setFirstName('');
+    props.setLastName('');
     setFormValues(initialFormValues);
   };
   
@@ -294,7 +300,7 @@ export default function AccountCard(props: any) {
                   value={formValues.email}
                   onChange={handleChange}
                   title="Email"
-                  dis={edit.disabled}
+                  dis={true}
                   req={edit.required}
                 ></CustomInput>
               </Grid>
@@ -360,7 +366,7 @@ export default function AccountCard(props: any) {
                     color="primary"
                     onClick={edit.isEdit ? props.submit : changeButton}
                   >
-                    {edit.isEdit ? 'EDIT' : 'ENABLE UPDATE'}
+                    {edit.isEdit ? 'EDIT' : 'EDIT PROFILE'}
                   </Button>
                 </Grid>
               </Grid>

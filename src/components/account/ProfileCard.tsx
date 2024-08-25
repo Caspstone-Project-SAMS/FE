@@ -6,6 +6,8 @@ import Avatar from "@mui/material/Avatar";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import Badge from "@mui/material/Badge";
 import Button from "@mui/material/Button";
+import { logout } from '../../redux/slice/Auth';
+import { useDispatch } from 'react-redux';
 
 // STYLES
 const styles = {
@@ -27,6 +29,8 @@ const styles = {
 export default function ProfileCard(props: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(props.img);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (props.Avatar) {
@@ -56,6 +60,10 @@ export default function ProfileCard(props: any) {
       console.log('Selected file:', file);
       props.setAvatar(file);
     }
+  };
+
+  const handleLogout = async () => {
+    dispatch(logout());
   };
 
   return (
@@ -115,15 +123,16 @@ export default function ProfileCard(props: any) {
         </Grid>
 
         {/* BUTTON */}
-        {/* <Grid item style={styles.details} sx={{ width: "100%" }}>
+        <Grid item style={styles.details} sx={{ width: "100%" }}>
           <Button
             variant="contained"
-            color="primary"
+            color="error"
             sx={{ width: "99%", p: 1, my: 2 }}
+            onClick={() => handleLogout()}
           >
-            View Public Profile
+            Log Out
           </Button>
-        </Grid> */}
+        </Grid>
       </Grid>
 
       {/* File Input */}

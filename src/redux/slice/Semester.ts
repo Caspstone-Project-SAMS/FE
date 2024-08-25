@@ -4,13 +4,13 @@ import { SemesterMessage } from '../../models/calendar/Semester';
 import { AxiosError } from 'axios';
 
 interface SemesterState {
-  message: string | undefined;
+  message?: SemesterMessage | string;
   semesterDetail?: SemesterMessage;
   loading: boolean;
 }
 
 const initialState: SemesterState = {
-  message: '',
+  message: undefined,
   semesterDetail: undefined,
   loading: false,
 };
@@ -95,6 +95,38 @@ const updateSemester = createAsyncThunk(
   },
 );
 
+const deleteSemester = createAsyncThunk(
+  'semester/delete',
+  async (
+    arg: {
+      semesterID: number;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { semesterID } =
+        arg;
+      const deleteSemesterResponse = await SemesterService.deleteSemester(
+        semesterID,
+      );
+      return deleteSemesterResponse;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('Error in delete semester', {
+          data: error.message,
+        });
+        // message.error(error.message.data.title);
+        return rejectWithValue({
+          data: error.message,
+        });
+      } else {
+        console.error('Unexpected error', error);
+        return rejectWithValue({ message: 'Unexpected error' });
+      }
+    }
+  },
+);
+
 const SemesterSlice = createSlice({
   name: 'semester',
   initialState,
@@ -150,9 +182,32 @@ const SemesterSlice = createSlice({
         message: undefined,
       };
     });
+    builder.addCase(deleteSemester.pending, (state) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    });
+    builder.addCase(deleteSemester.fulfilled, (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        semesterDetail: undefined,
+        message: payload,
+      };
+    });
+    builder.addCase(deleteSemester.rejected, (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        semesterDetail: { data: action.payload || 'Failed to delete semester' },
+        message: undefined,
+      };
+    });
   },
 });
 
 export const { clearSemesterMessages } = SemesterSlice.actions;
-export { createSemester, updateSemester };
+export { createSemester, updateSemester, deleteSemester };
 export default SemesterSlice.reducer;

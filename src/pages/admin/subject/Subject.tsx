@@ -20,6 +20,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import {
   clearSubjectMessages,
   createSubject,
+  deleteSubject,
   updateSubject,
 } from '../../../redux/slice/Subject';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,8 +43,6 @@ const Subject: React.FC = () => {
   const [SubjectName, setSubjectName] = useState('');
   const [SubjectStatus, setSubjectStatus] = useState(0);
   // const [CreateBy, setCreateBy] = useState('');
-
-  // const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
@@ -51,14 +50,13 @@ const Subject: React.FC = () => {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  console.log('run');
-
   const failMessage = useSelector(
     (state: RootState) => state.subject.subjectDetail,
   );
   const successMessage = useSelector(
     (state: RootState) => state.subject.message,
   );
+
 
   const handleSearchSubject = useCallback(
     (value: string) => {
@@ -93,20 +91,25 @@ const Subject: React.FC = () => {
   useEffect(() => {
     if (searchInput !== '' && subject.length > 0) {
       handleSearchSubject(searchInput);
-    } else if(searchInput === '') {
+    } else if (searchInput === '') {
       setIsUpdate(false);
     }
   }, [subject, searchInput, handleSearchSubject]);
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
+      if (successMessage === 'Update subject successfully' || successMessage === 'Create new subject successfully') {
+        message.success(successMessage);
+      } else {
+        message.success(successMessage.title);
+      }
+
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearSubjectMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearSubjectMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -215,13 +218,13 @@ const Subject: React.FC = () => {
     await dispatch(updateSubject(arg) as any);
   };
 
-  const deleteSubject = async (subjectID: number) => {
+  const deleteSpecificSubject = async (subjectID: number) => {
     Modal.confirm({
       title: 'Confirm Deletion',
       content: 'Are you sure you want to delete this subject?',
       onOk: async () => {
-        await SubjectService.deleteSubject(subjectID);
-        message.success('Subject deleted successfully');
+        const arg = { subjectID: subjectID };
+        await dispatch(deleteSubject(arg) as any);
         fetchSubjects();
       },
     });
@@ -303,7 +306,7 @@ const Subject: React.FC = () => {
                 <Button
                   shape="circle"
                   style={{ border: 'none', backgroundColor: 'white' }}
-                  onClick={() => deleteSubject(item.subjectID!)}
+                  onClick={() => deleteSpecificSubject(item.subjectID!)}
                 >
                   <MdDeleteForever size={20} style={{ color: 'red' }} />
                 </Button>

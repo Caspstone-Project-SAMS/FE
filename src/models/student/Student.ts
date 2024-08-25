@@ -55,14 +55,14 @@ export interface EnrolledClasses {
 export interface StudentFail {
   data: {
     data: {
-      data: {
-        title: string;
-        errors: string[];
-      };
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
     };
+    status: boolean;
   };
-}
-
-export interface StudentFail {
-  title: string;
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }

@@ -1,5 +1,11 @@
-import React, { useEffect } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { RootState } from '../redux/Store';
 import { useSelector } from 'react-redux';
 
@@ -13,35 +19,76 @@ import ErrorPage from '../pages/ErrorPage';
 const ProtectedRoute = () => {
   const Auth = useSelector((state: RootState) => state.auth);
   const role = Auth.userDetail?.result?.role.name;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isRunScript, setIsRunScript] = useState(false);
   // const errs = Auth.userDetail?.errors?.length;
   useEffect(() => {
-    // console.log('helloo role ', role);
-  }, []);
+    if (location.pathname === '/script' || location.pathname === '/script/set-reset-time' || location.pathname === '/script/register-fingerprint') {
+      setIsRunScript(true);
+    } else {
+      setIsRunScript(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (location.pathname === '/script' || location.pathname === '/script/set-reset-time' || location.pathname === '/script/register-fingerprint') {
+        setIsRunScript(true);
+      } else {
+        setIsRunScript(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [location.pathname]);
 
   if (!Auth.authStatus) {
     return <Navigate to="/login" />;
   }
 
+  const handleNavigateScript = () => {
+    setIsRunScript(true);
+    navigate('/script/set-reset-time');
+  };
+
+  const handleNavigateHome = () => {
+    setIsRunScript(false);
+    navigate('/home');
+  };
+
   return (
     <Layout style={{ height: '100%' }}>
-      <Sidebar />
+      <Sidebar isRunScript={isRunScript} />
       <Layout>
-        <Headers />
+        <Headers
+          handleNavigateScript={handleNavigateScript}
+          handleNavigateHome={handleNavigateHome}
+        />
         <Routes>
           {role === 'Lecturer'
             ? routeConfig.lecture.map((route, index) => (
-              <Route key={index} path={route.path} element={route.element} />
-            ))
+                <Route key={index} path={route.path} element={route.element} />
+              ))
             : ''}
-          {role === 'Admin'
+          {role === 'Admin' && isRunScript === false
             ? routeConfig.admin.map((route, index) => (
-              <Route key={index} path={route.path} element={route.element} />
-            ))
+                <Route key={index} path={route.path} element={route.element} />
+              ))
             : ''}
           {role === 'Student'
             ? routeConfig.student.map((route, index) => (
-              <Route key={index} path={route.path} element={route.element} />
-            ))
+                <Route key={index} path={route.path} element={route.element} />
+              ))
+            : ''}
+          {role === 'Admin' && isRunScript === true
+            ? routeConfig.script.map((route, index) => (
+                <Route key={index} path={route.path} element={route.element} />
+              ))
             : ''}
           <Route path="*" element={<ErrorPage />} />
         </Routes>

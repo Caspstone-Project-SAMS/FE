@@ -131,7 +131,7 @@ const createClass = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abccccccccc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -166,7 +166,25 @@ const updateClass = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abccccccccc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
+    }
+    return isRejectedWithValue(error.message);
+  }
+};
+
+const deleteClass = async (classID: number) => {
+  try {
+    const response = await axios.delete(`${CLASS_API}/${classID}`, {
+      headers: {
+        accept: '*/*',
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('abccccccccc', error.message);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -180,4 +198,5 @@ export const ClassService = {
   updateClass,
   getClassBySemesterID,
   getByClassLecturer,
+  deleteClass,
 };

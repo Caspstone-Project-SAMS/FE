@@ -132,7 +132,6 @@ const ModuleDetail: React.FC = () => {
     );
   }, [listScheduleId, scheduleList]);
 
-  console.log('module', module);
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID },
@@ -227,10 +226,6 @@ const ModuleDetail: React.FC = () => {
     }
   }, [location.state]);
 
-  console.log('id', lecturerId);
-  console.log('schedule', scheduleList);
-  console.log('scheduleId', listScheduleId);
-  console.log('schedulefilter', filteredScheduleList);
 
   useEffect(() => {
     if (moduleID !== 0) {

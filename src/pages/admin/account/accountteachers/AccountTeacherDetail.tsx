@@ -72,6 +72,21 @@ const AccountTeacherDetail: React.FC = () => {
         </div>
       ),
     },
+    {
+      key: '3',
+      title: 'Semester',
+      dataIndex: 'semester',
+    },
+    {
+      key: '4',
+      title: 'Subject',
+      dataIndex: 'subject',
+    },
+    {
+      key: '5',
+      title: 'Room',
+      dataIndex: 'room',
+    },
   ];
 
   const columnsModule = [
@@ -263,6 +278,9 @@ const AccountTeacherDetail: React.FC = () => {
                 key: index,
                 classCode: item.classCode,
                 classStatus: item.classStatus,
+                semester: item.semesterCode,
+                subject: item.subjectCode,
+                room: item.roomName,
               }))}
               pagination={{
                 showSizeChanger: true,

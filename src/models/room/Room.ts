@@ -8,15 +8,16 @@ export interface Room {
 export interface RoomMessage {
   data: {
     data: {
-      data: {
-        isSuccess?: boolean;
-        title?: string;
-        errors?: string[];
-        result?: null;
-      };
-      status: boolean;
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
     };
+    status: boolean;
   };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }
 
 interface RoomDetail {
