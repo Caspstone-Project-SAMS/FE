@@ -19,7 +19,7 @@ const previewScheduleImage = async ({
     formData.append('RecommendationRate', RecommendationRate.toString());
 
     const response = await axios.post(
-      'http://34.81.224.196/api/Import/schedules',
+      'http://34.81.223.233/api/Import/schedules',
       formData,
       {
         headers: {

@@ -1,4 +1,4 @@
-const server = 'http://34.81.224.196/api';
+const server = 'http://34.81.223.233/api';
 
 //Auth
 export const USER_AUTH_API = `${server}/Auth`;
@@ -55,7 +55,7 @@ export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`;
 //User
 export const USER_API = `${server}/User`;
 
-//Script 
+//Script
 export const SCRIPT_API = `${server}/Script`;
 
 //Student Class
