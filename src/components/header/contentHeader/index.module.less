@@ -1,41 +1,41 @@
 @import '../../../assets/styles/variables.less';
 
 .contentHeader {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 
-    .contentTitle {
-        font-size: @title-font-size;
-    }
+  .contentTitle {
+    font-size: @title-font-size;
+  }
 
-    .breadcrumbCtn {
-        font-size: @regular-font-size;
-    }
+  .breadcrumbCtn {
+    font-size: @regular-font-size;
+  }
 }
 
 //Notification Item
 .notiItemCtn {
-    gap: 10px;
+  gap: 10px;
+  display: flex;
+  padding: 5px;
+
+  .imageCtn {
+  }
+
+  .notiDetailCtn {
     display: flex;
-    padding: 5px;
+    flex-direction: column;
+    gap: 2px;
 
-    .imageCtn {}
-
-    .notiDetailCtn {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        .time {
-            color: #A5ACB8
-        }
+    .time {
+      color: #a5acb8;
     }
+  }
 }
 
 .readNotification {
-    background-color: #f0f0f0; 
-  }
-  
-  .unreadNotification {
-    background-color: #fffbe6; 
-  }
-  
+  background-color: #f0f0f0;
+}
+
+.unreadNotification {
+  background-color: #f1f1f1;
+}

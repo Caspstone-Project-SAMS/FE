@@ -25,7 +25,7 @@ const createClass = createAsyncThunk(
       RoomId: number;
       SubjectId: number;
       LecturerID: string;
-      // CreatedBy: string;
+      SlotTypeId: number;
     },
     { rejectWithValue },
   ) => {
@@ -36,7 +36,7 @@ const createClass = createAsyncThunk(
         RoomId,
         SubjectId,
         LecturerID,
-        // CreatedBy,
+        SlotTypeId,
       } = arg;
       const createClassResponse = await ClassService.createClass(
         ClassCode,
@@ -44,7 +44,7 @@ const createClass = createAsyncThunk(
         RoomId,
         SubjectId,
         LecturerID,
-        // CreatedBy,
+        SlotTypeId,
       );
       return createClassResponse;
     } catch (error) {

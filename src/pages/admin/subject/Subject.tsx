@@ -136,8 +136,8 @@ const Subject: React.FC = () => {
     setLoading(true);
     await createNewSubject(SubjectCode, SubjectName, SubjectStatus);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchSubjects();
   };
 
@@ -146,7 +146,7 @@ const Subject: React.FC = () => {
     setLoading(true);
     await updateExistingSubject(subjectID, SubjectCode, SubjectName);
     setLoading(false);
-    setIsModalVisible(false);
+    // setIsModalVisible(false);
     fetchSubjects();
   };
 
@@ -212,9 +212,9 @@ const Subject: React.FC = () => {
       SubjectName: SubjectName,
       // SubjectStatus: true,
     };
-    setSubjectID(0);
-    setSubjectCode('');
-    setSubjectName('');
+    // setSubjectID(0);
+    // setSubjectCode('');
+    // setSubjectName('');
     await dispatch(updateSubject(arg) as any);
   };
 

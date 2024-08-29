@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SEMESTER_API } from '.';
+import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SCHEDULE_RECORD_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
 import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
@@ -40,26 +40,42 @@ const getScheduleByLecturer = async (
 
 const getAllSchedule = async (
   lecturerId: string,
+  listScheduleId: number[],
 ): Promise<Scheduless | null> => {
   try {
+    console.log('Schedule IDs:', listScheduleId);
+
     const response = await axios.get(`${SCHEDULE_API}/test-get-all`, {
       params: {
         startPage: 1,
         endPage: 10,
         quantity: 10,
         lecturerId,
+        scheduleIds: listScheduleId, // Correctly handled as array
+      },
+      paramsSerializer: (params) => {
+        return Object.entries(params)
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return value.map(v => `${key}=${encodeURIComponent(v)}`).join('&');
+            }
+            return `${key}=${encodeURIComponent(value)}`;
+          })
+          .join('&');
       },
       headers: {
         accept: '*/*',
       },
     });
-    console.log('abcd: ', response.data);
+
+    console.log('Response data:', response.data);
     return response.data as Scheduless;
   } catch (error) {
-    console.error('Error on get All Schedule: ', error);
+    console.error('Error fetching all schedules:', error);
     return null;
   }
 };
+
 
 const getScheduleByWeek = async (
   lecturerId: string,
@@ -233,6 +249,26 @@ const deleteScheduleOfClass = async (scheduleID: number) => {
   }
 };
 
+const getScheduleRecord = async (userID: string): Promise<ClassDetail[] | null> => {
+  try {
+    const response = await axios.get('http://34.81.223.233/api/ImportSchedulesRecord', {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+        userId: userID,
+      },
+      headers: {
+        accept: '*/*',
+      },
+    });
+    return response.data as ClassDetail[];
+  } catch (error) {
+    console.error('Error fetching schedule records: ', error);
+    return null;
+  }
+};
+
 export const CalendarService = {
   getAllSemester,
   getScheduleByLecturer,
@@ -245,4 +281,5 @@ export const CalendarService = {
   addScheduleToClass,
   updateScheduleOfClass,
   deleteScheduleOfClass,
+  getScheduleRecord,
 };

@@ -113,6 +113,16 @@ const AccountStudents: React.FC = () => {
       key: '5',
       title: 'Authenticated',
       dataIndex: 'isAuthenticated',
+      filters: [
+        {
+          text: 'Authenticated',
+          value: true,
+        },
+        {
+          text: 'Not Authenticated',
+          value: false,
+        }
+      ],
       render: (isAuthenticated: boolean) => (
         <div>
           <Tag
@@ -123,6 +133,7 @@ const AccountStudents: React.FC = () => {
           </Tag>
         </div>
       ),
+      onFilter: (value: any, record: any) => record.isAuthenticated === value,
     },
     {
       key: '6',
@@ -293,8 +304,8 @@ console.log('fail', failMessage)
     setLoading(true);
     await createNewStudent(StudentCode, DisplayName, Email);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     setReload((prevReload) => prevReload + 1);
   };
 

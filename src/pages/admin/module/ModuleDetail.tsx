@@ -112,25 +112,26 @@ const ModuleDetail: React.FC = () => {
   const mode = module?.result.mode;
   const autoReset = module?.result.autoReset;
 
-  useEffect(() => {
-    const getAllSchedule = async () => {
+  // useEffect(() => {
+    const getAllSchedule = async (id: number[]) => {
       if (lecturerId !== '') {
-        const response = await CalendarService.getAllSchedule(lecturerId);
+        const scheduleIds = id.length === 0 ? [0] : id;
+        const response = await CalendarService.getAllSchedule(lecturerId, scheduleIds);
         setScheduleList(response?.result || []);
       }
     };
-    getAllSchedule();
-  }, [lecturerId]);
+  //   getAllSchedule();
+  // }, [lecturerId, listScheduleId]);
 
-  useEffect(() => {
-    setFilteredScheduleList(
-      Array.isArray(scheduleList)
-        ? scheduleList.filter((schedule) =>
-            listScheduleId.includes(schedule.scheduleID),
-          )
-        : [],
-    );
-  }, [listScheduleId, scheduleList]);
+  // useEffect(() => {
+  //   setFilteredScheduleList(
+  //     Array.isArray(scheduleList)
+  //       ? scheduleList.filter((schedule) =>
+  //           listScheduleId.includes(schedule.scheduleID),
+  //         )
+  //       : [],
+  //   );
+  // }, [listScheduleId, scheduleList]);
 
 
   const moduleDetails = [
@@ -721,12 +722,17 @@ const ModuleDetail: React.FC = () => {
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
-                            setListScheduleId(
-                              item.preparationTask.preparedSchedules,
-                            );
-                            getScheduleByID(
-                              item.preparationTask.preparedScheduleId,
-                            );
+                            if (item.preparationTask.preparedSchedules) {
+                              // setListScheduleId(
+                              //   item.preparationTask.preparedSchedules,
+                              // );
+                              getAllSchedule(item.preparationTask.preparedSchedules);
+                              console.log('srgvrsdgvswrdvgs', item.preparationTask.preparedSchedules)
+                            } else if (item.preparationTask.preparedScheduleId) {
+                              getScheduleByID(
+                                item.preparationTask.preparedScheduleId,
+                              );
+                            }
                           }}
                         >
                           <List.Item key={item.moduleActivityId}>
@@ -845,10 +851,10 @@ const ModuleDetail: React.FC = () => {
                               </>
                             )}
                           </List.Item>
-                          {filteredScheduleList.length > 0 && (
+                          {scheduleList.length > 0 && (
                             <Table
                               columns={columns}
-                              dataSource={filteredScheduleList.map(
+                              dataSource={scheduleList.map(
                                 (item, index) => ({
                                   key: index,
                                   date: new Date(item.date).toLocaleDateString(

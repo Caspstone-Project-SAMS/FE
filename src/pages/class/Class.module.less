@@ -1,312 +1,309 @@
 @import '../../assets/styles/variables.less';
 
 .content {
-    padding-left: 20px;
-    padding-top: 20px;
-    padding-right: 20px;
-    overflow-y: auto;
+  padding-left: 20px;
+  padding-top: 20px;
+  padding-right: 20px;
+  overflow-y: auto;
 
-    .class-details-header {
+  .class-details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .text-class {
+      font-weight: bold;
+    }
+
+    .btn-fap {
+      width: 250px;
+      height: 50px;
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+
+      .btn-text {
+        margin-inline: 20px;
+        font-size: medium;
+        font-weight: 400;
+      }
+
+      .hr-line {
+        min-height: 50px;
+        max-height: 100px;
+        border-width: 1.5px;
+        border-color: #fffbfb;
+      }
+
+      .fpt-logo {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        margin-left: 5px;
+      }
+    }
+  }
 
-        .text-class {
-            font-weight: bold;
+  .class-detail-header {
+    .card-parent1 {
+      .card-1 {
+        height: 100%;
+
+        .details-header {
+          font-weight: 500;
         }
 
-        .btn-fap {
-            width: 250px;
-            height: 50px;
-            display: flex;
-            flex-direction: column;
-            align-content: center;
-            justify-content: center;
+        .row-details {
+          margin-top: 5px;
+          margin-bottom: 5px;
 
-            .btn-text {
-                margin-inline: 20px;
-                font-size: medium;
-                font-weight: 400;
-            }
+          .pastStatus {
+            color: @past-status;
+          }
 
-            .hr-line {
-                min-height: 50px;
-                max-height: 100px;
-                border-width: 1.5px;
-                border-color: #fffbfb;
-            }
+          .currentStatus {
+            color: @current-status;
+          }
 
-            .fpt-logo {
-                display: flex;
-                margin-left: 5px;
-            }
+          .futureStatus {
+            color: @future-status;
+          }
+
+          .normalTxt {
+            color: #e6e7e9;
+          }
         }
+      }
     }
 
-    .class-detail-header {
-        .card-parent1 {
-            .card-1 {
-                height: 100%;
+    .card-parent2 {
+      .card-2 {
+        height: 100%;
 
-                .details-header {
-                    font-weight: 500;
-                }
-
-                .row-details {
-                    margin-top: 5px;
-                    margin-bottom: 5px;
-
-                    .pastStatus {
-                        color: @past-status;
-                    }
-
-                    .currentStatus {
-                        color: @current-status;
-                    }
-
-                    .futureStatus {
-                        color: @future-status;
-                    }
-
-                    .normalTxt {
-                        color: #e6e7e9
-                    }
-                }
-            }
+        .btn-group {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          flex-direction: column;
         }
 
-        .card-parent2 {
-            .card-2 {
-                height: 100%;
-
-                .btn-group {
-                    display: flex;
-                    align-items: center;
-                    width: 100%;
-                    flex-direction: column;
-                }
-
-                .hr-vertical {
-                    // height: 264px;
-                    // margin-right: 15px;
-                    // margin: 0 10px;
-                }
-
-                .module-text {
-                    font-weight: 500;
-                    font-size: 25px;
-                }
-
-                .btn-connect {
-                    background-color: #0087fe;
-                    color: white;
-                    width: 100%;
-                    height: 50px;
-                    margin-right: 20px;
-
-                }
-
-                .btn-disconnect {
-                    background-color: #ff7b7b;
-                    color: #7e7283;
-                    width: 100%;
-                    height: 50px;
-                }
-
-                .module-detail {
-                    font-weight: 500;
-                }
-
-                .module-details {
-                    font-weight: 400;
-                }
-
-                //fix
-                .moduleCard {
-                    width: 100%;
-                    display: flex;
-                    gap: 10px;
-                    padding: 15px;
-                    border-radius: 8px;
-                    border: 1px solid #d9d9d9;
-                }
-
-                .moduleImgCtn {
-                    width: 45%;
-
-                    .moduleImg {
-                        width: 100%;
-                    }
-                }
-
-                .moduleInfo {
-                    width: 45%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-around;
-                }
-            }
+        .hr-vertical {
+          // height: 264px;
+          // margin-right: 15px;
+          // margin: 0 10px;
         }
+
+        .module-text {
+          font-weight: 500;
+          font-size: 25px;
+        }
+
+        .btn-connect {
+          background-color: #0087fe;
+          color: white;
+          width: 100%;
+          height: 50px;
+          margin-right: 20px;
+        }
+
+        .btn-disconnect {
+          background-color: #ff7b7b;
+          color: #7e7283;
+          width: 100%;
+          height: 50px;
+        }
+
+        .module-detail {
+          font-weight: 500;
+        }
+
+        .module-details {
+          font-weight: 400;
+        }
+
+        //fix
+        .moduleCard {
+          width: 100%;
+          display: flex;
+          gap: 10px;
+          padding: 15px;
+          border-radius: 8px;
+          border: 1px solid #d9d9d9;
+        }
+
+        .moduleImgCtn {
+          width: 45%;
+
+          .moduleImg {
+            width: 100%;
+          }
+        }
+
+        .moduleInfo {
+          width: 45%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+        }
+      }
     }
-
+  }
 }
 
 .unselected-module {
-    background-color: white;
-    width: 100%;
-    height: 100%;
-    margin-bottom: 20px;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 20px;
 }
 
 .selected-module {
-    background-color: #e3e3e3;
-    width: 100%;
-    height: 100%;
-    margin-bottom: 20px;
+  background-color: #e3e3e3;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 20px;
 }
 
 //Fix
 //admin class css
 .account-class-content {
-    overflow-y: auto;
-    // margin: 20px 20px 20px 20px;
+  overflow-y: auto;
+  // margin: 20px 20px 20px 20px;
 }
 
 .card-header {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 
-    .table-header {
-        background-color: white;
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
-        margin-top: -15px;
-        margin-bottom: -15px;
-
-        .table-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin-left: -40px;
-        }
-    }
-}
-
-.table-header {
+  .table-header {
+    background-color: white;
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
     margin-top: -15px;
+    margin-bottom: -15px;
 
     .table-title {
-        font-size: 20px;
-        font-weight: 500;
-        margin-left: -40px;
+      font-size: 20px;
+      font-weight: 500;
+      margin-left: -40px;
     }
+  }
+}
+
+.table-header {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: -15px;
+
+  .table-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: -40px;
+  }
 }
 
 .create-class-title {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 .class-details-table {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 .class-details-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+  border: 1px solid #ddd;
+  padding: 8px;
 }
 
 .class-details-table td:first-child {
-    font-weight: bold;
-    background-color: #f2f2f2;
+  font-weight: bold;
+  background-color: #f2f2f2;
 }
 
 .card-header {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .card-header-detail {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    height: 200%;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  height: 200%;
 }
 
 .account-info {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 
-    .account-details {
-        flex: 1 1 50%;
-        box-sizing: border-box;
-        padding-left: 10px;
-        width: 230px;
-        height: max-content;
+  .account-details {
+    flex: 1 1 50%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    width: 230px;
+    height: max-content;
 
-        .text-title {
-            color: #8f8f91;
-        }
+    .text-title {
+      color: #8f8f91;
     }
+  }
 }
 
 //Class report
 .classReportCtn {
-    padding: 20px;
-    overflow-y: auto;
+  padding: 20px;
+  overflow-y: auto;
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .meaningIllustration {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .row {
+      display: flex;
+      align-items: center;
+      height: 20px;
+
+      .block {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+      }
     }
-
-    .meaningIllustration {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-
-        .row {
-            display: flex;
-            align-items: center;
-            height: 20px;
-
-            .block {
-                width: 16px;
-                height: 16px;
-                margin-right: 8px;
-            }
-        }
-    }
+  }
 }
 
 //Attendance status
 .statusIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
 
 .notYetColor {
-    background-color: @yellow-base;
+  background-color: @yellow-base;
 }
 
 .attendedColor {
-    background-color: #00d749;
+  background-color: #00d749;
 }
 
 .absentColor {
-    background-color: #ff5151;
+  background-color: #ff5151;
 }
 
 .error-text {
-    color: red;
-    font-size: 12px;
-    margin: 0;
-  }
-  
+  color: red;
+  font-size: 12px;
+  margin: 0;
+}

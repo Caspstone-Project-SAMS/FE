@@ -49,6 +49,9 @@ import { MdDeleteForever } from 'react-icons/md';
 import { updateScheduleOfClasses } from '../../../redux/slice/Student';
 import { CalendarService } from '../../../hooks/Calendar';
 import { FcDeleteDatabase } from 'react-icons/fc';
+import { Box } from '@mui/material';
+import { PieChart } from '@mui/x-charts/PieChart';
+import ColorShowcase from '../../../components/color/ColorShowcase';
 
 const { Header: AntHeader } = Layout;
 
@@ -81,6 +84,10 @@ const AdminClassDetail: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const dispatch = useDispatch();
+
+  //Chart
+  const pieParams = { height: 200, margin: { right: 5 } };
+  const palette = ['red', 'gray', 'green'];
 
   const failMessage = useSelector(
     (state: RootState) => state.student.studentDetail,
@@ -116,6 +123,8 @@ const AdminClassDetail: React.FC = () => {
     }
   };
 
+  console.log(failMessage);
+
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage.title);
@@ -125,10 +134,10 @@ const AdminClassDetail: React.FC = () => {
     }
     if (failMessage && failMessage.data.data.errors) {
       message.error(`${failMessage.data.data.errors}`);
-      dispatch(clearStudentMessages());
     } else if (failMessage?.data.data) {
       message.error(`${failMessage.data.data}`);
     }
+    dispatch(clearStudentMessages());
   }, [successMessage, failMessage, dispatch]);
   const showModalUpdateSchedule = (item?: Schedule) => {
     getAllSlot();
@@ -316,6 +325,21 @@ const AdminClassDetail: React.FC = () => {
       key: '1',
       title: 'Date',
       dataIndex: 'date',
+      filters: [
+        {
+          text: 'Today',
+          value: moment().format('DD/MM/YYYY'),
+        },
+        {
+          text: 'Yesterday',
+          value: moment().subtract(1, 'days').format('DD/MM/YYYY'),
+        },
+      ],
+      onFilter: (value: any, record: any) => record.date === value,
+      sorter: (a: any, b: any) =>
+        moment(a.date, 'DD/MM/YYYY').unix() -
+        moment(b.date, 'DD/MM/YYYY').unix(),
+      sortDirections: ['descend', 'ascend'],
     },
     {
       key: '2',
@@ -451,8 +475,8 @@ const AdminClassDetail: React.FC = () => {
       RoomId,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchAll();
   };
   const handleCancel = () => {
@@ -498,8 +522,8 @@ const AdminClassDetail: React.FC = () => {
     setLoading(true);
     await addStudent(semesterId, StudentCode, ClassCode);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchAll();
   };
 
@@ -513,8 +537,8 @@ const AdminClassDetail: React.FC = () => {
       RoomId,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchAll();
   };
 
@@ -563,9 +587,9 @@ const AdminClassDetail: React.FC = () => {
       SlotId: SlotId,
       RoomId: RoomId,
     };
-    setDate(null);
-    setSlotId(0);
-    setRoomId(0 || null);
+    // setDate(null);
+    // setSlotId(0);
+    // setRoomId(0 || null);
     await dispatch(updateScheduleOfClasses(arg) as any);
   };
 
@@ -640,7 +664,7 @@ const AdminClassDetail: React.FC = () => {
       </div>
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
-          <Col span={14}>
+          <Col span={12}>
             <Card style={{ height: '100%' }}>
               <Row>
                 <Col span={4}>
@@ -697,7 +721,7 @@ const AdminClassDetail: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          <Col span={10}>
+          <Col span={6}>
             <Content>
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Class Details</p>
@@ -723,6 +747,21 @@ const AdminClassDetail: React.FC = () => {
                 </Content>
               </Col>
             </Content>
+          </Col>
+          <Col span={6}>
+            <Box flexGrow={1}>
+              {/* <Typography>Palette</Typography> */}
+              <PieChart
+                colors={palette}
+                series={[
+                  { data: [{ value: 10 }, { value: 15 }, { value: 20 }] },
+                ]}
+                {...pieParams}
+              />
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop:20 }}>
+                <ColorShowcase color="primary" explain={'lecturerAttendance'} />
+              </div>
+            </Box>
           </Col>
         </Row>
         <Row style={{ marginTop: 20 }} gutter={[16, 16]}>

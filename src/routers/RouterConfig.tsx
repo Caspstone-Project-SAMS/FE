@@ -32,6 +32,8 @@ import { IoMdTime } from 'react-icons/io';
 import { LuFingerprint } from 'react-icons/lu';
 import ScriptTime from '../pages/script/ScriptTime';
 import RegisterFingerprint from '../pages/script/RegisterFingerprint';
+import ImportScheduleRecord from '../components/calendar/ImportScheduleRecord';
+import SystemConfig from '../pages/admin/system/SystemConfig';
 
 const lecture = [
   {
@@ -81,6 +83,10 @@ const lecture = [
   {
     path: '/module/module-detail',
     element: <LecturerModuleDetail />
+  },
+  {
+    path: '/calendar/import-schedule-record',
+    element: <ImportScheduleRecord />
   },
   // {
   //   path: '/account/reset-password',
@@ -180,6 +186,10 @@ const admin = [
   {
     path: '/module/module-detail',
     element: <ModuleDetail />
+  },
+  {
+    path: '/system',
+    element: <SystemConfig />
   },
 ]
 

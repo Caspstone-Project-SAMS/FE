@@ -13,7 +13,12 @@ import {
 } from 'antd';
 import './Header.css';
 import styles from '../header/contentHeader/index.module.less';
-import { IoIosArrowDown } from 'react-icons/io';
+import {
+  IoIosArrowDown,
+  IoIosCheckmark,
+  IoIosCloseCircleOutline,
+  IoIosWarning,
+} from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { UserInfo } from '../../models/UserInfo';
@@ -138,11 +143,15 @@ const Headers: React.FC<HeadersProps> = ({
             Home
           </Button>
           <br />
+          {(user?.result?.role.name as any) === 'Admin' ? (
+            <div>
+              <Button type="text" onClick={handleNavigateScript}>
+                Script
+              </Button>
+              <br />
+            </div>
+          ) : null}
 
-          <Button type="text" onClick={handleNavigateScript}>
-            Script
-          </Button>
-          <br />
           <Button type="text" onClick={handleLogout}>
             Log out
           </Button>
@@ -211,7 +220,7 @@ const Headers: React.FC<HeadersProps> = ({
                         ? styles.readNotification
                         : styles.unreadNotification
                     }`}
-                    style={{marginBottom:5}}
+                    style={{ marginBottom: 5 }}
                   >
                     <div className={styles.notiItemCtn}>
                       <div className={styles.imageCtn}>
@@ -227,7 +236,26 @@ const Headers: React.FC<HeadersProps> = ({
                         </Avatar>
                       </div>
                       <div className={styles.notiDetailCtn}>
-                        <Text style={{ fontWeight: 500 }}>{item.title}</Text>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Text style={{ fontWeight: 500 }}>{item.title}</Text>
+                          <div style={{ marginLeft: 'auto' }}>
+                            {item.notificationType.typeName ===
+                            'Information' ? (
+                              <IoIosCheckmark
+                                style={{ color: 'green', fontSize: '1.5rem' }}
+                              />
+                            ) : item.notificationType.typeName === 'Error' ? (
+                              <IoIosCloseCircleOutline
+                                style={{ color: 'red', fontSize: '1.5rem' }}
+                              />
+                            ) : item.notificationType.typeName === 'Warning' ? (
+                              <IoIosWarning
+                                style={{ color: 'orange', fontSize: '1.5rem' }}
+                              />
+                            ) : null}
+                          </div>
+                        </div>
+
                         <Text
                           style={{
                             color:
@@ -237,7 +265,7 @@ const Headers: React.FC<HeadersProps> = ({
                                 ? 'red'
                                 : item.notificationType.typeName === 'Warning'
                                 ? 'orange'
-                                : 'inherit', // Fallback color
+                                : 'inherit',
                             display: 'block',
                             whiteSpace: 'pre-wrap',
                           }}

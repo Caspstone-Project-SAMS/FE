@@ -113,6 +113,7 @@ export interface ActiveModuleFail {
     error: {
       title: string;
       Errors: string;
+      errors: string;
     };
   };
 }

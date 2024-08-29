@@ -151,8 +151,8 @@ const Slot: React.FC = () => {
       Endtime ? moment(Endtime, 'HH:mm').format('HH:mm:ss') : '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchSlots();
   };
 
@@ -171,8 +171,8 @@ const Slot: React.FC = () => {
       Endtime ? moment(Endtime, 'HH:mm').format('HH:mm:ss') : '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchSlots();
   };
 

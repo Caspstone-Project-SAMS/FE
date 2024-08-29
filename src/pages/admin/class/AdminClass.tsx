@@ -69,6 +69,7 @@ const AdminClass: React.FC = () => {
   const [RoomId, setRoomId] = useState<number | null>(null);
   const [SubjectId, setSubjectId] = useState<number | null>(null);
   const [LecturerID, setLecturerID] = useState<string | null>(null);
+  const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
 
   // Error state
@@ -248,8 +249,8 @@ const AdminClass: React.FC = () => {
       LecturerID ?? '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchClasses();
   };
 
@@ -266,8 +267,8 @@ const AdminClass: React.FC = () => {
       LecturerID ?? '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchClasses();
   };
 

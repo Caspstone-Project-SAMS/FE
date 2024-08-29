@@ -7,6 +7,7 @@ import { Content } from 'antd/es/layout/layout';
 import Excel from '../excel/Excel';
 import { Button } from 'antd';
 import { CiImageOn } from 'react-icons/ci';
+import { GoHistory } from "react-icons/go";
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
@@ -25,14 +26,14 @@ const HomeCalendar: React.FC = () => {
           currentBreadcrumb={undefined}
         />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Link to={'/schedule/import-schedule-record'}>
+          <Link to={'/calendar/import-schedule-record'}>
             <Button
               style={{
                 display: 'flex',
                 alignItems: 'center',
               }}
               size="large"
-              icon={<CiImageOn size={18} />}
+              icon={<GoHistory size={18} />}
             >
               Import Schedule Record
             </Button>

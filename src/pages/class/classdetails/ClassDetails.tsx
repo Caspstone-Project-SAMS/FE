@@ -36,13 +36,20 @@ import { HelperService } from '../../../hooks/helpers/helperFunc';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import { ModuleService } from '../../../hooks/Module';
+import { IoReload } from 'react-icons/io5';
 import {
   ModuleActivity,
   ModuleByID,
   ModuleDetail,
 } from '../../../models/module/Module';
 import moduleImg from '../../../assets/imgs/module00.png';
-import { activeModule, clearModuleMessages, startCheckAttendances, stopCheckAttendances, syncAttendance } from '../../../redux/slice/Module';
+import {
+  activeModule,
+  clearModuleMessages,
+  startCheckAttendances,
+  stopCheckAttendances,
+  syncAttendance,
+} from '../../../redux/slice/Module';
 import modules from '../../../assets/imgs/module.png';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 const { Option } = Select;
@@ -112,8 +119,9 @@ const ClassDetails: React.FC = () => {
       }
       if (successMessage.title == 'Connect module successfully') {
         setSessionID(successMessage.result.sessionId);
+        setStatus('success');
       }
-      setStatus('success');
+
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error.title) {
@@ -123,44 +131,58 @@ const ClassDetails: React.FC = () => {
       } else {
         message.error(`${failMessage.data.error.errors}`);
       }
-      setStatus('fail');
+      if (failMessage.data.error.title == 'Connect module failed') {
+        // message.error(`${failMessage.data.error.title}`);
+        setStatus('fail');
+      }
+
       dispatch(clearModuleMessages());
     }
   }, [successMessage, failMessage, dispatch]);
 
+  const fetchModuleActivity = useCallback(async () => {
+    try {
+      const response = await ModuleService.getModuleActivityByScheduleID(
+        scheduleID,
+      );
+      if (response && response.result) {
+        const reverseList = response.result.reverse();
+        setModuleActivity(reverseList);
+      } else {
+        setModuleActivity([]);
+      }
+    } catch (error) {
+      console.log('error at fetchModuleActivity', error);
+    }
+  }, [scheduleID]);
+
+  console.log('aaaa');
+
+  useEffect(() => {
+    if (scheduleID !== 0) {
+      fetchModuleActivity();
+    }
+  }, [scheduleID]);
+
   // useEffect(() => {
-  //   if (moduleID !== 0) {
-  //     const response = ModuleService.getModuleByID(moduleID);
+  //   if (scheduleID !== 0) {
+  //     const response = ModuleService.getModuleActivityByScheduleID(scheduleID);
 
   //     response
   //       .then((data) => {
-  //         setModuleByID(data || undefined);
+  //         //Newest on top
+  //         if (data && data.result) {
+  //           const reverseList = data.result.reverse();
+  //           setModuleActivity(reverseList);
+  //         } else {
+  //           setModuleActivity([]);
+  //         }
   //       })
   //       .catch((error) => {
   //         console.log('get module by id error: ', error);
   //       });
   //   }
-  // }, [moduleID]);
-
-  useEffect(() => {
-    if (scheduleID !== 0) {
-      const response = ModuleService.getModuleActivityByScheduleID(scheduleID);
-
-      response
-        .then((data) => {
-          //Newest on top
-          if (data && data.result) {
-            const reverseList = data.result.reverse();
-            setModuleActivity(reverseList);
-          } else {
-            setModuleActivity([]);
-          }
-        })
-        .catch((error) => {
-          console.log('get module by id error: ', error);
-        });
-    }
-  }, [scheduleID]);
+  // }, [scheduleID]);
 
   const list = moduleActivity;
 
@@ -187,8 +209,6 @@ const ClassDetails: React.FC = () => {
     },
     [moduleDetail],
   );
-
-  console.log('session', sessionID);
 
   const ConnectWebsocket = useCallback(() => {
     const ws = new WebSocket('ws://34.81.224.196/ws/client', [
@@ -228,7 +248,7 @@ const ClassDetails: React.FC = () => {
               (module) => module.moduleID === moduleId,
             );
             // autoConnectModule().then(() => {
-              setModuleByID(specificModule as ModuleDetail | undefined);
+            setModuleByID(specificModule as ModuleDetail | undefined);
             //   console.log('run');
             // }).catch((error) => {
 
@@ -249,7 +269,7 @@ const ClassDetails: React.FC = () => {
                 (module) => module.moduleID === moduleId,
               );
               // autoConnectModule().then(() => {
-                setModuleByID(specificModule as ModuleDetail | undefined);
+              setModuleByID(specificModule as ModuleDetail | undefined);
               //   console.log('run');
               // }).catch((error) => {
               //   console.log('Error in autoConnectModule:', error);
@@ -408,11 +428,10 @@ const ClassDetails: React.FC = () => {
   };
 
   useEffect(() => {
-    // Return a cleanup function
     return () => {
       handleResetModule();
     };
-  }, []); // Empty dependency array means this runs on unmount only
+  }, []);
 
   // const handleReset = async (moduleID: number) => {
   //   const StopAttendance = {
@@ -513,31 +532,29 @@ const ClassDetails: React.FC = () => {
     const StopAttendance = {
       ScheduleID: scheduleID,
     };
-    const arg ={
+    const arg = {
       ModuleID: moduleID,
       Mode: 4,
       StopAttendance: StopAttendance,
-      token: token
+      token: token,
     };
     await dispatch(stopCheckAttendances(arg) as any);
 
-      setIsCheckAttendance(false);
-      setIsModalVisible(false);
-      setIsActiveModule(false);
-      setExit(true);
-
-
+    setIsCheckAttendance(false);
+    setIsModalVisible(false);
+    setIsActiveModule(false);
+    setExit(true);
   };
 
   const handleStart = async (moduleID: number) => {
     const StartAttendance = {
       ScheduleID: scheduleID,
     };
-    const arg ={
+    const arg = {
       ModuleID: moduleID,
       Mode: 10,
       StartAttendance: StartAttendance,
-      token: token
+      token: token,
     };
     await dispatch(startCheckAttendances(arg) as any);
   };
@@ -546,15 +563,14 @@ const ClassDetails: React.FC = () => {
     const SyncingAttendanceData = {
       ScheduleID: scheduleID,
     };
-    const arg ={
+    const arg = {
       ModuleID: moduleID,
       Mode: 12,
       SyncingAttendanceData: SyncingAttendanceData,
-      token: token
+      token: token,
     };
     await dispatch(syncAttendance(arg) as any);
   };
-
 
   const handleModuleClick = async (moduleId: number, module: any) => {
     setLoading(true);
@@ -887,57 +903,63 @@ const ClassDetails: React.FC = () => {
                       Disconnect tracking
                     </Button>
                   </Popconfirm> */}
-                <List
-                  className="demo-loadmore-list"
-                  itemLayout="horizontal"
-                  dataSource={list}
-                  style={{
-                    width: '100%',
-                    borderRadius: 10,
-                    height: 300,
-                    overflowY: 'auto',
-                  }}
-                  renderItem={(item) => (
-                    <List.Item
-                      style={{
-                        backgroundColor: '#f5f5f5',
-                        borderRadius: 10,
-                        marginBottom: 10,
-                      }}
-                      // actions={[
-                      //   <a style={{ color: 'green' }} key="list-loadmore-edit">
-                      //     start
-                      //   </a>,
-                      //   <a style={{ color: 'red' }} key="list-loadmore-more">
-                      //     stop
-                      //   </a>,
-                      //   <a style={{ color: 'blue' }} key="list-loadmore-more">
-                      //     sync
-                      //   </a>,
-                      // ]}
-                    >
-                      <List.Item.Meta
-                        avatar={
-                          <div style={{ marginLeft: 10 }}>
-                            <b>Module {item.module.moduleID}</b>
-                            <br />
-                            <Avatar
-                              src={modules}
-                              style={{
-                                width: '120px',
-                                height: '80px',
-                                borderRadius: 5,
-                              }}
-                            />
-                          </div>
-                        }
-                        // title={
-                        //   <a href="https://ant.design">{item.name?.last}</a>
-                        // }
-                        // title={`Module ${item.module.moduleID}`}
-                        // description="a"
-                      />
-                      {/* <div style={{width:'10%', marginRight: 40}}>
+                <Row style={{ width: '100%' }}>
+                  <Space>
+                    <Button type="link" onClick={() => fetchModuleActivity()}>
+                      <IoReload size={25} /> 
+                    </Button>
+                  </Space>
+                  <List
+                    className="demo-loadmore-list"
+                    itemLayout="horizontal"
+                    dataSource={list}
+                    style={{
+                      width: '100%',
+                      borderRadius: 10,
+                      height: 200,
+                      overflowY: 'auto',
+                    }}
+                    renderItem={(item) => (
+                      <List.Item
+                        style={{
+                          backgroundColor: '#f5f5f5',
+                          borderRadius: 10,
+                          marginBottom: 10,
+                        }}
+                        // actions={[
+                        //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                        //     start
+                        //   </a>,
+                        //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                        //     stop
+                        //   </a>,
+                        //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                        //     sync
+                        //   </a>,
+                        // ]}
+                      >
+                        <List.Item.Meta
+                          avatar={
+                            <div style={{ marginLeft: 10 }}>
+                              <b>Module {item.module.moduleID}</b>
+                              <br />
+                              <Avatar
+                                src={modules}
+                                style={{
+                                  width: '120px',
+                                  height: '80px',
+                                  borderRadius: 5,
+                                }}
+                              />
+                            </div>
+                          }
+                          // title={
+                          //   <a href="https://ant.design">{item.name?.last}</a>
+                          // }
+                          // title={`Module ${item.module.moduleID}`}
+                          // description="a"
+                        />
+                        {/* <div style={{width:'10%', marginRight: 40}}>
                             <b>{'Module' + item.module.moduleID}</b>
                             <br/>
                             <img alt='module' src={modules} style={{height:25, width:25}}/>
@@ -945,96 +967,111 @@ const ClassDetails: React.FC = () => {
                           <div style={{width:'25%'}}>
                             {item.startTime}
                           </div> */}
-                      <div>
-                        <b>Time:</b>{' '}
-                        {new Date(item.startTime).toLocaleString('en-GB', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                          hour12: false,
-                        })}
                         <div>
-                          <b>Uploaded:</b>{' '}
-                          <div
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              backgroundColor: '#f5f5f5',
-                              borderRadius: '5px',
-                              padding: '0px 5px',
-                              fontSize: '10px',
-                              color: '#333',
-                              border: '1px solid #ddd',
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            }}
-                          >
-                            <span
+                          <b>Time:</b>{' '}
+                          {new Date(item.startTime).toLocaleString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false,
+                          })}
+                          <div>
+                            <b>Uploaded:</b>{' '}
+                            <div
                               style={{
-                                fontWeight: 'bold',
-                                marginRight: '5px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                backgroundColor: '#f5f5f5',
+                                borderRadius: '5px',
+                                padding: '0px 5px',
+                                fontSize: '10px',
+                                color: '#333',
+                                border: '1px solid #ddd',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                               }}
                             >
-                              {item.preparationTask.uploadedFingers}
-                            </span>
-                            <span
-                              style={{
-                                fontWeight: 'bold',
-                                color: '#108ee9',
-                                marginRight: '5px',
-                              }}
-                            >
-                              /
-                            </span>
-                            <span
-                              style={{
-                                fontWeight: 'bold',
-                                marginRight: '5px',
-                              }}
-                            >
-                              {item.preparationTask.totalFingers}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: '12px',
-                                color: '#555',
-                              }}
-                            >
-                              Fingers
-                            </span>
+                              <span
+                                style={{
+                                  fontWeight: 'bold',
+                                  marginRight: '5px',
+                                }}
+                              >
+                                {item.preparationTask.uploadedFingers}
+                              </span>
+                              <span
+                                style={{
+                                  fontWeight: 'bold',
+                                  color: '#108ee9',
+                                  marginRight: '5px',
+                                }}
+                              >
+                                /
+                              </span>
+                              <span
+                                style={{
+                                  fontWeight: 'bold',
+                                  marginRight: '5px',
+                                }}
+                              >
+                                {item.preparationTask.totalFingers}
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: '12px',
+                                  color: '#555',
+                                }}
+                              >
+                                Fingers
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <Space>
-                        <Popover
-                          placement="bottomRight"
-                          content={
-                            <Space direction="vertical" size="small">
-                              <Button type="text" onClick={() => handleStart(item.module.moduleID)}>
-                                Start
-                              </Button>
-                              <Button type="text" onClick={() => handleReset(item.module.moduleID)}>
-                                Stop
-                              </Button>
-                              <Button type="text" onClick={() => handleSync(item.module.moduleID)}>
-                                Sync
-                              </Button>
-                            </Space>
-                          }
-                          trigger="click"
-                        >
-                          <Button style={{ marginBottom: 50 }} type="link">
-                            <BsThreeDotsVertical size={25} />
-                          </Button>
-                        </Popover>
-                      </Space>
-                    </List.Item>
-                  )}
-                />
-                {/* </Row> */}
+                        <Space>
+                          <Popover
+                            placement="bottomRight"
+                            content={
+                              <Space direction="vertical" size="small">
+                                <Button
+                                  type="text"
+                                  onClick={() =>
+                                    handleStart(item.module.moduleID)
+                                  }
+                                >
+                                  Start
+                                </Button>
+                                <Button
+                                  type="text"
+                                  onClick={() =>
+                                    handleReset(item.module.moduleID)
+                                  }
+                                >
+                                  Stop
+                                </Button>
+                                <Button
+                                  type="text"
+                                  onClick={() =>
+                                    handleSync(item.module.moduleID)
+                                  }
+                                >
+                                  Sync
+                                </Button>
+                              </Space>
+                            }
+                            trigger="click"
+                          >
+                            <Button style={{ marginBottom: 50 }} type="link">
+                              <BsThreeDotsVertical size={25} />
+                            </Button>
+                          </Popover>
+                        </Space>
+                      </List.Item>
+                    )}
+                  />
+                </Row>
               </Col>
             </Row>
           </Card>

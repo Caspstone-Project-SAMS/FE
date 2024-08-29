@@ -13,7 +13,7 @@ import { PiStudent } from 'react-icons/pi';
 import { CiCalendar } from 'react-icons/ci';
 import { IoCalendar } from 'react-icons/io5';
 import { GiBookshelf } from 'react-icons/gi';
-import { GrSchedules } from 'react-icons/gr';
+import { GrSchedules, GrSystem } from 'react-icons/gr';
 import { MdViewModule } from 'react-icons/md';
 import { IoMdTime } from "react-icons/io";
 import { LuDoorOpen } from 'react-icons/lu';
@@ -145,6 +145,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isRunScript }) => {
                     label: 'Module',
                     key: '/module',
                     icon: <MdViewModule />,
+                  },
+                  {
+                    label: 'System',
+                    key: '/system',
+                    icon: <GrSystem />,
                   },
                 ]
               : role === 'Lecturer'
