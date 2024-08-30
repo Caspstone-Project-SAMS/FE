@@ -211,7 +211,7 @@ const ClassDetails: React.FC = () => {
   );
 
   const ConnectWebsocket = useCallback(() => {
-    const ws = new WebSocket('ws://34.81.224.196/ws/client', [
+    const ws = new WebSocket('ws://34.81.223.233/ws/client', [
       'access_token',
       token,
     ]);
@@ -919,157 +919,174 @@ const ClassDetails: React.FC = () => {
                       height: 200,
                       overflowY: 'auto',
                     }}
-                    renderItem={(item) => (
-                      <List.Item
-                        style={{
-                          backgroundColor: '#f5f5f5',
-                          borderRadius: 10,
-                          marginBottom: 10,
-                        }}
-                        // actions={[
-                        //   <a style={{ color: 'green' }} key="list-loadmore-edit">
-                        //     start
-                        //   </a>,
-                        //   <a style={{ color: 'red' }} key="list-loadmore-more">
-                        //     stop
-                        //   </a>,
-                        //   <a style={{ color: 'blue' }} key="list-loadmore-more">
-                        //     sync
-                        //   </a>,
-                        // ]}
-                      >
-                        <List.Item.Meta
-                          avatar={
-                            <div style={{ marginLeft: 10 }}>
-                              <b>Module {item.module.moduleID}</b>
-                              <br />
-                              <Avatar
-                                src={modules}
-                                style={{
-                                  width: '120px',
-                                  height: '80px',
-                                  borderRadius: 5,
-                                }}
-                              />
-                            </div>
-                          }
-                          // title={
-                          //   <a href="https://ant.design">{item.name?.last}</a>
-                          // }
-                          // title={`Module ${item.module.moduleID}`}
-                          // description="a"
-                        />
-                        {/* <div style={{width:'10%', marginRight: 40}}>
-                            <b>{'Module' + item.module.moduleID}</b>
-                            <br/>
-                            <img alt='module' src={modules} style={{height:25, width:25}}/>
-                          </div>
-                          <div style={{width:'25%'}}>
-                            {item.startTime}
-                          </div> */}
-                        <div>
-                          <b>Time:</b>{' '}
-                          {new Date(item.startTime).toLocaleString('en-GB', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit',
-                            hour12: false,
-                          })}
-                          <div>
-                            <b>Uploaded:</b>{' '}
-                            <div
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                backgroundColor: '#f5f5f5',
-                                borderRadius: '5px',
-                                padding: '0px 5px',
-                                fontSize: '10px',
-                                color: '#333',
-                                border: '1px solid #ddd',
-                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontWeight: 'bold',
-                                  marginRight: '5px',
-                                }}
-                              >
-                                {item.preparationTask.uploadedFingers}
-                              </span>
-                              <span
-                                style={{
-                                  fontWeight: 'bold',
-                                  color: '#108ee9',
-                                  marginRight: '5px',
-                                }}
-                              >
-                                /
-                              </span>
-                              <span
-                                style={{
-                                  fontWeight: 'bold',
-                                  marginRight: '5px',
-                                }}
-                              >
-                                {item.preparationTask.totalFingers}
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: '12px',
-                                  color: '#555',
-                                }}
-                              >
-                                Fingers
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                    renderItem={(item) => {
+                      let totalFingers = 0;
+                      let uploadedFingers = 0;
 
-                        <Space>
-                          <Popover
-                            placement="bottomRight"
-                            content={
-                              <Space direction="vertical" size="small">
-                                <Button
-                                  type="text"
-                                  onClick={() =>
-                                    handleStart(item.module.moduleID)
-                                  }
-                                >
-                                  Start
-                                </Button>
-                                <Button
-                                  type="text"
-                                  onClick={() =>
-                                    handleReset(item.module.moduleID)
-                                  }
-                                >
-                                  Stop
-                                </Button>
-                                <Button
-                                  type="text"
-                                  onClick={() =>
-                                    handleSync(item.module.moduleID)
-                                  }
-                                >
-                                  Sync
-                                </Button>
-                              </Space>
+                      if(item.preparationTask.preparedScheduleId == scheduleID){
+                        totalFingers = item.preparationTask.totalFingers;
+                        uploadedFingers = item.preparationTask.uploadedFingers;
+                      }
+                      else{
+                        let schedule = item.preparationTask.preparedSchedules.find(s => s.scheduleId == scheduleID);
+                        if(schedule !== undefined){
+                          totalFingers = schedule.totalFingers;
+                          uploadedFingers = schedule.uploadedFingers;
+                        }
+                      }
+
+                      return (
+                        <List.Item
+                          style={{
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: 10,
+                            marginBottom: 10,
+                          }}
+                          // actions={[
+                          //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                          //     start
+                          //   </a>,
+                          //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                          //     stop
+                          //   </a>,
+                          //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                          //     sync
+                          //   </a>,
+                          // ]}
+                        >
+                          <List.Item.Meta
+                            avatar={
+                              <div style={{ marginLeft: 10 }}>
+                                <b>Module {item.module.moduleID}</b>
+                                <br />
+                                <Avatar
+                                  src={modules}
+                                  style={{
+                                    width: '120px',
+                                    height: '80px',
+                                    borderRadius: 5,
+                                  }}
+                                />
+                              </div>
                             }
-                            trigger="click"
-                          >
-                            <Button style={{ marginBottom: 50 }} type="link">
-                              <BsThreeDotsVertical size={25} />
-                            </Button>
-                          </Popover>
-                        </Space>
-                      </List.Item>
-                    )}
+                            // title={
+                            //   <a href="https://ant.design">{item.name?.last}</a>
+                            // }
+                            // title={`Module ${item.module.moduleID}`}
+                            // description="a"
+                          />
+                          {/* <div style={{width:'10%', marginRight: 40}}>
+                              <b>{'Module' + item.module.moduleID}</b>
+                              <br/>
+                              <img alt='module' src={modules} style={{height:25, width:25}}/>
+                            </div>
+                            <div style={{width:'25%'}}>
+                              {item.startTime}
+                            </div> */}
+                          <div>
+                            <b>Time:</b>{' '}
+                            {new Date(item.startTime).toLocaleString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                              hour12: false,
+                            })}
+                            <div>
+                              <b>Uploaded:</b>{' '}
+                              <div
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  backgroundColor: '#f5f5f5',
+                                  borderRadius: '5px',
+                                  padding: '0px 5px',
+                                  fontSize: '10px',
+                                  color: '#333',
+                                  border: '1px solid #ddd',
+                                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  {uploadedFingers}
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    color: '#108ee9',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  /
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  {totalFingers}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: '12px',
+                                    color: '#555',
+                                  }}
+                                >
+                                  Fingers
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+  
+                          <Space>
+                            <Popover
+                              placement="bottomRight"
+                              content={
+                                <Space direction="vertical" size="small">
+                                  <Button
+                                    type="text"
+                                    onClick={() =>
+                                      handleStart(item.module.moduleID)
+                                    }
+                                  >
+                                    Start
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    onClick={() =>
+                                      handleReset(item.module.moduleID)
+                                    }
+                                  >
+                                    Stop
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    onClick={() =>
+                                      handleSync(item.module.moduleID)
+                                    }
+                                  >
+                                    Sync
+                                  </Button>
+                                </Space>
+                              }
+                              trigger="click"
+                            >
+                              <Button style={{ marginBottom: 50 }} type="link">
+                                <BsThreeDotsVertical size={25} />
+                              </Button>
+                            </Popover>
+                          </Space>
+                        </List.Item>
+                      )
+                    }}
                   />
                 </Row>
               </Col>

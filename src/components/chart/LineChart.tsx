@@ -17,8 +17,12 @@ const MyLineChart: React.FC = () => {
       xAxis={[{ dataKey: 'x', label: 'X Axis' }]}
       series={[
         {
+            dataKey: 'x',
+            label: 'Series 1',
+          },
+        {
           dataKey: 'y',
-          label: 'Series 1',
+          label: 'Series 2',
         },
       ]}
     //   width={500}

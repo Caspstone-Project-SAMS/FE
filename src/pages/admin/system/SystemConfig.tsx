@@ -8,20 +8,7 @@ import { SystemService } from '../../../hooks/System';
 import SystemComponent from '../../../components/system/SystemComponent';
 
 const SystemConfig: React.FC = () => {
-  const [systemConfig, setSystemConfig] = useState<System>();
 
-  const fectSystemConfig = useCallback(async () => {
-    try {
-      const result = await SystemService.getAllSystem();
-      setSystemConfig(result || undefined);
-    } catch (error) {
-      console.error('Failed to fetch system configuration:', error);
-    }
-  }, [setSystemConfig]);
-
-  useEffect(() => {
-    fectSystemConfig();
-  }, [fectSystemConfig]);
 
   return (
     <Content className={styles.homeSystemCtn}>
@@ -33,7 +20,7 @@ const SystemConfig: React.FC = () => {
         />
       </div>
       <Card className={styles.cardHeader}>
-        <SystemComponent systemConfig={systemConfig}/>
+        <SystemComponent />
       </Card>
     </Content>
   );

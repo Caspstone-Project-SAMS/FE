@@ -15,11 +15,11 @@ export interface ModuleByID {
     preparedMinBeforeSlot?: null;
     preparedTime?: null;
     connectionLifeTimeSeconds?: number;
-    connectionSound: boolean,
-    connectionSoundDurationMs: number,
-    attendanceSound: boolean,
-    attendanceSoundDurationMs: number,
-    attendanceDurationMinutes: number,
+    connectionSound: boolean;
+    connectionSoundDurationMs: number;
+    attendanceSound: boolean;
+    attendanceSoundDurationMs: number;
+    attendanceDurationMinutes: number;
     autoReset: boolean;
     resetMinAfterSlot?: null;
     resetMinBeforeSlot?: null;
@@ -83,12 +83,18 @@ export interface ModuleActivity {
   module: ModuleBySchedule;
 }
 
-interface PrepareTask{
+interface PrepareTask {
   progress: number;
   preparedScheduleId: number;
-  preparedSchedules: number[];
-  totalFingers: number,
-  uploadedFingers: number,
+  preparedSchedules: preparedSchedule[];
+  totalFingers: number;
+  uploadedFingers: number;
+}
+
+export interface preparedSchedule {
+  scheduleId: number;
+  totalFingers: number;
+  uploadedFingers: number;
 }
 
 export interface ModuleBySchedule {

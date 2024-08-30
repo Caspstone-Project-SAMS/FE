@@ -32,6 +32,7 @@ import type {
   ModuleActivity,
   ModuleByID,
   ModuleDetail,
+  preparedSchedule,
 } from '../../../models/module/Module';
 import { ModuleService } from '../../../hooks/Module';
 import { CalendarService } from '../../../hooks/Calendar';
@@ -75,6 +76,8 @@ const ModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
+console.log('test', moduleActivity);
+
   const dispatch = useDispatch();
   const token = useSelector(
     (state: RootState) => state.auth.userDetail?.token ?? '',
@@ -113,11 +116,19 @@ const ModuleDetail: React.FC = () => {
   const autoReset = module?.result.autoReset;
 
   // useEffect(() => {
-    const getAllSchedule = async (id: number[]) => {
+    const getAllSchedule = async (schedules: preparedSchedule[]) => {
       if (lecturerId !== '') {
-        const scheduleIds = id.length === 0 ? [0] : id;
+        const scheduleIds = schedules.length === 0 ? [0] : schedules.map(s => s.scheduleId);
         const response = await CalendarService.getAllSchedule(lecturerId, scheduleIds);
-        setScheduleList(response?.result || []);
+        const result = response?.result || [];
+
+        result.forEach(s =>{
+          const schedule = schedules.filter(s1 => s1.scheduleId === s.scheduleID)[0];
+          s.total = schedule.totalFingers ?? 0;
+          s.uploaded = schedule.uploadedFingers ?? 0;
+        });
+
+        setScheduleList(result);
       }
     };
   //   getAllSchedule();
@@ -219,6 +230,11 @@ const ModuleDetail: React.FC = () => {
       title: 'Class',
       dataIndex: 'class',
     },
+    {
+      key: '5',
+      title: 'Uploaded Fingerprints',
+      dataIndex: 'uploadFingerprints',
+    }
   ];
 
   useEffect(() => {
@@ -855,19 +871,24 @@ const ModuleDetail: React.FC = () => {
                             <Table
                               columns={columns}
                               dataSource={scheduleList.map(
-                                (item, index) => ({
+                                (item1, index) => ({
                                   key: index,
-                                  date: new Date(item.date).toLocaleDateString(
+                                  date: new Date(item1.date).toLocaleDateString(
                                     'en-GB',
                                   ),
-                                  slot: item.slot.slotNumber,
+                                  slot: item1.slot.slotNumber,
                                   time: (
                                     <div>
-                                      {item.slot.startTime.slice(0, 5)} -{' '}
-                                      {item.slot.endtime.slice(0, 5)}
+                                      {item1.slot.startTime.slice(0, 5)} -{' '}
+                                      {item1.slot.endtime.slice(0, 5)}
                                     </div>
                                   ),
-                                  class: item.class.classCode,
+                                  class: item1.class.classCode,
+                                  uploadFingerprints: (
+                                    <>
+                                     {item1.uploaded} / {item1.total}
+                                    </>
+                                  )
                                 }),
                               )}
                               pagination={false}

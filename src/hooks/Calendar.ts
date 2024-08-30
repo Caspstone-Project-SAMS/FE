@@ -3,7 +3,7 @@ import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SCHEDULE_RECORD_API, SEMESTER_API 
 import { Semester } from '../models/calendar/Semester';
 import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
-import { Schedules, Scheduless } from '../models/calendar/Schedule';
+import { ScheduleRecord, Schedules, Scheduless } from '../models/calendar/Schedule';
 
 type ScheduleList = {
   date: string;
@@ -249,9 +249,9 @@ const deleteScheduleOfClass = async (scheduleID: number) => {
   }
 };
 
-const getScheduleRecord = async (userID: string): Promise<ClassDetail[] | null> => {
+const getScheduleRecord = async (userID: string): Promise<ScheduleRecord | null> => {
   try {
-    const response = await axios.get('http://34.81.223.233/api/ImportSchedulesRecord', {
+    const response = await axios.get(SCHEDULE_RECORD_API, {
       params: {
         startPage: 1,
         endPage: 10,
@@ -262,10 +262,34 @@ const getScheduleRecord = async (userID: string): Promise<ClassDetail[] | null> 
         accept: '*/*',
       },
     });
-    return response.data as ClassDetail[];
+    return response.data as ScheduleRecord;
   } catch (error) {
     console.error('Error fetching schedule records: ', error);
     return null;
+  }
+};
+
+const revertScheduleImport = async (
+  importSchedulesRecordID: number,
+) => {
+  try {
+    const response = await axios.put(
+      `${SCHEDULE_RECORD_API}/revert/${importSchedulesRecordID}`,
+      {
+        headers: {
+          accept: '*/*',
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -282,4 +306,5 @@ export const CalendarService = {
   updateScheduleOfClass,
   deleteScheduleOfClass,
   getScheduleRecord,
+  revertScheduleImport,
 };

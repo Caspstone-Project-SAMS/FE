@@ -28,8 +28,12 @@ export const SET_WIFI_API = `http://192.168.4.1/connect-to`;
 
 //Module activity
 export const MODULE_ACTIVITY_API = `${server}/ModuleActivity`;
+
 //Slot
 export const SLOT_API = `${server}/Slot`;
+
+//Slot Type
+export const SLOT_TYPE_API = `${server}/SlotType`;
 
 //Class
 export const EMPLOYEE_API = `${server}/Employee`;

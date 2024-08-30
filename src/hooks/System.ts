@@ -17,6 +17,40 @@ const getAllSystem = async (): Promise<System | null> => {
   }
 };
 
+const updateSystem = async (
+  RevertableDurationInHours: number,
+  ClassCodeMatchRate: number,
+  SemesterDurationInDays: number,
+) => {
+  try {
+    const response = await axios.put(
+      SYSTEM_API,
+      {
+        RevertableDurationInHours,
+        ClassCodeMatchRate,
+        SemesterDurationInDays,
+      },
+      {
+        headers: {
+          accept: '*/*',
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Axios Error:', error.response.data);
+      throw new Error(error.response.data);
+    } else {
+      console.error('Unexpected Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
 export const SystemService = {
   getAllSystem,
+  updateSystem,
 };

@@ -7,4 +7,6 @@ export interface System {
     semesterDurationInDays: number;
     slotDurationInMins: number;
   };
+  status: number;
+  errors: string[];
 }

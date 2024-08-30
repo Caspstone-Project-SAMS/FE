@@ -43,14 +43,25 @@ const ColorList = [
 
 type FilterNotiFication = 'all' | 'today' | 'past';
 
+interface PreparationProgress{
+  SessionId: number;
+  Progress: number;
+}
+
 interface HeadersProps {
   handleNavigateScript: () => void;
   handleNavigateHome: () => void;
+  closeWebsocket: () => void;
+  notificationss: number;
+  preparationProgress?: PreparationProgress | null;
 }
 
 const Headers: React.FC<HeadersProps> = ({
   handleNavigateScript,
   handleNavigateHome,
+  closeWebsocket,
+  notificationss,
+  preparationProgress,
 }) => {
   const userID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id,
@@ -69,6 +80,7 @@ const Headers: React.FC<HeadersProps> = ({
 
   const handleLogout = async () => {
     dispatch(logout());
+    closeWebsocket();
   };
 
   const handleChangeFilter = (change: FilterNotiFication) => {
@@ -85,7 +97,7 @@ const Headers: React.FC<HeadersProps> = ({
       .catch((error) => {
         console.log('get notification error: ', error);
       });
-  }, [userID]);
+  }, [userID, notificationss]);
 
   const notificationItems: MenuProps['items'] = [
     // {
@@ -306,9 +318,9 @@ const Headers: React.FC<HeadersProps> = ({
     >
       <p className="headerTitle">Student Attendance Management System</p>
       <div className="leftHeaderUserInfo">
-        {/* <Button className="circular-button" type="link" shape="circle">
+        <Button className="circular-button" type="link" shape="circle">
           <Progress type="circle" percent={30} size={40} />
-        </Button> */}
+        </Button>
 
         <Dropdown
           arrow

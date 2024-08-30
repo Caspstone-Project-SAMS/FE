@@ -11,6 +11,8 @@ import GlobalSemester from './slice/global/GlobalSemester';
 import Module from './slice/Module';
 import Slot from './slice/Slot';
 import Script from './slice/Script';
+import System from './slice/System';
+import ScheduleRecord from './slice/ScheduleRecord';
 
 const Store = configureStore({
   reducer: {
@@ -24,7 +26,9 @@ const Store = configureStore({
     globalSemester: GlobalSemester,
     module: Module,
     slot: Slot,
-    script: Script
+    script: Script,
+    system: System,
+    scheduleRecord: ScheduleRecord,
   },
 });
 

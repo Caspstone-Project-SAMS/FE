@@ -205,7 +205,7 @@ const AccountStudentsDetail: React.FC = () => {
   );
 
   const ConnectWebsocket = useCallback(() => {
-    const ws = new WebSocket('ws://34.81.224.196/ws/client', [
+    const ws = new WebSocket('ws://34.81.223.233/ws/client', [
       'access_token',
       token,
     ]);

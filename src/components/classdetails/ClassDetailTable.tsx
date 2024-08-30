@@ -52,7 +52,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
 
   function activeWebSocket() {
     if (userToken) {
-      socket = new WebSocket("ws://34.81.224.196/ws/client", ["access_token", userToken]);
+      socket = new WebSocket("ws://34.81.223.233/ws/client", ["access_token", userToken]);
       socket.onopen = function (event) {
         console.log('Connected websocket for slot class detail');
         // setInformation("Connected");

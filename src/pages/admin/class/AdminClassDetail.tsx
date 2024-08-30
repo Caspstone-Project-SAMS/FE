@@ -55,6 +55,10 @@ import ColorShowcase from '../../../components/color/ColorShowcase';
 
 const { Header: AntHeader } = Layout;
 
+interface Attendance {
+  attended: number;
+}
+
 const AdminClassDetail: React.FC = () => {
   const location = useLocation();
   const [semesterId, setSemesterId] = useState(0);
@@ -69,8 +73,10 @@ const AdminClassDetail: React.FC = () => {
   const [ClassId, setClassID] = useState<number>(0);
   const [date, setDate] = useState<Date | null>(null);
   const [SlotId, setSlotId] = useState(0);
-  const [RoomId, setRoomId] = useState<number | null>(0);
+  const [RoomId, setRoomId] = useState<number | null>(null);
   const [scheduleID, setScheduleID] = useState<number>(0);
+
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
 
   const [studentID, setStudentID] = useState<string[]>([]);
 
@@ -84,6 +90,18 @@ const AdminClassDetail: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const dispatch = useDispatch();
+
+  const countAttendedOne = attendance.filter(
+    (item) => item.attended === 1,
+  ).length;
+  const countAttendedTwo = attendance.filter(
+    (item) => item.attended === 2,
+  ).length;
+  const countAttendedThree = attendance.filter(
+    (item) => item.attended === 3,
+  ).length;
+  const totalAttended =
+    countAttendedOne + countAttendedTwo + countAttendedThree;
 
   //Chart
   const pieParams = { height: 200, margin: { right: 5 } };
@@ -228,6 +246,7 @@ const AdminClassDetail: React.FC = () => {
         setClasses(data || undefined);
         setClassStudent(data?.result.students || []);
         setClassSchedule(data?.result.schedules || []);
+        console.log('asadcecfes', data?.result.subject);
         setSemesterId(data?.result.semester.semesterID || 0);
         setClassCode(data?.result.classCode || '');
         setFilteredStudentClass(data?.result.students || []);
@@ -236,6 +255,24 @@ const AdminClassDetail: React.FC = () => {
       console.log('get all error: ', error);
     }
   }, [ClassId]);
+
+  // const filterAttendees = useCallback(async () => {
+  //   const filteredList = classSchedule
+  //     .filter((schedule) => [1, 2, 3].includes(schedule.attended))
+  //     .map((schedule) => ({ attended: schedule.attended }));
+  //   setAttendance(filteredList);
+  // }, [classSchedule]);
+
+  useEffect(() => {
+    const filterAttendees = async () => {
+      const filteredList = classSchedule
+        .filter((schedule) => [1, 2, 3].includes(schedule.attended))
+        .map((schedule) => ({ attended: schedule.attended }));
+      setAttendance(filteredList);
+    };
+
+    filterAttendees()
+  }, [classSchedule]);
 
   useEffect(() => {
     fetchAll();
@@ -365,30 +402,35 @@ const AdminClassDetail: React.FC = () => {
       key: '6',
       title: 'Status',
       dataIndex: 'scheduleStatus',
-      render: (scheduleStatus: number) => (
-        <div>
-          <Tag
-            color={
-              scheduleStatus === 1 || scheduleStatus === 0
-                ? 'gray'
+      render: (scheduleStatus: number) => {
+        // let notYet = 0;
+        // let ongoing = 0;
+        // let ended = 0;
+        return (
+          <div>
+            <Tag
+              color={
+                scheduleStatus === 1 || scheduleStatus === 0
+                  ? 'gray'
+                  : scheduleStatus === 2
+                  ? 'blue'
+                  : scheduleStatus === 3
+                  ? 'green'
+                  : 'white'
+              }
+              style={{ fontWeight: 'bold', fontSize: '10px' }}
+            >
+              {scheduleStatus === 1 || scheduleStatus === 0
+                ? 'Not Yet'
                 : scheduleStatus === 2
-                ? 'blue'
+                ? 'On-going'
                 : scheduleStatus === 3
-                ? 'green'
-                : 'white'
-            }
-            style={{ fontWeight: 'bold', fontSize: '10px' }}
-          >
-            {scheduleStatus === 1 || scheduleStatus === 0
-              ? 'Not Yet'
-              : scheduleStatus === 2
-              ? 'On-going'
-              : scheduleStatus === 3
-              ? 'Ended'
-              : 'undefined'}
-          </Tag>
-        </div>
-      ),
+                ? 'Ended'
+                : 'undefined'}
+            </Tag>
+          </div>
+        );
+      },
     },
     {
       key: '7',
@@ -754,11 +796,23 @@ const AdminClassDetail: React.FC = () => {
               <PieChart
                 colors={palette}
                 series={[
-                  { data: [{ value: 10 }, { value: 15 }, { value: 20 }] },
+                  {
+                    data: [
+                      { value: (countAttendedThree / totalAttended) * 100 },
+                      { value: (countAttendedOne / totalAttended) * 100 },
+                      { value: (countAttendedTwo / totalAttended) * 100 },
+                    ],
+                  },
                 ]}
                 {...pieParams}
               />
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop:20 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: 20,
+                }}
+              >
                 <ColorShowcase color="primary" explain={'lecturerAttendance'} />
               </div>
             </Box>

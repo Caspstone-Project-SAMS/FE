@@ -10,6 +10,7 @@ import useDispatch from '../../../redux/UseDispatch';
 import { getAllSemester } from '../../../redux/slice/global/GlobalSemester';
 import { DashboardService } from '../../../hooks/Dashboard';
 import LineChart from '../../../components/chart/LineChart';
+import BarChart from '../../../components/chart/BarChart';
 
 type AdminDashnoard = {
   totalStudent: string;
@@ -165,12 +166,12 @@ const HomeAdmin: React.FC = () => {
         <HomeCalendar />
       </div>
       {/* <Row gutter={[24, 0]} style={{ marginTop: '20px' }}>
-        <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
+        <Col xs={24} sm={24} md={12} lg={12} xl={11} className="mb-24">
           <Card bordered={false} className="criclebox h-full">
-            <Echart />
+            <BarChart />
           </Card>
         </Col>
-        <Col xs={24} sm={24} md={12} lg={12} xl={14} className="mb-24">
+        <Col xs={24} sm={24} md={12} lg={12} xl={13} className="mb-24">
           <Card bordered={false} className="criclebox h-full">
             <LineChart />
           </Card>

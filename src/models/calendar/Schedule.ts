@@ -37,6 +37,8 @@ export interface ScheduleResult {
   classID: number;
   class: Class;
   room: null;
+  uploaded: number;
+  total: number;
 }
 
 export interface Slot {
@@ -58,4 +60,26 @@ export interface Class {
   classStatus: boolean;
   roomID: number;
   subjectID: number;
+}
+
+export interface ScheduleRecord {
+  title: string;
+  result: ScheduleRecordResult[];
+  errors: string[];
+}
+
+export interface ScheduleRecordResult {
+  importSchedulesRecordID: number;
+  title: string;
+  recordTimestamp: string;
+  importReverted: boolean;
+  isReversible: boolean;
+  user: ScheduleRecordUser[];
+}
+
+export interface ScheduleRecordUser {
+  id: string;
+  displayName: string;
+  avatar: string;
+  email: string;
 }

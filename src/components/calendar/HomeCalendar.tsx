@@ -1,21 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './HomeCalendar.module.less';
 
 import ContentHeader from '../header/contentHeader/ContentHeader';
 import MyCalendar from './MyCalendar';
 import { Content } from 'antd/es/layout/layout';
 import Excel from '../excel/Excel';
-import { Button } from 'antd';
+import { Button, message, Modal } from 'antd';
 import { CiImageOn } from 'react-icons/ci';
-import { GoHistory } from "react-icons/go";
+import { GoHistory } from 'react-icons/go';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
+import { clearScheduleRecordMessages } from '../../redux/slice/ScheduleRecord';
 
 const HomeCalendar: React.FC = () => {
   const userRole = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.role.name,
   );
+
+  const failMessage = useSelector((state: RootState) => state.scheduleRecord.scheduleRecordDetail);
+  const successMessage = useSelector(
+    (state: RootState) => state.scheduleRecord.message,
+  );
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (successMessage) {
+        message.success(successMessage.title);
+      setIsModalVisible(false);
+      dispatch(clearScheduleRecordMessages());
+    }
+    if (failMessage && failMessage.errors) {
+      message.error(`${failMessage.errors}`);
+      dispatch(clearScheduleRecordMessages());
+    }
+  }, [successMessage, failMessage, dispatch]);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   return (
     <Content className={styles.homeCalendarCtn}>
@@ -26,18 +59,27 @@ const HomeCalendar: React.FC = () => {
           currentBreadcrumb={undefined}
         />
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Link to={'/calendar/import-schedule-record'}>
-            <Button
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-              size="large"
-              icon={<GoHistory size={18} />}
-            >
-              Import Schedule Record
-            </Button>
-          </Link>
+          {/* <Link to={'/calendar/import-schedule-record'}> */}
+          <Button
+            onClick={showModal}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            size="large"
+            icon={<GoHistory size={18} />}
+          >
+            Import Record
+          </Button>
+          {/* </Link> */}
+          <Modal
+            title="Import Schedule Record"
+            visible={isModalVisible}
+            onOk={handleOk}
+            onCancel={handleCancel}
+          >
+            <p>Schedule Record import</p>
+          </Modal>
           {userRole && userRole === 'Lecturer' ? (
             <Link to={'/calendar/import-schedule'}>
               <Button
