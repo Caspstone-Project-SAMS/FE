@@ -12,13 +12,16 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { clearScheduleRecordMessages } from '../../redux/slice/ScheduleRecord';
+import ImportRecord from './ImportRecord';
 
 const HomeCalendar: React.FC = () => {
   const userRole = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.role.name,
   );
 
-  const failMessage = useSelector((state: RootState) => state.scheduleRecord.scheduleRecordDetail);
+  const failMessage = useSelector(
+    (state: RootState) => state.scheduleRecord.scheduleRecordDetail,
+  );
   const successMessage = useSelector(
     (state: RootState) => state.scheduleRecord.message,
   );
@@ -28,7 +31,7 @@ const HomeCalendar: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-        message.success(successMessage.title);
+      message.success(successMessage.title);
       setIsModalVisible(false);
       dispatch(clearScheduleRecordMessages());
     }
@@ -72,14 +75,7 @@ const HomeCalendar: React.FC = () => {
             Import Record
           </Button>
           {/* </Link> */}
-          <Modal
-            title="Import Schedule Record"
-            visible={isModalVisible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-          >
-            <p>Schedule Record import</p>
-          </Modal>
+          <ImportRecord isModalVisible={isModalVisible} handleOk={handleOk} handleCancel={handleCancel}/>
           {userRole && userRole === 'Lecturer' ? (
             <Link to={'/calendar/import-schedule'}>
               <Button

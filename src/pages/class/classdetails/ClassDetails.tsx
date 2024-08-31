@@ -903,7 +903,7 @@ const ClassDetails: React.FC = () => {
                       Disconnect tracking
                     </Button>
                   </Popconfirm> */}
-                <Row style={{ width: '100%' }}>
+                <Row style={{ width: '100%', height: '100%' }}>
                   <Space>
                     <Button type="link" onClick={() => fetchModuleActivity()}>
                       <IoReload size={25} /> 
@@ -916,7 +916,7 @@ const ClassDetails: React.FC = () => {
                     style={{
                       width: '100%',
                       borderRadius: 10,
-                      height: 200,
+                      height: 250,
                       overflowY: 'auto',
                     }}
                     renderItem={(item) => {

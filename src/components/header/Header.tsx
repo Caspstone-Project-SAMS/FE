@@ -10,6 +10,7 @@ import {
   MenuProps,
   Empty,
   Progress,
+  notification as AntNotification,
 } from 'antd';
 import './Header.css';
 import styles from '../header/contentHeader/index.module.less';
@@ -43,7 +44,7 @@ const ColorList = [
 
 type FilterNotiFication = 'all' | 'today' | 'past';
 
-interface PreparationProgress{
+interface PreparationProgress {
   SessionId: number;
   Progress: number;
 }
@@ -54,6 +55,27 @@ interface HeadersProps {
   closeWebsocket: () => void;
   notificationss: number;
   preparationProgress?: PreparationProgress | null;
+  NotificationId: number;
+}
+
+interface NotificationListt {
+  // ... other properties and methods ...
+  // open(options: {
+  notificationID: number;
+  title: string;
+  description: string;
+  timeStamp: string;
+  read: boolean;
+  notificationType: NotificationTypee;
+  user: null;
+  // }): void;
+}
+
+interface NotificationTypee {
+  notificationTypeID: number;
+  typeName: string;
+  typeDescription: string;
+  notifications: [];
 }
 
 const Headers: React.FC<HeadersProps> = ({
@@ -62,6 +84,7 @@ const Headers: React.FC<HeadersProps> = ({
   closeWebsocket,
   notificationss,
   preparationProgress,
+  NotificationId,
 }) => {
   const userID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id,
@@ -69,6 +92,7 @@ const Headers: React.FC<HeadersProps> = ({
   const [notification, setNotification] = useState<NotificationList[]>([]);
   const [onFilterNoti, setOnFilterNoti] = useState<FilterNotiFication>('all');
   const [onOpen, setOnOpen] = useState<boolean>(false);
+  const [newNotificaton, setNewNotificaton] = useState<NotificationListt>();
 
   const userDetail: UserInfo | undefined = useSelector(
     (state: RootState) => state.auth.userDetail,
@@ -93,11 +117,47 @@ const Headers: React.FC<HeadersProps> = ({
     response
       .then((data) => {
         setNotification(data?.result || []);
+        setNewNotificaton(
+          data?.result?.find((n) => n.notificationID === NotificationId),
+        );
       })
       .catch((error) => {
         console.log('get notification error: ', error);
       });
-  }, [userID, notificationss]);
+  }, [userID, notificationss, NotificationId]);
+
+  useEffect(() => {
+    if (newNotificaton) {
+      let descriptionColor = 'inherit';
+
+      if (newNotificaton.notificationType.typeName === 'Information') {
+        descriptionColor = 'green';
+      } else if (newNotificaton.notificationType.typeName === 'Error') {
+        descriptionColor = 'red';
+      } else if (newNotificaton.notificationType.typeName === 'Warning') {
+        descriptionColor = 'orange';
+      }
+      AntNotification.open({
+        message: newNotificaton.title,
+        description: (
+          <span style={{ color: descriptionColor }}>
+            {newNotificaton.description}
+          </span>
+        ),
+        icon:
+          newNotificaton.notificationType.typeName === 'Information' ? (
+            <IoIosCheckmark style={{ color: 'green' }} />
+          ) : newNotificaton.notificationType.typeName === 'Error' ? (
+            <IoIosCloseCircleOutline style={{ color: 'red' }} />
+          ) : newNotificaton.notificationType.typeName === 'Warning' ? (
+            <IoIosWarning style={{ color: 'orange' }} />
+          ) : null,
+          showProgress: true,
+          // pauseOnHover: false,
+      });
+      setNewNotificaton(undefined);
+    }
+  }, [newNotificaton]);
 
   const notificationItems: MenuProps['items'] = [
     // {

@@ -25,11 +25,13 @@ interface RouterProps {
   closeWebsocket: () => void;
   notification: number;
   preparationProgress ?: PreparationProgress | null;
+  NotificationId: number;
 }
 const ProtectedRoute: React.FC<RouterProps> = ({
   closeWebsocket,
   notification,
   preparationProgress,
+  NotificationId,
 }) => {
   const Auth = useSelector((state: RootState) => state.auth);
   const role = Auth.userDetail?.result?.role.name;
@@ -87,6 +89,7 @@ const ProtectedRoute: React.FC<RouterProps> = ({
           closeWebsocket={closeWebsocket}
           notificationss={notification}
           preparationProgress={preparationProgress}
+          NotificationId={NotificationId}
         />
         <Routes>
           {role === 'Lecturer'

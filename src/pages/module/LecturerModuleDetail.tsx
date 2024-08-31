@@ -32,6 +32,7 @@ import type {
   ModuleActivity,
   ModuleByID,
   ModuleDetail,
+  preparedSchedule,
 } from '../../models/module/Module';
 import { ModuleService } from '../../hooks/Module';
 import { CalendarService } from '../../hooks/Calendar';
@@ -75,6 +76,8 @@ const LecturerModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
+console.log('test', moduleActivity);
+
   const dispatch = useDispatch();
   const token = useSelector(
     (state: RootState) => state.auth.userDetail?.token ?? '',
@@ -112,27 +115,35 @@ const LecturerModuleDetail: React.FC = () => {
   const mode = module?.result.mode;
   const autoReset = module?.result.autoReset;
 
-  useEffect(() => {
-    const getAllSchedule = async () => {
+  // useEffect(() => {
+    const getAllSchedule = async (schedules: preparedSchedule[]) => {
       if (lecturerId !== '') {
-        const response = await CalendarService.getAllSchedule(lecturerId);
-        setScheduleList(response?.result || []);
+        const scheduleIds = schedules.length === 0 ? [0] : schedules.map(s => s.scheduleId);
+        const response = await CalendarService.getAllSchedule(lecturerId, scheduleIds);
+        const result = response?.result || [];
+
+        result.forEach(s =>{
+          const schedule = schedules.filter(s1 => s1.scheduleId === s.scheduleID)[0];
+          s.total = schedule.totalFingers ?? 0;
+          s.uploaded = schedule.uploadedFingers ?? 0;
+        });
+
+        setScheduleList(result);
       }
     };
-    getAllSchedule();
-  }, [lecturerId]);
+  //   getAllSchedule();
+  // }, [lecturerId, listScheduleId]);
 
-  useEffect(() => {
-    setFilteredScheduleList(
-      Array.isArray(scheduleList)
-        ? scheduleList.filter((schedule) =>
-            listScheduleId.includes(schedule.scheduleID),
-          )
-        : [],
-    );
-  }, [listScheduleId, scheduleList]);
+  // useEffect(() => {
+  //   setFilteredScheduleList(
+  //     Array.isArray(scheduleList)
+  //       ? scheduleList.filter((schedule) =>
+  //           listScheduleId.includes(schedule.scheduleID),
+  //         )
+  //       : [],
+  //   );
+  // }, [listScheduleId, scheduleList]);
 
-  console.log('module', module);
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID },
@@ -219,6 +230,11 @@ const LecturerModuleDetail: React.FC = () => {
       title: 'Class',
       dataIndex: 'class',
     },
+    {
+      key: '5',
+      title: 'Uploaded Fingerprints',
+      dataIndex: 'uploadFingerprints',
+    }
   ];
 
   useEffect(() => {
@@ -227,10 +243,6 @@ const LecturerModuleDetail: React.FC = () => {
     }
   }, [location.state]);
 
-  console.log('id', lecturerId);
-  console.log('schedule', scheduleList);
-  console.log('scheduleId', listScheduleId);
-  console.log('schedulefilter', filteredScheduleList);
 
   useEffect(() => {
     if (moduleID !== 0) {
@@ -726,12 +738,17 @@ const LecturerModuleDetail: React.FC = () => {
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
-                            setListScheduleId(
-                              item.preparationTask.preparedSchedules,
-                            );
-                            getScheduleByID(
-                              item.preparationTask.preparedScheduleId,
-                            );
+                            if (item.preparationTask.preparedSchedules) {
+                              // setListScheduleId(
+                              //   item.preparationTask.preparedSchedules,
+                              // );
+                              getAllSchedule(item.preparationTask.preparedSchedules);
+                              console.log('srgvrsdgvswrdvgs', item.preparationTask.preparedSchedules)
+                            } else if (item.preparationTask.preparedScheduleId) {
+                              getScheduleByID(
+                                item.preparationTask.preparedScheduleId,
+                              );
+                            }
                           }}
                         >
                           <List.Item key={item.moduleActivityId}>
@@ -850,23 +867,28 @@ const LecturerModuleDetail: React.FC = () => {
                               </>
                             )}
                           </List.Item>
-                          {filteredScheduleList.length > 0 && (
+                          {scheduleList.length > 0 && (
                             <Table
                               columns={columns}
-                              dataSource={filteredScheduleList.map(
-                                (item, index) => ({
+                              dataSource={scheduleList.map(
+                                (item1, index) => ({
                                   key: index,
-                                  date: new Date(item.date).toLocaleDateString(
+                                  date: new Date(item1.date).toLocaleDateString(
                                     'en-GB',
                                   ),
-                                  slot: item.slot.slotNumber,
+                                  slot: item1.slot.slotNumber,
                                   time: (
                                     <div>
-                                      {item.slot.startTime.slice(0, 5)} -{' '}
-                                      {item.slot.endtime.slice(0, 5)}
+                                      {item1.slot.startTime.slice(0, 5)} -{' '}
+                                      {item1.slot.endtime.slice(0, 5)}
                                     </div>
                                   ),
-                                  class: item.class.classCode,
+                                  class: item1.class.classCode,
+                                  uploadFingerprints: (
+                                    <>
+                                     {item1.uploaded} / {item1.total}
+                                    </>
+                                  )
                                 }),
                               )}
                               pagination={false}

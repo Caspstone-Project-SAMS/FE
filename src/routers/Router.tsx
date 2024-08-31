@@ -13,6 +13,7 @@ interface PreparationProgress{
 const Router = () => {
 
   const [notification, setNotifications] = useState(0);
+  const [NotificationId, setNotificationId] = useState(0);
   const [preparationProgress, setPreparationProgress] = useState<PreparationProgress | null>(null);
 
   let ws : WebSocket | null;
@@ -29,9 +30,12 @@ const Router = () => {
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
       const message = JSON.parse(event.data);
+      const data = message.data;
+      const NotificationId = data.NotificationId;
       switch (message.Event) {
         case 'NewNotification': {
           setNotifications((prev) => prev + 1);
+          setNotificationId(NotificationId);
           break;
         }
 
@@ -72,7 +76,7 @@ const Router = () => {
   return (
     <Routes>
       <Route path='/*' element={
-        <ProtectedRoute closeWebsocket={closeWebsocket} notification={notification} preparationProgress={preparationProgress}/>
+        <ProtectedRoute closeWebsocket={closeWebsocket} notification={notification} preparationProgress={preparationProgress} NotificationId={NotificationId}/>
       } />
       <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket}/>} />
       <Route path="/excel-test" element={<TestComponent />} />
