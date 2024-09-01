@@ -271,7 +271,7 @@ const syncAttendanceData = async (
 ) => {
   try {
     const response = await axios.post(
-      'http://34.81.224.196/api/Module/Activate',
+      'http://34.81.223.233/api/Module/Activate',
       {
         ModuleID,
         Mode,
@@ -305,7 +305,7 @@ const startCheckAttendance = async (
 ) => {
   try {
     const response = await axios.post(
-      'http://34.81.224.196/api/Module/Activate',
+      'http://34.81.223.233/api/Module/Activate',
       {
         ModuleID,
         Mode,
