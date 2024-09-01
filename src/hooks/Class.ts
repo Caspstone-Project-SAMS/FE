@@ -108,7 +108,7 @@ const createClass = async (
   RoomId: number,
   SubjectId: number,
   LecturerID: string,
-  // CreatedBy: string,
+  SlotTypeId: number,
 ) => {
   try {
     const response = await axios.post(
@@ -119,11 +119,11 @@ const createClass = async (
         RoomId,
         SubjectId,
         LecturerID,
-        // CreatedBy,
+        SlotTypeId,
       },
       {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json-patch+json',
         },
       },
     );

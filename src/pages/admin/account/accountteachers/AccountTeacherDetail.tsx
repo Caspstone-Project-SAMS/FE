@@ -226,7 +226,7 @@ const AccountTeacherDetail: React.FC = () => {
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Teacher Details</p>
               </AntHeader>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.lecturerDetailsTable}>
@@ -245,6 +245,31 @@ const AccountTeacherDetail: React.FC = () => {
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {lecturerDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+
+                      <Row className={styles.rowDetails}>
+                        <Col span={8}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={16}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card>
               </Col>
             </Content>
           </Col>

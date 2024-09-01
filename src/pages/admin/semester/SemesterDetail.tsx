@@ -1,12 +1,4 @@
-import {
-  Card,
-  Col,
-  Input,
-  Layout,
-  Row,
-  Table,
-  Tag,
-} from 'antd';
+import { Card, Col, Input, Layout, Row, Table, Tag } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
 import styles from './Semester.module.less';
@@ -35,17 +27,30 @@ const SemesterDetail: React.FC = () => {
     { title: 'Semester Code', value: semester?.result.semesterCode },
     {
       title: 'Status',
-      value: semester?.result.semesterStatus ===1 ? (
-        <Tag color="gray">Not Yet</Tag>
-      ) : semester?.result.semesterStatus === 2 ? (
-        <Tag color="blue">On-going</Tag>
-      ) : semester?.result.semesterStatus === 3 ? (
-        <Tag color="green">Finished</Tag>
-      ) : 'Unknown',
+      value:
+        semester?.result.semesterStatus === 1 ? (
+          <Tag color="gray">Not Yet</Tag>
+        ) : semester?.result.semesterStatus === 2 ? (
+          <Tag color="blue">On-going</Tag>
+        ) : semester?.result.semesterStatus === 3 ? (
+          <Tag color="green">Finished</Tag>
+        ) : (
+          'Unknown'
+        ),
       isAuthenticated: true,
     },
-    { title: 'Start Date', value: moment(semester?.result.startDate, 'YYYY-MM-DD').format('DD/MM/YYYY') },
-    { title: 'End Date', value: moment(semester?.result.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY') },
+    {
+      title: 'Start Date',
+      value: moment(semester?.result.startDate, 'YYYY-MM-DD').format(
+        'DD/MM/YYYY',
+      ),
+    },
+    {
+      title: 'End Date',
+      value: moment(semester?.result.endDate, 'YYYY-MM-DD').format(
+        'DD/MM/YYYY',
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -93,13 +98,13 @@ const SemesterDetail: React.FC = () => {
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
-        <Tag 
-          color={classStatus ? 'green' : 'red'} 
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {classStatus ? 'active' : 'inactive'}
-        </Tag>
-      </div>
+          <Tag
+            color={classStatus ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {classStatus ? 'active' : 'inactive'}
+          </Tag>
+        </div>
       ),
     },
   ];
@@ -135,13 +140,14 @@ const SemesterDetail: React.FC = () => {
             </Card>
             <Table
               columns={columns}
-              dataSource={(!isUpdate ? semesterClass : filteredSemesterClass).map(
-                (item, index) => ({
-                  key: index,
-                  classCode: item.classCode,
-                  classStatus: item.classStatus,
-                }),
-              )}
+              dataSource={(!isUpdate
+                ? semesterClass
+                : filteredSemesterClass
+              ).map((item, index) => ({
+                key: index,
+                classCode: item.classCode,
+                classStatus: item.classStatus,
+              }))}
               pagination={{
                 showSizeChanger: true,
               }}
@@ -153,7 +159,7 @@ const SemesterDetail: React.FC = () => {
                 <p className={styles.tableTitle}>Semester Details</p>
               </AntHeader>
 
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.semesterDetailsTable}>
@@ -174,6 +180,31 @@ const SemesterDetail: React.FC = () => {
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {semesterDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+
+                      <Row className={styles.rowDetails}>
+                        <Col span={14}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={10}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card>
               </Col>
             </Content>
           </Col>

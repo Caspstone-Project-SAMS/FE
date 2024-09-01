@@ -11,6 +11,7 @@ import {
   Table,
   Form,
   Tag,
+  Tooltip,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ import styles from './AdminClass.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 
 import { CiEdit, CiSearch } from 'react-icons/ci';
-import { PlusOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   clearClassMessages,
@@ -39,12 +40,14 @@ import { SubjectService } from '../../../hooks/Subject';
 import { Subject } from '../../../models/subject/Subject';
 import { EmployeeService } from '../../../hooks/Employee';
 import { EmployeeDetail } from '../../../models/employee/Employee';
-import { ClassDetails } from '../../../models/Class';
+import { ClassDetails, SlotType } from '../../../models/Class';
 import { ClassService } from '../../../hooks/Class';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../../redux/Store';
 import { IoMdInformation } from 'react-icons/io';
 import { MdDeleteForever } from 'react-icons/md';
+import { SlotTypeDetail, SlotTypes } from '../../../models/slot/Slot';
+import { SlotService } from '../../../hooks/Slot';
 
 const AdminClass: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
@@ -52,6 +55,7 @@ const AdminClass: React.FC = () => {
   const [room, setRoom] = useState<Room[]>([]);
   const [subject, setSubject] = useState<Subject[]>([]);
   const [lecturer, setLecturer] = useState<EmployeeDetail[]>([]);
+  const [slotType, setSlotType] = useState<SlotTypeDetail[]>([]);
   const [filteredClass, setFilteredClass] = useState<ClassDetails[]>(classes);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -65,10 +69,12 @@ const AdminClass: React.FC = () => {
   const [ClassName, setClassName] = useState('');
   const [ClassCode, setClassCode] = useState('');
   const [SubjectCode, setSubjectCode] = useState('');
+  const [TypeName, setTypeName] = useState('');
   const [SemesterId, setSemesterId] = useState<number | null>(null);
   const [RoomId, setRoomId] = useState<number | null>(null);
   const [SubjectId, setSubjectId] = useState<number | null>(null);
   const [LecturerID, setLecturerID] = useState<string | null>(null);
+  const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
 
   // Error state
@@ -78,12 +84,13 @@ const AdminClass: React.FC = () => {
     roomId?: string;
     subjectId?: string;
     lecturerId?: string;
+    slotTypeId?: string;
   }>({});
 
-  const failMessage = useSelector((state: RootState) => state.class.classDetail);
-  const successMessage = useSelector(
-    (state: RootState) => state.class.message,
+  const failMessage = useSelector(
+    (state: RootState) => state.class.classDetail,
   );
+  const successMessage = useSelector((state: RootState) => state.class.message);
 
   const handleRowClick = (classID: number) => {
     navigate(`/admin-class/admin-class-detail`, {
@@ -160,7 +167,10 @@ const AdminClass: React.FC = () => {
 
   useEffect(() => {
     if (successMessage) {
-      if (successMessage === 'Update class successfully' || successMessage === 'Create new class successfully') {
+      if (
+        successMessage === 'Update class successfully' ||
+        successMessage === 'Create new class successfully'
+      ) {
         message.success(successMessage);
       } else {
         message.success(successMessage.title);
@@ -176,6 +186,7 @@ const AdminClass: React.FC = () => {
   }, [successMessage, failMessage, dispatch]);
 
   const showModalCreate = () => {
+    getAllSlotType();
     getAllSmester();
     getAllRoom();
     getAllSubject();
@@ -183,6 +194,7 @@ const AdminClass: React.FC = () => {
     setIsCheck(false);
     setIsModalVisible(true);
   };
+  console.log('slotType', slotType);
 
   const showModalUpdate = (item?: ClassDetails) => {
     setIsCheck(true);
@@ -217,10 +229,12 @@ const AdminClass: React.FC = () => {
     setClassName('');
     setClassCode('');
     setSubjectCode('');
+    setTypeName('');
     setRoomId(null);
     setSemesterId(null);
     setSubjectId(null);
     setLecturerID(null);
+    setSlotTypeId(null);
     setIsCheck(false);
     setErrors({});
   };
@@ -231,6 +245,8 @@ const AdminClass: React.FC = () => {
     if (SemesterId === null) newErrors.semesterId = 'Semester is required';
     if (RoomId === null) newErrors.roomId = 'Room is required';
     if (SubjectId === null) newErrors.subjectId = 'Subject is required';
+    if (SlotTypeId === null && !isCheck)
+      newErrors.slotTypeId = 'Slot Type is required';
     if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -246,10 +262,11 @@ const AdminClass: React.FC = () => {
       RoomId ?? 0,
       SubjectId ?? 0,
       LecturerID ?? '',
+      SlotTypeId ?? 0,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchClasses();
   };
 
@@ -266,8 +283,8 @@ const AdminClass: React.FC = () => {
       LecturerID ?? '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchClasses();
   };
 
@@ -277,6 +294,7 @@ const AdminClass: React.FC = () => {
     RoomId: number,
     SubjectId: number,
     LecturerID: string,
+    SlotTypeId: number,
   ) => {
     const arg = {
       ClassCode: ClassCode,
@@ -284,6 +302,7 @@ const AdminClass: React.FC = () => {
       RoomId: RoomId,
       SubjectId: SubjectId,
       LecturerID: LecturerID,
+      SlotTypeId: SlotTypeId,
     };
     await dispatch(createClass(arg) as any);
     setIsCheck(false);
@@ -329,6 +348,11 @@ const AdminClass: React.FC = () => {
     setLecturer(response?.result || []);
   };
 
+  const getAllSlotType = async () => {
+    const response = await SlotService.getAllSlotType();
+    setSlotType(response?.result || []);
+  };
+
   const columns = [
     {
       key: '1',
@@ -347,8 +371,8 @@ const AdminClass: React.FC = () => {
     },
     {
       key: '4',
-      title: 'Lecturer',
-      dataIndex: 'lecturer',
+      title: 'Email',
+      dataIndex: 'email',
     },
     {
       key: '5',
@@ -357,6 +381,11 @@ const AdminClass: React.FC = () => {
     },
     {
       key: '6',
+      title: 'Slot Type',
+      dataIndex: 'slotType',
+    },
+    {
+      key: '7',
       title: 'status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
@@ -365,18 +394,18 @@ const AdminClass: React.FC = () => {
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'active' : 'inactive'}
+            {classStatus ? 'available' : 'unavailable'}
           </Tag>
         </div>
       ),
     },
     {
-      key: '7',
+      key: '8',
       title: 'Action',
       dataIndex: 'action',
     },
     {
-      key: '8',
+      key: '9',
       title: 'Info',
       dataIndex: 'info',
       render: (classID: number) => (
@@ -469,8 +498,9 @@ const AdminClass: React.FC = () => {
             classcode: item.classCode,
             semestercode: item.semester.semesterCode,
             room: item.room.roomName,
-            lecturer: item.lecturer.displayName,
+            email: item.lecturer.email,
             subject: item.subject.subjectName,
+            slotType: <div>{item.slotType.sessionCount * 45 + ' minutes'}</div>,
             classStatus: item.classStatus,
             action: (
               <div>
@@ -555,9 +585,7 @@ const AdminClass: React.FC = () => {
           style={{ marginBottom: '10px', width: '100%' }}
           filterOption={(input, option) => {
             const children = option?.children as unknown as string;
-            return children
-              .toLowerCase()
-              .includes(input.toLowerCase());
+            return children.toLowerCase().includes(input.toLowerCase());
           }}
         >
           {semester.map((sem) => (
@@ -582,9 +610,7 @@ const AdminClass: React.FC = () => {
           style={{ marginBottom: '10px', width: '100%' }}
           filterOption={(input, option) => {
             const children = option?.children as unknown as string;
-            return children
-              .toLowerCase()
-              .includes(input.toLowerCase());
+            return children.toLowerCase().includes(input.toLowerCase());
           }}
         >
           {room.map((room) => (
@@ -614,10 +640,45 @@ const AdminClass: React.FC = () => {
             </Select.Option>
           ))}
         </Select>
-        {errors.subjectId && (
-          <p className={styles.errorText}>{errors.subjectId}</p>
+        {!isCheck && (
+          <>
+            <p className={styles.createClassTitle}>
+              Slot Type{' '}
+              <Tooltip title="Duration of schedules of class">
+                <Button
+                  type="link"
+                  icon={<InfoCircleOutlined />}
+                  size="small"
+                  style={{ padding: 0, fontSize: '14px' }}
+                />
+              </Tooltip>
+            </p>
+            <Select
+              placeholder="Slot Type"
+              value={SlotTypeId}
+              onChange={(value) => {
+                setSlotTypeId(value);
+                setErrors((prevErrors) => ({ ...prevErrors, slotTypeId: '' }));
+                setTypeName(
+                  slotType.find((slot) => slot.slotTypeID === value)
+                    ?.typeName || '',
+                );
+              }}
+              style={{ marginBottom: '10px', width: '100%' }}
+            >
+              {slotType.map((slot) => (
+                <Select.Option key={slot.slotTypeID} value={slot.slotTypeID}>
+                  <p>
+                    {slot.typeName + ' (' + slot.sessionCount * 45 + ' min)'}
+                  </p>
+                </Select.Option>
+              ))}
+            </Select>
+            {errors.slotTypeId && (
+              <p className={styles.errorText}>{errors.slotTypeId}</p>
+            )}
+          </>
         )}
-
         <p className={styles.createClassTitle}>Lecturer</p>
         <Select
           placeholder="Lecturer"
@@ -628,10 +689,20 @@ const AdminClass: React.FC = () => {
           }}
           showSearch
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            const normalizeString = (str: string) => {
+              return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            };
+
+            const normalizedChildren = normalizeString(children).toLowerCase();
+            const normalizedInput = normalizeString(input).toLowerCase();
+            return normalizedChildren.includes(normalizedInput);
+          }}
         >
           {lecturer.map((lec) => (
             <Select.Option key={lec.id} value={lec.id}>
-              <p>{lec.displayName}</p>
+              {lec.displayName + ' - ' + lec.email}
             </Select.Option>
           ))}
         </Select>

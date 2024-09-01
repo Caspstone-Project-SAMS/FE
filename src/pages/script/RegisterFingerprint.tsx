@@ -23,7 +23,7 @@ const RegisterFingerprint: React.FC = () => {
     (state: RootState) => state.script.scriptDetail,
   );
 
-  console.log(successMessage);
+  console.log('fsedf', successMessage);
 
   useEffect(() => {
     if (successMessage) {

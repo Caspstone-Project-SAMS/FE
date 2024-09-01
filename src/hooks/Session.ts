@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { SESSION_API } from '.';
 import { message } from 'antd';
+import { Session } from '../models/session/Session';
 
 const submitSession = async (sessionId: number, token: string) => {
   try {
@@ -25,6 +26,29 @@ const submitSession = async (sessionId: number, token: string) => {
   }
 };
 
+const getSessionByID = async (sessionId: number): Promise<Session | null> => {
+  try {
+    const response = await axios.get(
+      `${SESSION_API}/${sessionId}`,
+      {
+        headers: {
+          accept: '*/*',
+        },
+      }
+    );
+    console.log("Session data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+    return response.data as Session;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
 export const SessionServive = {
   submitSession,
+  getSessionByID,
 };

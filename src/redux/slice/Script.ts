@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { ScriptService } from '../../hooks/Script';
 import { ScriptResponse } from '../../models/script/Script';
 import { AxiosError } from 'axios';
+import { message } from 'antd';
 interface ScriptState {
   message?: ScriptResponse;
   scriptDetail?: ScriptResponse;
@@ -150,6 +151,7 @@ const ScriptSlice = createSlice({
     });
     builder.addCase(resgisterAllFingerprint.fulfilled, (state, action) => {
       const { payload } = action;
+      message.success('Register all fingerprint successfully');
       return {
         ...state,
         loading: false,
@@ -158,6 +160,7 @@ const ScriptSlice = createSlice({
       };
     });
     builder.addCase(resgisterAllFingerprint.rejected, (state, action) => {
+      message.error('Register all fingerprint failed');
       return {
         ...state,
         loading: false,

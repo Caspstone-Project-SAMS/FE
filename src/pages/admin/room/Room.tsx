@@ -137,8 +137,8 @@ const Room: React.FC = () => {
     setLoading(true);
     await createNewRoom(RoomName, RoomDescription, RoomStatus);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchRooms();
   };
 
@@ -151,8 +151,8 @@ const Room: React.FC = () => {
     setLoading(true);
     await updateExistingRoom(RoomName, RoomDescription, RoomStatus, roomID);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchRooms();
   };
 
@@ -220,10 +220,10 @@ const Room: React.FC = () => {
       RoomStatus: RoomStatus,
       roomID: roomID,
     };
-    setRoomID(0);
-    setRoomName('');
-    setRoomDescription('');
-    setRoomStatus(0);
+    // setRoomID(0);
+    // setRoomName('');
+    // setRoomDescription('');
+    // setRoomStatus(0);
     await dispatch(updateRoom(arg) as any);
   };
 

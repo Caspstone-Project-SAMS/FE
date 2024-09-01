@@ -251,8 +251,8 @@ export default function New() {
       // LecturerID ?? '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchClasses();
   };
   const handleCreate = async () => {
@@ -268,8 +268,8 @@ export default function New() {
       // LecturerID ?? '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchClasses();
   };
 

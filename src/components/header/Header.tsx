@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   Typography,
@@ -10,10 +10,18 @@ import {
   MenuProps,
   Empty,
   Progress,
+  notification as AntNotification,
 } from 'antd';
 import './Header.css';
 import styles from '../header/contentHeader/index.module.less';
-import { IoIosArrowDown } from 'react-icons/io';
+import {
+  IoIosArrowDown,
+  IoIosInformationCircle ,
+  IoIosCloseCircleOutline,
+  IoIosWarning,
+  IoMdClose,
+  IoIosCloseCircle
+} from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { UserInfo } from '../../models/UserInfo';
@@ -23,6 +31,7 @@ import { PiBellBold } from 'react-icons/pi';
 import { HelperService } from '../../hooks/helpers/helperFunc';
 import { NotificationService } from '../../hooks/Notification';
 import { NotificationList } from '../../models/notification/Notification';
+import HeaderProgress from './HeaderProgress';
 
 const { Header: AntHeader } = Layout;
 
@@ -38,14 +47,46 @@ const ColorList = [
 
 type FilterNotiFication = 'all' | 'today' | 'past';
 
+interface PreparationProgress {
+  SessionId: number;
+  Progress: number;
+}
+
 interface HeadersProps {
   handleNavigateScript: () => void;
   handleNavigateHome: () => void;
+  closeWebsocket: () => void;
+  // notificationss: number;
+  preparationProgress?: PreparationProgress | null;
+  NotificationId: number;
+  setNotificationId: (NotificationId: number) => void;
+}
+
+interface NotificationListt {
+  notificationID: number;
+  title: string;
+  description: string;
+  timeStamp: string;
+  read: boolean;
+  notificationType: NotificationTypee;
+  user: null;
+}
+
+interface NotificationTypee {
+  notificationTypeID: number;
+  typeName: string;
+  typeDescription: string;
+  notifications: [];
 }
 
 const Headers: React.FC<HeadersProps> = ({
   handleNavigateScript,
   handleNavigateHome,
+  closeWebsocket,
+  // notificationss,
+  preparationProgress,
+  NotificationId,
+  setNotificationId,
 }) => {
   const userID = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.id,
@@ -53,6 +94,8 @@ const Headers: React.FC<HeadersProps> = ({
   const [notification, setNotification] = useState<NotificationList[]>([]);
   const [onFilterNoti, setOnFilterNoti] = useState<FilterNotiFication>('all');
   const [onOpen, setOnOpen] = useState<boolean>(false);
+  const [newNotificaton, setNewNotificaton] = useState<NotificationListt>();
+  const [readNotificationsCount, setReadNotificationsCount] = useState(0);
 
   const userDetail: UserInfo | undefined = useSelector(
     (state: RootState) => state.auth.userDetail,
@@ -60,15 +103,33 @@ const Headers: React.FC<HeadersProps> = ({
   const user = useSelector((state: RootState) => state.auth.data);
   const name = user?.result?.displayName;
   const avatar = user?.result?.avatar;
+  const [reload, setReload] = useState(0);
+  const [read, setRead] = useState(false);
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
     dispatch(logout());
+    closeWebsocket();
   };
 
   const handleChangeFilter = (change: FilterNotiFication) => {
     setOnFilterNoti(change);
   };
+
+  const handleReadNotification = async (NotificationID: number) => {
+    try {
+      const response = await NotificationService.readNotification(
+        NotificationID,
+      );
+      setRead(true);
+      setReload((prev) => prev + 1);
+      return response;
+    } catch (error) {
+      console.log('Error on read notification: ', error);
+    }
+  };
+
+  // console.log('notification', notification);
 
   useEffect(() => {
     const response = NotificationService.getAllNotification(userID ?? '');
@@ -76,11 +137,54 @@ const Headers: React.FC<HeadersProps> = ({
     response
       .then((data) => {
         setNotification(data?.result || []);
+        if (read === false) {
+          setNewNotificaton(
+            data?.result?.find((n) => n.notificationID === NotificationId),
+          );
+        }
+        setNotificationId(0);
+        setReadNotificationsCount(
+          data?.result.filter((n) => n.read === false).length || 0,
+        );
+        setRead(false);
       })
       .catch((error) => {
         console.log('get notification error: ', error);
       });
-  }, [userID]);
+  }, [userID, NotificationId, reload]);
+
+  useEffect(() => {
+    if (newNotificaton) {
+      let descriptionColor = 'inherit';
+
+      if (newNotificaton.notificationType.typeName === 'Information') {
+        descriptionColor = 'green';
+      } else if (newNotificaton.notificationType.typeName === 'Error') {
+        descriptionColor = 'red';
+      } else if (newNotificaton.notificationType.typeName === 'Warning') {
+        descriptionColor = 'orange';
+      }
+      AntNotification.open({
+        message: newNotificaton.title,
+        description: (
+          <span style={{ color: descriptionColor }}>
+            {newNotificaton.description}
+          </span>
+        ),
+        icon:
+          newNotificaton.notificationType.typeName === 'Information' ? (
+            <IoIosInformationCircle  style={{ color: 'green' }} />
+          ) : newNotificaton.notificationType.typeName === 'Error' ? (
+            <IoIosCloseCircle style={{ color: 'red' }} />
+          ) : newNotificaton.notificationType.typeName === 'Warning' ? (
+            <IoIosWarning style={{ color: 'orange' }} />
+          ) : null,
+        showProgress: true,
+        // pauseOnHover: false,
+      });
+      setNewNotificaton(undefined);
+    }
+  }, [newNotificaton]);
 
   const notificationItems: MenuProps['items'] = [
     // {
@@ -138,11 +242,15 @@ const Headers: React.FC<HeadersProps> = ({
             Home
           </Button>
           <br />
+          {(user?.result?.role.name as any) === 'Admin' ? (
+            <div>
+              <Button type="text" onClick={handleNavigateScript}>
+                Script
+              </Button>
+              <br />
+            </div>
+          ) : null}
 
-          <Button type="text" onClick={handleNavigateScript}>
-            Script
-          </Button>
-          <br />
           <Button type="text" onClick={handleLogout}>
             Log out
           </Button>
@@ -154,6 +262,8 @@ const Headers: React.FC<HeadersProps> = ({
   useEffect(() => {
     // console.log("Changed ", onFilterNoti);
   }, [onFilterNoti]);
+
+  const reversedNotification = [...notification].reverse();
 
   const CustomDropdownMenu = () => {
     return (
@@ -201,7 +311,7 @@ const Headers: React.FC<HeadersProps> = ({
           {notification.length === 0 ? (
             <Empty description={'No Notification found'}></Empty>
           ) : (
-            notification.map((item, index) =>
+            reversedNotification.map((item, index) =>
               item ? (
                 <React.Fragment key={index}>
                   <Menu.Item
@@ -211,11 +321,12 @@ const Headers: React.FC<HeadersProps> = ({
                         ? styles.readNotification
                         : styles.unreadNotification
                     }`}
-                    style={{marginBottom:5}}
+                    style={{ marginBottom: 5 }}
+                    onClick={() => handleReadNotification(item.notificationID)}
                   >
                     <div className={styles.notiItemCtn}>
                       <div className={styles.imageCtn}>
-                        <Avatar
+                        {/* <Avatar
                           style={{
                             backgroundColor: ColorList[0],
                             verticalAlign: 'middle',
@@ -224,10 +335,44 @@ const Headers: React.FC<HeadersProps> = ({
                           gap={4}
                         >
                           SAMS
-                        </Avatar>
+                        </Avatar> */}
+                        <div style={{ marginLeft: 'auto' }}>
+                          {item.notificationType.typeName === 'Information' ? (
+                            <IoIosInformationCircle 
+                              style={{ color: 'green', fontSize: '1.5rem' }}
+                            />
+                          ) : item.notificationType.typeName === 'Error' ? (
+                            <IoIosCloseCircle 
+                              style={{ color: 'red', fontSize: '1.5rem' }}
+                            />
+                          ) : item.notificationType.typeName === 'Warning' ? (
+                            <IoIosWarning
+                              style={{ color: 'orange', fontSize: '1.5rem' }}
+                            />
+                          ) : null}
+                        </div>
                       </div>
                       <div className={styles.notiDetailCtn}>
-                        <Text style={{ fontWeight: 500 }}>{item.title}</Text>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Text style={{ fontWeight: 500 }}>{item.title}</Text>
+                          {/* <div style={{ marginLeft: 'auto' }}>
+                            {item.notificationType.typeName ===
+                            'Information' ? (
+                              <IoIosCheckmark
+                                style={{ color: 'green', fontSize: '1.5rem' }}
+                              />
+                            ) : item.notificationType.typeName === 'Error' ? (
+                              <IoIosCloseCircleOutline
+                                style={{ color: 'red', fontSize: '1.5rem' }}
+                              />
+                            ) : item.notificationType.typeName === 'Warning' ? (
+                              <IoIosWarning
+                                style={{ color: 'orange', fontSize: '1.5rem' }}
+                              />
+                            ) : null}
+                          </div> */}
+                        </div>
+
                         <Text
                           style={{
                             color:
@@ -237,7 +382,7 @@ const Headers: React.FC<HeadersProps> = ({
                                 ? 'red'
                                 : item.notificationType.typeName === 'Warning'
                                 ? 'orange'
-                                : 'inherit', // Fallback color
+                                : 'inherit',
                             display: 'block',
                             whiteSpace: 'pre-wrap',
                           }}
@@ -245,7 +390,7 @@ const Headers: React.FC<HeadersProps> = ({
                           {item.description}
                         </Text>
                         <Text className={styles.time}>
-                          <Text>Today</Text>{' '}
+                          {/* <Text>Today</Text>{' '} */}
                           {' ' +
                             new Date(item.timeStamp).toLocaleString('en-GB', {
                               day: '2-digit',
@@ -278,9 +423,10 @@ const Headers: React.FC<HeadersProps> = ({
     >
       <p className="headerTitle">Student Attendance Management System</p>
       <div className="leftHeaderUserInfo">
-        {/* <Button className="circular-button" type="link" shape="circle">
-          <Progress type="circle" percent={30} size={40} />
-        </Button> */}
+        <HeaderProgress
+          preparationProgress={preparationProgress}
+          newNotificaton={newNotificaton}
+        />
 
         <Dropdown
           arrow
@@ -290,7 +436,7 @@ const Headers: React.FC<HeadersProps> = ({
           placement="bottomRight"
           trigger={['click']}
         >
-          <Badge count={notification.length}>
+          <Badge count={readNotificationsCount}>
             <Button shape="circle" icon={<PiBellBold />} size="large" />
           </Badge>
         </Dropdown>

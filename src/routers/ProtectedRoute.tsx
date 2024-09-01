@@ -16,13 +16,33 @@ import Headers from '../components/header/Header';
 import routeConfig from './RouterConfig';
 import ErrorPage from '../pages/ErrorPage';
 
-const ProtectedRoute = () => {
+interface PreparationProgress{
+  SessionId: number;
+  Progress: number;
+}
+
+interface RouterProps {
+  closeWebsocket: () => void;
+  // notification: number;
+  preparationProgress ?: PreparationProgress | null;
+  NotificationId: number;
+  setNotificationId: (NotificationId: number) => void;
+}
+const ProtectedRoute: React.FC<RouterProps> = ({
+  closeWebsocket,
+  // notification,
+  preparationProgress,
+  NotificationId,
+  setNotificationId,
+}) => {
   const Auth = useSelector((state: RootState) => state.auth);
   const role = Auth.userDetail?.result?.role.name;
   const navigate = useNavigate();
   const location = useLocation();
   const [isRunScript, setIsRunScript] = useState(false);
   // const errs = Auth.userDetail?.errors?.length;
+
+  
   useEffect(() => {
     if (location.pathname === '/script' || location.pathname === '/script/set-reset-time' || location.pathname === '/script/register-fingerprint') {
       setIsRunScript(true);
@@ -68,6 +88,11 @@ const ProtectedRoute = () => {
         <Headers
           handleNavigateScript={handleNavigateScript}
           handleNavigateHome={handleNavigateHome}
+          closeWebsocket={closeWebsocket}
+          // notificationss={notification}
+          preparationProgress={preparationProgress}
+          NotificationId={NotificationId}
+          setNotificationId={setNotificationId}
         />
         <Routes>
           {role === 'Lecturer'

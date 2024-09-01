@@ -1,9 +1,9 @@
 import axios, { AxiosError } from 'axios';
-import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SEMESTER_API } from '.';
+import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SCHEDULE_RECORD_API, SEMESTER_API } from '.';
 import { Semester } from '../models/calendar/Semester';
 import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
-import { Schedules, Scheduless } from '../models/calendar/Schedule';
+import { ScheduleRecord, Schedules, Scheduless } from '../models/calendar/Schedule';
 
 type ScheduleList = {
   date: string;
@@ -40,26 +40,42 @@ const getScheduleByLecturer = async (
 
 const getAllSchedule = async (
   lecturerId: string,
+  listScheduleId: number[],
 ): Promise<Scheduless | null> => {
   try {
+    console.log('Schedule IDs:', listScheduleId);
+
     const response = await axios.get(`${SCHEDULE_API}/test-get-all`, {
       params: {
         startPage: 1,
         endPage: 10,
         quantity: 10,
         lecturerId,
+        scheduleIds: listScheduleId, // Correctly handled as array
+      },
+      paramsSerializer: (params) => {
+        return Object.entries(params)
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return value.map(v => `${key}=${encodeURIComponent(v)}`).join('&');
+            }
+            return `${key}=${encodeURIComponent(value)}`;
+          })
+          .join('&');
       },
       headers: {
         accept: '*/*',
       },
     });
-    console.log('abcd: ', response.data);
+
+    console.log('Response data:', response.data);
     return response.data as Scheduless;
   } catch (error) {
-    console.error('Error on get All Schedule: ', error);
+    console.error('Error fetching all schedules:', error);
     return null;
   }
 };
+
 
 const getScheduleByWeek = async (
   lecturerId: string,
@@ -233,6 +249,50 @@ const deleteScheduleOfClass = async (scheduleID: number) => {
   }
 };
 
+const getScheduleRecord = async (userID: string): Promise<ScheduleRecord | null> => {
+  try {
+    const response = await axios.get(SCHEDULE_RECORD_API, {
+      params: {
+        startPage: 1,
+        endPage: 10,
+        quantity: 10,
+        userId: userID,
+      },
+      headers: {
+        accept: '*/*',
+      },
+    });
+    return response.data as ScheduleRecord;
+  } catch (error) {
+    console.error('Error fetching schedule records: ', error);
+    return null;
+  }
+};
+
+const revertScheduleImport = async (
+  importSchedulesRecordID: number,
+) => {
+  try {
+    const response = await axios.post(
+      `${SCHEDULE_RECORD_API}/revert/${importSchedulesRecordID}`,
+      {
+        headers: {
+          accept: '*/*',
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
 export const CalendarService = {
   getAllSemester,
   getScheduleByLecturer,
@@ -245,4 +305,6 @@ export const CalendarService = {
   addScheduleToClass,
   updateScheduleOfClass,
   deleteScheduleOfClass,
+  getScheduleRecord,
+  revertScheduleImport,
 };

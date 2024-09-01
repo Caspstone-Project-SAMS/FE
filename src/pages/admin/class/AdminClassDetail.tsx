@@ -17,7 +17,7 @@ import {
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from './AdminClass.module.less';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { CiEdit, CiSearch } from 'react-icons/ci';
 import {
@@ -49,8 +49,16 @@ import { MdDeleteForever } from 'react-icons/md';
 import { updateScheduleOfClasses } from '../../../redux/slice/Student';
 import { CalendarService } from '../../../hooks/Calendar';
 import { FcDeleteDatabase } from 'react-icons/fc';
+import { Box } from '@mui/material';
+import { PieChart } from '@mui/x-charts/PieChart';
+import ColorShowcase from '../../../components/color/ColorShowcase';
+import { IoMdInformation } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
+
+interface Attendance {
+  attended: number;
+}
 
 const AdminClassDetail: React.FC = () => {
   const location = useLocation();
@@ -66,8 +74,10 @@ const AdminClassDetail: React.FC = () => {
   const [ClassId, setClassID] = useState<number>(0);
   const [date, setDate] = useState<Date | null>(null);
   const [SlotId, setSlotId] = useState(0);
-  const [RoomId, setRoomId] = useState<number | null>(0);
+  const [RoomId, setRoomId] = useState<number | null>(null);
   const [scheduleID, setScheduleID] = useState<number>(0);
+
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
 
   const [studentID, setStudentID] = useState<string[]>([]);
 
@@ -81,6 +91,23 @@ const AdminClassDetail: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const countAttendedOne = attendance.filter(
+    (item) => item.attended === 1,
+  ).length;
+  const countAttendedTwo = attendance.filter(
+    (item) => item.attended === 2,
+  ).length;
+  const countAttendedThree = attendance.filter(
+    (item) => item.attended === 3,
+  ).length;
+  const totalAttended =
+    countAttendedOne + countAttendedTwo + countAttendedThree;
+
+  //Chart
+  const pieParams = { height: 200, margin: { right: 5 } };
+  const palette = ['red', 'gray', 'green'];
 
   const failMessage = useSelector(
     (state: RootState) => state.student.studentDetail,
@@ -88,12 +115,20 @@ const AdminClassDetail: React.FC = () => {
   const successMessage = useSelector(
     (state: RootState) => state.student.message,
   );
+  
+  const role = useSelector((state: RootState) => state.auth.userDetail?.result?.role.name);
 
   const [errors, setErrors] = useState<{
     StudentCode?: string;
     SlotId?: string;
     date?: string;
   }>({});
+
+  const handleRowClick = (scheduleID: number) => {
+    navigate(`/class/classdetails`, {
+      state: { scheduleID: scheduleID },
+    });
+  };
 
   const handleSelectStudent = (id: string, checked: boolean) => {
     if (checked) {
@@ -116,6 +151,8 @@ const AdminClassDetail: React.FC = () => {
     }
   };
 
+  console.log(failMessage);
+
   useEffect(() => {
     if (successMessage) {
       message.success(successMessage.title);
@@ -125,10 +162,10 @@ const AdminClassDetail: React.FC = () => {
     }
     if (failMessage && failMessage.data.data.errors) {
       message.error(`${failMessage.data.data.errors}`);
-      dispatch(clearStudentMessages());
     } else if (failMessage?.data.data) {
       message.error(`${failMessage.data.data}`);
     }
+    dispatch(clearStudentMessages());
   }, [successMessage, failMessage, dispatch]);
   const showModalUpdateSchedule = (item?: Schedule) => {
     getAllSlot();
@@ -219,6 +256,7 @@ const AdminClassDetail: React.FC = () => {
         setClasses(data || undefined);
         setClassStudent(data?.result.students || []);
         setClassSchedule(data?.result.schedules || []);
+        console.log('asadcecfes', data?.result.subject);
         setSemesterId(data?.result.semester.semesterID || 0);
         setClassCode(data?.result.classCode || '');
         setFilteredStudentClass(data?.result.students || []);
@@ -227,6 +265,24 @@ const AdminClassDetail: React.FC = () => {
       console.log('get all error: ', error);
     }
   }, [ClassId]);
+
+  // const filterAttendees = useCallback(async () => {
+  //   const filteredList = classSchedule
+  //     .filter((schedule) => [1, 2, 3].includes(schedule.attended))
+  //     .map((schedule) => ({ attended: schedule.attended }));
+  //   setAttendance(filteredList);
+  // }, [classSchedule]);
+
+  useEffect(() => {
+    const filterAttendees = async () => {
+      const filteredList = classSchedule
+        .filter((schedule) => [1, 2, 3].includes(schedule.attended))
+        .map((schedule) => ({ attended: schedule.attended }));
+      setAttendance(filteredList);
+    };
+
+    filterAttendees();
+  }, [classSchedule]);
 
   useEffect(() => {
     fetchAll();
@@ -316,6 +372,21 @@ const AdminClassDetail: React.FC = () => {
       key: '1',
       title: 'Date',
       dataIndex: 'date',
+      filters: [
+        {
+          text: 'Today',
+          value: moment().format('DD/MM/YYYY'),
+        },
+        {
+          text: 'Yesterday',
+          value: moment().subtract(1, 'days').format('DD/MM/YYYY'),
+        },
+      ],
+      onFilter: (value: any, record: any) => record.date === value,
+      sorter: (a: any, b: any) =>
+        moment(a.date, 'DD/MM/YYYY').unix() -
+        moment(b.date, 'DD/MM/YYYY').unix(),
+      sortDirections: ['descend', 'ascend'],
     },
     {
       key: '2',
@@ -341,30 +412,35 @@ const AdminClassDetail: React.FC = () => {
       key: '6',
       title: 'Status',
       dataIndex: 'scheduleStatus',
-      render: (scheduleStatus: number) => (
-        <div>
-          <Tag
-            color={
-              scheduleStatus === 1 || scheduleStatus === 0
-                ? 'gray'
+      render: (scheduleStatus: number) => {
+        // let notYet = 0;
+        // let ongoing = 0;
+        // let ended = 0;
+        return (
+          <div>
+            <Tag
+              color={
+                scheduleStatus === 1 || scheduleStatus === 0
+                  ? 'gray'
+                  : scheduleStatus === 2
+                  ? 'blue'
+                  : scheduleStatus === 3
+                  ? 'green'
+                  : 'white'
+              }
+              style={{ fontWeight: 'bold', fontSize: '10px' }}
+            >
+              {scheduleStatus === 1 || scheduleStatus === 0
+                ? 'Not Yet'
                 : scheduleStatus === 2
-                ? 'blue'
+                ? 'On-going'
                 : scheduleStatus === 3
-                ? 'green'
-                : 'white'
-            }
-            style={{ fontWeight: 'bold', fontSize: '10px' }}
-          >
-            {scheduleStatus === 1 || scheduleStatus === 0
-              ? 'Not Yet'
-              : scheduleStatus === 2
-              ? 'On-going'
-              : scheduleStatus === 3
-              ? 'Ended'
-              : 'undefined'}
-          </Tag>
-        </div>
-      ),
+                ? 'Ended'
+                : 'undefined'}
+            </Tag>
+          </div>
+        );
+      },
     },
     {
       key: '7',
@@ -401,6 +477,30 @@ const AdminClassDetail: React.FC = () => {
       dataIndex: 'action',
     },
   ];
+
+  // if (role === 'Lecturer') {
+  //   columnsSchedule.push({
+  //     key: '9',
+  //     title: 'Info',
+  //     dataIndex: 'info',
+  //     render: (scheduleID: number) => (
+  //       <div>
+  //         <Button
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             handleRowClick(scheduleID);
+  //           }}
+  //           shape="circle"
+  //           style={{ border: 'none' }}
+  //         >
+  //           <span>
+  //             <IoMdInformation size={25} />
+  //           </span>
+  //         </Button>
+  //       </div>
+  //     ),
+  //   });
+  // }
 
   const teacherDetails = [
     { label: 'Name', value: classes?.result.lecturer.displayName },
@@ -451,8 +551,8 @@ const AdminClassDetail: React.FC = () => {
       RoomId,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchAll();
   };
   const handleCancel = () => {
@@ -498,8 +598,8 @@ const AdminClassDetail: React.FC = () => {
     setLoading(true);
     await addStudent(semesterId, StudentCode, ClassCode);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchAll();
   };
 
@@ -513,8 +613,8 @@ const AdminClassDetail: React.FC = () => {
       RoomId,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchAll();
   };
 
@@ -563,9 +663,9 @@ const AdminClassDetail: React.FC = () => {
       SlotId: SlotId,
       RoomId: RoomId,
     };
-    setDate(null);
-    setSlotId(0);
-    setRoomId(0 || null);
+    // setDate(null);
+    // setSlotId(0);
+    // setRoomId(0 || null);
     await dispatch(updateScheduleOfClasses(arg) as any);
   };
 
@@ -640,17 +740,17 @@ const AdminClassDetail: React.FC = () => {
       </div>
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
-          <Col span={14}>
+          <Col span={10}>
             <Card style={{ height: '100%' }}>
               <Row>
-                <Col span={4}>
+                <Col span={1}>
                   <img
                     alt="Lecturer"
                     src={classes?.result.lecturer.avatar}
                     style={{ width: 100, height: 100 }}
                   />
                 </Col>
-                <Col span={19} style={{ marginLeft: 20 }}>
+                <Col span={23} style={{ marginLeft: 20 }}>
                   {/* <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Row style={{ marginBottom: 40 }}>
@@ -697,12 +797,12 @@ const AdminClassDetail: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          <Col span={10}>
+          <Col span={8}>
             <Content>
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Class Details</p>
               </AntHeader>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.classDetailsTable}>
@@ -721,8 +821,60 @@ const AdminClassDetail: React.FC = () => {
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {classDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+
+                      <Row className={styles.rowDetails}>
+                        <Col span={14}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={10}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card>
               </Col>
             </Content>
+          </Col>
+          <Col span={6}>
+            <Box flexGrow={1}>
+              {/* <Typography>Palette</Typography> */}
+              <PieChart
+                colors={palette}
+                series={[
+                  {
+                    data: [
+                      { value: (countAttendedThree / totalAttended) * 100 },
+                      { value: (countAttendedOne / totalAttended) * 100 },
+                      { value: (countAttendedTwo / totalAttended) * 100 },
+                    ],
+                  },
+                ]}
+                {...pieParams}
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: 20,
+                }}
+              >
+                <ColorShowcase color="primary" explain={'lecturerAttendance'} />
+              </div>
+            </Box>
           </Col>
         </Row>
         <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
@@ -795,6 +947,7 @@ const AdminClassDetail: React.FC = () => {
                     </Button>
                   </div>
                 ),
+                info: item.scheduleID
               }))}
               pagination={{
                 showSizeChanger: true,
@@ -1004,7 +1157,7 @@ const AdminClassDetail: React.FC = () => {
                   >
                     {Slot.map((slot) => (
                       <Select.Option key={slot.slotID} value={slot.slotID}>
-                        Slot {slot.slotNumber}
+                        Slot {slot.slotNumber} ({slot.startTime} -{' '}{slot.endtime})
                       </Select.Option>
                     ))}
                   </Select>

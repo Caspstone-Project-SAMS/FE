@@ -34,6 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { IoMdInformation } from 'react-icons/io';
 import DatePicker from 'react-datepicker'; 
 import 'react-datepicker/dist/react-datepicker.css'; 
+import { SystemService } from '../../../hooks/System';
 
 const { Header: AntHeader } = Layout;
 
@@ -52,6 +53,7 @@ const Semester: React.FC = () => {
   // const [SemesterStatus, setSemesterStatus] = useState(1);
   const [StartDate, setStartDate] = useState<Date | null>(null); 
   const [EndDate, setEndDate] = useState<Date | null>(null); 
+  const [semesterDurationInDays, setSemesterDurationInDays] = useState<number>(0);
 
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
@@ -132,7 +134,13 @@ const Semester: React.FC = () => {
     }
   }, [successMessage, failMessage, dispatch]);
 
+  const getAllSystem = async () => {
+    const response = await SystemService.getAllSystem();
+    setSemesterDurationInDays(response?.result.semesterDurationInDays || 0);
+  };
+
   const showModalUpdate = (item?: Semester) => {
+    getAllSystem();
     setIsCheck(true);
     if (item) {
       setSemesterID(item.semesterID!);
@@ -147,6 +155,7 @@ const Semester: React.FC = () => {
   };
 
   const showModalCreate = () => {
+    getAllSystem();
     setIsCheck(false);
     setIsModalVisible(true);
   };
@@ -165,8 +174,8 @@ const Semester: React.FC = () => {
       EndDate ? moment(EndDate).format('YYYY-MM-DD') : '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchSemesters();
   };
 
@@ -185,8 +194,8 @@ const Semester: React.FC = () => {
       semesterID,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
+    // setIsModalVisible(false);
+    // resetModalFields();
     fetchSemesters();
   };
 
@@ -473,7 +482,7 @@ const Semester: React.FC = () => {
             setStartDate(date);
             if (date) {
               const endDate = new Date(date);
-              endDate.setDate(endDate.getDate() + 90); 
+              endDate.setDate(endDate.getDate() + semesterDurationInDays); 
               setEndDate(endDate);
             }
             setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
@@ -493,7 +502,7 @@ const Semester: React.FC = () => {
             setEndDate(date);
             if (date) {
               const startDate = new Date(date);
-              startDate.setDate(startDate.getDate() - 90); 
+              startDate.setDate(startDate.getDate() - semesterDurationInDays); 
               setStartDate(startDate);
             }
             setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));

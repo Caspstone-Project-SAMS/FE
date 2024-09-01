@@ -34,7 +34,13 @@ const initialVal = {
   token_type: '',
 };
 
-function Login() {
+interface RoutersProps {
+  ConnectWebsocket: (tokenString: string) => void
+}
+
+const Login: React.FC<RoutersProps> = ({
+  ConnectWebsocket
+}) => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isRemember, setIsRemember] = useState(false);
@@ -94,8 +100,10 @@ function Login() {
   //after login, check role and then navigate
   useEffect(() => {
     if (role === 'Lecturer') {
+      ConnectWebsocket(Auth.userDetail?.token as string);
       navigate('/home');
     } else if (role === 'Admin') {
+      ConnectWebsocket(Auth.userDetail?.token as string);
       navigate('/home');
     } else if (role === 'Student') {
       navigate('/student');

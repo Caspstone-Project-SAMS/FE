@@ -49,12 +49,20 @@ export interface ClassDetails {
   classID: number;
   classCode: string;
   classStatus: boolean;
+  slotType: SlotType;
   semester: Semester;
   room: Room;
   subject: Subject;
   lecturer: Lecturer;
   students: Student[];
   schedules: Schedule[];
+}
+
+export interface SlotType {
+  typeName: string;
+  description: string;
+  status: number;
+  sessionCount: number;
 }
 export interface ClassDetail {
   result: {

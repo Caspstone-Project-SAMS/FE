@@ -17,4 +17,5 @@ interface NotificationType {
     notificationTypeID: number;
     typeName: string;
     typeDescription: string;
+    notifications: [];
 }
