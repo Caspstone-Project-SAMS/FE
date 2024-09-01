@@ -59,7 +59,7 @@ export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`;
 //User
 export const USER_API = `${server}/User`;
 
-//Script 
+//Script
 export const SCRIPT_API = `${server}/Script`;
 
 //Student Class

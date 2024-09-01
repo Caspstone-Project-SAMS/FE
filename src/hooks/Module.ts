@@ -1,6 +1,11 @@
 import axios, { AxiosError } from 'axios';
 import { MODULE_ACTIVITY_API, MODULE_API, SET_WIFI_API } from '.';
-import { ActiveModule, Module, ModuleActivityBySchedule, ModuleByID } from '../models/module/Module';
+import {
+  ActiveModule,
+  Module,
+  ModuleActivityBySchedule,
+  ModuleByID,
+} from '../models/module/Module';
 import { useSelector } from 'react-redux';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 
@@ -86,13 +91,18 @@ const getModuleByID = async (moduleID: number): Promise<ModuleByID | null> => {
   }
 };
 
-const getModuleActivityByScheduleID = async (scheduleID: number): Promise<ModuleActivityBySchedule | null> => {
+const getModuleActivityByScheduleID = async (
+  scheduleID: number,
+): Promise<ModuleActivityBySchedule | null> => {
   try {
-    const response = await axios.get(`${MODULE_ACTIVITY_API}?scheduleId=${scheduleID}`, {
-      headers: {
-        accept: '*/*',
+    const response = await axios.get(
+      `${MODULE_ACTIVITY_API}?scheduleId=${scheduleID}`,
+      {
+        headers: {
+          accept: '*/*',
+        },
       },
-    });
+    );
     return response.data as ModuleActivityBySchedule;
   } catch (error) {
     console.error('Error on get Module by ScheduleID: ', error);
@@ -279,8 +289,8 @@ const syncAttendanceData = async (
       },
       {
         headers: {
-          'Accept': '*/*',
-          'Authorization': `Bearer ${token}`,
+          Accept: '*/*',
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json-patch+json',
         },
       },
@@ -301,7 +311,7 @@ const startCheckAttendance = async (
   ModuleID: number,
   Mode: number,
   StartAttendance: { ScheduleID: number }, // Adjusted type for StartAttendance
-  token: string
+  token: string,
 ) => {
   try {
     const response = await axios.post(
@@ -313,11 +323,11 @@ const startCheckAttendance = async (
       },
       {
         headers: {
-          'Accept': '*/*',
-          'Authorization': `Bearer ${token}`,
+          Accept: '*/*',
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json-patch+json',
         },
-      }
+      },
     );
     console.log('Response:', response.data);
     return response.data;
@@ -434,7 +444,7 @@ const settingModule = async (
   moduleID: number,
   AutoPrepare: boolean,
   PreparedTime: string,
-  AttendanceDurationMinutes:number,
+  AttendanceDurationMinutes: number,
   ConnectionLifeTimeSeconds: number,
   ConnectionSound: boolean,
   ConnectionSoundDurationMs: number,

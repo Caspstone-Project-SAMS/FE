@@ -193,6 +193,17 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
 
   const columns: ColumnsType<Attendance> = [
     {
+      key: '0',
+      title: '#',
+      render: ((value, record: Attendance, index: number) => {
+        return (
+          <div key={`index_${index}`}>
+            {index}
+          </div>
+        )
+      }),
+    },
+    {
       key: '1',
       title: 'Student name',
       render: ((value, record: Attendance, index: number) => {

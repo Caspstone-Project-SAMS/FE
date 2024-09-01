@@ -48,10 +48,10 @@ const resetPassword = async (
       },
       {
         headers: {
-          'accept': '*/*',
+          accept: '*/*',
           'Content-Type': 'application/json-patch+json',
         },
-      }
+      },
     );
     console.log(response.data);
     return response.data;
@@ -79,13 +79,13 @@ const editProfile = async (
   LastName: string,
 ) => {
   try {
-    console.log('test', Avatar)
+    console.log('test', Avatar);
     const formData = new FormData();
     formData.append('Email', Email);
-    if(Avatar !== null) formData.append('Avatar', Avatar, Avatar.name);
+    if (Avatar !== null) formData.append('Avatar', Avatar, Avatar.name);
     formData.append('DisplayName', DisplayName);
     formData.append('Address', Address);
-    formData.append('DOB', DOB)
+    formData.append('DOB', DOB);
     const response = await axios.put(
       `http://34.81.223.233/api/User/${UserId}`,
       {
@@ -97,14 +97,14 @@ const editProfile = async (
         DOB,
         Gender,
         FirstName,
-        LastName
+        LastName,
       },
       {
         headers: {
-          'accept': '*/*',
+          accept: '*/*',
           'Content-Type': 'multipart/form-data',
         },
-      }
+      },
     );
     console.log(response.data);
     return response.data;
@@ -124,7 +124,7 @@ const AuthService = {
   getGGInfo,
   loginGG,
   resetPassword,
-  editProfile
+  editProfile,
 };
 
 export default AuthService;
