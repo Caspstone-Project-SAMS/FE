@@ -20,7 +20,7 @@ export interface Schedules {
     classID: number;
     class: Class;
     room: null;
-  }
+  };
 }
 export interface Scheduless {
   title: string;
@@ -63,9 +63,14 @@ export interface Class {
 }
 
 export interface ScheduleRecord {
-  title: string;
+  data: {
+    data: {
+      title: string;
+      result: ScheduleRecordResult[];
+      errors: string[];
+    };
+  };
   result: ScheduleRecordResult[];
-  errors: string[];
 }
 
 export interface ScheduleRecordResult {

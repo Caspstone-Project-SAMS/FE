@@ -1,4 +1,3 @@
-
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
@@ -363,8 +362,11 @@ const Slot: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'red'}>
-          {status === 1 ? 'available' : 'unavailable'}
+        <Tag
+          color={status ? 'green' : 'red'}
+          style={{ fontWeight: 'bold', fontSize: '10px' }}
+        >
+          {status ? 'available' : 'unavailable'}
         </Tag>
       ),
     },
@@ -503,8 +505,7 @@ const Slot: React.FC = () => {
       errors.description = 'Slot Type Description is required';
     if (SlotTypeStatus === null)
       errors.slotTypeStatus = 'Slot Type Status is required';
-    if (!SessionCount)
-      errors.sessionCount = 'Sesssion Count is required';
+    if (!SessionCount) errors.sessionCount = 'Sesssion Count is required';
     return errors;
   };
 
@@ -567,7 +568,7 @@ const Slot: React.FC = () => {
                   type="primary"
                   icon={<PlusOutlined />}
                 >
-                  Add New
+                  Add New Slot
                 </Button>
               </Col>
               <Col>
@@ -588,6 +589,7 @@ const Slot: React.FC = () => {
         expandable={{
           expandedRowRender: (record) => (
             <Table
+              style={{ marginLeft: 70 }}
               columns={slotColumns}
               // dataSource={record.slots}
               dataSource={record.slots.map((item, index) => ({
@@ -648,7 +650,17 @@ const Slot: React.FC = () => {
         rowKey="slotTypeID"
       />
       <Modal
-        title={(isCheck === true && isUpdate === '') ? 'Edit Slot' : (isCheck === false && isUpdate === '') ? 'Add New Slot' : (isUpdate === 'true' && isCheck === false) ? 'Update Slot Type' : (isUpdate === 'false' && isCheck === false) ? 'Add New Slot Type' : 'Undefined'}
+        title={
+          isCheck === true && isUpdate === ''
+            ? 'Edit Slot'
+            : isCheck === false && isUpdate === ''
+            ? 'Add New Slot'
+            : isUpdate === 'true' && isCheck === false
+            ? 'Update Slot Type'
+            : isUpdate === 'false' && isCheck === false
+            ? 'Add New Slot Type'
+            : 'Undefined'
+        }
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={[
@@ -659,7 +671,17 @@ const Slot: React.FC = () => {
             key="submit"
             type="primary"
             loading={loading}
-            onClick={(isCheck === true && isUpdate === '') ? handleUpdate : (isCheck === false && isUpdate === '') ? handleCreate : (isUpdate === 'true' && isCheck === false) ? handleUpdateSlotType : (isUpdate === 'false' && isCheck === false) ? handleCreateSlotType : undefined}
+            onClick={
+              isCheck === true && isUpdate === ''
+                ? handleUpdate
+                : isCheck === false && isUpdate === ''
+                ? handleCreate
+                : isUpdate === 'true' && isCheck === false
+                ? handleUpdateSlotType
+                : isUpdate === 'false' && isCheck === false
+                ? handleCreateSlotType
+                : undefined
+            }
           >
             Submit
           </Button>,
@@ -837,7 +859,7 @@ const Slot: React.FC = () => {
                   sessionCount: '',
                 }));
               }}
-              type='number'
+              type="number"
               style={{ marginBottom: '10px' }}
             />
             {errors.sessionCount && (

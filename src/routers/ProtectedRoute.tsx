@@ -23,15 +23,17 @@ interface PreparationProgress{
 
 interface RouterProps {
   closeWebsocket: () => void;
-  notification: number;
+  // notification: number;
   preparationProgress ?: PreparationProgress | null;
   NotificationId: number;
+  setNotificationId: (NotificationId: number) => void;
 }
 const ProtectedRoute: React.FC<RouterProps> = ({
   closeWebsocket,
-  notification,
+  // notification,
   preparationProgress,
   NotificationId,
+  setNotificationId,
 }) => {
   const Auth = useSelector((state: RootState) => state.auth);
   const role = Auth.userDetail?.result?.role.name;
@@ -87,9 +89,10 @@ const ProtectedRoute: React.FC<RouterProps> = ({
           handleNavigateScript={handleNavigateScript}
           handleNavigateHome={handleNavigateHome}
           closeWebsocket={closeWebsocket}
-          notificationss={notification}
+          // notificationss={notification}
           preparationProgress={preparationProgress}
           NotificationId={NotificationId}
+          setNotificationId={setNotificationId}
         />
         <Routes>
           {role === 'Lecturer'

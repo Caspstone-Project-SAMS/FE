@@ -11,6 +11,7 @@ import {
   Table,
   Form,
   Tag,
+  Tooltip,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ import styles from './AdminClass.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 
 import { CiEdit, CiSearch } from 'react-icons/ci';
-import { PlusOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   clearClassMessages,
@@ -244,7 +245,8 @@ const AdminClass: React.FC = () => {
     if (SemesterId === null) newErrors.semesterId = 'Semester is required';
     if (RoomId === null) newErrors.roomId = 'Room is required';
     if (SubjectId === null) newErrors.subjectId = 'Subject is required';
-    if (SlotTypeId === null && !isCheck) newErrors.slotTypeId = 'Slot Type is required';
+    if (SlotTypeId === null && !isCheck)
+      newErrors.slotTypeId = 'Slot Type is required';
     if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -640,7 +642,17 @@ const AdminClass: React.FC = () => {
         </Select>
         {!isCheck && (
           <>
-            <p className={styles.createClassTitle}>Slot Type</p>
+            <p className={styles.createClassTitle}>
+              Slot Type{' '}
+              <Tooltip title="Duration of schedules of class">
+                <Button
+                  type="link"
+                  icon={<InfoCircleOutlined />}
+                  size="small"
+                  style={{ padding: 0, fontSize: '14px' }}
+                />
+              </Tooltip>
+            </p>
             <Select
               placeholder="Slot Type"
               value={SlotTypeId}
@@ -677,10 +689,20 @@ const AdminClass: React.FC = () => {
           }}
           showSearch
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            const normalizeString = (str: string) => {
+              return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            };
+
+            const normalizedChildren = normalizeString(children).toLowerCase();
+            const normalizedInput = normalizeString(input).toLowerCase();
+            return normalizedChildren.includes(normalizedInput);
+          }}
         >
           {lecturer.map((lec) => (
             <Select.Option key={lec.id} value={lec.id}>
-              <p>{lec.displayName}</p>
+              {lec.displayName + ' - ' + lec.email}
             </Select.Option>
           ))}
         </Select>

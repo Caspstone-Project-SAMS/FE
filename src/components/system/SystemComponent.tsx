@@ -22,7 +22,6 @@ import { SystemService } from '../../hooks/System';
 //   systemConfig: System | undefined;
 // }
 const SystemComponent: React.FC = () => {
-
   const [systemConfig, setSystemConfig] = useState<System>();
 
   const failMessage = useSelector(
@@ -117,41 +116,45 @@ const SystemComponent: React.FC = () => {
 
   return (
     <Content className={styles.homeSystemCtn}>
-      <Card className={styles.card1}>
-        <div style={{ marginBottom: 30 }}>
-          <div className={styles.detailsHeader}>System Details</div>
-        </div>
-        {systemDetails.map((system, i) => (
-          <div key={`info_${i}`}>
-            <hr
-              style={{
-                borderColor: '#e6e7e9',
-                borderWidth: 0.5,
-              }}
-            />
+      <Row>
+        <Col span={12}>
+          <Card className={styles.card1}>
+            <div style={{ marginBottom: 30 }}>
+              <div className={styles.detailsHeader}>System Details</div>
+            </div>
+            {systemDetails.map((system, i) => (
+              <div key={`info_${i}`}>
+                <hr
+                  style={{
+                    borderColor: '#e6e7e9',
+                    borderWidth: 0.5,
+                  }}
+                />
 
-            <Row className={styles.rowDetails}>
-              <Col span={10}>
-                <div>{system.label}</div>
-              </Col>
-              <Col>
-                {system.label === 'Class status' ? (
-                  <div
-                    // className={checkingStatus(detail.value)}
-                    style={{ fontWeight: 500 }}
-                  >
-                    {system.value}
-                  </div>
-                ) : (
-                  <div style={{ fontWeight: 500, color: '#667085' }}>
-                    {system.value}
-                  </div>
-                )}
-              </Col>
-            </Row>
-          </div>
-        ))}
-      </Card>
+                <Row className={styles.rowDetails}>
+                  <Col span={14}>
+                    <div style={{ fontWeight: 500 }}>{system.label}</div>
+                  </Col>
+                  <Col span={10}>
+                    {system.label === 'Class status' ? (
+                      <div
+                        // className={checkingStatus(detail.value)}
+                        style={{ fontWeight: 500 }}
+                      >
+                        {system.value}
+                      </div>
+                    ) : (
+                      <div style={{ fontWeight: 500, color: '#667085' }}>
+                        {system.value}
+                      </div>
+                    )}
+                  </Col>
+                </Row>
+              </div>
+            ))}
+          </Card>
+        </Col>
+      </Row>
       <Row style={{ width: '100%' }}>
         <Col span={24} style={{ marginTop: 20 }}>
           <b>System Configuration</b>
@@ -175,9 +178,7 @@ const SystemComponent: React.FC = () => {
                 className={styles.inputNumber}
               />{' '}
               {' hours'}
-              <p className={styles.suggestText}>
-                abc
-              </p>
+              <p className={styles.suggestText}>abc</p>
             </div>
           </div>
           <div className={styles.settingItem}>
@@ -191,7 +192,7 @@ const SystemComponent: React.FC = () => {
                 value={ClassCodeMatchRate}
                 onChange={(value) => {
                   if (value !== null) {
-                    setClassCodeMatchRate(value); 
+                    setClassCodeMatchRate(value);
                   }
                 }}
                 min={0}
@@ -199,9 +200,7 @@ const SystemComponent: React.FC = () => {
                 className={styles.inputNumber}
               />{' '}
               {' %'}
-              <p className={styles.suggestText}>
-                abc
-              </p>
+              <p className={styles.suggestText}>abc</p>
             </div>
           </div>
           <div className={styles.settingItem}>
@@ -215,7 +214,7 @@ const SystemComponent: React.FC = () => {
                 value={SemesterDurationInDays}
                 onChange={(value) => {
                   if (value !== null) {
-                    setSemesterDurationInDays(value); 
+                    setSemesterDurationInDays(value);
                   }
                 }}
                 min={0}
@@ -223,14 +222,16 @@ const SystemComponent: React.FC = () => {
                 className={styles.inputNumber}
               />{' '}
               {' days'}
-              <p className={styles.suggestText}>
-                abc
-              </p>
+              <p className={styles.suggestText}>abc</p>
             </div>
           </div>
         </Col>
         <Col span={24} style={{ marginTop: 40, textAlign: 'right' }}>
-          <Button onClick={handleSubmit} type="primary" className={styles.submitButton}>
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className={styles.submitButton}
+          >
             Submit
           </Button>
         </Col>

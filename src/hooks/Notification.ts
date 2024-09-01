@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { NOTIFICATION_API } from '.';
 import { Notification } from '../models/notification/Notification';
 
@@ -9,6 +9,9 @@ const getAllNotification = async (
     const response = await axios.get(NOTIFICATION_API, {
       params: {
         userId,
+        startPage:1,
+        endPage:10,
+        quantity:10,
       },
     });
 
@@ -32,7 +35,35 @@ const getAllNotificationByID = async (
   }
 };
 
+const readNotification = async (NotificationID: number) => {
+  try {
+    console.log('NotificationID', NotificationID);
+    const response = await axios.put(
+      `${NOTIFICATION_API}/read`,
+      [NotificationID],
+      {
+        headers: {
+          'accept': '*/*',
+          'Content-Type': 'application/json-patch+json',
+        },
+      }
+    );
+console.log('response', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Axios Error:', error.response.data);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Unexpected Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
+
 export const NotificationService = {
   getAllNotification,
   getAllNotificationByID,
+  readNotification,
 };

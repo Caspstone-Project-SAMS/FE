@@ -273,7 +273,7 @@ const revertScheduleImport = async (
   importSchedulesRecordID: number,
 ) => {
   try {
-    const response = await axios.put(
+    const response = await axios.post(
       `${SCHEDULE_RECORD_API}/revert/${importSchedulesRecordID}`,
       {
         headers: {

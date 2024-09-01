@@ -17,7 +17,7 @@ import {
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from './AdminClass.module.less';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { CiEdit, CiSearch } from 'react-icons/ci';
 import {
@@ -52,6 +52,7 @@ import { FcDeleteDatabase } from 'react-icons/fc';
 import { Box } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 import ColorShowcase from '../../../components/color/ColorShowcase';
+import { IoMdInformation } from 'react-icons/io';
 
 const { Header: AntHeader } = Layout;
 
@@ -90,6 +91,7 @@ const AdminClassDetail: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const countAttendedOne = attendance.filter(
     (item) => item.attended === 1,
@@ -113,12 +115,20 @@ const AdminClassDetail: React.FC = () => {
   const successMessage = useSelector(
     (state: RootState) => state.student.message,
   );
+  
+  const role = useSelector((state: RootState) => state.auth.userDetail?.result?.role.name);
 
   const [errors, setErrors] = useState<{
     StudentCode?: string;
     SlotId?: string;
     date?: string;
   }>({});
+
+  const handleRowClick = (scheduleID: number) => {
+    navigate(`/class/classdetails`, {
+      state: { scheduleID: scheduleID },
+    });
+  };
 
   const handleSelectStudent = (id: string, checked: boolean) => {
     if (checked) {
@@ -271,7 +281,7 @@ const AdminClassDetail: React.FC = () => {
       setAttendance(filteredList);
     };
 
-    filterAttendees()
+    filterAttendees();
   }, [classSchedule]);
 
   useEffect(() => {
@@ -467,6 +477,30 @@ const AdminClassDetail: React.FC = () => {
       dataIndex: 'action',
     },
   ];
+
+  // if (role === 'Lecturer') {
+  //   columnsSchedule.push({
+  //     key: '9',
+  //     title: 'Info',
+  //     dataIndex: 'info',
+  //     render: (scheduleID: number) => (
+  //       <div>
+  //         <Button
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             handleRowClick(scheduleID);
+  //           }}
+  //           shape="circle"
+  //           style={{ border: 'none' }}
+  //         >
+  //           <span>
+  //             <IoMdInformation size={25} />
+  //           </span>
+  //         </Button>
+  //       </div>
+  //     ),
+  //   });
+  // }
 
   const teacherDetails = [
     { label: 'Name', value: classes?.result.lecturer.displayName },
@@ -706,17 +740,17 @@ const AdminClassDetail: React.FC = () => {
       </div>
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
-          <Col span={12}>
+          <Col span={10}>
             <Card style={{ height: '100%' }}>
               <Row>
-                <Col span={4}>
+                <Col span={1}>
                   <img
                     alt="Lecturer"
                     src={classes?.result.lecturer.avatar}
                     style={{ width: 100, height: 100 }}
                   />
                 </Col>
-                <Col span={19} style={{ marginLeft: 20 }}>
+                <Col span={23} style={{ marginLeft: 20 }}>
                   {/* <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Row style={{ marginBottom: 40 }}>
@@ -763,12 +797,12 @@ const AdminClassDetail: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <Content>
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Class Details</p>
               </AntHeader>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.classDetailsTable}>
@@ -787,6 +821,31 @@ const AdminClassDetail: React.FC = () => {
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {classDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+
+                      <Row className={styles.rowDetails}>
+                        <Col span={14}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={10}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card>
               </Col>
             </Content>
           </Col>
@@ -888,6 +947,7 @@ const AdminClassDetail: React.FC = () => {
                     </Button>
                   </div>
                 ),
+                info: item.scheduleID
               }))}
               pagination={{
                 showSizeChanger: true,
@@ -1097,7 +1157,7 @@ const AdminClassDetail: React.FC = () => {
                   >
                     {Slot.map((slot) => (
                       <Select.Option key={slot.slotID} value={slot.slotID}>
-                        Slot {slot.slotNumber}
+                        Slot {slot.slotNumber} ({slot.startTime} -{' '}{slot.endtime})
                       </Select.Option>
                     ))}
                   </Select>

@@ -336,7 +336,10 @@ const AccountStudentsDetail: React.FC = () => {
     { title: 'Student Name', value: student?.result.displayName },
     { title: 'Student Code', value: student?.result.studentCode },
     { title: 'Address', value: student?.result.address },
-    { title: 'Date Of Birth', value: moment(student?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY') },
+    {
+      title: 'Date Of Birth',
+      value: moment(student?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+    },
     { title: 'Email', value: student?.result.email },
     { title: 'Phone Number', value: student?.result.phoneNumber },
     // {
@@ -1255,7 +1258,7 @@ const AccountStudentsDetail: React.FC = () => {
                 <p className={styles.tableTitle}>Student Details</p>
               </AntHeader>
 
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.studentDetailsTable}>
@@ -1274,6 +1277,31 @@ const AccountStudentsDetail: React.FC = () => {
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {studentDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+
+                      <Row className={styles.rowDetails}>
+                        <Col span={10}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={14}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card>
               </Col>
               <Col>
                 <Card className={styles.cardHeader}>

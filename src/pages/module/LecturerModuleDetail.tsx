@@ -76,7 +76,7 @@ const LecturerModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
-console.log('test', moduleActivity);
+  console.log('test', moduleActivity);
 
   const dispatch = useDispatch();
   const token = useSelector(
@@ -116,21 +116,27 @@ console.log('test', moduleActivity);
   const autoReset = module?.result.autoReset;
 
   // useEffect(() => {
-    const getAllSchedule = async (schedules: preparedSchedule[]) => {
-      if (lecturerId !== '') {
-        const scheduleIds = schedules.length === 0 ? [0] : schedules.map(s => s.scheduleId);
-        const response = await CalendarService.getAllSchedule(lecturerId, scheduleIds);
-        const result = response?.result || [];
+  const getAllSchedule = async (schedules: preparedSchedule[]) => {
+    if (lecturerId !== '') {
+      const scheduleIds =
+        schedules.length === 0 ? [0] : schedules.map((s) => s.scheduleId);
+      const response = await CalendarService.getAllSchedule(
+        lecturerId,
+        scheduleIds,
+      );
+      const result = response?.result || [];
 
-        result.forEach(s =>{
-          const schedule = schedules.filter(s1 => s1.scheduleId === s.scheduleID)[0];
-          s.total = schedule.totalFingers ?? 0;
-          s.uploaded = schedule.uploadedFingers ?? 0;
-        });
+      result.forEach((s) => {
+        const schedule = schedules.filter(
+          (s1) => s1.scheduleId === s.scheduleID,
+        )[0];
+        s.total = schedule.totalFingers ?? 0;
+        s.uploaded = schedule.uploadedFingers ?? 0;
+      });
 
-        setScheduleList(result);
-      }
-    };
+      setScheduleList(result);
+    }
+  };
   //   getAllSchedule();
   // }, [lecturerId, listScheduleId]);
 
@@ -143,7 +149,6 @@ console.log('test', moduleActivity);
   //       : [],
   //   );
   // }, [listScheduleId, scheduleList]);
-
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID },
@@ -234,7 +239,7 @@ console.log('test', moduleActivity);
       key: '5',
       title: 'Uploaded Fingerprints',
       dataIndex: 'uploadFingerprints',
-    }
+    },
   ];
 
   useEffect(() => {
@@ -242,7 +247,6 @@ console.log('test', moduleActivity);
       setModuleID(location.state.moduleID);
     }
   }, [location.state]);
-
 
   useEffect(() => {
     if (moduleID !== 0) {
@@ -419,7 +423,7 @@ console.log('test', moduleActivity);
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Module Details</p>
               </AntHeader>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.moduleDetailsTable}>
@@ -438,6 +442,31 @@ console.log('test', moduleActivity);
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {moduleDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+
+                      <Row className={styles.rowDetails}>
+                        <Col span={14}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={10}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card>
               </Col>
             </Content>
           </Col>
@@ -742,9 +771,16 @@ console.log('test', moduleActivity);
                               // setListScheduleId(
                               //   item.preparationTask.preparedSchedules,
                               // );
-                              getAllSchedule(item.preparationTask.preparedSchedules);
-                              console.log('srgvrsdgvswrdvgs', item.preparationTask.preparedSchedules)
-                            } else if (item.preparationTask.preparedScheduleId) {
+                              getAllSchedule(
+                                item.preparationTask.preparedSchedules,
+                              );
+                              console.log(
+                                'srgvrsdgvswrdvgs',
+                                item.preparationTask.preparedSchedules,
+                              );
+                            } else if (
+                              item.preparationTask.preparedScheduleId
+                            ) {
                               getScheduleByID(
                                 item.preparationTask.preparedScheduleId,
                               );
@@ -870,27 +906,25 @@ console.log('test', moduleActivity);
                           {scheduleList.length > 0 && (
                             <Table
                               columns={columns}
-                              dataSource={scheduleList.map(
-                                (item1, index) => ({
-                                  key: index,
-                                  date: new Date(item1.date).toLocaleDateString(
-                                    'en-GB',
-                                  ),
-                                  slot: item1.slot.slotNumber,
-                                  time: (
-                                    <div>
-                                      {item1.slot.startTime.slice(0, 5)} -{' '}
-                                      {item1.slot.endtime.slice(0, 5)}
-                                    </div>
-                                  ),
-                                  class: item1.class.classCode,
-                                  uploadFingerprints: (
-                                    <>
-                                     {item1.uploaded} / {item1.total}
-                                    </>
-                                  )
-                                }),
-                              )}
+                              dataSource={scheduleList.map((item1, index) => ({
+                                key: index,
+                                date: new Date(item1.date).toLocaleDateString(
+                                  'en-GB',
+                                ),
+                                slot: item1.slot.slotNumber,
+                                time: (
+                                  <div>
+                                    {item1.slot.startTime.slice(0, 5)} -{' '}
+                                    {item1.slot.endtime.slice(0, 5)}
+                                  </div>
+                                ),
+                                class: item1.class.classCode,
+                                uploadFingerprints: (
+                                  <>
+                                    {item1.uploaded} / {item1.total}
+                                  </>
+                                ),
+                              }))}
                               pagination={false}
                             ></Table>
                           )}

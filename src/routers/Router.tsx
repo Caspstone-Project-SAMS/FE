@@ -12,7 +12,7 @@ interface PreparationProgress{
 
 const Router = () => {
 
-  const [notification, setNotifications] = useState(0);
+  // const [notification, setNotifications] = useState(0);
   const [NotificationId, setNotificationId] = useState(0);
   const [preparationProgress, setPreparationProgress] = useState<PreparationProgress | null>(null);
 
@@ -24,17 +24,17 @@ const Router = () => {
     ]);
 
     ws.onopen = () => {
-      console.log('WebSocket connection opened');
+      console.log('WebSocket root connection opened');
     };
 
     ws.onmessage = (event) => {
       console.log('Message received:', event.data);
       const message = JSON.parse(event.data);
-      const data = message.data;
-      const NotificationId = data.NotificationId;
       switch (message.Event) {
         case 'NewNotification': {
-          setNotifications((prev) => prev + 1);
+          const data = message.Data;
+          const NotificationId = data.NotificationId;
+          // setNotifications((prev) => prev + 1);
           setNotificationId(NotificationId);
           break;
         }
@@ -57,11 +57,11 @@ const Router = () => {
     };
 
     ws.onclose = () => {
-      console.log('WebSocket connection closed');
+      console.log('WebSocket root connection closed');
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error('WebSocket root error:', error);
     };
 
     return () => {
@@ -70,13 +70,15 @@ const Router = () => {
   };
 
   const closeWebsocket = () => {
+    console.log('WebSocket root connection closedddddddddddddddddddddddddddddddd');
+    setPreparationProgress(null);
     ws?.close();
   }
 
   return (
     <Routes>
       <Route path='/*' element={
-        <ProtectedRoute closeWebsocket={closeWebsocket} notification={notification} preparationProgress={preparationProgress} NotificationId={NotificationId}/>
+        <ProtectedRoute closeWebsocket={closeWebsocket} preparationProgress={preparationProgress} NotificationId={NotificationId} setNotificationId={setNotificationId} setPreparationProgress={setPreparationProgress}/>
       } />
       <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket}/>} />
       <Route path="/excel-test" element={<TestComponent />} />

@@ -75,7 +75,7 @@ const HomeCalendar: React.FC = () => {
             Import Record
           </Button>
           {/* </Link> */}
-          <ImportRecord isModalVisible={isModalVisible} handleOk={handleOk} handleCancel={handleCancel}/>
+          <ImportRecord isModalVisible={isModalVisible} handleOk={handleOk} handleCancel={handleCancel} setIsModalVisible={setIsModalVisible}/>
           {userRole && userRole === 'Lecturer' ? (
             <Link to={'/calendar/import-schedule'}>
               <Button
