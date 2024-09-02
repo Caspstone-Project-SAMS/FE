@@ -1,7 +1,7 @@
-import React, { ReactElement, useEffect, useState } from 'react'
-import styles from '../Class.module.less'
-import { Content } from 'antd/es/layout/layout'
-import { Button, Card, Col, Layout, Row, Table, TableColumnsType, Typography } from 'antd';
+import React, { ReactElement, useEffect, useState } from 'react';
+import styles from '../Class.module.less';
+import { Content } from 'antd/es/layout/layout';
+import { Button, Card, Input, Layout, Space, Table, TableColumnsType, TableColumnType } from 'antd';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { FiCheck } from 'react-icons/fi';
 import { IoIosMore } from 'react-icons/io';
@@ -21,9 +21,9 @@ interface ReportItem {
 }
 
 const { Header: AntHeader } = Layout;
-const { Text, Title } = Typography
 
 const AttendanceStatus: React.FC<{ status: number }> = ({ status }) => {
+
     //0: not_yet, 1: attended, 2: absent
     const color = status === 1
         ? (styles.attendedColor)
@@ -49,6 +49,14 @@ const AttendanceStatus: React.FC<{ status: number }> = ({ status }) => {
 
 const columns: TableColumnsType<ReportItem> = [
     {
+        title: '#',
+        width: 50,
+        dataIndex: 'index',
+        key: 'index',
+        fixed: 'left',
+        render: (text, record, index) => index + 1,
+    },
+    {
         title: 'Students name',
         width: 150,
         dataIndex: 'name',
@@ -68,9 +76,17 @@ const columns: TableColumnsType<ReportItem> = [
         dataIndex: 'absentPercent',
         key: 'absentPercent',
         fixed: 'left',
+        sorter: (a, b) => {
+            try {
+                const absentA = a.absentPercent.toString().replace('%', '');
+                const absentB = b.absentPercent.toString().replace('%', '');
+                return Number(absentA) - Number(absentB);
+            } catch (error) {
+                return
+            }
+        }
     },
 ];
-
 const ClassReport: React.FC = () => {
     const location = useLocation();
     const { classID, classCode } = location.state || 0;
@@ -82,35 +98,6 @@ const ClassReport: React.FC = () => {
     const [colDatas, setColDatas] = useState<TableColumnsType<ReportItem>>(columns);
     const [rowDatas, setRowDatas] = useState<any[]>([]);
     const [filteredList, setFilteredList] = useState<any[]>([]);
-    // const handleSearchClass = (value: string) => {
-    //     setSearchInput(value);
-
-    //     const normalizeString = (str: string) => {
-    //         return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    //     };
-
-    //     const normalizedValue = normalizeString(value).toLowerCase();
-
-    //     const filtered = classes.filter((item) => {
-    //         const normalizedClassCode = item.classCode
-    //             ? normalizeString(item.classCode).toLowerCase()
-    //             : '';
-    //         const normalizedLecturerName = item.lecturer.displayName
-    //             ? normalizeString(item.lecturer.displayName).toLowerCase()
-    //             : '';
-    //         const normalizedSemesterCode = item.semester.semesterCode
-    //             ? normalizeString(item.semester.semesterCode).toLowerCase()
-    //             : '';
-
-    //         return (
-    //             normalizedClassCode.includes(normalizedValue) ||
-    //             normalizedLecturerName.includes(normalizedValue) ||
-    //             normalizedSemesterCode.includes(normalizedValue)
-    //         );
-    //     });
-
-    //     setFilteredClass(filtered);
-    // };
 
     const hasDifferentSlots = (records: AttendanceRecord[]): boolean => {
         const dateSlotMap = new Map<string, Set<number>>();
@@ -130,18 +117,19 @@ const ClassReport: React.FC = () => {
 
         return false;
     };
-    const handleSearch = (value: string) => {
-        const filtered = rowDatas.filter((item) => {
-            return (
-                (item.studentName &&
-                    item.studentName.toLowerCase().includes(value.toLowerCase()))
-                ||
-                (item.studentCode &&
-                    item.studentCode.toLowerCase().includes(value.toLowerCase())))
-        }
-        );
-        setFilteredList(filtered);
-    };
+
+    // const handleSearch = (value: string) => {
+    //     const filtered = rowDatas.filter((item) => {
+    //         return (
+    //             (item.studentName &&
+    //                 item.studentName.toLowerCase().includes(value.toLowerCase()))
+    //             ||
+    //             (item.studentCode &&
+    //                 item.studentCode.toLowerCase().includes(value.toLowerCase())))
+    //     }
+    //     );
+    //     setFilteredList(filtered);
+    // };
 
     useEffect(() => {
         try {
@@ -150,7 +138,7 @@ const ClassReport: React.FC = () => {
                 setColDatas(columns);
                 setRowDatas([]);
                 data.forEach((item, index) => {
-                    const isDifferentSlotInDay = hasDifferentSlots(item.attendanceRecords)
+                    // const isDifferentSlotInDay = hasDifferentSlots(item.attendanceRecords)
                     const rowData: any = {
                         key: `row_${index}`,
                         name: item.studentName,
@@ -163,7 +151,8 @@ const ClassReport: React.FC = () => {
                         if (index === 0) {
                             //format date to dd/mm (slot) for better vision
                             const date = moment(item.date, 'YYYY-MM-DD', true).format('DD/MM');
-                            const titleCol = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
+                            // const titleCol = isDifferentSlotInDay ? `${date}-(${item.slotNumber})` : `${date}`
+                            const titleCol = `${date}-(${item.slotNumber})`
                             const col = {
                                 title: titleCol,
                                 dataIndex: `date_${i}`,
@@ -213,7 +202,11 @@ const ClassReport: React.FC = () => {
             <Card className={styles.cardHeader}>
                 <Content>
                     <AntHeader className={styles.tableHeader}>
-                        <p className={styles.tableTitle}>{classCode}</p>
+                        <p className={styles.tableTitle}>
+                            {classCode} - {rowDatas.length > 0 &&
+                                (rowDatas.length === 1 ? `${rowDatas.length} student` : `${rowDatas.length} students`)
+                            }
+                        </p>
                         <div className={styles.meaningIllustration}>
                             <div className={styles.row}>
                                 <div style={{ backgroundColor: '#FBBF24' }} className={styles.block}></div>
@@ -235,7 +228,8 @@ const ClassReport: React.FC = () => {
                 <Table
                     columns={colDatas}
                     dataSource={rowDatas}
-                    scroll={{ x: 1300 }}
+                    scroll={{ x: 1300, y: '70vh' }}
+                    pagination={{ pageSize: 50 }}
                 />
             </div>
         </Content>
