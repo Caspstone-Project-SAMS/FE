@@ -1,7 +1,7 @@
 export interface Semester {
   semesterID: number;
   semesterCode: string;
-  semesterStatus: number;
+  semesterStatus: number; //1-Future, 2-On going, 3-Past
   startDate: string;
   endDate: string;
 }

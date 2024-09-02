@@ -1,9 +1,18 @@
 import axios, { AxiosError } from 'axios';
-import { DOWNLOAD_TEMPLATE_API, SCHEDULE_API, SCHEDULE_RECORD_API, SEMESTER_API } from '.';
+import {
+  DOWNLOAD_TEMPLATE_API,
+  SCHEDULE_API,
+  SCHEDULE_RECORD_API,
+  SEMESTER_API,
+} from '.';
 import { Semester } from '../models/calendar/Semester';
 import { HelperService } from './helpers/helperFunc';
 import toast from 'react-hot-toast';
-import { ScheduleRecord, Schedules, Scheduless } from '../models/calendar/Schedule';
+import {
+  ScheduleRecord,
+  Schedules,
+  Scheduless,
+} from '../models/calendar/Schedule';
 
 type ScheduleList = {
   date: string;
@@ -57,7 +66,9 @@ const getAllSchedule = async (
         return Object.entries(params)
           .map(([key, value]) => {
             if (Array.isArray(value)) {
-              return value.map(v => `${key}=${encodeURIComponent(v)}`).join('&');
+              return value
+                .map((v) => `${key}=${encodeURIComponent(v)}`)
+                .join('&');
             }
             return `${key}=${encodeURIComponent(value)}`;
           })
@@ -76,13 +87,14 @@ const getAllSchedule = async (
   }
 };
 
-
-const getScheduleByWeek = async (
+const getScheduleByTime = async (
   lecturerId: string,
-  semesterId: string,
+  semesterId: number,
   quantity: number,
   startDate: string,
   endDate: string,
+  startPage?: number,
+  endPage?: number,
 ) => {
   const response = await axios.get(SCHEDULE_API, {
     params: {
@@ -91,6 +103,8 @@ const getScheduleByWeek = async (
       quantity,
       startDate,
       endDate,
+      startPage,
+      endPage,
     },
   });
   return response.data;
@@ -216,7 +230,6 @@ const updateScheduleOfClass = async (
       },
     );
 
-    
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
@@ -249,7 +262,9 @@ const deleteScheduleOfClass = async (scheduleID: number) => {
   }
 };
 
-const getScheduleRecord = async (userID: string): Promise<ScheduleRecord | null> => {
+const getScheduleRecord = async (
+  userID: string,
+): Promise<ScheduleRecord | null> => {
   try {
     const response = await axios.get(SCHEDULE_RECORD_API, {
       params: {
@@ -269,9 +284,7 @@ const getScheduleRecord = async (userID: string): Promise<ScheduleRecord | null>
   }
 };
 
-const revertScheduleImport = async (
-  importSchedulesRecordID: number,
-) => {
+const revertScheduleImport = async (importSchedulesRecordID: number) => {
   try {
     const response = await axios.post(
       `${SCHEDULE_RECORD_API}/revert/${importSchedulesRecordID}`,
@@ -298,7 +311,7 @@ export const CalendarService = {
   getScheduleByLecturer,
   importExcelSchedule,
   downloadTemplateExcel,
-  getScheduleByWeek,
+  getScheduleByTime,
   getScheduleByID,
   importSchedulesByImg,
   getAllSchedule,

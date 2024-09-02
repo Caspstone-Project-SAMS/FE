@@ -9,7 +9,7 @@ import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/Store'
 import useDispatch from '../../redux/UseDispatch'
-import { getScheduleByID, getScheduleByWeek } from '../../redux/slice/Calendar'
+import { getScheduleByMonth, getScheduleByWeek } from '../../redux/slice/Calendar'
 
 import CustomEvent from './items/events/CustomEvent'
 import CustomEventDay from './items/events/CustomEventDay'
@@ -37,15 +37,18 @@ type RBC_Event = {
 
 type scheduleStatus = 'past' | 'current' | 'future';
 
+//LECTURER_ID for admin view, lecturerID for lecturer view
 const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID }) => {
     const [date, setDate] = useState(new Date());
     const [scheduleEvent, setScheduleEvent] = useState<RBC_Custom_Event[]>([]);
-    const [selectedView, setSelectedView] = useState<View>(Views.WEEK)
+    const [selectedView, setSelectedView] = useState<View>(Views.WEEK);
+    const [selectedSemester, setSelectedSemester] = useState<number>(5);
     const [loading, setLoading] = useState<boolean>(false);
 
     const userDetail = useSelector((state: RootState) => state.auth.userDetail);
     const schedule = useSelector((state: RootState) => state.calendar.schedule);
     const timeLine = useSelector((state: RootState) => state.calendar.timeline);
+    const semester = useSelector((state: RootState) => state.globalSemester.data);
     const dispatch = useDispatch();
 
     const today = new Date();
@@ -142,13 +145,13 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
     useEffect(() => {
         const week: Date[] = HelperService.getWeekFromDate(today)
 
-        if (LECTURER_ID) {
-            const arg = { lecturerID: LECTURER_ID, semesterID: '5', week };
+        if (LECTURER_ID && selectedSemester) {
+            const arg = { lecturerID: LECTURER_ID, semesterID: selectedSemester, week };
             dispatch(getScheduleByWeek(arg))
         } else {
             const lecturerID = userDetail?.result?.id;
             if (lecturerID) {
-                const arg = { lecturerID: lecturerID, semesterID: '5', week };
+                const arg = { lecturerID: lecturerID, semesterID: selectedSemester, week };
                 dispatch(getScheduleByWeek(arg))
             }
         }
@@ -176,7 +179,7 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
                 // console.log("range change,", range);
                 const lecturerID = userDetail?.result?.id;
 
-                //Havent do check contained date successful
+                //Get schedule by week
                 if (selectedView === 'week' && Array.isArray(range) && (lecturerID || LECTURER_ID)) {
                     const randomDelay = HelperService.randomDelay();
                     setLoading(true);
@@ -184,12 +187,28 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
                         const isContainedTimeLine = HelperService.checkContainedDate(range, timeLine)
                         if (!isContainedTimeLine) {
                             if (LECTURER_ID) {
-                                const arg = { lecturerID: LECTURER_ID, semesterID: '5', week: range };
+                                const arg = { lecturerID: LECTURER_ID, semesterID: selectedSemester, week: range };
                                 dispatch(getScheduleByWeek(arg))
-                            } else {
-                                const arg = { lecturerID: lecturerID, semesterID: '5', week: range };
+                            } else if (lecturerID) {
+                                const arg = { lecturerID: lecturerID, semesterID: selectedSemester, week: range };
                                 dispatch(getScheduleByWeek(arg))
                             }
+                        }
+                        setLoading(false)
+                    }, randomDelay)
+                }
+                //Get schedule by month
+                if (selectedView === 'month' && (lecturerID || LECTURER_ID) && !Array.isArray(range)) {
+                    console.log("Im fetching in month but dunno why dont loadig ;v");
+                    const randomDelay = HelperService.randomDelay();
+                    setLoading(true);
+                    setTimeout(() => {
+                        if (LECTURER_ID) {
+                            const arg = { lecturerID: LECTURER_ID, semesterID: selectedSemester, start: range.start, end: range.end };
+                            dispatch(getScheduleByMonth(arg));
+                        } else if (lecturerID) {
+                            const arg = { lecturerID: lecturerID, semesterID: selectedSemester, start: range.start, end: range.end };
+                            dispatch(getScheduleByMonth(arg));
                         }
                         setLoading(false)
                     }, randomDelay)
@@ -203,7 +222,15 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
                 day: {
                     event: CustomEventDay
                 },
-                toolbar: (toolbar) => <CustomToolBar toolbar={toolbar} loadingStatus={loading} />
+                toolbar: (toolbar) => (
+                    <CustomToolBar
+                        toolbar={toolbar}
+                        loadingStatus={loading}
+                        semesters={semester}
+                        selectedSemester={selectedSemester}
+                        setSelectedSemester={setSelectedSemester}
+                    />
+                )
             }}
             date={date}
             view={selectedView}
