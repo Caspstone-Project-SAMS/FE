@@ -19,40 +19,6 @@ const HomeCalendar: React.FC = () => {
     (state: RootState) => state.auth.userDetail?.result?.role.name,
   );
 
-  const failMessage = useSelector(
-    (state: RootState) => state.scheduleRecord.scheduleRecordDetail,
-  );
-  const successMessage = useSelector(
-    (state: RootState) => state.scheduleRecord.message,
-  );
-
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (successMessage) {
-      message.success(successMessage.title);
-      setIsModalVisible(false);
-      dispatch(clearScheduleRecordMessages());
-    }
-    if (failMessage && failMessage.errors) {
-      message.error(`${failMessage.errors}`);
-      dispatch(clearScheduleRecordMessages());
-    }
-  }, [successMessage, failMessage, dispatch]);
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
   return (
     <Content className={styles.homeCalendarCtn}>
       <div className={styles.header}>
@@ -63,19 +29,9 @@ const HomeCalendar: React.FC = () => {
         />
         <div style={{ display: 'flex', gap: '10px' }}>
           {/* <Link to={'/calendar/import-schedule-record'}> */}
-          <Button
-            onClick={showModal}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-            size="large"
-            icon={<GoHistory size={18} />}
-          >
-            Import Record
-          </Button>
+
           {/* </Link> */}
-          <ImportRecord isModalVisible={isModalVisible} handleOk={handleOk} handleCancel={handleCancel} setIsModalVisible={setIsModalVisible}/>
+          <ImportRecord />
           {userRole && userRole === 'Lecturer' ? (
             <Link to={'/calendar/import-schedule'}>
               <Button

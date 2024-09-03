@@ -1,15 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Content, Header } from 'antd/es/layout/layout';
 import {
-  Avatar,
   Button,
   List,
   message,
   Modal,
-  Select,
-  Skeleton,
-  Space,
-  Typography,
 } from 'antd';
 import { CalendarService } from '../../hooks/Calendar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,20 +13,12 @@ import {
   clearScheduleRecordMessages,
   revertScheduleImport,
 } from '../../redux/slice/ScheduleRecord';
+import { GoHistory } from 'react-icons/go';
 
-interface HomeCalendarProps {
-  isModalVisible: boolean;
-  handleOk: () => void;
-  handleCancel: () => void;
-  setIsModalVisible: (value: boolean) => void;
-}
+const ImportRecord: React.FC= () => {
 
-const ImportRecord: React.FC<HomeCalendarProps> = ({
-  isModalVisible,
-  handleOk,
-  handleCancel,
-  setIsModalVisible,
-}) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const userId = useSelector((state: RootState) => state.auth.userID);
   const [scheduleRecord, setScheduleRecord] = React.useState<
     ScheduleRecordResult[]
@@ -48,7 +34,7 @@ const ImportRecord: React.FC<HomeCalendarProps> = ({
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage.data.data.title);
+      message.success(successMessage.title);
       setIsModalVisible(false);
       dispatch(clearScheduleRecordMessages());
     }
@@ -57,6 +43,18 @@ const ImportRecord: React.FC<HomeCalendarProps> = ({
       dispatch(clearScheduleRecordMessages());
     }
   }, [successMessage, failMessage, dispatch, setIsModalVisible]);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   const getAllScheduleRecords = useCallback(async () => {
     try {
@@ -97,6 +95,17 @@ const ImportRecord: React.FC<HomeCalendarProps> = ({
 
   return (
     <>
+      <Button
+        onClick={showModal}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+        size="large"
+        icon={<GoHistory size={18} />}
+      >
+        Import Record
+      </Button>
       <Modal
         title="Import Schedule Record"
         visible={isModalVisible}
@@ -117,7 +126,7 @@ const ImportRecord: React.FC<HomeCalendarProps> = ({
           itemLayout="horizontal"
           // loadMore={loadMore}
           dataSource={reversedScheduleRecord}
-          style={{ height: 350, overflowY: 'auto', overflowX: 'hidden' }}
+          style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}
           renderItem={(item) => (
             <List.Item
               actions={[

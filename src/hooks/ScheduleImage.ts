@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ScheduleImage } from '../models/calendar/ScheduleImage';
+import { IMPORT_SCHEDULE_IMAGE_API } from '.';
 
 interface ImportScheduleParams {
   Image: File;
@@ -19,7 +20,7 @@ const previewScheduleImage = async ({
     formData.append('RecommendationRate', RecommendationRate.toString());
 
     const response = await axios.post(
-      'http://34.81.223.233/api/Import/schedules',
+      `${IMPORT_SCHEDULE_IMAGE_API}`,
       formData,
       {
         headers: {

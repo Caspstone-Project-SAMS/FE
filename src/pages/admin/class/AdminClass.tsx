@@ -194,7 +194,6 @@ const AdminClass: React.FC = () => {
     setIsCheck(false);
     setIsModalVisible(true);
   };
-  console.log('slotType', slotType);
 
   const showModalUpdate = (item?: ClassDetails) => {
     setIsCheck(true);
@@ -245,8 +244,7 @@ const AdminClass: React.FC = () => {
     if (SemesterId === null) newErrors.semesterId = 'Semester is required';
     if (RoomId === null) newErrors.roomId = 'Room is required';
     if (SubjectId === null) newErrors.subjectId = 'Subject is required';
-    if (SlotTypeId === null && !isCheck)
-      newErrors.slotTypeId = 'Slot Type is required';
+    if (SlotTypeId === null && !isCheck) newErrors.slotTypeId = 'Slot Type is required';
     if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -625,6 +623,7 @@ const AdminClass: React.FC = () => {
         <Select
           placeholder="Subject Code"
           value={SubjectId}
+          showSearch
           onChange={(value) => {
             setSubjectId(value);
             setErrors((prevErrors) => ({ ...prevErrors, subjectId: '' }));
@@ -633,13 +632,20 @@ const AdminClass: React.FC = () => {
             );
           }}
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option: any) =>
+            option.children.toLowerCase().includes(input.toLowerCase()) ||
+            String(option.value).toLowerCase().includes(input.toLowerCase())
+          }
         >
           {subject.map((sub) => (
             <Select.Option key={sub.subjectID} value={sub.subjectID}>
-              <p>{sub.subjectCode}</p>
+              {sub.subjectCode}
             </Select.Option>
           ))}
         </Select>
+        {errors.subjectId && (
+          <p className={styles.errorText}>{errors.subjectId}</p>
+        )}
         {!isCheck && (
           <>
             <p className={styles.createClassTitle}>

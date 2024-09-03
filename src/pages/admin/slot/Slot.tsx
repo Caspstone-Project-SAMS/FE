@@ -359,6 +359,12 @@ const Slot: React.FC = () => {
     },
     {
       key: '3',
+      title: 'Session Duration',
+      dataIndex: 'sessionCount',
+      render: (sessionCount: number) => <div>{sessionCount + ' sessions'} - {sessionCount * 45 + ' min'}</div>,
+    },
+    {
+      key: '4',
       title: 'Status',
       dataIndex: 'status',
       render: (status: number) => (
@@ -370,12 +376,7 @@ const Slot: React.FC = () => {
         </Tag>
       ),
     },
-    {
-      key: '4',
-      title: 'Duration',
-      dataIndex: 'sessionCount',
-      render: (sessionCount: number) => <div>{sessionCount * 45 + ' min'}</div>,
-    },
+
     {
       key: '5',
       title: 'Action',

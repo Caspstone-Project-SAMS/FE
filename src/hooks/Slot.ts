@@ -6,7 +6,13 @@ import { SlotType } from '../models/Class';
 
 const getAllSlot = async (): Promise<Slot[] | null> => {
   try {
-    const response = await axios.get(SLOT_API);
+    const response = await axios.get(SLOT_API, {
+      params: {
+        startPage: 1,
+        endPage: 20,
+        quantity: 50,
+      },
+    });
 
     return response.data as Slot[];
   } catch (error) {
@@ -50,13 +56,13 @@ const createSlot = async (
   Status: number,
   StartTime: string,
   Endtime: string,
-  SlotTypeId: number
+  SlotTypeId: number,
 ) => {
   try {
-    console.log('slotnumber', SlotNumber)
-    console.log('Status', Status)
-    console.log('StartTime', StartTime)
-    console.log('Endtime', Endtime)
+    console.log('slotnumber', SlotNumber);
+    console.log('Status', Status);
+    console.log('StartTime', StartTime);
+    console.log('Endtime', Endtime);
     const response = await axios.post(
       SLOT_API,
       {
@@ -64,11 +70,11 @@ const createSlot = async (
         Status,
         StartTime,
         Endtime,
-        SlotTypeId
+        SlotTypeId,
       },
       {
         headers: {
-          'accept': '*/*',
+          accept: '*/*',
           'Content-Type': 'application/json-patch+json',
         },
       },
@@ -87,7 +93,7 @@ const updateSlot = async (
   SlotNumber: number,
   Status: number,
   StartTime: string,
-  Endtime: string
+  Endtime: string,
 ) => {
   try {
     console.log('SlotID', SlotID);
@@ -106,10 +112,10 @@ const updateSlot = async (
       },
       {
         headers: {
-          'accept': '*/*',
+          accept: '*/*',
           'Content-Type': 'application/json-patch+json',
         },
-      }
+      },
     );
 
     return response.data;
@@ -144,7 +150,7 @@ const deleteSlot = async (slotID: number) => {
   }
 };
 
-const getAllSlotType = async ():Promise<SlotTypes | null> => {
+const getAllSlotType = async (): Promise<SlotTypes | null> => {
   try {
     const response = await axios.get(`${SLOT_TYPE_API}`, {
       params: {
@@ -167,10 +173,10 @@ const createSlotType = async (
   SessionCount: number,
 ) => {
   try {
-    console.log('TypeName', TypeName)
-    console.log('Description', Description)
-    console.log('Status', Status)
-    console.log('SessionCount', SessionCount)
+    console.log('TypeName', TypeName);
+    console.log('Description', Description);
+    console.log('Status', Status);
+    console.log('SessionCount', SessionCount);
     const response = await axios.post(
       SLOT_TYPE_API,
       {
@@ -181,7 +187,7 @@ const createSlotType = async (
       },
       {
         headers: {
-          'accept': '*/*',
+          accept: '*/*',
           'Content-Type': 'application/json-patch+json',
         },
       },
@@ -219,10 +225,10 @@ const updateSlotType = async (
       },
       {
         headers: {
-          'accept': '*/*',
+          accept: '*/*',
           'Content-Type': 'application/json-patch+json',
         },
-      }
+      },
     );
 
     return response.data;

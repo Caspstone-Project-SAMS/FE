@@ -71,6 +71,7 @@ export interface ScheduleRecord {
     };
   };
   result: ScheduleRecordResult[];
+  title: string;
 }
 
 export interface ScheduleRecordResult {

@@ -9,7 +9,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
-import { Grid } from '@mui/material';
+import { CircularProgress, Grid } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import Button from '@mui/material/Button';
 import Tabs from '@mui/material/Tabs';
@@ -61,7 +61,7 @@ export default function AccountCard(props: any) {
     // props.LastName = props.user.lastName
     // props.Phone = props.user.phone
     // props.Email = props.user.email
-    props.setEmail('')
+    props.setEmail('');
     props.setPhone('');
     props.setName('');
     props.setAddress('');
@@ -71,8 +71,6 @@ export default function AccountCard(props: any) {
     props.setLastName('');
     setFormValues(initialFormValues);
   };
-  
-  
 
   //   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
   //     setValue(newValue);
@@ -358,7 +356,7 @@ export default function AccountCard(props: any) {
                   </Button>
                 </Grid> */}
                 <Grid item>
-                  <Button
+                  {/* <Button
                     sx={{ p: '1rem 2rem', my: 2, height: '3rem' }}
                     component="button"
                     size="large"
@@ -367,6 +365,23 @@ export default function AccountCard(props: any) {
                     onClick={edit.isEdit ? props.submit : changeButton}
                   >
                     {edit.isEdit ? 'EDIT' : 'EDIT PROFILE'}
+                  </Button> */}
+                  <Button
+                    sx={{ p: '1rem 2rem', my: 2, height: '3rem' }}
+                    component="button"
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                    onClick={edit.isEdit ? props.submit : changeButton}
+                    disabled={props.loading} // Disable button while loading
+                  >
+                    {props.loading ? (
+                      <CircularProgress size={24} /> // Show loading spinner
+                    ) : edit.isEdit ? (
+                      'EDIT'
+                    ) : (
+                      'EDIT PROFILE'
+                    )}
                   </Button>
                 </Grid>
               </Grid>

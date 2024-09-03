@@ -15,6 +15,7 @@ const Router = () => {
   // const [notification, setNotifications] = useState(0);
   const [NotificationId, setNotificationId] = useState(0);
   const [preparationProgress, setPreparationProgress] = useState<PreparationProgress | null>(null);
+  const [wsError, setWsError] = useState<string | null>(null);
 
   let ws : WebSocket | null;
   const ConnectWebsocket = (tokenString: string) => {
@@ -62,6 +63,7 @@ const Router = () => {
 
     ws.onerror = (error) => {
       console.error('WebSocket root error:', error);
+      setWsError('WebSocket connection error: ' + error);
     };
 
     return () => {

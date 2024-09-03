@@ -157,7 +157,7 @@ const SystemComponent: React.FC = () => {
       </Row>
       <Row style={{ width: '100%' }}>
         <Col span={24} style={{ marginTop: 20 }}>
-          <b>System Configuration</b>
+          <b className={styles.systemSettingTitle}>System Configuration</b>
           <hr className={styles.lines} />
           <div className={styles.settingItem}>
             <div>

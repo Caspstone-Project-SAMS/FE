@@ -134,6 +134,7 @@ export default function SettingsCard(props: any) {
           LastName={props.LastName}
           setLastName={props.setLastName}
           submit={props.submit}
+          loading={props.loading}
         />
       )}
       {value === 'two' && <ResetPasswordCard />}

@@ -53,6 +53,7 @@ import { Box } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 import ColorShowcase from '../../../components/color/ColorShowcase';
 import { IoMdInformation } from 'react-icons/io';
+import dayjs from 'dayjs';
 
 const { Header: AntHeader } = Layout;
 
@@ -115,8 +116,10 @@ const AdminClassDetail: React.FC = () => {
   const successMessage = useSelector(
     (state: RootState) => state.student.message,
   );
-  
-  const role = useSelector((state: RootState) => state.auth.userDetail?.result?.role.name);
+
+  const role = useSelector(
+    (state: RootState) => state.auth.userDetail?.result?.role.name,
+  );
 
   const [errors, setErrors] = useState<{
     StudentCode?: string;
@@ -537,6 +540,7 @@ const AdminClassDetail: React.FC = () => {
   const showModalAddShedule = () => {
     getAllSlot();
     getAllRoom();
+    setRoomId(classes?.result.room.roomID || 0);
     setIsCheck('addSchedule');
     setIsModalVisible(true);
   };
@@ -947,7 +951,7 @@ const AdminClassDetail: React.FC = () => {
                     </Button>
                   </div>
                 ),
-                info: item.scheduleID
+                info: item.scheduleID,
               }))}
               pagination={{
                 showSizeChanger: true,
@@ -1117,7 +1121,14 @@ const AdminClassDetail: React.FC = () => {
               )}
               {(isCheck === 'addSchedule' || isCheck === 'updateSchedule') && (
                 <>
-                  <p className={styles.createClassTitle}>Date</p>
+                  <p className={styles.createClassTitle}>
+                    Date{' '}
+                    {`(${dayjs(classes?.result.semester.startDate).format(
+                      'DD-MM-YYYY',
+                    )} - ${dayjs(classes?.result.semester.endDate).format(
+                      'DD-MM-YYYY',
+                    )})`}
+                  </p>{' '}
                   <DatePicker
                     placeholderText="Date"
                     selected={date}
@@ -1157,11 +1168,11 @@ const AdminClassDetail: React.FC = () => {
                   >
                     {Slot.map((slot) => (
                       <Select.Option key={slot.slotID} value={slot.slotID}>
-                        Slot {slot.slotNumber} ({slot.startTime} -{' '}{slot.endtime})
+                        Slot {slot.slotNumber} ({slot.startTime} -{' '}
+                        {slot.endtime})
                       </Select.Option>
                     ))}
                   </Select>
-
                   {errors.SlotId && (
                     <p className={styles.errorText}>{errors.SlotId}</p>
                   )}

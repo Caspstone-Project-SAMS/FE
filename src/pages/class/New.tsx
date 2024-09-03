@@ -21,8 +21,14 @@ import {
   Select,
   Table,
   Tag,
+  Tooltip,
 } from 'antd';
-import { clearClassMessages, createClass, deleteClass, updateClass } from '../../redux/slice/Class';
+import {
+  clearClassMessages,
+  createClass,
+  deleteClass,
+  updateClass,
+} from '../../redux/slice/Class';
 import { CalendarService } from '../../hooks/Calendar';
 import { RoomService } from '../../hooks/Room';
 import { SubjectService } from '../../hooks/Subject';
@@ -31,19 +37,22 @@ import { Content } from 'antd/es/layout/layout';
 import ContentHeader from '../../components/header/contentHeader/ContentHeader';
 import Excel from '../../components/excel/Excel';
 import { CiEdit, CiSearch } from 'react-icons/ci';
-import { PlusOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from './Class.module.less';
 import { IoMdInformation } from 'react-icons/io';
 import { MdDeleteForever } from 'react-icons/md';
+import { SlotTypeDetail } from '../../models/slot/Slot';
+import { SlotService } from '../../hooks/Slot';
 
 const { Header: AntHeader } = Layout;
 
-export default function New() {
+const New: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
   const [semester, setSemester] = useState<Semester[]>([]);
   const [room, setRoom] = useState<Room[]>([]);
   const [subject, setSubject] = useState<Subject[]>([]);
   const [lecturer, setLecturer] = useState<EmployeeDetail[]>([]);
+  const [slotType, setSlotType] = useState<SlotTypeDetail[]>([]);
   const [filteredClass, setFilteredClass] = useState<ClassDetails[]>(classes);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -57,66 +66,38 @@ export default function New() {
   const [ClassName, setClassName] = useState('');
   const [ClassCode, setClassCode] = useState('');
   const [SubjectCode, setSubjectCode] = useState('');
+  const [TypeName, setTypeName] = useState('');
   const [SemesterId, setSemesterId] = useState<number | null>(null);
   const [RoomId, setRoomId] = useState<number | null>(null);
   const [SubjectId, setSubjectId] = useState<number | null>(null);
   const [LecturerID, setLecturerID] = useState<string | null>(null);
+  const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
-  // const [CreatedBy, setCreatedBy] = useState('');
 
   const lectureDetail = useSelector(
     (state: RootState) => state.auth.userDetail?.result,
   );
-  const failMessage = useSelector((state: RootState) => state.class.classDetail);
-  const successMessage = useSelector(
-    (state: RootState) => state.class.message,
-  );
 
+  // Error state
   const [errors, setErrors] = useState<{
     className?: string;
     semesterId?: string;
     roomId?: string;
     subjectId?: string;
     // lecturerId?: string;
+    slotTypeId?: string;
   }>({});
+
+  const failMessage = useSelector(
+    (state: RootState) => state.class.classDetail,
+  );
+  const successMessage = useSelector((state: RootState) => state.class.message);
+
   const handleRowClick = (classID: number) => {
     navigate(`/class/detail`, {
       state: { classID: classID },
     });
   };
-
-  // useEffect(() => {
-  //   if (lectureDetail?.id) {
-  //     const id = lectureDetail.id;
-  //     const response = ClassService.getByClassLecturer(id);
-
-  //     response
-  //       .then((data) => {
-  //         setClasses(data?.result || []);
-  //         // setFilteredRoom(data || []);
-  //       })
-  //       .catch((error) => {
-  //         console.log('get class error: ', error);
-  //       });
-  //   }
-  // }, [reload]);
-
-  const fetchClasses = useCallback(async () => {
-    try {
-      if (lectureDetail?.id) {
-        const id = lectureDetail.id;
-        const data = await ClassService.getByClassLecturer(id);
-        setClasses(data?.result || []);
-      }
-
-    } catch (error) {
-      console.log('get class error: ', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchClasses();
-  }, [fetchClasses]);
 
   const handleSearchClass = useCallback(
     (value: string) => {
@@ -152,6 +133,34 @@ export default function New() {
     [classes],
   );
 
+  // useEffect(() => {
+  //   const response = ClassService.getAllClass();
+
+  //   response
+  //     .then((data) => {
+  //       setClasses(data?.result || []);
+  //     })
+  //     .catch((error) => {
+  //       console.log('get class error: ', error);
+  //     });
+  // }, [reload]);
+
+  const fetchClasses = useCallback(async () => {
+    try {
+      if (lectureDetail?.id) {
+        const id = lectureDetail.id;
+        const data = await ClassService.getByClassLecturer(id);
+        setClasses(data?.result || []);
+      }
+    } catch (error) {
+      console.log('get class error: ', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
+
   useEffect(() => {
     if (searchInput !== '' && classes.length > 0) {
       handleSearchClass(searchInput);
@@ -162,7 +171,10 @@ export default function New() {
 
   useEffect(() => {
     if (successMessage) {
-      if (successMessage === 'Update class successfully' || successMessage === 'Create new class successfully') {
+      if (
+        successMessage === 'Update class successfully' ||
+        successMessage === 'Create new class successfully'
+      ) {
         message.success(successMessage);
       } else {
         message.success(successMessage.title);
@@ -178,11 +190,17 @@ export default function New() {
   }, [successMessage, failMessage, dispatch]);
 
   const showModalCreate = () => {
+    getAllSlotType();
     getAllSmester();
     getAllRoom();
     getAllSubject();
-    getAllLecturer();
+    // getAllLecturer();
     setIsCheck(false);
+    semester?.forEach(item => {
+      if (item.semesterStatus === 2) {
+        setSemesterId(item.semesterID);
+      }
+    })
     setIsModalVisible(true);
   };
 
@@ -191,7 +209,7 @@ export default function New() {
     getAllSmester();
     getAllRoom();
     getAllSubject();
-    getAllLecturer();
+    // getAllLecturer();
     if (item) {
       const classCodeParts = item.classCode.split(/[-_]/);
       const classCodePart1 = classCodeParts[0] || '';
@@ -203,7 +221,7 @@ export default function New() {
       // setClassCode(classCodePart2);
       setSubjectCode(classCodePart2);
       setSemesterId(item.semester.semesterID!);
-      setLecturerID(item.lecturer.id);
+      // setLecturerID(item.lecturer.id);
     } else {
       resetModalFields();
     }
@@ -219,10 +237,12 @@ export default function New() {
     setClassName('');
     setClassCode('');
     setSubjectCode('');
+    setTypeName('');
     setRoomId(null);
     setSemesterId(null);
     setSubjectId(null);
-    setLecturerID(null);
+    // setLecturerID(null);
+    setSlotTypeId(null);
     setIsCheck(false);
     setErrors({});
   };
@@ -233,9 +253,28 @@ export default function New() {
     if (SemesterId === null) newErrors.semesterId = 'Semester is required';
     if (RoomId === null) newErrors.roomId = 'Room is required';
     if (SubjectId === null) newErrors.subjectId = 'Subject is required';
+    if (SlotTypeId === null && !isCheck) newErrors.slotTypeId = 'Slot Type is required';
     // if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCreate = async () => {
+    if (!validateFields()) return;
+
+    setLoading(true);
+    await createNewClass(
+      ClassCode,
+      SemesterId ?? 0,
+      RoomId ?? 0,
+      SubjectId ?? 0,
+      lectureDetail?.id ?? '',
+      SlotTypeId ?? 0,
+    );
+    setLoading(false);
+    // setIsModalVisible(false);
+    // resetModalFields();
+    fetchClasses();
   };
 
   const handleUpdate = async () => {
@@ -248,24 +287,7 @@ export default function New() {
       SemesterId ?? 0,
       RoomId ?? 0,
       SubjectId ?? 0,
-      // LecturerID ?? '',
-    );
-    setLoading(false);
-    // setIsModalVisible(false);
-    // resetModalFields();
-    fetchClasses();
-  };
-  const handleCreate = async () => {
-    console.log('create')
-    if (!validateFields()) return;
-
-    setLoading(true);
-    await createNewClass(
-      ClassCode,
-      SemesterId ?? 0,
-      RoomId ?? 0,
-      SubjectId ?? 0,
-      // LecturerID ?? '',
+      lectureDetail?.id ?? '',
     );
     setLoading(false);
     // setIsModalVisible(false);
@@ -278,16 +300,16 @@ export default function New() {
     SemesterId: number,
     RoomId: number,
     SubjectId: number,
-    // LecturerID: string,
-    // CreatedBy: string,
+    LecturerID: string,
+    SlotTypeId: number,
   ) => {
     const arg = {
       ClassCode: ClassCode,
       SemesterId: SemesterId,
       RoomId: RoomId,
       SubjectId: SubjectId,
-      LecturerID: lectureDetail?.id,
-      // CreatedBy: CreatedBy,
+      LecturerID: LecturerID,
+      SlotTypeId: SlotTypeId,
     };
     await dispatch(createClass(arg) as any);
     setIsCheck(false);
@@ -299,7 +321,7 @@ export default function New() {
     SemesterId: number,
     RoomId: number,
     SubjectId: number,
-    // LecturerID: string,
+    LecturerID: string,
   ) => {
     const arg = {
       ClassID: ClassID,
@@ -307,7 +329,7 @@ export default function New() {
       SemesterId: SemesterId,
       RoomId: RoomId,
       SubjectId: SubjectId,
-      LecturerID: lectureDetail?.id,
+      LecturerID: LecturerID,
     };
     await dispatch(updateClass(arg) as any);
     // setIsCheck(false);
@@ -333,6 +355,11 @@ export default function New() {
     setLecturer(response?.result || []);
   };
 
+  const getAllSlotType = async () => {
+    const response = await SlotService.getAllSlotType();
+    setSlotType(response?.result || []);
+  };
+
   const columns = [
     {
       key: '1',
@@ -356,6 +383,11 @@ export default function New() {
     },
     {
       key: '5',
+      title: 'Slot Type',
+      dataIndex: 'slotType',
+    },
+    {
+      key: '6',
       title: 'status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
@@ -364,18 +396,18 @@ export default function New() {
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'active' : 'inactive'}
+            {classStatus ? 'available' : 'unavailable'}
           </Tag>
         </div>
       ),
     },
     {
-      key: '6',
+      key: '7',
       title: 'Action',
       dataIndex: 'action',
     },
     {
-      key: '7',
+      key: '8',
       title: 'Info',
       dataIndex: 'info',
       render: (classID: number) => (
@@ -456,19 +488,6 @@ export default function New() {
                   Add New
                 </Button>
               </Col>
-              {
-                lectureDetail?.role.name === 'Admin' && (
-                  <Col>
-                    <Button
-                      onClick={showModalCreate}
-                      type="primary"
-                      icon={<PlusOutlined />}
-                    >
-                      Add New
-                    </Button>
-                  </Col>
-                )
-              }
             </Row>
           </AntHeader>
         </Content>
@@ -482,6 +501,7 @@ export default function New() {
             semestercode: item.semester.semesterCode,
             room: item.room.roomName,
             subject: item.subject.subjectName,
+            slotType: <div>{item.slotType.sessionCount * 45 + ' minutes'}</div>,
             classStatus: item.classStatus,
             action: (
               <div>
@@ -515,14 +535,10 @@ export default function New() {
         pagination={{
           showSizeChanger: true,
         }}
-      // onRow={(record) => ({
-      //     onClick: () => handleRowClick(record.ID),
-      // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Class' : 'Add New Class'}
-        visible={isModalVisible}
-        // onOk={isCheck ? handleUpdate : handleCreate}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -533,7 +549,6 @@ export default function New() {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-          // disabled={!isFormValid()}
           >
             Submit
           </Button>,
@@ -571,9 +586,7 @@ export default function New() {
           style={{ marginBottom: '10px', width: '100%' }}
           filterOption={(input, option) => {
             const children = option?.children as unknown as string;
-            return children
-              .toLowerCase()
-              .includes(input.toLowerCase());
+            return children.toLowerCase().includes(input.toLowerCase());
           }}
         >
           {semester.map((sem) => (
@@ -598,9 +611,7 @@ export default function New() {
           style={{ marginBottom: '10px', width: '100%' }}
           filterOption={(input, option) => {
             const children = option?.children as unknown as string;
-            return children
-              .toLowerCase()
-              .includes(input.toLowerCase());
+            return children.toLowerCase().includes(input.toLowerCase());
           }}
         >
           {room.map((room) => (
@@ -615,6 +626,7 @@ export default function New() {
         <Select
           placeholder="Subject Code"
           value={SubjectId}
+          showSearch
           onChange={(value) => {
             setSubjectId(value);
             setErrors((prevErrors) => ({ ...prevErrors, subjectId: '' }));
@@ -623,33 +635,92 @@ export default function New() {
             );
           }}
           style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option: any) =>
+            option.children.toLowerCase().includes(input.toLowerCase()) ||
+            String(option.value).toLowerCase().includes(input.toLowerCase())
+          }
         >
           {subject.map((sub) => (
             <Select.Option key={sub.subjectID} value={sub.subjectID}>
-              <p>{sub.subjectCode}</p>
+              {sub.subjectCode}
             </Select.Option>
           ))}
         </Select>
         {errors.subjectId && (
           <p className={styles.errorText}>{errors.subjectId}</p>
         )}
-
+        {!isCheck && (
+          <>
+            <p className={styles.createClassTitle}>
+              Slot Type{' '}
+              <Tooltip title="Duration of schedules of class">
+                <Button
+                  type="link"
+                  icon={<InfoCircleOutlined />}
+                  size="small"
+                  style={{ padding: 0, fontSize: '14px' }}
+                />
+              </Tooltip>
+            </p>
+            <Select
+              placeholder="Slot Type"
+              value={SlotTypeId}
+              onChange={(value) => {
+                setSlotTypeId(value);
+                setErrors((prevErrors) => ({ ...prevErrors, slotTypeId: '' }));
+                setTypeName(
+                  slotType.find((slot) => slot.slotTypeID === value)
+                    ?.typeName || '',
+                );
+              }}
+              style={{ marginBottom: '10px', width: '100%' }}
+            >
+              {slotType.map((slot) => (
+                <Select.Option key={slot.slotTypeID} value={slot.slotTypeID}>
+                  <p>
+                    {slot.typeName + ' (' + slot.sessionCount * 45 + ' min)'}
+                  </p>
+                </Select.Option>
+              ))}
+            </Select>
+            {errors.slotTypeId && (
+              <p className={styles.errorText}>{errors.slotTypeId}</p>
+            )}
+          </>
+        )}
         {/* <p className={styles.createClassTitle}>Lecturer</p>
-                <Select
-                    placeholder="Lecturer"
-                    value={LecturerID}
-                    onChange={(value) => setLecturerID(value)}
-                    style={{ marginBottom: '10px', width: '100%' }}
-                >
-                    {
-                    lecturer.map((lec) => (
-                        <Select.Option key={lec.id} value={lec.id}>
-                            <p>{lec.displayName}</p>
-                        </Select.Option>
-                    ))
-                    }
-                </Select> */}
+        <Select
+          placeholder="Lecturer"
+          value={LecturerID}
+          onChange={(value) => {
+            setErrors((prevErrors) => ({ ...prevErrors, lecturerId: '' }));
+            setLecturerID(value);
+          }}
+          showSearch
+          style={{ marginBottom: '10px', width: '100%' }}
+          filterOption={(input, option) => {
+            const children = option?.children as unknown as string;
+            const normalizeString = (str: string) => {
+              return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            };
+
+            const normalizedChildren = normalizeString(children).toLowerCase();
+            const normalizedInput = normalizeString(input).toLowerCase();
+            return normalizedChildren.includes(normalizedInput);
+          }}
+        >
+          {lecturer.map((lec) => (
+            <Select.Option key={lec.id} value={lec.id}>
+              {lec.displayName + ' - ' + lec.email}
+            </Select.Option>
+          ))}
+        </Select>
+        {errors.lecturerId && (
+          <p className={styles.errorText}>{errors.lecturerId}</p>
+        )} */}
       </Modal>
     </Content>
   );
-}
+};
+
+export default New;
