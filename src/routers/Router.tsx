@@ -5,7 +5,7 @@ import ErrorPage from '../pages/ErrorPage';
 import ProtectedRoute from './ProtectedRoute';
 import TestComponent from './TestComponent';
 
-interface PreparationProgress{
+interface PreparationProgress {
   SessionId: number;
   Progress: number;
 }
@@ -16,9 +16,9 @@ const Router = () => {
   const [NotificationId, setNotificationId] = useState(0);
   const [preparationProgress, setPreparationProgress] = useState<PreparationProgress | null>(null);
 
-  let ws : WebSocket | null;
+  let ws: WebSocket | null;
   const ConnectWebsocket = (tokenString: string) => {
-    ws = new WebSocket('ws://34.81.223.233/ws/client?root=true', [
+    ws = new WebSocket('wss://34.81.223.233/ws/client?root=true', [
       'access_token',
       tokenString,
     ]);
@@ -39,9 +39,9 @@ const Router = () => {
           break;
         }
 
-        case 'PreparationProgress':{
+        case 'PreparationProgress': {
           const data = message.Data;
-          const progressTrack: PreparationProgress ={
+          const progressTrack: PreparationProgress = {
             SessionId: data.SessionId as number,
             Progress: data.Progress as number
           };
@@ -78,9 +78,9 @@ const Router = () => {
   return (
     <Routes>
       <Route path='/*' element={
-        <ProtectedRoute closeWebsocket={closeWebsocket} preparationProgress={preparationProgress} NotificationId={NotificationId} setNotificationId={setNotificationId} setPreparationProgress={setPreparationProgress}/>
+        <ProtectedRoute closeWebsocket={closeWebsocket} preparationProgress={preparationProgress} NotificationId={NotificationId} setNotificationId={setNotificationId} setPreparationProgress={setPreparationProgress} />
       } />
-      <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket}/>} />
+      <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket} />} />
       <Route path="/excel-test" element={<TestComponent />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>

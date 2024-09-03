@@ -1,4 +1,5 @@
-const server = 'http://34.81.223.233/api';
+const server = 'https://sams-project.com/api';
+// const server = 'http://34.81.223.233/api';
 
 //Auth
 export const USER_AUTH_API = `${server}/Auth`;
@@ -69,7 +70,7 @@ export const STUDENT_CLASS_API = `${server}/StudentClass`;
 export const SCHEDULE_RECORD_API = `${server}/ImportSchedulesRecord`;
 
 //System
- export const SYSTEM_API = `${server}/System`;
+export const SYSTEM_API = `${server}/System`;
 
 //Google
 export const GET_GG_USER_INFO =
