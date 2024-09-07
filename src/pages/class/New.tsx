@@ -48,6 +48,7 @@ const { Header: AntHeader } = Layout;
 
 const New: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
+  const [classSemester, setClassSemester] = useState<Semester[]>([]);
   const [semester, setSemester] = useState<Semester[]>([]);
   const [room, setRoom] = useState<Room[]>([]);
   const [subject, setSubject] = useState<Subject[]>([]);
@@ -99,12 +100,34 @@ const New: React.FC = () => {
     });
   };
 
+  const handleFilterSemester = useCallback(
+    async (value: number | null | undefined) => {
+      if (lectureDetail?.id) {
+        const id = lectureDetail.id;
+        let classes1 =
+          (await ClassService.getByClassLecturer(value, id))?.result || [];
+        if (value !== null && value !== undefined) {
+          classes1 = classes1.filter(
+            (item) => item.semester.semesterID === value,
+          );
+        }
+        setFilteredClass(classes1);
+        setIsUpdate(true);
+      }
+    },
+    [],
+  );
+
   const handleSearchClass = useCallback(
     (value: string) => {
       setSearchInput(value);
 
       const normalizeString = (str: string) => {
-        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
       };
 
       const normalizedValue = normalizeString(value).toLowerCase();
@@ -148,8 +171,23 @@ const New: React.FC = () => {
   const fetchClasses = useCallback(async () => {
     try {
       if (lectureDetail?.id) {
+        const dataSemester = await CalendarService.getAllSemester();
+        dataSemester?.push({
+          semesterID: null,
+          semesterCode: 'All',
+          semesterStatus: -1,
+          startDate: '',
+          endDate: '',
+        });
+        setClassSemester(dataSemester || []);
+        const currenSemester = dataSemester?.find(
+          (se) => se.semesterStatus === 2,
+        );
         const id = lectureDetail.id;
-        const data = await ClassService.getByClassLecturer(id);
+        const data = await ClassService.getByClassLecturer(
+          currenSemester?.semesterID,
+          id,
+        );
         setClasses(data?.result || []);
       }
     } catch (error) {
@@ -169,15 +207,32 @@ const New: React.FC = () => {
     }
   }, [classes, searchInput, handleSearchClass]);
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (
+  //       successMessage === 'Update class successfully' ||
+  //       successMessage === 'Create new class successfully'
+  //     ) {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearClassMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearClassMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (
-        successMessage === 'Update class successfully' ||
-        successMessage === 'Create new class successfully'
-      ) {
-        message.success(successMessage);
-      } else {
+      if (successMessage.title) {
         message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
       }
       setIsModalVisible(false);
       resetModalFields();
@@ -191,22 +246,17 @@ const New: React.FC = () => {
 
   const showModalCreate = () => {
     getAllSlotType();
-    getAllSmester();
+    getAllSmesterCreate();
     getAllRoom();
     getAllSubject();
     // getAllLecturer();
     setIsCheck(false);
-    semester?.forEach(item => {
-      if (item.semesterStatus === 2) {
-        setSemesterId(item.semesterID);
-      }
-    })
     setIsModalVisible(true);
   };
 
   const showModalUpdate = (item?: ClassDetails) => {
     setIsCheck(true);
-    getAllSmester();
+    getAllSmesterCreate();
     getAllRoom();
     getAllSubject();
     // getAllLecturer();
@@ -253,7 +303,8 @@ const New: React.FC = () => {
     if (SemesterId === null) newErrors.semesterId = 'Semester is required';
     if (RoomId === null) newErrors.roomId = 'Room is required';
     if (SubjectId === null) newErrors.subjectId = 'Subject is required';
-    if (SlotTypeId === null && !isCheck) newErrors.slotTypeId = 'Slot Type is required';
+    if (SlotTypeId === null && !isCheck)
+      newErrors.slotTypeId = 'Slot Type is required';
     // if (!LecturerID) newErrors.lecturerId = 'Lecturer is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -340,6 +391,16 @@ const New: React.FC = () => {
     setSemester(response || []);
   };
 
+  const getAllSmesterCreate = async () => {
+    const response = await CalendarService.getAllSemester();
+    setSemester(response || []);
+    response?.forEach((item) => {
+      if (item.semesterStatus === 2) {
+        setSemesterId(item.semesterID);
+      }
+    });
+  };
+
   const getAllRoom = async () => {
     const response = await RoomService.getAllRoom();
     setRoom(response || []);
@@ -370,6 +431,12 @@ const New: React.FC = () => {
       key: '2',
       title: 'Semester',
       dataIndex: 'semestercode',
+      filters: [
+        { text: 'Not yet', value: 1 },
+        { text: 'On going', value: 2 },
+        { text: 'Finished', value: 3 },
+      ],
+      onFilter: (value: any, record: any) => record.semesterStatus === value,
     },
     {
       key: '3',
@@ -471,6 +538,19 @@ const New: React.FC = () => {
             <p className={styles.tableTitle}>Class</p>
             <Row gutter={[16, 16]}>
               <Col>
+                <Select
+                  placeholder="Filter by Semester"
+                  onChange={handleFilterSemester}
+                  style={{ width: 200 }}
+                >
+                  {classSemester.map((sem) => (
+                    <Select.Option key={sem.semesterID} value={sem.semesterID}>
+                      {sem.semesterCode}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col>
                 <Input
                   placeholder="Search by name"
                   suffix={<CiSearch />}
@@ -497,10 +577,11 @@ const New: React.FC = () => {
         dataSource={(!isUpdate ? classes : filteredClass).map(
           (item, index) => ({
             key: index,
-            classcode: item.classCode,
-            semestercode: item.semester.semesterCode,
-            room: item.room.roomName,
-            subject: item.subject.subjectName,
+            classcode: item.classCode || 'N/A',
+            semestercode: item.semester.semesterCode || 'N/A',
+            semesterStatus: item.semester.semesterStatus,
+            room: item.room.roomName || 'N/A',
+            subject: item.subject.subjectName || 'N/A',
             slotType: <div>{item.slotType.sessionCount * 45 + ' minutes'}</div>,
             classStatus: item.classStatus,
             action: (
@@ -616,7 +697,7 @@ const New: React.FC = () => {
         >
           {room.map((room) => (
             <Select.Option key={room.roomID} value={room.roomID}>
-              {room.roomName}
+              {'Room ' + room.roomName}
             </Select.Option>
           ))}
         </Select>

@@ -3,6 +3,7 @@ import {
   Card,
   Checkbox,
   Col,
+  Divider,
   Input,
   Layout,
   message,
@@ -171,7 +172,7 @@ const AdminClassDetail: React.FC = () => {
     dispatch(clearStudentMessages());
   }, [successMessage, failMessage, dispatch]);
   const showModalUpdateSchedule = (item?: Schedule) => {
-    getAllSlot();
+    getAllSlotByType();
     getAllRoom();
     setIsCheck('updateSchedule');
     if (item) {
@@ -189,7 +190,7 @@ const AdminClassDetail: React.FC = () => {
   };
 
   const classDetails = [
-    { title: 'Class Code', value: classes?.result.classCode },
+    { title: 'Class Code', value: classes?.result.classCode || 'N/A' },
     {
       title: 'Status',
       value: classes?.result.classStatus ? (
@@ -199,9 +200,12 @@ const AdminClassDetail: React.FC = () => {
       ),
       classStatus: true,
     },
-    { title: 'Semester', value: classes?.result.semester.semesterCode },
-    { title: 'Room', value: classes?.result.room.roomName },
-    { title: 'Subject', value: classes?.result.subject.subjectName },
+    {
+      title: 'Semester',
+      value: classes?.result.semester.semesterCode || 'N/A',
+    },
+    { title: 'Room', value: classes?.result.room.roomName || 'N/A' },
+    { title: 'Subject', value: classes?.result.subject.subjectName || 'N/A' },
     // {
     //   title: 'Lecturer',
     //   value: classes?.result.lecturer.displayName,
@@ -218,7 +222,11 @@ const AdminClassDetail: React.FC = () => {
     (value: string) => {
       setSearchInput(value);
       const normalizeString = (str: string) => {
-        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
       };
       const normalizedValue = normalizeString(value).toLowerCase();
       const filtered = classStudent.filter(
@@ -527,6 +535,11 @@ const AdminClassDetail: React.FC = () => {
     const response = await SlotService.getAllSlot();
     setSlot(response || []);
   };
+
+  const getAllSlotByType = async () => {
+    const response = await SlotService.getSlotByType(classes?.result.slotType.slotTypeID);
+    setSlot(response || []);
+  };
   const getAllRoom = async () => {
     const response = await RoomService.getAllRoom();
     setRoom(response || []);
@@ -538,7 +551,7 @@ const AdminClassDetail: React.FC = () => {
   };
 
   const showModalAddShedule = () => {
-    getAllSlot();
+    getAllSlotByType();
     getAllRoom();
     setRoomId(classes?.result.room.roomID || 0);
     setIsCheck('addSchedule');
@@ -881,6 +894,13 @@ const AdminClassDetail: React.FC = () => {
             </Box>
           </Col>
         </Row>
+        <Divider
+          style={{
+            borderColor: '#7cb305',
+          }}
+        >
+          Schedule
+        </Divider>
         <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
           <Col span={24}>
             <Card className={styles.cardHeader}>
@@ -903,26 +923,29 @@ const AdminClassDetail: React.FC = () => {
               columns={columnsSchedule}
               dataSource={classSchedule.map((item, index) => ({
                 key: index,
-                date: moment(item.date, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+                date: !item.date
+                  ? 'N/A'
+                  : moment(item.date, 'YYYY-MM-DD').format('DD/MM/YYYY'),
                 time: (
                   <div>
-                    {(typeof item.slot.startTime === 'string'
-                      ? item.slot.startTime
-                      : String(item.slot.startTime ?? '')
-                    ).slice(0, 5)}
-                    -
-                    {(typeof item.slot.endtime === 'string'
-                      ? item.slot.endtime
-                      : String(item.slot.endtime ?? '')
-                    ).slice(0, 5)}
+                    {!item.slot
+                      ? 'N/A'
+                      : `${(typeof item.slot.startTime === 'string'
+                          ? item.slot.startTime
+                          : String(item.slot.startTime ?? '')
+                        ).slice(0, 5)} - ${(typeof item.slot.endtime ===
+                        'string'
+                          ? item.slot.endtime
+                          : String(item.slot.endtime ?? '')
+                        ).slice(0, 5)}`}
                   </div>
                 ),
-                slot: item.slot.slotNumber,
+                slot: item.slot.slotNumber || 'N/A',
                 room:
                   item.room === null
                     ? classes?.result.room.roomName
                     : item.room.roomName,
-                dateOfWeek: item.dateOfWeek,
+                dateOfWeek: item.dateOfWeek || 'N/A',
                 scheduleStatus: item.scheduleStatus,
                 attendanceStatus: item.attended,
                 action: (
@@ -959,6 +982,13 @@ const AdminClassDetail: React.FC = () => {
             ></Table>
           </Col>
         </Row>
+        <Divider
+          style={{
+            borderColor: '#7cb305',
+          }}
+        >
+          Student
+        </Divider>
         <Row gutter={[16, 16]}>
           <Col span={24}>
             <Card className={styles.cardHeader}>
@@ -1012,9 +1042,9 @@ const AdminClassDetail: React.FC = () => {
               dataSource={(!isUpdate ? classStudent : filteredStudentClass).map(
                 (item, index) => ({
                   key: index,
-                  studentName: item.displayName,
-                  studentEmail: item.email,
-                  studentCode: item.studentCode,
+                  studentName: item.displayName || 'N/A',
+                  studentEmail: item.email || 'N/A',
+                  studentCode: item.studentCode || 'N/A',
                   absencePercentage: item.absencePercentage,
                   // action: (
                   //   <div>

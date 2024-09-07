@@ -66,7 +66,9 @@ const AccountStudents: React.FC = () => {
     email: '',
   });
 
-  const failMessage = useSelector((state: RootState) => state.student.studentDetail);
+  const failMessage = useSelector(
+    (state: RootState) => state.student.studentDetail,
+  );
   const successMessage = useSelector(
     (state: RootState) => state.student.message,
   );
@@ -77,7 +79,7 @@ const AccountStudents: React.FC = () => {
     });
   };
 
-  console.log('suces', successMessage)
+  console.log('suces', successMessage);
 
   const handlePagination = async (page: number, pageSize: number) => {
     setCurrentPage(page);
@@ -121,7 +123,7 @@ const AccountStudents: React.FC = () => {
         {
           text: 'Not Authenticated',
           value: false,
-        }
+        },
       ],
       render: (isAuthenticated: boolean) => (
         <div>
@@ -174,14 +176,32 @@ const AccountStudents: React.FC = () => {
         console.log('get student error: ', error);
       });
   }, [reload]);
-console.log('sucesss', successMessage)
-console.log('fail', failMessage)
+  console.log('sucesss', successMessage);
+  console.log('fail', failMessage);
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage === 'Update student successfully' || successMessage === 'Create new student successfully') {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+  //     setReload((prevReload) => prevReload + 1);
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearStudentMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearStudentMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (successMessage === 'Update student successfully' || successMessage === 'Create new student successfully') {
-        message.success(successMessage);
-      } else {
+      if (successMessage.title) {
         message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
       }
       setReload((prevReload) => prevReload + 1);
       setIsModalVisible(false);
@@ -197,23 +217,27 @@ console.log('fail', failMessage)
   const handleSearchStudent = (value: string) => {
     setSearchInput(value);
     const normalizeString = (str: string) => {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
     };
     const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = student.filter(
       (item) => {
         const normalizedStudentName = item.studentName
-        ? normalizeString(item.studentName).toLowerCase()
-        : '';
+          ? normalizeString(item.studentName).toLowerCase()
+          : '';
         const normalizedStudentCode = item.studentCode
-        ? normalizeString(item.studentCode).toLowerCase()
-        : '';
+          ? normalizeString(item.studentCode).toLowerCase()
+          : '';
         const normalizedEmail = item.email
-        ? normalizeString(item.email).toLowerCase()
-        : '';
+          ? normalizeString(item.email).toLowerCase()
+          : '';
         const normalizedPhone = item.phoneNumber
-        ? normalizeString(item.phoneNumber).toLowerCase()
-        : '';
+          ? normalizeString(item.phoneNumber).toLowerCase()
+          : '';
 
         return (
           normalizedStudentName.includes(normalizedValue) ||
@@ -221,15 +245,15 @@ console.log('fail', failMessage)
           normalizedEmail.includes(normalizedValue) ||
           normalizedPhone.includes(normalizedValue)
         );
-      }
-        // (item.studentName &&
-        //   item.studentName.toLowerCase().includes(value.toLowerCase())) ||
-        // (item.studentCode &&
-        //   item.studentCode.toLowerCase().includes(value.toLowerCase())) ||
-        // (item.email &&
-        //   item.email.toLowerCase().includes(value.toLowerCase())) ||
-        // (item.phoneNumber &&
-        //   item.phoneNumber.toLowerCase().includes(value.toLowerCase())),
+      },
+      // (item.studentName &&
+      //   item.studentName.toLowerCase().includes(value.toLowerCase())) ||
+      // (item.studentCode &&
+      //   item.studentCode.toLowerCase().includes(value.toLowerCase())) ||
+      // (item.email &&
+      //   item.email.toLowerCase().includes(value.toLowerCase())) ||
+      // (item.phoneNumber &&
+      //   item.phoneNumber.toLowerCase().includes(value.toLowerCase())),
     );
     setFilteredStudents(filtered);
     setIsUpdate(true);
@@ -378,12 +402,14 @@ console.log('fail', failMessage)
                   alt="Student"
                   className={styles.img}
                 />
-                <p className={styles.studentName}>{item.studentName}</p>
+                <p className={styles.studentName}>
+                  {item.studentName || 'N/A'}
+                </p>
               </div>
             ),
-            email: item.email,
-            studentcode: item.studentCode,
-            phone: item.phoneNumber,
+            email: item.email || 'N/A',
+            studentcode: item.studentCode || 'N/A',
+            phone: item.phoneNumber || 'N/A',
             isAuthenticated: item.isAuthenticated,
             info: item.studentID,
             ID: item.studentID,

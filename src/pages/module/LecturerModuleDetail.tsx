@@ -88,9 +88,27 @@ const LecturerModuleDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage.title == 'Apply configuration successfully') {
+  //       message.success(successMessage.title);
+  //     } else {
+  //       message.success(successMessage);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  //   if (failMessage && failMessage.data.error) {
+  //     if (failMessage.data.error.title == 'Apply configurations failed') {
+  //       message.error(`${failMessage.data.error.title}`);
+  //     } else {
+  //       message.error(`${failMessage.data.error.errors}`);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
   useEffect(() => {
     if (successMessage) {
-      if (successMessage.title == 'Apply configuration successfully') {
+      if (successMessage.title) {
         message.success(successMessage.title);
       } else {
         message.success(successMessage);
@@ -98,7 +116,7 @@ const LecturerModuleDetail: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
-      if (failMessage.data.error.title == 'Apply configurations failed') {
+      if (failMessage.data.error.title) {
         message.error(`${failMessage.data.error.title}`);
       } else {
         message.error(`${failMessage.data.error.errors}`);
@@ -151,8 +169,8 @@ const LecturerModuleDetail: React.FC = () => {
   // }, [listScheduleId, scheduleList]);
 
   const moduleDetails = [
-    { title: 'Module', value: module?.result.moduleID },
-    { title: 'Employee', value: module?.result.employee.displayName },
+    { title: 'Module', value: module?.result.moduleID || 'N/A' },
+    { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
     {
       title: 'Mode',
       value: (
@@ -211,7 +229,7 @@ const LecturerModuleDetail: React.FC = () => {
         </Tag>
       ),
     },
-    { title: 'Reset Time', value: module?.result.resetTime },
+    { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
   const columns = [
@@ -944,14 +962,14 @@ const LecturerModuleDetail: React.FC = () => {
                                 date: new Date(item1.date).toLocaleDateString(
                                   'en-GB',
                                 ),
-                                slot: item1.slot.slotNumber,
+                                slot: item1.slot.slotNumber || 'N/A',
                                 time: (
                                   <div>
                                     {item1.slot.startTime.slice(0, 5)} -{' '}
                                     {item1.slot.endtime.slice(0, 5)}
                                   </div>
                                 ),
-                                class: item1.class.classCode,
+                                class: item1.class.classCode || 'N/A',
                                 uploadFingerprints: (
                                   <>
                                     {item1.uploaded} / {item1.total}

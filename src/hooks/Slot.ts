@@ -21,6 +21,24 @@ const getAllSlot = async (): Promise<Slot[] | null> => {
   }
 };
 
+const getSlotByType = async (slotTypeId: number | undefined | null): Promise<Slot[] | null> => {
+  try {
+    const response = await axios.get(SLOT_API, {
+      params: {
+        slotTypeId: slotTypeId,
+        startPage: 1,
+        endPage: 20,
+        quantity: 50,
+      },
+    });
+
+    return response.data as Slot[];
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 const getSlotByID = async (slotID: number): Promise<SlotDetail | null> => {
   try {
     const response = await axios.get(`${SLOT_API}/${slotID}`, {
@@ -265,6 +283,7 @@ const deleteSlotType = async (slotTypeID: number) => {
 
 export const SlotService = {
   getAllSlot,
+  getSlotByType,
   getSlotByID,
   getSlotByPage,
   createSlot,

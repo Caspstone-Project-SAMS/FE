@@ -1,6 +1,7 @@
 import {
   Card,
   Col,
+  Divider,
   Input,
   Layout,
   Row,
@@ -40,15 +41,15 @@ const AccountTeacherDetail: React.FC = () => {
     useState<ManageClass[]>(lecturerClass);
 
   const lecturerDetails = [
-    { title: 'Name', value: lecturer?.result.displayName },
-    { title: 'Address', value: lecturer?.result.address },
+    { title: 'Name', value: lecturer?.result.displayName || 'N/A' },
+    { title: 'Address', value: lecturer?.result.address || 'N/A' },
     {
       title: 'Birthday',
-      value: moment(lecturer?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+      value: (lecturer?.result.dob && moment(lecturer?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY') || 'N/A'),
     },
-    { title: 'Email', value: lecturer?.result.email },
-    { title: 'Phone', value: lecturer?.result.phoneNumber },
-    { title: 'Department', value: lecturer?.result.department },
+    { title: 'Email', value: lecturer?.result.email || 'N/A' },
+    { title: 'Phone', value: lecturer?.result.phoneNumber || 'N/A' },
+    { title: 'Department', value: lecturer?.result.department || 'N/A' },
   ];
 
   const columnsClass = [
@@ -191,16 +192,39 @@ const AccountTeacherDetail: React.FC = () => {
     }
   }, [lecturerID]);
 
+  // const handleSearchClass = (value: string) => {
+  //   setSearchInput(value);
+  //   const filtered = lecturerClass.filter(
+  //     (item) =>
+  //       item.classCode &&
+  //       item.classCode.toLowerCase().includes(value.toLowerCase()),
+  //   );
+  //   setFilteredLecturerClass(filtered ?? []);
+  //   setIsUpdate(true);
+  // };
+
   const handleSearchClass = (value: string) => {
     setSearchInput(value);
+
+    const normalizeString = (str: string) => {
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+
+    const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = lecturerClass.filter(
       (item) =>
         item.classCode &&
-        item.classCode.toLowerCase().includes(value.toLowerCase()),
+        normalizeString(item.classCode).toLowerCase().includes(normalizedValue),
     );
+
     setFilteredLecturerClass(filtered ?? []);
     setIsUpdate(true);
   };
+
 
   return (
     <Content className={styles.accountTeacherContent}>
@@ -274,6 +298,13 @@ const AccountTeacherDetail: React.FC = () => {
             </Content>
           </Col>
         </Row>
+        <Divider
+          style={{
+            borderColor: '#7cb305',
+          }}
+        >
+          Classes
+        </Divider>
         <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
           <Col span={24}>
             <Card className={styles.cardHeader}>
@@ -301,11 +332,11 @@ const AccountTeacherDetail: React.FC = () => {
                 : filteredLecturerClass
               ).map((item, index) => ({
                 key: index,
-                classCode: item.classCode,
-                classStatus: item.classStatus,
-                semester: item.semesterCode,
-                subject: item.subjectCode,
-                room: item.roomName,
+                classCode: item.classCode || 'N/A',
+                classStatus: item.classStatus || 'N/A',
+                semester: item.semesterCode || 'N/A',
+                subject: item.subjectCode || 'N/A',
+                room: item.roomName || 'N/A',
               }))}
               pagination={{
                 showSizeChanger: true,
@@ -326,15 +357,15 @@ const AccountTeacherDetail: React.FC = () => {
               columns={columnsModule}
               dataSource={lecturerModule.map((item, index) => ({
                 key: index,
-                moduleID: item.moduleID,
-                mode: item.mode,
-                moduleStatus: item.status,
-                autoPrepare: item.autoPrepare,
+                moduleID: item.moduleID || 'N/A',
+                mode: item.mode || 'N/A',
+                moduleStatus: item.status || 'N/A',
+                autoPrepare: item.autoPrepare || 'N/A',
                 preparedTime: (typeof item.preparedTime === 'string'
                   ? item.preparedTime
-                  : String(item.preparedTime ?? '')
+                  : String(item.preparedTime ?? 'N/A')
                 ).slice(0, 5),
-                autoReset: item.autoReset,
+                autoReset: item.autoReset || 'N/A',
               }))}
               pagination={{
                 showSizeChanger: true,

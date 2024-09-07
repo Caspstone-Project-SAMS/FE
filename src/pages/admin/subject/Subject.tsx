@@ -58,22 +58,51 @@ const Subject: React.FC = () => {
   );
 
 
+  // const handleSearchSubject = useCallback(
+  //   (value: string) => {
+  //     setSearchInput(value);
+  //     const filtered = subject.filter(
+  //       (item) =>
+  //         (item.subjectName &&
+  //           item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
+  //         (item.subjectCode &&
+  //           item.subjectCode.toLowerCase().includes(value.toLowerCase())),
+  //     );
+  //     console.log(11111111);
+  //     setFilteredSubject(filtered);
+  //     setIsUpdate(true);
+  //   },
+  //   [subject],
+  // );
+
   const handleSearchSubject = useCallback(
     (value: string) => {
       setSearchInput(value);
+  
+      const normalizeString = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+  
+      const normalizedValue = normalizeString(value).toLowerCase();
       const filtered = subject.filter(
         (item) =>
           (item.subjectName &&
-            item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
+            normalizeString(item.subjectName).toLowerCase().includes(normalizedValue)) ||
           (item.subjectCode &&
-            item.subjectCode.toLowerCase().includes(value.toLowerCase())),
+            normalizeString(item.subjectCode).toLowerCase().includes(normalizedValue)),
       );
-      console.log(11111111);
+  
+      console.log(11111111); // For debugging, remove or replace as needed
       setFilteredSubject(filtered);
       setIsUpdate(true);
     },
     [subject],
   );
+  
 
   const fetchSubjects = useCallback(async () => {
     try {
@@ -96,12 +125,30 @@ const Subject: React.FC = () => {
     }
   }, [subject, searchInput, handleSearchSubject]);
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage === 'Update subject successfully' || successMessage === 'Create new subject successfully') {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearSubjectMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearSubjectMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (successMessage === 'Update subject successfully' || successMessage === 'Create new subject successfully') {
-        message.success(successMessage);
-      } else {
+      if (successMessage.title) {
         message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
       }
 
       setIsModalVisible(false);
@@ -285,8 +332,8 @@ const Subject: React.FC = () => {
         dataSource={(!isUpdate ? subject : filteredSubject).map(
           (item, index) => ({
             key: index,
-            subjectcode: item.subjectCode,
-            subjectname: item.subjectName,
+            subjectcode: item.subjectCode || 'N/A',
+            subjectname: item.subjectName || 'N/A',
             action: (
               <div>
                 <Button

@@ -27,9 +27,13 @@ const downloadTemplateExcel = async () => {
   }
 };
 
-const getAllClass = async (): Promise<Class | null> => {
+const getAllClass = async (semesterId: number | null | undefined): Promise<Class | null> => {
   try {
-    const response = await axios.get(`${CLASS_API}?quantity=50`);
+    const response = await axios.get(`${CLASS_API}?quantity=50`,{
+      params: {
+        semesterId,
+      },
+    });
 
     return response.data as Class;
   } catch (error) {
@@ -39,11 +43,12 @@ const getAllClass = async (): Promise<Class | null> => {
 };
 
 const getByClassLecturer = async (
-  lecturerId: string,
+  semesterId: number | null | undefined, lecturerId: string, 
 ): Promise<Class | null> => {
   try {
     const response = await axios.get(CLASS_API, {
       params: {
+        semesterId,
         lecturerId,
         quantity: 50,
       },

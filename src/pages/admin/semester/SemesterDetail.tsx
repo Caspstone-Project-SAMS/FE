@@ -24,7 +24,7 @@ const SemesterDetail: React.FC = () => {
     useState<SemesterClass[]>(semesterClass);
 
   const semesterDetails = [
-    { title: 'Semester Code', value: semester?.result.semesterCode },
+    { title: 'Semester Code', value: semester?.result.semesterCode || 'N/A' },
     {
       title: 'Status',
       value:
@@ -41,15 +41,15 @@ const SemesterDetail: React.FC = () => {
     },
     {
       title: 'Start Date',
-      value: moment(semester?.result.startDate, 'YYYY-MM-DD').format(
+      value:(semester?.result.startDate) ? moment(semester?.result.startDate, 'YYYY-MM-DD').format(
         'DD/MM/YYYY',
-      ),
+      ) : 'N/A',
     },
     {
       title: 'End Date',
-      value: moment(semester?.result.endDate, 'YYYY-MM-DD').format(
+      value: (semester?.result.endDate) ? moment(semester?.result.endDate, 'YYYY-MM-DD').format(
         'DD/MM/YYYY',
-      ),
+      ) : 'N/A',
     },
   ];
 
@@ -75,16 +75,39 @@ const SemesterDetail: React.FC = () => {
     }
   }, [semesterID]);
 
+  // const handleSearchClass = (value: string) => {
+  //   setSearchInput(value);
+  //   const filtered = semester?.result.classes.filter(
+  //     (item) =>
+  //       item.classCode &&
+  //       item.classCode.toLowerCase().includes(value.toLowerCase()),
+  //   );
+  //   setFilteredSemesterClass(filtered ?? []);
+  //   setIsUpdate(true);
+  // };
+
   const handleSearchClass = (value: string) => {
     setSearchInput(value);
+  
+    const normalizeString = (str: string) => {
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+  
+    const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = semester?.result.classes.filter(
       (item) =>
         item.classCode &&
-        item.classCode.toLowerCase().includes(value.toLowerCase()),
+        normalizeString(item.classCode).toLowerCase().includes(normalizedValue),
     );
+  
     setFilteredSemesterClass(filtered ?? []);
     setIsUpdate(true);
   };
+  
 
   const columns = [
     {
@@ -145,7 +168,7 @@ const SemesterDetail: React.FC = () => {
                 : filteredSemesterClass
               ).map((item, index) => ({
                 key: index,
-                classCode: item.classCode,
+                classCode: item.classCode || 'N/A',
                 classStatus: item.classStatus,
               }))}
               pagination={{

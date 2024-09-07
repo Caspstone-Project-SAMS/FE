@@ -76,6 +76,8 @@ const ModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
+  console.log('edfvsfv', schedule)
+
   const dispatch = useDispatch();
   const token = useSelector(
     (state: RootState) => state.auth.userDetail?.token ?? '',
@@ -86,9 +88,28 @@ const ModuleDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage.title) {
+  //       message.success(successMessage.title);
+  //     } else {
+  //       message.success(successMessage);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  //   if (failMessage && failMessage.data.error) {
+  //     if (failMessage.data.error.title == 'Apply configurations failed') {
+  //       message.error(`${failMessage.data.error.title}`);
+  //     } else {
+  //       message.error(`${failMessage.data.error.errors}`);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (successMessage.title == 'Apply configuration successfully') {
+      if (successMessage.title) {
         message.success(successMessage.title);
       } else {
         message.success(successMessage);
@@ -96,7 +117,7 @@ const ModuleDetail: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
-      if (failMessage.data.error.title == 'Apply configurations failed') {
+      if (failMessage.data.error.title) {
         message.error(`${failMessage.data.error.title}`);
       } else {
         message.error(`${failMessage.data.error.errors}`);
@@ -149,8 +170,8 @@ const ModuleDetail: React.FC = () => {
   // }, [listScheduleId, scheduleList]);
 
   const moduleDetails = [
-    { title: 'Module', value: module?.result.moduleID },
-    { title: 'Employee', value: module?.result.employee.displayName },
+    { title: 'Module', value: module?.result.moduleID || 'N/A' },
+    { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
     {
       title: 'Mode',
       value: (
@@ -195,7 +216,7 @@ const ModuleDetail: React.FC = () => {
       title: 'Prepare Time',
       value: (typeof module?.result?.preparedTime === 'string'
         ? module.result.preparedTime
-        : String(module?.result?.preparedTime ?? '')
+        : String(module?.result?.preparedTime ?? 'N/A')
       ).slice(0, 5),
     },
     {
@@ -209,7 +230,7 @@ const ModuleDetail: React.FC = () => {
         </Tag>
       ),
     },
-    { title: 'Reset Time', value: module?.result.resetTime },
+    { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
   const columns = [
@@ -559,18 +580,18 @@ const ModuleDetail: React.FC = () => {
                           /> */}
                           <InputNumber
                             placeholder="Duration Time"
-                            min={15}
-                            max={135}
+                            min={0}
+                            max={300}
                             value={
                               AttendanceDurationMinutes !== null
                                 ? AttendanceDurationMinutes
                                 : null
                             }
                             onChange={(value: any) => {
-                              if (value < 15) {
-                                setAttendanceDurationMinutes(15);
-                              } else if (value > 135) {
-                                setAttendanceDurationMinutes(135);
+                              if (value < 0) {
+                                setAttendanceDurationMinutes(0);
+                              } else if (value > 300) {
+                                setAttendanceDurationMinutes(300);
                               } else {
                                 setAttendanceDurationMinutes(value);
                               }
@@ -799,7 +820,7 @@ const ModuleDetail: React.FC = () => {
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
-                            if (item.preparationTask.preparedSchedules) {
+                            if (item.preparationTask.preparedSchedules.length > 0) {
                               // setListScheduleId(
                               //   item.preparationTask.preparedSchedules,
                               // );
@@ -913,23 +934,23 @@ const ModuleDetail: React.FC = () => {
                               <>
                                 <div style={{ width: '20%' }}>
                                   <p>
-                                    <b>Date:</b> {schedule?.result.date}
+                                    <b>Date:</b> {schedule?.result.date || 'N/A'}
                                   </p>
                                   <p>
                                     <b>Class:</b>{' '}
-                                    {schedule?.result.class.classCode}
+                                    {schedule?.result.class.classCode || 'N/A'}
                                   </p>
                                 </div>
                                 <div style={{ width: '20%' }}>
                                   <p>
                                     <b>Slot:</b>{' '}
-                                    {schedule?.result.slot.slotNumber}
+                                    {schedule?.result.slot.slotNumber || 'N/A'}
                                   </p>
                                   <p>
                                     <b>Time:</b>{' '}
-                                    {schedule?.result.slot.startTime +
+                                    { schedule?.result.slot ? (schedule?.result.slot.startTime +
                                       '-' +
-                                      schedule?.result.slot.endtime}
+                                      schedule?.result.slot.endtime) : 'N/A'}
                                   </p>
                                 </div>
                               </>
@@ -940,17 +961,17 @@ const ModuleDetail: React.FC = () => {
                               columns={columns}
                               dataSource={scheduleList.map((item1, index) => ({
                                 key: index,
-                                date: new Date(item1.date).toLocaleDateString(
+                                date:(item1.date? new Date(item1.date).toLocaleDateString(
                                   'en-GB',
-                                ),
-                                slot: item1.slot.slotNumber,
+                                ) : 'N/A'),
+                                slot: item1.slot.slotNumber || 'N/A',
                                 time: (
                                   <div>
                                     {item1.slot.startTime.slice(0, 5)} -{' '}
                                     {item1.slot.endtime.slice(0, 5)}
                                   </div>
                                 ),
-                                class: item1.class.classCode,
+                                class: item1.class.classCode || 'N/A',
                                 uploadFingerprints: (
                                   <>
                                     {item1.uploaded} / {item1.total}

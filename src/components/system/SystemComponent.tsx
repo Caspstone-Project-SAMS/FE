@@ -78,16 +78,16 @@ const SystemComponent: React.FC = () => {
   const systemDetails = [
     // { label: 'System Configuration', value: systemConfig?.result.systemConfigurationId },
     {
-      label: 'Revertable Duration In Hours',
-      value: systemConfig?.result.revertableDurationInHours,
+      label: 'Revertable Duration In Hours (hours)',
+      value: systemConfig?.result.revertableDurationInHours || 'N/A',
     },
     {
-      label: 'Class Code Match Rate',
-      value: systemConfig?.result.classCodeMatchRate,
+      label: 'Class Code Match Rate (%)',
+      value: systemConfig?.result.classCodeMatchRate || 'N/A',
     },
     {
-      label: 'Semester Duration In Days',
-      value: systemConfig?.result.semesterDurationInDays,
+      label: 'Semester Duration In Days (days)',
+      value: systemConfig?.result.semesterDurationInDays || 'N/A',
     },
     // { label: 'Slot Duration In Mins', value: systemConfig?.result.semesterDurationInDays },
   ];
@@ -177,7 +177,7 @@ const SystemComponent: React.FC = () => {
                 step={1}
                 className={styles.inputNumber}
               />{' '}
-              {' hours'}
+              {/* {' hours'} */}
               <p className={styles.suggestText}>abc</p>
             </div>
           </div>
@@ -199,7 +199,7 @@ const SystemComponent: React.FC = () => {
                 step={1}
                 className={styles.inputNumber}
               />{' '}
-              {' %'}
+              {/* {' %'} */}
               <p className={styles.suggestText}>abc</p>
             </div>
           </div>
@@ -221,12 +221,12 @@ const SystemComponent: React.FC = () => {
                 step={1}
                 className={styles.inputNumber}
               />{' '}
-              {' days'}
+              {/* {' days'} */}
               <p className={styles.suggestText}>abc</p>
             </div>
           </div>
         </Col>
-        <Col span={24} style={{ marginTop: 40, textAlign: 'right' }}>
+        <Col span={24} style={{textAlign: 'right' }}>
           <Button
             onClick={handleSubmit}
             type="primary"

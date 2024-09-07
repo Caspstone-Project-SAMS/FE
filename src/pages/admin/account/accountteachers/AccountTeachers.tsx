@@ -78,7 +78,11 @@ const AccountTeachers: React.FC = () => {
   const handleSearchLecturer = (value: string) => {
     setSearchInput(value);
     const normalizeString = (str: string) => {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
     };
     const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = lecturer.filter(
@@ -165,12 +169,12 @@ const AccountTeachers: React.FC = () => {
                 alt="Teacher"
                 className={styles.img}
               />
-              <p className={styles.lecturerName}>{item.displayName}</p>
+              <p className={styles.lecturerName}>{item.displayName || 'N/A'}</p>
             </div>
           ),
-          email: item.email,
-          department: item.department,
-          phone: item.phoneNumber,
+          email: item.email || 'N/A',
+          department: item.department || 'N/A',
+          phone: item.phoneNumber || 'N/A',
           info: item.employeeID,
         }))}
         pagination={{
