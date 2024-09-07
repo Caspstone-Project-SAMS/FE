@@ -211,7 +211,7 @@ const ClassDetails: React.FC = () => {
   );
 
   const ConnectWebsocket = useCallback(() => {
-    const ws = new WebSocket('ws://34.81.223.233/ws/client', [
+    const ws = new WebSocket('wss://34.81.223.233/ws/client', [
       'access_token',
       token,
     ]);
@@ -383,8 +383,8 @@ const ClassDetails: React.FC = () => {
         status === 'past'
           ? 'Past'
           : status === 'current'
-          ? 'On going'
-          : 'Future';
+            ? 'On going'
+            : 'Future';
 
       setClassInfo([
         { label: 'Class', value: classCode },
@@ -802,8 +802,8 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.status === 1
                             ? 'available'
                             : moduleByID?.status === 0
-                            ? 'unavailable'
-                            : ''}
+                              ? 'unavailable'
+                              : ''}
                         </p>
                       </span>
                       <span>
@@ -826,8 +826,8 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.mode === 1
                             ? 'Register'
                             : moduleByID?.mode === 2
-                            ? 'Attendance'
-                            : ''}
+                              ? 'Attendance'
+                              : ''}
                         </p>
                       </span>
                     </div>
@@ -906,7 +906,7 @@ const ClassDetails: React.FC = () => {
                 <Row style={{ width: '100%', height: '100%' }}>
                   <Space>
                     <Button type="link" onClick={() => fetchModuleActivity()}>
-                      <IoReload size={25} /> 
+                      <IoReload size={25} />
                     </Button>
                   </Space>
                   <List
@@ -923,13 +923,13 @@ const ClassDetails: React.FC = () => {
                       let totalFingers = 0;
                       let uploadedFingers = 0;
 
-                      if(item.preparationTask.preparedScheduleId == scheduleID){
+                      if (item.preparationTask.preparedScheduleId == scheduleID) {
                         totalFingers = item.preparationTask.totalFingers;
                         uploadedFingers = item.preparationTask.uploadedFingers;
                       }
-                      else{
+                      else {
                         let schedule = item.preparationTask.preparedSchedules.find(s => s.scheduleId == scheduleID);
-                        if(schedule !== undefined){
+                        if (schedule !== undefined) {
                           totalFingers = schedule.totalFingers;
                           uploadedFingers = schedule.uploadedFingers;
                         }
@@ -942,17 +942,17 @@ const ClassDetails: React.FC = () => {
                             borderRadius: 10,
                             marginBottom: 10,
                           }}
-                          // actions={[
-                          //   <a style={{ color: 'green' }} key="list-loadmore-edit">
-                          //     start
-                          //   </a>,
-                          //   <a style={{ color: 'red' }} key="list-loadmore-more">
-                          //     stop
-                          //   </a>,
-                          //   <a style={{ color: 'blue' }} key="list-loadmore-more">
-                          //     sync
-                          //   </a>,
-                          // ]}
+                        // actions={[
+                        //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                        //     start
+                        //   </a>,
+                        //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                        //     stop
+                        //   </a>,
+                        //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                        //     sync
+                        //   </a>,
+                        // ]}
                         >
                           <List.Item.Meta
                             avatar={
@@ -969,11 +969,11 @@ const ClassDetails: React.FC = () => {
                                 />
                               </div>
                             }
-                            // title={
-                            //   <a href="https://ant.design">{item.name?.last}</a>
-                            // }
-                            // title={`Module ${item.module.moduleID}`}
-                            // description="a"
+                          // title={
+                          //   <a href="https://ant.design">{item.name?.last}</a>
+                          // }
+                          // title={`Module ${item.module.moduleID}`}
+                          // description="a"
                           />
                           {/* <div style={{width:'10%', marginRight: 40}}>
                               <b>{'Module' + item.module.moduleID}</b>
@@ -1045,7 +1045,7 @@ const ClassDetails: React.FC = () => {
                               </div>
                             </div>
                           </div>
-  
+
                           <Space>
                             <Popover
                               placement="bottomRight"
@@ -1185,11 +1185,10 @@ const ClassDetails: React.FC = () => {
                       <Button
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
-                        className={`${styles.unselectedModule} ${
-                          moduleID === item.moduleID
+                        className={`${styles.unselectedModule} ${moduleID === item.moduleID
                             ? styles.selectedModule
                             : ''
-                        }`}
+                          }`}
                         disabled={isActiveModule}
                       >
                         <Row>
