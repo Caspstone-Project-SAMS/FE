@@ -75,6 +75,9 @@ const New: React.FC = () => {
   const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
 
+  const [currentFilterValue, setCurrentFilterValue] = useState<number | null | undefined>(null);
+
+
   const lectureDetail = useSelector(
     (state: RootState) => state.auth.userDetail?.result,
   );
@@ -102,6 +105,7 @@ const New: React.FC = () => {
 
   const handleFilterSemester = useCallback(
     async (value: number | null | undefined) => {
+      setCurrentFilterValue(value);
       if (lectureDetail?.id) {
         const id = lectureDetail.id;
         let classes1 =
@@ -189,6 +193,9 @@ const New: React.FC = () => {
           id,
         );
         setClasses(data?.result || []);
+        if (currentFilterValue !== null && currentFilterValue !== undefined) {
+          handleFilterSemester(currentFilterValue);
+        }
       }
     } catch (error) {
       console.log('get class error: ', error);

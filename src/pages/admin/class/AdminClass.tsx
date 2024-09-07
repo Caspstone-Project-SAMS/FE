@@ -79,6 +79,9 @@ const AdminClass: React.FC = () => {
   const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
 
+  const [currentFilterValue, setCurrentFilterValue] = useState<number | null | undefined>(null);
+
+
   // Error state
   const [errors, setErrors] = useState<{
     className?: string;
@@ -102,6 +105,7 @@ const AdminClass: React.FC = () => {
 
   const handleFilterSemester = useCallback(
     async (value: number | null | undefined) => {
+      setCurrentFilterValue(value);
       let classes1 = (await ClassService.getAllClass(value))?.result || [];
       if (value !== null && value !== undefined) {
         classes1 = classes1.filter(
@@ -180,6 +184,9 @@ const AdminClass: React.FC = () => {
       );
       const data = await ClassService.getAllClass(currenSemester?.semesterID);
       setClasses(data?.result || []);
+      if (currentFilterValue !== null && currentFilterValue !== undefined) {
+        handleFilterSemester(currentFilterValue);
+      }
     } catch (error) {
       console.log('get class error: ', error);
     }
