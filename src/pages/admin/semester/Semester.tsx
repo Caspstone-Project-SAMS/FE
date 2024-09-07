@@ -83,19 +83,45 @@ const Semester: React.FC = () => {
 
   console.log('successMessage', successMessage);
 
+  // const handleSearchSemester = useCallback(
+  //   (value: string) => {
+  //     setSearchInput(value);
+  //     const filtered = semester.filter(
+  //       (item) =>
+  //         item.semesterCode &&
+  //         item.semesterCode.toLowerCase().includes(value.toLowerCase()),
+  //     );
+  //     setFilteredSemester(filtered);
+  //     setIsUpdate(true);
+  //   },
+  //   [semester],
+  // );
+
   const handleSearchSemester = useCallback(
     (value: string) => {
       setSearchInput(value);
+  
+      const normalizeString = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ') 
+          .trim();
+      };
+  
+      const normalizedValue = normalizeString(value).toLowerCase();
       const filtered = semester.filter(
         (item) =>
           item.semesterCode &&
-          item.semesterCode.toLowerCase().includes(value.toLowerCase()),
+          normalizeString(item.semesterCode).toLowerCase().includes(normalizedValue),
       );
+  
       setFilteredSemester(filtered);
       setIsUpdate(true);
     },
     [semester],
   );
+  
 
   const fetchSemesters = useCallback(async () => {
     try {
@@ -117,12 +143,29 @@ const Semester: React.FC = () => {
     }
   }, [semester, searchInput, handleSearchSemester]);
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage === 'Update Semester Successfully' || successMessage === 'Create Semester Successfully') {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearSemesterMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearSemesterMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (successMessage === 'Update Semester Successfully' || successMessage === 'Create Semester Successfully') {
-        message.success(successMessage);
-      } else {
+      if (successMessage.title) {
         message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
       }
       setIsModalVisible(false);
       resetModalFields();
@@ -363,7 +406,7 @@ const Semester: React.FC = () => {
         dataSource={(!isUpdate ? semester : filteredSemester).map(
           (item, index) => ({
             key: index,
-            semester: item.semesterCode,
+            semester: item.semesterCode || 'N/A',
             semesterstatus: (
               <div>
                 <Tag
@@ -386,10 +429,9 @@ const Semester: React.FC = () => {
                 </Tag>
               </div>
             ),
-            startdate: moment(item.startDate, 'YYYY-MM-DD').format(
-              'DD/MM/YYYY',
-            ),
-            enddate: moment(item.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+            startdate:(item.startDate)? moment(item.startDate, 'YYYY-MM-DD').format(
+              'DD/MM/YYYY') : 'N/A',
+            enddate: (item.endDate)? moment(item.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY') : 'N/A',
             action: (
               <div>
                 <Button

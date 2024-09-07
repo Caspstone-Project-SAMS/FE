@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Col,
+  Divider,
   Empty,
   Input,
   Layout,
@@ -333,15 +334,18 @@ const AccountStudentsDetail: React.FC = () => {
   }, [ConnectWebsocket]);
 
   const studentDetails = [
-    { title: 'Student Name', value: student?.result.displayName },
-    { title: 'Student Code', value: student?.result.studentCode },
-    { title: 'Address', value: student?.result.address },
+    { title: 'Student Name', value: student?.result.displayName || 'N/A' },
+    { title: 'Student Code', value: student?.result.studentCode || 'N/A' },
+    { title: 'Address', value: student?.result.address || 'N/A' },
     {
       title: 'Date Of Birth',
-      value: moment(student?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+      value:
+        (student?.result.dob &&
+          moment(student?.result.dob, 'YYYY-MM-DD').format('DD/MM/YYYY')) ||
+        'N/A',
     },
-    { title: 'Email', value: student?.result.email },
-    { title: 'Phone Number', value: student?.result.phoneNumber },
+    { title: 'Email', value: student?.result.email || 'N/A' },
+    { title: 'Phone Number', value: student?.result.phoneNumber || 'N/A' },
     // {
     //   title: 'Authenticated',
     //   value: student?.isAuthenticated ? 'true' : 'false',
@@ -403,13 +407,35 @@ const AccountStudentsDetail: React.FC = () => {
     setChangeModuleUI((prev) => prev + 1);
   }, [employeeID]);
 
+  // const handleSearchClass = (value: string) => {
+  //   setSearchInput(value);
+  //   const filtered = student?.result.enrolledClasses.filter(
+  //     (item) =>
+  //       item.classCode &&
+  //       item.classCode.toLowerCase().includes(value.toLowerCase()),
+  //   );
+  //   setFilteredSemesterClass(filtered ?? []);
+  //   setIsUpdate(true);
+  // };
+
   const handleSearchClass = (value: string) => {
     setSearchInput(value);
+
+    const normalizeString = (str: string) => {
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+        .trim(); // Trim leading and trailing spaces
+    };
+
+    const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = student?.result.enrolledClasses.filter(
       (item) =>
         item.classCode &&
-        item.classCode.toLowerCase().includes(value.toLowerCase()),
+        normalizeString(item.classCode).toLowerCase().includes(normalizedValue),
     );
+
     setFilteredSemesterClass(filtered ?? []);
     setIsUpdate(true);
   };
@@ -481,8 +507,6 @@ const AccountStudentsDetail: React.FC = () => {
       FingerprintTemplateId1: finger1,
       FingerprintTemplateId2: finger2,
     };
-
-    console.log('updateeeeeeeeeee', UpdateMode);
 
     try {
       const data = await ModuleService.activeModuleModeUpdate(
@@ -1302,6 +1326,13 @@ const AccountStudentsDetail: React.FC = () => {
                   ))}
                 </Card>
               </Col>
+              <Divider
+                style={{
+                  borderColor: '#7cb305',
+                }}
+              >
+                Class
+              </Divider>
               <Col>
                 <Card className={styles.cardHeader}>
                   <Content>
@@ -1330,7 +1361,7 @@ const AccountStudentsDetail: React.FC = () => {
                     : filteredSemesterClass
                   ).map((item, index) => ({
                     key: index,
-                    classCode: item.classCode,
+                    classCode: item.classCode || 'N/A',
                     classStatus: item.classStatus,
                     absencePercentage: item.absencePercentage,
                   }))}

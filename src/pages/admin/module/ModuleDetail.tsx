@@ -76,6 +76,8 @@ const ModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
+  console.log('edfvsfv', schedule)
+
   const dispatch = useDispatch();
   const token = useSelector(
     (state: RootState) => state.auth.userDetail?.token ?? '',
@@ -86,9 +88,28 @@ const ModuleDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage.title) {
+  //       message.success(successMessage.title);
+  //     } else {
+  //       message.success(successMessage);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  //   if (failMessage && failMessage.data.error) {
+  //     if (failMessage.data.error.title == 'Apply configurations failed') {
+  //       message.error(`${failMessage.data.error.title}`);
+  //     } else {
+  //       message.error(`${failMessage.data.error.errors}`);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (successMessage.title == 'Apply configuration successfully') {
+      if (successMessage.title) {
         message.success(successMessage.title);
       } else {
         message.success(successMessage);
@@ -96,7 +117,7 @@ const ModuleDetail: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
-      if (failMessage.data.error.title == 'Apply configurations failed') {
+      if (failMessage.data.error.title) {
         message.error(`${failMessage.data.error.title}`);
       } else {
         message.error(`${failMessage.data.error.errors}`);
@@ -149,8 +170,8 @@ const ModuleDetail: React.FC = () => {
   // }, [listScheduleId, scheduleList]);
 
   const moduleDetails = [
-    { title: 'Module', value: module?.result.moduleID },
-    { title: 'Employee', value: module?.result.employee.displayName },
+    { title: 'Module', value: module?.result.moduleID || 'N/A' },
+    { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
     {
       title: 'Mode',
       value: (
@@ -195,7 +216,7 @@ const ModuleDetail: React.FC = () => {
       title: 'Prepare Time',
       value: (typeof module?.result?.preparedTime === 'string'
         ? module.result.preparedTime
-        : String(module?.result?.preparedTime ?? '')
+        : String(module?.result?.preparedTime ?? 'N/A')
       ).slice(0, 5),
     },
     {
@@ -209,7 +230,7 @@ const ModuleDetail: React.FC = () => {
         </Tag>
       ),
     },
-    { title: 'Reset Time', value: module?.result.resetTime },
+    { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
   const columns = [
@@ -457,9 +478,9 @@ const ModuleDetail: React.FC = () => {
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
                         </Col>
                         <Col span={10}>
-                            <div style={{ fontWeight: 500, color: '#667085' }}>
-                              {detail.value}
-                            </div>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
                         </Col>
                       </Row>
                     </div>
@@ -485,7 +506,7 @@ const ModuleDetail: React.FC = () => {
                   <b className={styles.moduleSettingsTitle}>Module Setting</b>
 
                   <Col>
-                    <b>Preparation</b>
+                    <b className={styles.moduleSettingTitle}>Preparation</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -528,18 +549,20 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Check Attendance Duration</b>
+                    <b className={styles.moduleSettingTitle}>Check Attendance Duration</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
-                        <p className={styles.settingLabel}>Duration Time</p>
+                        <p className={styles.settingLabel}>
+                          Duration Time (minunes)
+                        </p>
                         <div
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                           }}
                         >
-                          <TimePicker
+                          {/* <TimePicker
                             placeholder="Duration Time"
                             value={
                               AttendanceDurationMinutes !== null
@@ -548,14 +571,35 @@ const ModuleDetail: React.FC = () => {
                             }
                             onChange={(time) => {
                               if (time) {
-                                const minutes = time.minute(); // Extract minutes from the selected time
+                                const minutes = time.minute(); 
                                 setAttendanceDurationMinutes(minutes);
                               }
                             }}
-                            format="mm" // Display only minutes
+                            format="mm" 
                             className={styles.timePicker}
+                          /> */}
+                          <InputNumber
+                            placeholder="Duration Time"
+                            min={0}
+                            max={300}
+                            value={
+                              AttendanceDurationMinutes !== null
+                                ? AttendanceDurationMinutes
+                                : null
+                            }
+                            onChange={(value: any) => {
+                              if (value < 0) {
+                                setAttendanceDurationMinutes(0);
+                              } else if (value > 300) {
+                                setAttendanceDurationMinutes(300);
+                              } else {
+                                setAttendanceDurationMinutes(value);
+                              }
+                            }}
+                            className={styles.inputNumber}
                           />
-                          <span> minutes</span>
+
+                          {/* <span> minutes</span> */}
                         </div>
                         <p className={styles.suggestText}>
                           Set duration time for check attendance
@@ -564,12 +608,12 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Activities</b>
+                    <b className={styles.moduleSettingTitle}>Activities</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
                         <span className={styles.settingLabel}>
-                          Connection Life Time
+                          Connection Life Time (seconds)
                         </span>
                         <br />
                         <InputNumber
@@ -584,7 +628,7 @@ const ModuleDetail: React.FC = () => {
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' second'}
+                        {/* {' second'} */}
                         <p className={styles.suggestText}>
                           Set connection life time for module with millisecond
                         </p>
@@ -592,7 +636,7 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Connection Sound</b>
+                    <b className={styles.moduleSettingTitle}>Connection Sound</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -609,7 +653,7 @@ const ModuleDetail: React.FC = () => {
                     <div className={styles.settingItem}>
                       <div>
                         <span className={styles.settingLabel}>
-                          Connection Sound Duration
+                          Connection Sound Duration (milliseconds)
                         </span>
                         <br />
                         <InputNumber
@@ -624,7 +668,7 @@ const ModuleDetail: React.FC = () => {
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' millisecond'}
+                        {/* {' millisecond'} */}
                         <p className={styles.suggestText}>
                           Set connection time duration for module
                         </p>
@@ -632,7 +676,7 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Attendance Sound</b>
+                    <b className={styles.moduleSettingTitle}>Attendance Sound</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -649,7 +693,7 @@ const ModuleDetail: React.FC = () => {
                     <div className={styles.settingItem}>
                       <div>
                         <span className={styles.settingLabel}>
-                          Attendance Sound Duration
+                          Attendance Sound Duration (milliseconds)
                         </span>
                         <br />
                         <InputNumber
@@ -664,7 +708,7 @@ const ModuleDetail: React.FC = () => {
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' millisecond'}
+                        {/* {' millisecond'} */}
                         <p className={styles.suggestText}>
                           Set connection time duration for module
                         </p>
@@ -736,7 +780,18 @@ const ModuleDetail: React.FC = () => {
                           header={
                             <div style={{ display: 'flex' }}>
                               <div style={{ marginRight: 10, width: '20%' }}>
-                                <b>{item.title}</b>
+                                <b
+                                  style={{
+                                    color:
+                                      item.title === 'Schedule preparation'
+                                        ? 'green'
+                                        : item.title === 'Schedules preparation'
+                                        ? 'blue'
+                                        : 'initial',
+                                  }}
+                                >
+                                  {item.title}
+                                </b>
                               </div>
                               <div style={{ width: '60%' }}>
                                 <b
@@ -765,7 +820,7 @@ const ModuleDetail: React.FC = () => {
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
-                            if (item.preparationTask.preparedSchedules) {
+                            if (item.preparationTask.preparedSchedules.length > 0) {
                               // setListScheduleId(
                               //   item.preparationTask.preparedSchedules,
                               // );
@@ -879,23 +934,23 @@ const ModuleDetail: React.FC = () => {
                               <>
                                 <div style={{ width: '20%' }}>
                                   <p>
-                                    <b>Date:</b> {schedule?.result.date}
+                                    <b>Date:</b> {schedule?.result.date || 'N/A'}
                                   </p>
                                   <p>
                                     <b>Class:</b>{' '}
-                                    {schedule?.result.class.classCode}
+                                    {schedule?.result.class.classCode || 'N/A'}
                                   </p>
                                 </div>
                                 <div style={{ width: '20%' }}>
                                   <p>
                                     <b>Slot:</b>{' '}
-                                    {schedule?.result.slot.slotNumber}
+                                    {schedule?.result.slot.slotNumber || 'N/A'}
                                   </p>
                                   <p>
                                     <b>Time:</b>{' '}
-                                    {schedule?.result.slot.startTime +
+                                    { schedule?.result.slot ? (schedule?.result.slot.startTime +
                                       '-' +
-                                      schedule?.result.slot.endtime}
+                                      schedule?.result.slot.endtime) : 'N/A'}
                                   </p>
                                 </div>
                               </>
@@ -906,17 +961,17 @@ const ModuleDetail: React.FC = () => {
                               columns={columns}
                               dataSource={scheduleList.map((item1, index) => ({
                                 key: index,
-                                date: new Date(item1.date).toLocaleDateString(
+                                date:(item1.date? new Date(item1.date).toLocaleDateString(
                                   'en-GB',
-                                ),
-                                slot: item1.slot.slotNumber,
+                                ) : 'N/A'),
+                                slot: item1.slot.slotNumber || 'N/A',
                                 time: (
                                   <div>
                                     {item1.slot.startTime.slice(0, 5)} -{' '}
                                     {item1.slot.endtime.slice(0, 5)}
                                   </div>
                                 ),
-                                class: item1.class.classCode,
+                                class: item1.class.classCode || 'N/A',
                                 uploadFingerprints: (
                                   <>
                                     {item1.uploaded} / {item1.total}

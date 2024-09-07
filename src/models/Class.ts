@@ -59,6 +59,7 @@ export interface ClassDetails {
 }
 
 export interface SlotType {
+  slotTypeID: number;
   typeName: string;
   description: string;
   status: number;
@@ -69,6 +70,7 @@ export interface ClassDetail {
     classID: number;
     classCode: string;
     classStatus: boolean;
+    slotType: SlotType;
     semester: Semester;
     room: Room;
     subject: Subject;

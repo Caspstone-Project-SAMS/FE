@@ -281,7 +281,7 @@ const syncAttendanceData = async (
 ) => {
   try {
     const response = await axios.post(
-      'https://sams-project.com/api/Module/Activate',
+      `${MODULE_API}/Activate`,
       {
         ModuleID,
         Mode,
@@ -315,7 +315,7 @@ const startCheckAttendance = async (
 ) => {
   try {
     const response = await axios.post(
-      'https://sams-project.com/api/Module/Activate',
+      `${MODULE_API}/Activate`,
       {
         ModuleID,
         Mode,

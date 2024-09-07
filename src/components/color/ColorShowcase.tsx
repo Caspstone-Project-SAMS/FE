@@ -64,7 +64,7 @@ export default function ColorShowcase({
                 <Box
                   sx={{
                     bgcolor: `${color}.${colorText.color[id - 1]}`,
-                    width: 40,
+                    width: 20,
                     height: 20,
                   }}
                 />

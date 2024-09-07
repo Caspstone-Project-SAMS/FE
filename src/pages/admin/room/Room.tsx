@@ -58,19 +58,45 @@ const Room: React.FC = () => {
 
   console.log('fail', successMessage)
 
+  // const handleSearchRoom = useCallback(
+  //   (value: string) => {
+  //     setSearchInput(value);
+  //     const filtered = room.filter(
+  //       (item) =>
+  //         item.roomName &&
+  //         item.roomName.toLowerCase().includes(value.toLowerCase()),
+  //     );
+  //     setFilteredRoom(filtered);
+  //     setIsUpdate(true);
+  //   },
+  //   [room],
+  // );
+
   const handleSearchRoom = useCallback(
     (value: string) => {
       setSearchInput(value);
+  
+      const normalizeString = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ') 
+          .trim(); 
+      };
+  
+      const normalizedValue = normalizeString(value).toLowerCase();
       const filtered = room.filter(
         (item) =>
           item.roomName &&
-          item.roomName.toLowerCase().includes(value.toLowerCase()),
+          normalizeString(item.roomName).toLowerCase().includes(normalizedValue),
       );
+  
       setFilteredRoom(filtered);
       setIsUpdate(true);
     },
     [room],
   );
+  
 
   const fetchRooms = useCallback(async () => {
     try {
@@ -93,12 +119,29 @@ const Room: React.FC = () => {
     }
   }, [room, searchInput, handleSearchRoom]);
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage === 'Update Room Successfully' || successMessage === 'Create Room Successfully') {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearRoomMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearRoomMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (successMessage === 'Update Room Successfully' || successMessage === 'Create Room Successfully') {
-        message.success(successMessage);
-      } else {
+      if (successMessage.title) {
         message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
       }
       setIsModalVisible(false);
       resetModalFields();
@@ -287,8 +330,8 @@ const Room: React.FC = () => {
         columns={columns}
         dataSource={(!isUpdate ? room : filteredRoom).map((item, index) => ({
           key: index,
-          roomname: item.roomName,
-          roomdescription: item.roomDescription,
+          roomname: item.roomName || 'N/A',
+          roomdescription: item.roomDescription || 'N/A',
           roomstatus: (
             <div>
               <Tag

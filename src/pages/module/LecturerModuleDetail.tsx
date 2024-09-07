@@ -88,9 +88,27 @@ const LecturerModuleDetail: React.FC = () => {
     (state: RootState) => state.module.moduleDetail,
   );
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage.title == 'Apply configuration successfully') {
+  //       message.success(successMessage.title);
+  //     } else {
+  //       message.success(successMessage);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  //   if (failMessage && failMessage.data.error) {
+  //     if (failMessage.data.error.title == 'Apply configurations failed') {
+  //       message.error(`${failMessage.data.error.title}`);
+  //     } else {
+  //       message.error(`${failMessage.data.error.errors}`);
+  //     }
+  //     dispatch(clearModuleMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
   useEffect(() => {
     if (successMessage) {
-      if (successMessage.title == 'Apply configuration successfully') {
+      if (successMessage.title) {
         message.success(successMessage.title);
       } else {
         message.success(successMessage);
@@ -98,7 +116,7 @@ const LecturerModuleDetail: React.FC = () => {
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error) {
-      if (failMessage.data.error.title == 'Apply configurations failed') {
+      if (failMessage.data.error.title) {
         message.error(`${failMessage.data.error.title}`);
       } else {
         message.error(`${failMessage.data.error.errors}`);
@@ -151,8 +169,8 @@ const LecturerModuleDetail: React.FC = () => {
   // }, [listScheduleId, scheduleList]);
 
   const moduleDetails = [
-    { title: 'Module', value: module?.result.moduleID },
-    { title: 'Employee', value: module?.result.employee.displayName },
+    { title: 'Module', value: module?.result.moduleID || 'N/A' },
+    { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
     {
       title: 'Mode',
       value: (
@@ -211,7 +229,7 @@ const LecturerModuleDetail: React.FC = () => {
         </Tag>
       ),
     },
-    { title: 'Reset Time', value: module?.result.resetTime },
+    { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
   const columns = [
@@ -487,7 +505,7 @@ const LecturerModuleDetail: React.FC = () => {
                   <b className={styles.moduleSettingsTitle}>Module Setting</b>
 
                   <Col>
-                    <b>Preparation</b>
+                    <b className={styles.moduleSettingTitle}>Preparation</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -530,18 +548,20 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Check Attendance Duration</b>
+                    <b className={styles.moduleSettingTitle}>Check Attendance Duration</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
-                        <p className={styles.settingLabel}>Duration Time</p>
+                        <p className={styles.settingLabel}>
+                          Duration Time (minutes)
+                        </p>
                         <div
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                           }}
                         >
-                          <TimePicker
+                          {/* <TimePicker
                             placeholder="Duration Time"
                             value={
                               AttendanceDurationMinutes !== null
@@ -556,8 +576,28 @@ const LecturerModuleDetail: React.FC = () => {
                             }}
                             format="mm" // Display only minutes
                             className={styles.timePicker}
+                          /> */}
+                          <InputNumber
+                            placeholder="Duration Time"
+                            min={15}
+                            max={135}
+                            value={
+                              AttendanceDurationMinutes !== null
+                                ? AttendanceDurationMinutes
+                                : null
+                            }
+                            onChange={(value: any) => {
+                              if (value < 15) {
+                                setAttendanceDurationMinutes(15);
+                              } else if (value > 135) {
+                                setAttendanceDurationMinutes(135);
+                              } else {
+                                setAttendanceDurationMinutes(value);
+                              }
+                            }}
+                            className={styles.inputNumber}
                           />
-                          <span> minutes</span>
+                          {/* <span> minutes</span> */}
                         </div>
                         <p className={styles.suggestText}>
                           Set duration time for check attendance
@@ -566,12 +606,12 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Activities</b>
+                    <b className={styles.moduleSettingTitle}>Activities</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
                         <span className={styles.settingLabel}>
-                          Connection Life Time
+                          Connection Life Time (seconds)
                         </span>
                         <br />
                         <InputNumber
@@ -586,7 +626,7 @@ const LecturerModuleDetail: React.FC = () => {
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' second'}
+                        {/* {' second'} */}
                         <p className={styles.suggestText}>
                           Set connection life time for module with millisecond
                         </p>
@@ -594,7 +634,7 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Connection Sound</b>
+                    <b className={styles.moduleSettingTitle}>Connection Sound</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -611,7 +651,7 @@ const LecturerModuleDetail: React.FC = () => {
                     <div className={styles.settingItem}>
                       <div>
                         <span className={styles.settingLabel}>
-                          Connection Sound Duration
+                          Connection Sound Duration (milliseconds)
                         </span>
                         <br />
                         <InputNumber
@@ -626,7 +666,7 @@ const LecturerModuleDetail: React.FC = () => {
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' millisecond'}
+                        {/* {' millisecond'} */}
                         <p className={styles.suggestText}>
                           Set connection time duration for module
                         </p>
@@ -634,7 +674,7 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b>Attendance Sound</b>
+                    <b className={styles.moduleSettingTitle}>Attendance Sound</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -651,7 +691,7 @@ const LecturerModuleDetail: React.FC = () => {
                     <div className={styles.settingItem}>
                       <div>
                         <span className={styles.settingLabel}>
-                          Attendance Sound Duration
+                          Attendance Sound Duration (milliseconds)
                         </span>
                         <br />
                         <InputNumber
@@ -666,7 +706,7 @@ const LecturerModuleDetail: React.FC = () => {
                           step={1} // Set the step to 1 millisecond
                           className={styles.inputNumber}
                         />{' '}
-                        {' millisecond'}
+                        {/* {' millisecond'} */}
                         <p className={styles.suggestText}>
                           Set connection time duration for module
                         </p>
@@ -738,7 +778,18 @@ const LecturerModuleDetail: React.FC = () => {
                           header={
                             <div style={{ display: 'flex' }}>
                               <div style={{ marginRight: 10, width: '20%' }}>
-                                <b>{item.title}</b>
+                                <b
+                                  style={{
+                                    color:
+                                      item.title === 'Schedule preparation'
+                                        ? 'green'
+                                        : item.title === 'Schedules preparation'
+                                        ? 'blue'
+                                        : 'initial',
+                                  }}
+                                >
+                                  {item.title}
+                                </b>
                               </div>
                               <div style={{ width: '60%' }}>
                                 <b
@@ -911,14 +962,14 @@ const LecturerModuleDetail: React.FC = () => {
                                 date: new Date(item1.date).toLocaleDateString(
                                   'en-GB',
                                 ),
-                                slot: item1.slot.slotNumber,
+                                slot: item1.slot.slotNumber || 'N/A',
                                 time: (
                                   <div>
                                     {item1.slot.startTime.slice(0, 5)} -{' '}
                                     {item1.slot.endtime.slice(0, 5)}
                                   </div>
                                 ),
-                                class: item1.class.classCode,
+                                class: item1.class.classCode || 'N/A',
                                 uploadFingerprints: (
                                   <>
                                     {item1.uploaded} / {item1.total}

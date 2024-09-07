@@ -30,7 +30,11 @@ const Module: React.FC = () => {
     setSearchInput(value);
 
     const normalizeString = (str: string) => {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
     };
 
     const normalizedValue = normalizeString(value).toLowerCase();
@@ -183,10 +187,10 @@ const Module: React.FC = () => {
         columns={columns}
         dataSource={(!isUpdate ? module : filteredModules).map((item, index) => ({
           key: index,
-          moduleID: item.moduleID,
+          moduleID: item.moduleID || 'N/A',
           status: item.status,
-          mode: item.mode,
-          owner: item.employee.displayName,
+          mode: item.mode || 'N/A',
+          owner: item.employee.displayName || 'N/A',
           info: item.moduleID,
         }))}
         pagination={{

@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { GET_GG_USER_INFO, USER_AUTH_API } from '.';
+import { GET_GG_USER_INFO, USER_API, USER_AUTH_API } from '.';
 import { UserInfo } from '../models/UserInfo';
 import { GGUserInfo } from '../models/auth/GoogleResponse';
 
@@ -39,7 +39,7 @@ const resetPassword = async (
 ) => {
   try {
     const response = await axios.post(
-      'https://sams-project.com/api/Auth/reset-password',
+      `${USER_AUTH_API}/reset-password`,
       {
         UserId,
         OldPassword,
@@ -87,7 +87,7 @@ const editProfile = async (
     formData.append('Address', Address);
     formData.append('DOB', DOB);
     const response = await axios.put(
-      `https://sams-project.com/api/User/${UserId}`,
+      `${USER_API}/${UserId}`,
       {
         Email,
         PhoneNumber,

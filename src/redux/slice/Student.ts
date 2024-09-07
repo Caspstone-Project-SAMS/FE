@@ -13,7 +13,8 @@ interface StudentIDs {
   studentID: string;
 }
 interface StudentState {
-  message?: StudentFail | string;
+  // message?: StudentFail | string;
+  message?: StudentFail;
   studentDetail?: StudentFail;
   loading: boolean;
 }

@@ -96,6 +96,8 @@ const Headers: React.FC<HeadersProps> = ({
   const [onOpen, setOnOpen] = useState<boolean>(false);
   const [newNotificaton, setNewNotificaton] = useState<NotificationListt>();
   const [readNotificationsCount, setReadNotificationsCount] = useState(0);
+  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+
 
   const userDetail: UserInfo | undefined = useSelector(
     (state: RootState) => state.auth.userDetail,
@@ -123,6 +125,7 @@ const Headers: React.FC<HeadersProps> = ({
       );
       setRead(true);
       setReload((prev) => prev + 1);
+      setDropdownVisible(true);
       return response;
     } catch (error) {
       console.log('Error on read notification: ', error);
@@ -271,8 +274,11 @@ const Headers: React.FC<HeadersProps> = ({
         style={{
           maxWidth: '30vw',
           height: '60vh',
-          overflow: 'auto',
-          scrollbarWidth: 'none',
+          overflowY: 'auto', 
+          overflowX: 'hidden', 
+          scrollbarWidth: 'auto', 
+          msOverflowStyle: 'auto', 
+          
         }}
       >
         <Menu>
@@ -429,12 +435,18 @@ const Headers: React.FC<HeadersProps> = ({
         />
 
         <Dropdown
+          // arrow
+          // open={onOpen}
+          // onOpenChange={(e) => setOnOpen(e)}
+          // dropdownRender={CustomDropdownMenu}
+          // placement="bottomRight"
+          // trigger={['click']}
           arrow
-          open={onOpen}
-          onOpenChange={(e) => setOnOpen(e)}
-          dropdownRender={CustomDropdownMenu}
-          placement="bottomRight"
+          overlay={CustomDropdownMenu}
           trigger={['click']}
+          visible={dropdownVisible}
+          onVisibleChange={(flag) => setDropdownVisible(flag)}
+          placement="bottom"
         >
           <Badge count={readNotificationsCount}>
             <Button shape="circle" icon={<PiBellBold />} size="large" />

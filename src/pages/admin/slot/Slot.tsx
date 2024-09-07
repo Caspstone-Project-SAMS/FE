@@ -14,6 +14,7 @@ import {
   Table,
   Tag,
   TimePicker,
+  Tooltip,
 } from 'antd';
 import styles from './Slot.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
@@ -33,7 +34,7 @@ import {
 } from '../../../redux/slice/Slot';
 import { CiEdit, CiSearch } from 'react-icons/ci';
 import moment from 'moment';
-import { PlusOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { MdDeleteForever } from 'react-icons/md';
 
@@ -129,15 +130,32 @@ const Slot: React.FC = () => {
     }
   }, [slot, searchInput, handleSearchSlot]);
 
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (
+  //       successMessage === 'Update slot successfully' ||
+  //       successMessage === 'Create new slot successfully'
+  //     ) {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearSlotMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearSlotMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
+
   useEffect(() => {
     if (successMessage) {
-      if (
-        successMessage === 'Update slot successfully' ||
-        successMessage === 'Create new slot successfully'
-      ) {
-        message.success(successMessage);
-      } else {
+      if (successMessage.title) {
         message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
       }
       setIsModalVisible(false);
       resetModalFields();
@@ -359,6 +377,12 @@ const Slot: React.FC = () => {
     },
     {
       key: '3',
+      title: 'Session Duration',
+      dataIndex: 'sessionCount',
+      render: (sessionCount: number) => <div>{sessionCount + ' sessions'} - {sessionCount * 45 + ' min'}</div>,
+    },
+    {
+      key: '4',
       title: 'Status',
       dataIndex: 'status',
       render: (status: number) => (
@@ -370,12 +394,7 @@ const Slot: React.FC = () => {
         </Tag>
       ),
     },
-    {
-      key: '4',
-      title: 'Duration',
-      dataIndex: 'sessionCount',
-      render: (sessionCount: number) => <div>{sessionCount * 45 + ' min'}</div>,
-    },
+
     {
       key: '5',
       title: 'Action',
@@ -588,22 +607,23 @@ const Slot: React.FC = () => {
         columns={parentColumns}
         expandable={{
           expandedRowRender: (record) => (
+            <>
             <Table
               style={{ marginLeft: 70 }}
               columns={slotColumns}
               // dataSource={record.slots}
               dataSource={record.slots.map((item, index) => ({
                 key: index,
-                slotnumber: item.slotNumber,
-                order: item.order,
+                slotnumber: item.slotNumber || 'N/A',
+                order: item.order || 'N/A',
                 slotstatus: item.status,
                 starttime: (typeof item.startTime === 'string'
                   ? item.startTime
-                  : String(item.startTime ?? '')
+                  : String(item.startTime ?? 'N/A')
                 ).slice(0, 5),
                 endtime: (typeof item.endtime === 'string'
                   ? item.endtime
-                  : String(item.endtime ?? '')
+                  : String(item.endtime ?? 'N/A')
                 ).slice(0, 5),
                 slotID: item.slotID,
                 action: (
@@ -635,6 +655,8 @@ const Slot: React.FC = () => {
               pagination={false}
               rowKey="slotID"
             />
+            <br/>
+            </>
           ),
           // rowExpandable: (record) => record.slots && record.slots.length > 0,
           expandedRowKeys: expandedRowKeys,
@@ -848,7 +870,16 @@ const Slot: React.FC = () => {
               <p className={styles.errorText}>{errors.slotTypeStatus}</p>
             )}
 
-            <p className={styles.createSemesterTitle}>Session Count</p>
+            <p className={styles.createSemesterTitle}>Session Count
+            <Tooltip title="Session Count">
+                <Button
+                  type="link"
+                  icon={<InfoCircleOutlined />}
+                  size="small"
+                  style={{ padding: 0, fontSize: '14px' }}
+                />
+              </Tooltip>
+            </p>
             <Input
               placeholder="Session Count"
               value={SessionCount}
