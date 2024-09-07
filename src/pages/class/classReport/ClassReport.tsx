@@ -203,8 +203,8 @@ const ClassReport: React.FC = () => {
                 <Content>
                     <AntHeader className={styles.tableHeader}>
                         <p className={styles.tableTitle}>
-                            {classCode} - {rowDatas.length > 0 &&
-                                (rowDatas.length === 1 ? `${rowDatas.length} student` : `${rowDatas.length} students`)
+                            {classCode}{rowDatas.length > 0 &&
+                                (rowDatas.length === 1 ? ` - ${rowDatas.length} student` : ` - ${rowDatas.length} students`)
                             }
                         </p>
                         <div className={styles.meaningIllustration}>

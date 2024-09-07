@@ -39,7 +39,7 @@ const resetPassword = async (
 ) => {
   try {
     const response = await axios.post(
-      'http://34.81.223.233/api/Auth/reset-password',
+      'https://sams-project.com/api/Auth/reset-password',
       {
         UserId,
         OldPassword,
@@ -87,7 +87,7 @@ const editProfile = async (
     formData.append('Address', Address);
     formData.append('DOB', DOB);
     const response = await axios.put(
-      `http://34.81.223.233/api/User/${UserId}`,
+      `https://sams-project.com/api/User/${UserId}`,
       {
         Email,
         PhoneNumber,
