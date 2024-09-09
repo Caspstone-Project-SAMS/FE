@@ -49,7 +49,7 @@ const AccountTeacherDetail: React.FC = () => {
     },
     { title: 'Email', value: lecturer?.result.email || 'N/A' },
     { title: 'Phone', value: lecturer?.result.phoneNumber || 'N/A' },
-    { title: 'Department', value: lecturer?.result.department || 'N/A' },
+    // { title: 'Department', value: lecturer?.result.department || 'N/A' },
   ];
 
   const columnsClass = [
@@ -62,13 +62,13 @@ const AccountTeacherDetail: React.FC = () => {
       key: '2',
       title: 'Status',
       dataIndex: 'classStatus',
-      render: (classStatus: boolean) => (
+      render: (classStatus: number) => (
         <div>
           <Tag
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'active' : 'inactive'}
+            {classStatus === 1 ? 'active' : classStatus === 2 ? 'inactive' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -110,7 +110,7 @@ const AccountTeacherDetail: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            {mode === 1 ? 'Register' : 'Attendance'}
+            {mode === 1 ? 'Register' : mode === 2 ? 'Attendance' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -274,13 +274,6 @@ const AccountTeacherDetail: React.FC = () => {
                 <Card className={styles.card1}>
                   {lecturerDetails.map((detail, i) => (
                     <div key={`info_${i}`}>
-                      <hr
-                        style={{
-                          borderColor: '#e6e7e9',
-                          borderWidth: 0.5,
-                        }}
-                      />
-
                       <Row className={styles.rowDetails}>
                         <Col span={8}>
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
@@ -291,6 +284,12 @@ const AccountTeacherDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
                     </div>
                   ))}
                 </Card>
@@ -333,7 +332,7 @@ const AccountTeacherDetail: React.FC = () => {
               ).map((item, index) => ({
                 key: index,
                 classCode: item.classCode || 'N/A',
-                classStatus: item.classStatus || 'N/A',
+                classStatus: item.classStatus,
                 semester: item.semesterCode || 'N/A',
                 subject: item.subjectCode || 'N/A',
                 room: item.roomName || 'N/A',
@@ -358,7 +357,7 @@ const AccountTeacherDetail: React.FC = () => {
               dataSource={lecturerModule.map((item, index) => ({
                 key: index,
                 moduleID: item.moduleID || 'N/A',
-                mode: item.mode || 'N/A',
+                mode: item.mode,
                 moduleStatus: item.status || 'N/A',
                 autoPrepare: item.autoPrepare || 'N/A',
                 preparedTime: (typeof item.preparedTime === 'string'

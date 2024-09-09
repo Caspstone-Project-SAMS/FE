@@ -37,23 +37,23 @@ const AccountTeachers: React.FC = () => {
       title: 'Email',
       dataIndex: 'email',
     },
-    {
-      key: '3',
-      title: 'Department',
-      dataIndex: 'department',
-    },
+    // {
+    //   key: '3',
+    //   title: 'Department',
+    //   dataIndex: 'department',
+    // },
     // {
     //   key: '4',
     //   title: 'Birthday',
     //   dataIndex: 'birthday',
     // },
     {
-      key: '4',
+      key: '3',
       title: 'Phone',
       dataIndex: 'phone',
     },
     {
-      key: '5',
+      key: '4',
       title: 'Info',
       dataIndex: 'info',
       render: (lecturerID: number) => (
@@ -173,7 +173,7 @@ const AccountTeachers: React.FC = () => {
             </div>
           ),
           email: item.email || 'N/A',
-          department: item.department || 'N/A',
+          // department: item.department || 'N/A',
           phone: item.phoneNumber || 'N/A',
           info: item.employeeID,
         }))}

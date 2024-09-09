@@ -415,7 +415,9 @@ const Semester: React.FC = () => {
                       ? 'gray'
                       : item.semesterStatus === 2
                       ? 'blue'
-                      : 'green'
+                      : item.semesterStatus === 3
+                      ? 'green'
+                      : 'black'
                   }
                   style={{ fontWeight: 'bold', fontSize: '10px' }}
                 >
@@ -425,7 +427,7 @@ const Semester: React.FC = () => {
                     ? 'On-going'
                     : item.semesterStatus === 3
                     ? 'Finished'
-                    : 'Unknown'}
+                    : 'N/A'}
                 </Tag>
               </div>
             ),

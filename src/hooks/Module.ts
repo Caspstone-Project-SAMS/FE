@@ -3,6 +3,7 @@ import { MODULE_ACTIVITY_API, MODULE_API, SET_WIFI_API } from '.';
 import {
   ActiveModule,
   Module,
+  ModuleActivityByID,
   ModuleActivityBySchedule,
   ModuleByID,
 } from '../models/module/Module';
@@ -106,6 +107,25 @@ const getModuleActivityByScheduleID = async (
     return response.data as ModuleActivityBySchedule;
   } catch (error) {
     console.error('Error on get Module by ScheduleID: ', error);
+    return null;
+  }
+};
+
+const getModuleActivityByID = async (
+  moduleActivityID: number,
+): Promise<ModuleActivityByID | null> => {
+  try {
+    const response = await axios.get(
+      `${MODULE_ACTIVITY_API}/${moduleActivityID}`,
+      {
+        headers: {
+          accept: '*/*',
+        },
+      },
+    );
+    return response.data as ModuleActivityByID;
+  } catch (error) {
+    console.error('Error on get Module by moduleActivityID: ', error);
     return null;
   }
 };
@@ -516,4 +536,5 @@ export const ModuleService = {
   settingModule,
   getModuleActivityByScheduleID,
   applySettingModule,
+  getModuleActivityByID,
 };

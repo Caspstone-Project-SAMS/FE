@@ -4,6 +4,7 @@ import Login from '../pages/auth/Login';
 import ErrorPage from '../pages/ErrorPage';
 import ProtectedRoute from './ProtectedRoute';
 import TestComponent from './TestComponent';
+import toast from 'react-hot-toast';
 
 interface PreparationProgress {
   SessionId: number;
@@ -19,13 +20,16 @@ const Router = () => {
 
   let ws: WebSocket | null;
   const ConnectWebsocket = (tokenString: string) => {
-    ws = new WebSocket('wss://34.81.223.233/ws/client?root=true', [
+    ws = new WebSocket('wss://sams-project.com/ws/client?root=true', [
       'access_token',
       tokenString,
     ]);
 
     ws.onopen = () => {
       console.log('WebSocket root connection opened');
+      toast.success('WebSocket connection opened', {
+        position: 'bottom-right'
+      });
     };
 
     ws.onmessage = (event) => {
@@ -59,11 +63,17 @@ const Router = () => {
 
     ws.onclose = () => {
       console.log('WebSocket root connection closed');
+      toast.success('WebSocket connection closed', {
+        position: 'bottom-right'
+      });
     };
 
     ws.onerror = (error) => {
       console.error('WebSocket root error:', error);
       setWsError('WebSocket connection error: ' + error);
+      toast.error('WebSocket connection error', {
+        position: 'bottom-right'
+      });
     };
 
     return () => {

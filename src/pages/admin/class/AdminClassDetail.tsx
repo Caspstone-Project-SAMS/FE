@@ -55,6 +55,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import ColorShowcase from '../../../components/color/ColorShowcase';
 import { IoMdInformation } from 'react-icons/io';
 import dayjs from 'dayjs';
+import { IoPersonSharp } from 'react-icons/io5';
 
 const { Header: AntHeader } = Layout;
 
@@ -516,7 +517,7 @@ const AdminClassDetail: React.FC = () => {
   const teacherDetails = [
     { label: 'Name', value: classes?.result.lecturer.displayName },
     { label: 'Email', value: classes?.result.lecturer.email },
-    { label: 'Department', value: classes?.result.lecturer.department },
+    // { label: 'Department', value: classes?.result.lecturer.department },
   ];
 
   const getAllStudent = async () => {
@@ -537,7 +538,9 @@ const AdminClassDetail: React.FC = () => {
   };
 
   const getAllSlotByType = async () => {
-    const response = await SlotService.getSlotByType(classes?.result.slotType.slotTypeID);
+    const response = await SlotService.getSlotByType(
+      classes?.result.slotType.slotTypeID,
+    );
     setSlot(response || []);
   };
   const getAllRoom = async () => {
@@ -757,17 +760,28 @@ const AdminClassDetail: React.FC = () => {
       </div>
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
-          <Col span={10}>
+          <Col span={9}>
             <Card style={{ height: '100%' }}>
               <Row>
-                <Col span={1}>
-                  <img
-                    alt="Lecturer"
-                    src={classes?.result.lecturer.avatar}
-                    style={{ width: 100, height: 100 }}
-                  />
-                </Col>
-                <Col span={23} style={{ marginLeft: 20 }}>
+                {/* <Col span={1}> */}
+                  <Row style={{ display: 'flex', alignItems: 'center' }}>
+                    <img
+                      alt="Lecturer"
+                      src={classes?.result.lecturer.avatar}
+                      style={{ width: 100, height: 100, borderRadius: '50%' }}
+                    />
+                    <p
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: 20,
+                        marginLeft: 10,
+                      }}
+                    >
+                      <IoPersonSharp size={20} /> About
+                    </p>
+                  </Row>
+                {/* </Col> */}
+                <Col span={23} style={{ marginLeft: 20, marginTop:25 }}>
                   {/* <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Row style={{ marginBottom: 40 }}>
@@ -814,7 +828,7 @@ const AdminClassDetail: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          <Col span={8}>
+          <Col span={9}>
             <Content>
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Class Details</p>
@@ -843,13 +857,6 @@ const AdminClassDetail: React.FC = () => {
                 <Card className={styles.card1}>
                   {classDetails.map((detail, i) => (
                     <div key={`info_${i}`}>
-                      <hr
-                        style={{
-                          borderColor: '#e6e7e9',
-                          borderWidth: 0.5,
-                        }}
-                      />
-
                       <Row className={styles.rowDetails}>
                         <Col span={14}>
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
@@ -860,6 +867,12 @@ const AdminClassDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
                     </div>
                   ))}
                 </Card>
@@ -867,8 +880,8 @@ const AdminClassDetail: React.FC = () => {
             </Content>
           </Col>
           <Col span={6}>
-            <Box flexGrow={1}>
-              {/* <Typography>Palette</Typography> */}
+            <Box flexGrow={1} display="flex" flexDirection="column" alignItems="center">
+              <Typography className={styles.tableTitle}>Attendance</Typography>
               <PieChart
                 colors={palette}
                 series={[
@@ -1153,9 +1166,9 @@ const AdminClassDetail: React.FC = () => {
                 <>
                   <p className={styles.createClassTitle}>
                     Date{' '}
-                    {`(${dayjs(classes?.result.semester.startDate).format(
+                    {`(from ${dayjs(classes?.result.semester.startDate).format(
                       'DD-MM-YYYY',
-                    )} - ${dayjs(classes?.result.semester.endDate).format(
+                    )} to ${dayjs(classes?.result.semester.endDate).format(
                       'DD-MM-YYYY',
                     )})`}
                   </p>{' '}

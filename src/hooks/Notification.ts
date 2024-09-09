@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { NOTIFICATION_API } from '.';
-import { Notification } from '../models/notification/Notification';
+import { Notification, NotificationDetails } from '../models/notification/Notification';
 
 const getAllNotification = async (
   userId: string,
@@ -24,11 +24,11 @@ const getAllNotification = async (
 
 const getAllNotificationByID = async (
   notificationID: number,
-): Promise<Notification | null> => {
+): Promise<NotificationDetails | null> => {
   try {
     const response = await axios.get(`${NOTIFICATION_API}/${notificationID}`);
 
-    return response.data as Notification;
+    return response.data as NotificationDetails;
   } catch (error) {
     console.log('Error on get Notification by ID: ', error);
     return null;
@@ -37,7 +37,6 @@ const getAllNotificationByID = async (
 
 const readNotification = async (NotificationID: number) => {
   try {
-    console.log('NotificationID', NotificationID);
     const response = await axios.put(
       `${NOTIFICATION_API}/read`,
       [NotificationID],
@@ -48,7 +47,7 @@ const readNotification = async (NotificationID: number) => {
         },
       }
     );
-console.log('response', response.data);
+
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {

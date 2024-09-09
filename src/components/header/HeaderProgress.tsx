@@ -136,8 +136,6 @@ const HeaderProgress: React.FC<HeaderProps> = ({ preparationProgress, newNotific
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   };
 
-  console.log('dataaaaaaaaaaaaaaaaaaaaaaa', listSessionData);
-
   return (
     <div>
       <Button

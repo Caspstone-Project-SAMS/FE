@@ -79,8 +79,7 @@ const AdminClass: React.FC = () => {
   const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
 
-  const [currentFilterValue, setCurrentFilterValue] = useState<number | null | undefined>(null);
-
+  const [filteredSemesterIds, setFilteredSemesterIds] = useState<number[]>([]);
 
   // Error state
   const [errors, setErrors] = useState<{
@@ -103,20 +102,14 @@ const AdminClass: React.FC = () => {
     });
   };
 
-  const handleFilterSemester = useCallback(
-    async (value: number | null | undefined) => {
-      setCurrentFilterValue(value);
-      let classes1 = (await ClassService.getAllClass(value))?.result || [];
-      if (value !== null && value !== undefined) {
-        classes1 = classes1.filter(
-          (item) => item.semester.semesterID === value,
-        );
-      }
-      setFilteredClass(classes1);
-      setIsUpdate(true);
-    },
-    [],
-  );
+  // const handleFilterSemester = useCallback( async (value: number | null | undefined) => {
+  //   let classes1 = (await ClassService.getAllClass(value))?.result || [];
+  //   if (value !== null && value !== undefined) {
+  //     classes1 = classes1.filter((item) => item.semester.semesterID === value);
+  //   }
+  //   setFilteredClass(classes1);
+  //   setIsUpdate(true);
+  // },[]);
 
   const handleSearchClass = useCallback(
     (value: string) => {
@@ -171,22 +164,19 @@ const AdminClass: React.FC = () => {
   const fetchClasses = useCallback(async () => {
     try {
       const dataSemester = await CalendarService.getAllSemester();
-      dataSemester?.push({
-        semesterID: null,
-        semesterCode: 'All',
-        semesterStatus: -1,
-        startDate: '',
-        endDate: '',
-      });
+      // dataSemester?.push({ semesterID: null, semesterCode: 'All', semesterStatus: -1, startDate: '', endDate: '' });
       setClassSemester(dataSemester || []);
       const currenSemester = dataSemester?.find(
         (se) => se.semesterStatus === 2,
       );
-      const data = await ClassService.getAllClass(currenSemester?.semesterID);
+      const data = await ClassService.getAllClass(null);
       setClasses(data?.result || []);
-      if (currentFilterValue !== null && currentFilterValue !== undefined) {
-        handleFilterSemester(currentFilterValue);
-      }
+      setFilteredSemesterIds(
+        (dataSemester || [])
+          .filter((sem) => sem.semesterStatus === 2)
+          .map((sem) => sem.semesterID)
+          .filter((id): id is number => id !== null),
+      );
     } catch (error) {
       console.log('get class error: ', error);
     }
@@ -302,7 +292,7 @@ const AdminClass: React.FC = () => {
     setLoading(false);
     // setIsModalVisible(false);
     // resetModalFields();
-    fetchClasses();
+    handleSemesterFilterChange(filteredSemesterIds);
   };
 
   const handleUpdate = async () => {
@@ -320,7 +310,7 @@ const AdminClass: React.FC = () => {
     setLoading(false);
     // setIsModalVisible(false);
     // resetModalFields();
-    fetchClasses();
+    handleSemesterFilterChange(filteredSemesterIds);
   };
 
   const createNewClass = async (
@@ -398,6 +388,16 @@ const AdminClass: React.FC = () => {
     setSlotType(response?.result || []);
   };
 
+  const handleSemesterFilterChange = async (
+    filteredSemesterIds: number[] | undefined | null,
+  ) => {
+    const newData =
+      filteredSemesterIds?.flat().filter((id) => id !== null) || [];
+    const data = await ClassService.getAllClass(null);
+    setClasses(data?.result || []);
+    setFilteredSemesterIds(newData || []);
+  };
+
   const columns = [
     {
       key: '1',
@@ -408,13 +408,50 @@ const AdminClass: React.FC = () => {
       key: '2',
       title: 'Semester',
       dataIndex: 'semestercode',
-      filters: [
-        { text: 'Not yet', value: 1 },
-        { text: 'On going', value: 2 },
-        { text: 'Finished', value: 3 },
-      ],
-      onFilter: (value: any, record: any) => record.semesterStatus === value,
+      filters: classSemester.map((sem) => ({
+        text: (
+          <span
+            style={{
+              color:
+                sem.semesterStatus === 1
+                  ? 'gray'
+                  : sem.semesterStatus === 2
+                  ? 'blue'
+                  : sem.semesterStatus === 3
+                  ? 'green'
+                  : 'black',
+            }}
+          >
+            {sem.semesterCode}{' '}
+            {sem.semesterStatus === 1
+              ? '(Not yet)'
+              : sem.semesterStatus === 2
+              ? '(On-going)'
+              : sem.semesterStatus === 3
+              ? '(Finished)'
+              : ''}
+          </span>
+        ),
+        value: sem.semesterID,
+      })),
+      onFilter: (value: any, record: any) => {
+        // console.log('Filtering with value:', value);
+        // console.log('Current filteredSemesterIds:', filteredSemesterIds);
+        return record.semester.semesterID === value;
+      },
+      filteredValue: filteredSemesterIds ? filteredSemesterIds : null,
     },
+    // {
+    //   key: '2',
+    //   title: 'Semester',
+    //   dataIndex: 'semestercode',
+    //   filters: [
+    //     { text: 'Not yet', value: 1 },
+    //     { text: 'On going', value: 2 },
+    //     { text: 'Finished', value: 3 },
+    //   ],
+    //   onFilter: (value: any, record: any) => record.semesterStatus === value,
+    // },
     {
       key: '3',
       title: 'Room',
@@ -520,19 +557,6 @@ const AdminClass: React.FC = () => {
             <p className={styles.tableTitle}>Class</p>
             <Row gutter={[16, 16]}>
               <Col>
-                <Select
-                  placeholder="Filter by Semester"
-                  onChange={handleFilterSemester}
-                  style={{ width: 200 }}
-                >
-                  {classSemester.map((sem) => (
-                    <Select.Option key={sem.semesterID} value={sem.semesterID}>
-                      {sem.semesterCode}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Col>
-              <Col>
                 <Input
                   placeholder="Search by name"
                   suffix={<CiSearch />}
@@ -561,7 +585,7 @@ const AdminClass: React.FC = () => {
             key: index,
             classcode: item.classCode || 'N/A',
             semestercode: item.semester.semesterCode || 'N/A',
-            semesterStatus: item.semester.semesterStatus,
+            semester: item.semester,
             room: item.room.roomName || 'N/A',
             email: item.lecturer.email || 'N/A',
             subject: item.subject.subjectName || 'N/A',
@@ -600,6 +624,11 @@ const AdminClass: React.FC = () => {
         )}
         pagination={{
           showSizeChanger: true,
+        }}
+        onChange={(pagination, filters) => {
+          handleSemesterFilterChange(
+            Object.values(filters) as unknown as number[] | undefined | null,
+          );
         }}
       ></Table>
       <Modal

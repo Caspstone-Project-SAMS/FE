@@ -335,10 +335,10 @@ const Room: React.FC = () => {
           roomstatus: (
             <div>
               <Tag
-                color={item.roomStatus ? 'green' : 'red'}
+                color={item.roomStatus === 1 ? 'green' : item.roomStatus === 0 ? 'red' : 'gray'}
                 style={{ fontWeight: 'bold', fontSize: '10px' }}
               >
-                {item.roomStatus ? 'active' : 'inactive'}
+                {item.roomStatus === 1 ? 'active' : item.roomStatus === 0 ? 'inactive' : 'N/A'}
               </Tag>
             </div>
           ),

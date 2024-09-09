@@ -162,10 +162,10 @@ const HomeAdmin: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      <div>
+      {/* <div>
         <HomeCalendar />
-      </div>
-      {/* <Row gutter={[24, 0]} style={{ marginTop: '20px' }}>
+      </div> */}
+      <Row gutter={[24, 0]} style={{ marginTop: '20px' }}>
         <Col xs={24} sm={24} md={12} lg={12} xl={11} className="mb-24">
           <Card bordered={false} className="criclebox h-full">
             <BarChart />
@@ -176,7 +176,7 @@ const HomeAdmin: React.FC = () => {
             <LineChart />
           </Card>
         </Col>
-      </Row> */}
+      </Row>
     </Content>
   );
 };
