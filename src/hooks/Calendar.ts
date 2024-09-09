@@ -52,7 +52,6 @@ const getAllSchedule = async (
   listScheduleId: number[],
 ): Promise<Scheduless | null> => {
   try {
-    console.log('Schedule IDs:', listScheduleId);
 
     const response = await axios.get(`${SCHEDULE_API}/test-get-all`, {
       params: {
@@ -79,7 +78,7 @@ const getAllSchedule = async (
       },
     });
 
-    console.log('Response data:', response.data);
+   
     return response.data as Scheduless;
   } catch (error) {
     console.error('Error fetching all schedules:', error);

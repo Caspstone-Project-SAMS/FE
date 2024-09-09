@@ -35,7 +35,7 @@ const SemesterDetail: React.FC = () => {
         ) : semester?.result.semesterStatus === 3 ? (
           <Tag color="green">Finished</Tag>
         ) : (
-          'Unknown'
+          'N/A'
         ),
       isAuthenticated: true,
     },
@@ -119,13 +119,13 @@ const SemesterDetail: React.FC = () => {
       key: '2',
       title: 'status',
       dataIndex: 'classStatus',
-      render: (classStatus: boolean) => (
+      render: (classStatus: number) => (
         <div>
           <Tag
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'active' : 'inactive'}
+            {classStatus === 1 ? 'active' : classStatus === 2 ? 'inactive' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -208,13 +208,6 @@ const SemesterDetail: React.FC = () => {
                 <Card className={styles.card1}>
                   {semesterDetails.map((detail, i) => (
                     <div key={`info_${i}`}>
-                      <hr
-                        style={{
-                          borderColor: '#e6e7e9',
-                          borderWidth: 0.5,
-                        }}
-                      />
-
                       <Row className={styles.rowDetails}>
                         <Col span={14}>
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
@@ -225,6 +218,12 @@ const SemesterDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
                     </div>
                   ))}
                 </Card>
