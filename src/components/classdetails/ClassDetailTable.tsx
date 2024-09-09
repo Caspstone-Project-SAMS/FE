@@ -198,7 +198,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
       render: ((value, record: Attendance, index: number) => {
         return (
           <div key={`index_${index}`}>
-            {index}
+            {index + 1}
           </div>
         )
       }),

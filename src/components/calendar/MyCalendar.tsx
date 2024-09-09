@@ -42,7 +42,7 @@ const MyCalendar: React.FC<{ LECTURER_ID: string | undefined }> = ({ LECTURER_ID
     const [date, setDate] = useState(new Date());
     const [scheduleEvent, setScheduleEvent] = useState<RBC_Custom_Event[]>([]);
     const [selectedView, setSelectedView] = useState<View>(Views.WEEK);
-    const [selectedSemester, setSelectedSemester] = useState<number>(5);
+    const [selectedSemester, setSelectedSemester] = useState<number>(2);
     const [loading, setLoading] = useState<boolean>(false);
 
     const userDetail = useSelector((state: RootState) => state.auth.userDetail);
