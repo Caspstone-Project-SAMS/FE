@@ -415,7 +415,7 @@ const ModuleDetail: React.FC = () => {
 
   const teacherDetails = [
     { label: 'Name', value: module?.result.employee.displayName },
-    { label: 'Department', value: module?.result.employee.department },
+    { label: 'Email', value: module?.result.employee.email },
   ];
 
   const data = moduleActivity;
@@ -492,7 +492,7 @@ const ModuleDetail: React.FC = () => {
                     <IoPersonSharp size={20} /> About
                   </p>
                 </Row>
-                <Col span={24} style={{ marginLeft: 20, marginTop: 30 }}>
+                <Col span={24} style={{ marginLeft: 0, marginTop: 30 }}>
                   <Content>
                     <Space
                       direction="horizontal"

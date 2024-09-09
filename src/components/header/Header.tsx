@@ -457,6 +457,7 @@ const Headers: React.FC<HeadersProps> = ({
                   border: 'none',
                   boxShadow: 'none',
                   background: 'transparent',
+                  marginLeft:-20
                 }}
                 onClick={handleBackToList}
               >
