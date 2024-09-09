@@ -44,6 +44,7 @@ import {
   clearModuleMessages,
   settingModules,
 } from '../../redux/slice/Module';
+import { IoPersonSharp } from 'react-icons/io5';
 
 const { Header: AntHeader } = Layout;
 const { TabPane } = Tabs;
@@ -170,20 +171,20 @@ const LecturerModuleDetail: React.FC = () => {
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID || 'N/A' },
-    { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
+    // { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
     {
       title: 'Mode',
       value: (
         <div>
           <Tag
-            color={mode === 1 ? 'green' : 'blue'}
+            color={mode === 1 ? 'green' : mode === 2 ? 'blue' : 'gray'}
             style={{
               fontWeight: 'bold',
               fontSize: '10px',
               textAlign: 'center',
             }}
           >
-            {mode === 1 ? 'Register' : 'Attendance'}
+            {mode === 1 ? 'Register' : mode === 2 ? 'Attendance' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -204,10 +205,20 @@ const LecturerModuleDetail: React.FC = () => {
       title: 'Auto Prepare',
       value: (
         <Tag
-          color={autoPrepareStatus ? 'green' : 'red'}
+          color={
+            autoPrepareStatus === true
+              ? 'green'
+              : autoPrepareStatus === false
+              ? 'red'
+              : 'gray'
+          }
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
-          {autoPrepareStatus ? 'Auto' : 'Not Auto'}
+          {autoPrepareStatus === true
+            ? 'Auto'
+            : autoPrepareStatus === false
+            ? 'Not Auto'
+            : 'N/A'}
         </Tag>
       ),
     },
@@ -215,7 +226,7 @@ const LecturerModuleDetail: React.FC = () => {
       title: 'Prepare Time',
       value: (typeof module?.result?.preparedTime === 'string'
         ? module.result.preparedTime
-        : String(module?.result?.preparedTime ?? '')
+        : String(module?.result?.preparedTime ?? 'N/A')
       ).slice(0, 5),
     },
     {
@@ -229,7 +240,7 @@ const LecturerModuleDetail: React.FC = () => {
         </Tag>
       ),
     },
-    { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
+    // { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
   const columns = [
@@ -400,17 +411,26 @@ const LecturerModuleDetail: React.FC = () => {
       />
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
-          <Col span={14}>
+          <Col span={9}>
             <Card style={{ height: '100%' }}>
               <Row>
-                <Col span={4}>
+                <Row style={{ display: 'flex', alignItems: 'center' }}>
                   <img
                     alt="Employee"
                     src={module?.result.employee.avatar}
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, borderRadius: '50%' }}
                   />
-                </Col>
-                <Col span={19} style={{ marginLeft: 20 }}>
+                  <p
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 20,
+                      marginLeft: 10,
+                    }}
+                  >
+                    <IoPersonSharp size={20} /> About
+                  </p>
+                </Row>
+                <Col span={24} style={{ marginLeft: 20, marginTop: 50 }}>
                   <Content>
                     <Space
                       direction="horizontal"
@@ -436,7 +456,7 @@ const LecturerModuleDetail: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          <Col span={10}>
+          <Col span={15}>
             <Content>
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Module Details</p>
@@ -465,13 +485,6 @@ const LecturerModuleDetail: React.FC = () => {
                 <Card className={styles.card1}>
                   {moduleDetails.map((detail, i) => (
                     <div key={`info_${i}`}>
-                      <hr
-                        style={{
-                          borderColor: '#e6e7e9',
-                          borderWidth: 0.5,
-                        }}
-                      />
-
                       <Row className={styles.rowDetails}>
                         <Col span={14}>
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
@@ -482,6 +495,12 @@ const LecturerModuleDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
                     </div>
                   ))}
                 </Card>
@@ -548,7 +567,9 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Check Attendance Duration</b>
+                    <b className={styles.moduleSettingTitle}>
+                      Check Attendance Duration
+                    </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -634,7 +655,9 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Connection Sound</b>
+                    <b className={styles.moduleSettingTitle}>
+                      Connection Sound
+                    </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -674,7 +697,9 @@ const LecturerModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Attendance Sound</b>
+                    <b className={styles.moduleSettingTitle}>
+                      Attendance Sound
+                    </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>

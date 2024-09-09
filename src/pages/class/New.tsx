@@ -48,8 +48,8 @@ const { Header: AntHeader } = Layout;
 
 const New: React.FC = () => {
   const [classes, setClasses] = useState<ClassDetails[]>([]);
-  const [classSemester, setClassSemester] = useState<Semester[]>([]);
   const [semester, setSemester] = useState<Semester[]>([]);
+  const [classSemester, setClassSemester] = useState<Semester[]>([]);
   const [room, setRoom] = useState<Room[]>([]);
   const [subject, setSubject] = useState<Subject[]>([]);
   const [lecturer, setLecturer] = useState<EmployeeDetail[]>([]);
@@ -75,8 +75,8 @@ const New: React.FC = () => {
   const [SlotTypeId, setSlotTypeId] = useState<number | null>(null);
   const [classID, setClassID] = useState(0);
 
-  const [currentFilterValue, setCurrentFilterValue] = useState<number | null | undefined>(null);
-
+  const [currentSemesterId, setCurrentSemesterId] = useState(0);
+  const [filteredSemesterIds, setFilteredSemesterIds] = useState<number[]>([]);
 
   const lectureDetail = useSelector(
     (state: RootState) => state.auth.userDetail?.result,
@@ -102,25 +102,6 @@ const New: React.FC = () => {
       state: { classID: classID },
     });
   };
-
-  const handleFilterSemester = useCallback(
-    async (value: number | null | undefined) => {
-      setCurrentFilterValue(value);
-      if (lectureDetail?.id) {
-        const id = lectureDetail.id;
-        let classes1 =
-          (await ClassService.getByClassLecturer(value, id))?.result || [];
-        if (value !== null && value !== undefined) {
-          classes1 = classes1.filter(
-            (item) => item.semester.semesterID === value,
-          );
-        }
-        setFilteredClass(classes1);
-        setIsUpdate(true);
-      }
-    },
-    [],
-  );
 
   const handleSearchClass = useCallback(
     (value: string) => {
@@ -176,26 +157,21 @@ const New: React.FC = () => {
     try {
       if (lectureDetail?.id) {
         const dataSemester = await CalendarService.getAllSemester();
-        dataSemester?.push({
-          semesterID: null,
-          semesterCode: 'All',
-          semesterStatus: -1,
-          startDate: '',
-          endDate: '',
-        });
+        // dataSemester?.push({ semesterID: null, semesterCode: 'All', semesterStatus: -1, startDate: '', endDate: '' });
         setClassSemester(dataSemester || []);
         const currenSemester = dataSemester?.find(
           (se) => se.semesterStatus === 2,
         );
         const id = lectureDetail.id;
-        const data = await ClassService.getByClassLecturer(
-          currenSemester?.semesterID,
-          id,
-        );
+        const data = await ClassService.getByClassLecturer(null, id);
         setClasses(data?.result || []);
-        if (currentFilterValue !== null && currentFilterValue !== undefined) {
-          handleFilterSemester(currentFilterValue);
-        }
+        setCurrentSemesterId(currenSemester?.semesterID || 0);
+        setFilteredSemesterIds(
+          (dataSemester || [])
+            .filter((sem) => sem.semesterStatus === 2)
+            .map((sem) => sem.semesterID)
+            .filter((id): id is number => id !== null),
+        );
       }
     } catch (error) {
       console.log('get class error: ', error);
@@ -261,9 +237,11 @@ const New: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  console.log('update', isUpdate);
+
   const showModalUpdate = (item?: ClassDetails) => {
     setIsCheck(true);
-    getAllSmesterCreate();
+    getAllSmester();
     getAllRoom();
     getAllSubject();
     // getAllLecturer();
@@ -332,7 +310,8 @@ const New: React.FC = () => {
     setLoading(false);
     // setIsModalVisible(false);
     // resetModalFields();
-    fetchClasses();
+    // fetchClasses();
+    handleSemesterFilterChange(filteredSemesterIds);
   };
 
   const handleUpdate = async () => {
@@ -350,7 +329,7 @@ const New: React.FC = () => {
     setLoading(false);
     // setIsModalVisible(false);
     // resetModalFields();
-    fetchClasses();
+    handleSemesterFilterChange(filteredSemesterIds);
   };
 
   const createNewClass = async (
@@ -428,6 +407,19 @@ const New: React.FC = () => {
     setSlotType(response?.result || []);
   };
 
+  const handleSemesterFilterChange = async (
+    filteredSemesterIds: number[] | undefined | null,
+  ) => {
+    if (lectureDetail) {
+      const newData =
+        filteredSemesterIds?.flat().filter((id) => id !== null) || [];
+      const id = lectureDetail.id;
+      const data = await ClassService.getByClassLecturer(null, id);
+      setClasses(data?.result || []);
+      setFilteredSemesterIds(newData || []);
+    }
+  };
+
   const columns = [
     {
       key: '1',
@@ -438,13 +430,50 @@ const New: React.FC = () => {
       key: '2',
       title: 'Semester',
       dataIndex: 'semestercode',
-      filters: [
-        { text: 'Not yet', value: 1 },
-        { text: 'On going', value: 2 },
-        { text: 'Finished', value: 3 },
-      ],
-      onFilter: (value: any, record: any) => record.semesterStatus === value,
+      filters: classSemester.map((sem) => ({
+        text: (
+          <span
+            style={{
+              color:
+                sem.semesterStatus === 1
+                  ? 'gray'
+                  : sem.semesterStatus === 2
+                  ? 'blue'
+                  : sem.semesterStatus === 3
+                  ? 'green'
+                  : 'black',
+            }}
+          >
+            {sem.semesterCode}{' '}
+            {sem.semesterStatus === 1
+              ? '(Not yet)'
+              : sem.semesterStatus === 2
+              ? '(On-going)'
+              : sem.semesterStatus === 3
+              ? '(Finished)'
+              : 'N/A'}
+          </span>
+        ),
+        value: sem.semesterID,
+      })),
+      onFilter: (value: any, record: any) => {
+        return record.semester.semesterID === value;
+      },
+      filteredValue: filteredSemesterIds ? filteredSemesterIds : null,
     },
+    // {
+    //   key: '2',
+    //   title: 'Semester',
+    //   dataIndex: 'semestercode',
+    //   filters: classSemester.map((sem) => ({
+    //     text: sem.semesterCode,
+    //     value: sem.semesterID,
+    //   })),
+    //   onFilter: (value: any, record: any) => {
+    //     return record.semester.semesterID === value;
+    //   },
+    //   filteredValue: filteredSemesterIds ? filteredSemesterIds : null,
+    // },
     {
       key: '3',
       title: 'Room',
@@ -523,7 +552,8 @@ const New: React.FC = () => {
       onOk: async () => {
         const arg = { ClassID: classID };
         await dispatch(deleteClass(arg) as any);
-        fetchClasses();
+        // fetchClasses();
+        handleSemesterFilterChange(filteredSemesterIds);
       },
     });
   };
@@ -544,19 +574,6 @@ const New: React.FC = () => {
           <AntHeader className={styles.tableHeader}>
             <p className={styles.tableTitle}>Class</p>
             <Row gutter={[16, 16]}>
-              <Col>
-                <Select
-                  placeholder="Filter by Semester"
-                  onChange={handleFilterSemester}
-                  style={{ width: 200 }}
-                >
-                  {classSemester.map((sem) => (
-                    <Select.Option key={sem.semesterID} value={sem.semesterID}>
-                      {sem.semesterCode}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Col>
               <Col>
                 <Input
                   placeholder="Search by name"
@@ -586,7 +603,7 @@ const New: React.FC = () => {
             key: index,
             classcode: item.classCode || 'N/A',
             semestercode: item.semester.semesterCode || 'N/A',
-            semesterStatus: item.semester.semesterStatus,
+            semester: item.semester,
             room: item.room.roomName || 'N/A',
             subject: item.subject.subjectName || 'N/A',
             slotType: <div>{item.slotType.sessionCount * 45 + ' minutes'}</div>,
@@ -622,6 +639,11 @@ const New: React.FC = () => {
         )}
         pagination={{
           showSizeChanger: true,
+        }}
+        onChange={(pagination, filters) => {
+          handleSemesterFilterChange(
+            Object.values(filters) as unknown as number[] | undefined | null,
+          );
         }}
       ></Table>
       <Modal
@@ -704,7 +726,7 @@ const New: React.FC = () => {
         >
           {room.map((room) => (
             <Select.Option key={room.roomID} value={room.roomID}>
-              {'Room ' + room.roomName}
+              {room.roomName}
             </Select.Option>
           ))}
         </Select>

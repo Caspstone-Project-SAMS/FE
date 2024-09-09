@@ -34,6 +34,7 @@ import ScriptTime from '../pages/script/ScriptTime';
 import RegisterFingerprint from '../pages/script/RegisterFingerprint';
 import ImportScheduleRecord from '../components/calendar/ImportScheduleRecord';
 import SystemConfig from '../pages/admin/system/SystemConfig';
+import Notification from '../pages/notification/Notification';
 
 const lecture = [
   {
@@ -87,6 +88,10 @@ const lecture = [
   {
     path: '/calendar/import-schedule-record',
     element: <ImportScheduleRecord />
+  },
+  {
+    path: '/notification-detail',
+    element: <Notification />
   },
   // {
   //   path: '/account/reset-password',
@@ -190,6 +195,10 @@ const admin = [
   {
     path: '/system',
     element: <SystemConfig />
+  },
+  {
+    path: '/notification-detail',
+    element: <Notification />
   },
 ]
 

@@ -16,11 +16,11 @@ import './Header.css';
 import styles from '../header/contentHeader/index.module.less';
 import {
   IoIosArrowDown,
-  IoIosInformationCircle ,
+  IoIosInformationCircle,
   IoIosCloseCircleOutline,
   IoIosWarning,
   IoMdClose,
-  IoIosCloseCircle
+  IoIosCloseCircle,
 } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
@@ -32,6 +32,7 @@ import { HelperService } from '../../hooks/helpers/helperFunc';
 import { NotificationService } from '../../hooks/Notification';
 import { NotificationList } from '../../models/notification/Notification';
 import HeaderProgress from './HeaderProgress';
+import { useNavigate } from 'react-router-dom';
 
 const { Header: AntHeader } = Layout;
 
@@ -98,7 +99,6 @@ const Headers: React.FC<HeadersProps> = ({
   const [readNotificationsCount, setReadNotificationsCount] = useState(0);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
 
-
   const userDetail: UserInfo | undefined = useSelector(
     (state: RootState) => state.auth.userDetail,
   );
@@ -108,6 +108,7 @@ const Headers: React.FC<HeadersProps> = ({
   const [reload, setReload] = useState(0);
   const [read, setRead] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     dispatch(logout());
@@ -126,6 +127,11 @@ const Headers: React.FC<HeadersProps> = ({
       setRead(true);
       setReload((prev) => prev + 1);
       setDropdownVisible(true);
+      navigate('/notification-detail', {
+        state: {
+          notificationId: NotificationID,
+        },
+      });
       return response;
     } catch (error) {
       console.log('Error on read notification: ', error);
@@ -176,7 +182,7 @@ const Headers: React.FC<HeadersProps> = ({
         ),
         icon:
           newNotificaton.notificationType.typeName === 'Information' ? (
-            <IoIosInformationCircle  style={{ color: 'green' }} />
+            <IoIosInformationCircle style={{ color: 'green' }} />
           ) : newNotificaton.notificationType.typeName === 'Error' ? (
             <IoIosCloseCircle style={{ color: 'red' }} />
           ) : newNotificaton.notificationType.typeName === 'Warning' ? (
@@ -274,11 +280,10 @@ const Headers: React.FC<HeadersProps> = ({
         style={{
           maxWidth: '30vw',
           height: '60vh',
-          overflowY: 'auto', 
-          overflowX: 'hidden', 
-          scrollbarWidth: 'auto', 
-          msOverflowStyle: 'auto', 
-          
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          scrollbarWidth: 'auto',
+          msOverflowStyle: 'auto',
         }}
       >
         <Menu>
@@ -344,11 +349,11 @@ const Headers: React.FC<HeadersProps> = ({
                         </Avatar> */}
                         <div style={{ marginLeft: 'auto' }}>
                           {item.notificationType.typeName === 'Information' ? (
-                            <IoIosInformationCircle 
+                            <IoIosInformationCircle
                               style={{ color: 'green', fontSize: '1.5rem' }}
                             />
                           ) : item.notificationType.typeName === 'Error' ? (
-                            <IoIosCloseCircle 
+                            <IoIosCloseCircle
                               style={{ color: 'red', fontSize: '1.5rem' }}
                             />
                           ) : item.notificationType.typeName === 'Warning' ? (

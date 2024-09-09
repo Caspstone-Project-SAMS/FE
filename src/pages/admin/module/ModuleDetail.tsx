@@ -44,6 +44,7 @@ import {
   clearModuleMessages,
   settingModules,
 } from '../../../redux/slice/Module';
+import { IoPersonSharp } from 'react-icons/io5';
 
 const { Header: AntHeader } = Layout;
 const { TabPane } = Tabs;
@@ -76,7 +77,7 @@ const ModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
-  console.log('edfvsfv', schedule)
+  console.log('edfvsfv', schedule);
 
   const dispatch = useDispatch();
   const token = useSelector(
@@ -171,20 +172,20 @@ const ModuleDetail: React.FC = () => {
 
   const moduleDetails = [
     { title: 'Module', value: module?.result.moduleID || 'N/A' },
-    { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
+    // { title: 'Employee', value: module?.result.employee.displayName || 'N/A' },
     {
       title: 'Mode',
       value: (
         <div>
           <Tag
-            color={mode === 1 ? 'green' : 'blue'}
+            color={mode === 1 ? 'green' : mode === 2 ? 'blue' : 'gray'}
             style={{
               fontWeight: 'bold',
               fontSize: '10px',
               textAlign: 'center',
             }}
           >
-            {mode === 1 ? 'Register' : 'Attendance'}
+            {mode === 1 ? 'Register' : mode === 2 ? 'Attendance' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -205,10 +206,20 @@ const ModuleDetail: React.FC = () => {
       title: 'Auto Prepare',
       value: (
         <Tag
-          color={autoPrepareStatus ? 'green' : 'red'}
+          color={
+            autoPrepareStatus === true
+              ? 'green'
+              : autoPrepareStatus === false
+              ? 'red'
+              : 'gray'
+          }
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
-          {autoPrepareStatus ? 'Auto' : 'Not Auto'}
+          {autoPrepareStatus === true
+            ? 'Auto'
+            : autoPrepareStatus === false
+            ? 'Not Auto'
+            : 'N/A'}
         </Tag>
       ),
     },
@@ -230,7 +241,7 @@ const ModuleDetail: React.FC = () => {
         </Tag>
       ),
     },
-    { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
+    // { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
   const columns = [
@@ -401,17 +412,26 @@ const ModuleDetail: React.FC = () => {
       />
       <Card className={styles.cardHeaderDetail}>
         <Row gutter={[16, 16]}>
-          <Col span={14}>
+          <Col span={9}>
             <Card style={{ height: '100%' }}>
               <Row>
-                <Col span={4}>
+                <Row style={{ display: 'flex', alignItems: 'center' }}>
                   <img
                     alt="Employee"
                     src={module?.result.employee.avatar}
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, borderRadius: '50%' }}
                   />
-                </Col>
-                <Col span={19} style={{ marginLeft: 20 }}>
+                  <p
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 20,
+                      marginLeft: 10,
+                    }}
+                  >
+                    <IoPersonSharp size={20} /> About
+                  </p>
+                </Row>
+                <Col span={24} style={{ marginLeft: 20, marginTop: 30 }}>
                   <Content>
                     <Space
                       direction="horizontal"
@@ -437,7 +457,7 @@ const ModuleDetail: React.FC = () => {
               </Row>
             </Card>
           </Col>
-          <Col span={10}>
+          <Col span={15}>
             <Content>
               <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Module Details</p>
@@ -466,13 +486,6 @@ const ModuleDetail: React.FC = () => {
                 <Card className={styles.card1}>
                   {moduleDetails.map((detail, i) => (
                     <div key={`info_${i}`}>
-                      <hr
-                        style={{
-                          borderColor: '#e6e7e9',
-                          borderWidth: 0.5,
-                        }}
-                      />
-
                       <Row className={styles.rowDetails}>
                         <Col span={14}>
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
@@ -483,6 +496,12 @@ const ModuleDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
                     </div>
                   ))}
                 </Card>
@@ -549,7 +568,9 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Check Attendance Duration</b>
+                    <b className={styles.moduleSettingTitle}>
+                      Check Attendance Duration
+                    </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -636,7 +657,9 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Connection Sound</b>
+                    <b className={styles.moduleSettingTitle}>
+                      Connection Sound
+                    </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -676,7 +699,9 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Attendance Sound</b>
+                    <b className={styles.moduleSettingTitle}>
+                      Attendance Sound
+                    </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -820,7 +845,9 @@ const ModuleDetail: React.FC = () => {
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
-                            if (item.preparationTask.preparedSchedules.length > 0) {
+                            if (
+                              item.preparationTask.preparedSchedules.length > 0
+                            ) {
                               // setListScheduleId(
                               //   item.preparationTask.preparedSchedules,
                               // );
@@ -934,7 +961,8 @@ const ModuleDetail: React.FC = () => {
                               <>
                                 <div style={{ width: '20%' }}>
                                   <p>
-                                    <b>Date:</b> {schedule?.result.date || 'N/A'}
+                                    <b>Date:</b>{' '}
+                                    {schedule?.result.date || 'N/A'}
                                   </p>
                                   <p>
                                     <b>Class:</b>{' '}
@@ -948,9 +976,11 @@ const ModuleDetail: React.FC = () => {
                                   </p>
                                   <p>
                                     <b>Time:</b>{' '}
-                                    { schedule?.result.slot ? (schedule?.result.slot.startTime +
-                                      '-' +
-                                      schedule?.result.slot.endtime) : 'N/A'}
+                                    {schedule?.result.slot
+                                      ? schedule?.result.slot.startTime +
+                                        '-' +
+                                        schedule?.result.slot.endtime
+                                      : 'N/A'}
                                   </p>
                                 </div>
                               </>
@@ -961,9 +991,11 @@ const ModuleDetail: React.FC = () => {
                               columns={columns}
                               dataSource={scheduleList.map((item1, index) => ({
                                 key: index,
-                                date:(item1.date? new Date(item1.date).toLocaleDateString(
-                                  'en-GB',
-                                ) : 'N/A'),
+                                date: item1.date
+                                  ? new Date(item1.date).toLocaleDateString(
+                                      'en-GB',
+                                    )
+                                  : 'N/A',
                                 slot: item1.slot.slotNumber || 'N/A',
                                 time: (
                                   <div>

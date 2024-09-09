@@ -124,13 +124,6 @@ const SystemComponent: React.FC = () => {
             </div>
             {systemDetails.map((system, i) => (
               <div key={`info_${i}`}>
-                <hr
-                  style={{
-                    borderColor: '#e6e7e9',
-                    borderWidth: 0.5,
-                  }}
-                />
-
                 <Row className={styles.rowDetails}>
                   <Col span={14}>
                     <div style={{ fontWeight: 500 }}>{system.label}</div>
@@ -150,6 +143,12 @@ const SystemComponent: React.FC = () => {
                     )}
                   </Col>
                 </Row>
+                <hr
+                  style={{
+                    borderColor: '#e6e7e9',
+                    borderWidth: 0.5,
+                  }}
+                />
               </div>
             ))}
           </Card>

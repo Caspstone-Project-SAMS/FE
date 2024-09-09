@@ -4,6 +4,7 @@ import Login from '../pages/auth/Login';
 import ErrorPage from '../pages/ErrorPage';
 import ProtectedRoute from './ProtectedRoute';
 import TestComponent from './TestComponent';
+import { message } from 'antd';
 
 interface PreparationProgress {
   SessionId: number;
@@ -19,7 +20,7 @@ const Router = () => {
 
   let ws: WebSocket | null;
   const ConnectWebsocket = (tokenString: string) => {
-    ws = new WebSocket('wss://34.81.223.233/ws/client?root=true', [
+    ws = new WebSocket('wss://sams-project.com/ws/client?root=true', [
       'access_token',
       tokenString,
     ]);

@@ -206,7 +206,7 @@ const AccountStudentsDetail: React.FC = () => {
   );
 
   const ConnectWebsocket = useCallback(() => {
-    const ws = new WebSocket('wss://34.81.223.233/ws/client', [
+    const ws = new WebSocket('wss://sams-project.com/ws/client', [
       'access_token',
       token,
     ]);
@@ -591,13 +591,13 @@ const AccountStudentsDetail: React.FC = () => {
       key: '2',
       title: 'status',
       dataIndex: 'classStatus',
-      render: (classStatus: boolean) => (
+      render: (classStatus: number) => (
         <div>
           <Tag
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'active' : 'inactive'}
+            {classStatus === 1 ? 'active' : classStatus === 2 ? 'inactive' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -609,9 +609,9 @@ const AccountStudentsDetail: React.FC = () => {
       render: (absencePercentage: number) => (
         <div>
           <p
-            style={{ color: Number(absencePercentage) >= 20 ? 'red' : 'green' }}
+            style={{ color: Number(absencePercentage) >= 20 ? 'red' : Number(absencePercentage) < 20 ? 'green' : 'gray' }}
           >
-            {absencePercentage + '%'}
+            { absencePercentage ? (absencePercentage + '%') : 'N/A'}
           </p>
         </div>
       ),
@@ -1305,13 +1305,6 @@ const AccountStudentsDetail: React.FC = () => {
                 <Card className={styles.card1}>
                   {studentDetails.map((detail, i) => (
                     <div key={`info_${i}`}>
-                      <hr
-                        style={{
-                          borderColor: '#e6e7e9',
-                          borderWidth: 0.5,
-                        }}
-                      />
-
                       <Row className={styles.rowDetails}>
                         <Col span={10}>
                           <div style={{ fontWeight: 500 }}>{detail.title}</div>
@@ -1322,6 +1315,12 @@ const AccountStudentsDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
                     </div>
                   ))}
                 </Card>
