@@ -37,7 +37,6 @@ const getAllNotificationByID = async (
 
 const readNotification = async (NotificationID: number) => {
   try {
-    console.log('NotificationID', NotificationID);
     const response = await axios.put(
       `${NOTIFICATION_API}/read`,
       [NotificationID],
@@ -48,7 +47,7 @@ const readNotification = async (NotificationID: number) => {
         },
       }
     );
-console.log('response', response.data);
+
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {

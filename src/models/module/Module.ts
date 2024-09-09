@@ -78,8 +78,9 @@ export interface ModuleActivity {
   description: string;
   startTime: string;
   endTime: string;
+  isSuccess: boolean;
   errors: [];
-  preparationTask: PrepareTask;
+  preparationTask: PrepareTask | null;
   module: ModuleBySchedule;
 }
 
@@ -122,4 +123,8 @@ export interface ActiveModuleFail {
       errors: string;
     };
   };
+}
+
+export interface ModuleActivityByID {
+  result: ModuleActivity;
 }

@@ -39,10 +39,10 @@ export default function BarChart() {
     dataset: typedDataset,
     xAxis: [{ scaleType: 'band', dataKey: 'month' }],
     series: [
-      { dataKey: 'london', label: 'London', valueFormatter },
-      { dataKey: 'paris', label: 'Paris', valueFormatter },
-      { dataKey: 'newYork', label: 'New York', valueFormatter },
-      { dataKey: 'seoul', label: 'Seoul', valueFormatter },
+      { dataKey: 'london', label: 'a', valueFormatter },
+      { dataKey: 'paris', label: 'b', valueFormatter },
+      { dataKey: 'newYork', label: 'c', valueFormatter },
+      { dataKey: 'seoul', label: 'd', valueFormatter },
     ],
     ...chartSetting,
   };

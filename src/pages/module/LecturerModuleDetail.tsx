@@ -83,7 +83,7 @@ const LecturerModuleDetail: React.FC = () => {
   const token = useSelector(
     (state: RootState) => state.auth.userDetail?.token ?? '',
   );
-
+console.log('key', activeKey);
   const failMessage = useSelector((state: RootState) => state.module.message);
   const successMessage = useSelector(
     (state: RootState) => state.module.moduleDetail,
@@ -843,7 +843,7 @@ const LecturerModuleDetail: React.FC = () => {
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
-                            if (item.preparationTask.preparedSchedules) {
+                            if (item.preparationTask.preparedSchedules.length > 0) {
                               // setListScheduleId(
                               //   item.preparationTask.preparedSchedules,
                               // );

@@ -107,7 +107,6 @@ const ModuleDetail: React.FC = () => {
   //     dispatch(clearModuleMessages());
   //   }
   // }, [successMessage, failMessage, dispatch]);
-
   useEffect(() => {
     if (successMessage) {
       if (successMessage.title) {
@@ -619,7 +618,6 @@ const ModuleDetail: React.FC = () => {
                             }}
                             className={styles.inputNumber}
                           />
-
                           {/* <span> minutes</span> */}
                         </div>
                         <p className={styles.suggestText}>
@@ -837,7 +835,7 @@ const ModuleDetail: React.FC = () => {
                               </div>
                               <div style={{ width: '20%' }}>
                                 <Progress
-                                  percent={item.preparationTask.progress}
+                                  percent={item.preparationTask?.progress || 0}
                                 ></Progress>
                               </div>
                             </div>
@@ -846,7 +844,7 @@ const ModuleDetail: React.FC = () => {
                           style={{ cursor: 'pointer' }}
                           onClick={() => {
                             if (
-                              item.preparationTask.preparedSchedules.length > 0
+                              item.preparationTask && item.preparationTask.preparedSchedules.length > 0
                             ) {
                               // setListScheduleId(
                               //   item.preparationTask.preparedSchedules,
@@ -859,7 +857,7 @@ const ModuleDetail: React.FC = () => {
                                 item.preparationTask.preparedSchedules,
                               );
                             } else if (
-                              item.preparationTask.preparedScheduleId
+                              item.preparationTask && item.preparationTask.preparedScheduleId
                             ) {
                               getScheduleByID(
                                 item.preparationTask.preparedScheduleId,
@@ -893,7 +891,7 @@ const ModuleDetail: React.FC = () => {
                                     marginRight: '5px',
                                   }}
                                 >
-                                  {item.preparationTask.uploadedFingers}
+                                  {item.preparationTask?.uploadedFingers || 0}
                                 </span>
                                 <span
                                   style={{
@@ -910,7 +908,7 @@ const ModuleDetail: React.FC = () => {
                                     marginRight: '5px',
                                   }}
                                 >
-                                  {item.preparationTask.totalFingers}
+                                  {item.preparationTask?.totalFingers || 0}
                                 </span>
                                 <span
                                   style={{
@@ -957,7 +955,7 @@ const ModuleDetail: React.FC = () => {
                                   )}
                               </p>
                             </div>
-                            {item.preparationTask.preparedScheduleId && (
+                            {item.preparationTask?.preparedScheduleId && (
                               <>
                                 <div style={{ width: '20%' }}>
                                   <p>

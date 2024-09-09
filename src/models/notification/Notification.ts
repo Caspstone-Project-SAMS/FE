@@ -9,6 +9,9 @@ export interface NotificationList {
   description: string;
   timeStamp: string;
   read: boolean;
+  moduleId: number;
+  moduleActivityId: number;
+  scheduleID: number;
   notificationType: NotificationType;
   user: null;
 }

@@ -83,7 +83,7 @@ const lecture = [
   },
   {
     path: '/module/module-detail',
-    element: <LecturerModuleDetail />
+    element: <ModuleDetail />
   },
   {
     path: '/calendar/import-schedule-record',

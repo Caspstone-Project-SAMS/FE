@@ -48,6 +48,7 @@ import { SessionServive } from '../../../../hooks/Session';
 import modules from '../../../../assets/imgs/module.png';
 import { Select } from 'antd';
 import moment from 'moment';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Option } = Select;
 
@@ -120,6 +121,11 @@ const AccountStudentsDetail: React.FC = () => {
   );
 
   const length = selectedFingers.length;
+
+  const [fingerprint1Description, setFingerprint1Description] =
+    useState<string>('');
+  const [fingerprint2Description, setFingerprint2Description] =
+    useState<string>('');
 
   useEffect(() => {
     if (successMessage) {
@@ -597,7 +603,11 @@ const AccountStudentsDetail: React.FC = () => {
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus === 1 ? 'active' : classStatus === 2 ? 'inactive' : 'N/A'}
+            {classStatus === 1
+              ? 'active'
+              : classStatus === 2
+              ? 'inactive'
+              : 'N/A'}
           </Tag>
         </div>
       ),
@@ -609,9 +619,16 @@ const AccountStudentsDetail: React.FC = () => {
       render: (absencePercentage: number) => (
         <div>
           <p
-            style={{ color: Number(absencePercentage) >= 20 ? 'red' : Number(absencePercentage) < 20 ? 'green' : 'gray' }}
+            style={{
+              color:
+                Number(absencePercentage) >= 20
+                  ? 'red'
+                  : Number(absencePercentage) < 20
+                  ? 'green'
+                  : 'gray',
+            }}
           >
-            { absencePercentage ? (absencePercentage + '%') : 'N/A'}
+            {absencePercentage ? absencePercentage + '%' : 'N/A'}
           </p>
         </div>
       ),
@@ -797,7 +814,12 @@ const AccountStudentsDetail: React.FC = () => {
 
   const handleConfirmUpload = async () => {
     try {
-      const response = await SessionServive.submitSession(sessionID, token);
+      const response = await SessionServive.submitSession(
+        sessionID,
+        token,
+        fingerprint1Description,
+        fingerprint2Description,
+      );
 
       const arg = {
         ModuleID: moduleID,
@@ -881,405 +903,21 @@ const AccountStudentsDetail: React.FC = () => {
         <Row gutter={[16, 16]}>
           <Col span={9}>
             <div>
-              <div>
+              <div className={styles.imageContainer}>
                 <img
                   src={student.result.avatar || personIcon}
                   alt="Student"
                   className={styles.studentImg}
                 />
               </div>
-
-              <div>
-                <Col>
-                  <Row>
-                    <Col
-                      span={24}
-                      style={{ display: 'flex', justifyContent: 'center' }}
-                    >
-                      <div className={styles.moduleCard}>
-                        <div className={styles.moduleImgCtn}>
-                          <img
-                            src={modules}
-                            alt="Module image"
-                            className={styles.moduleImg}
-                          />
-                        </div>
-                        <div className={styles.moduleInfo}>
-                          <span>
-                            <b>ID: </b>
-                            {moduleID > 0 && moduleID}
-                          </span>
-                          <span>
-                            <b>Status: </b>
-                            <p
-                              style={{
-                                display: 'inline',
-                                color: moduleByID?.status
-                                  ? moduleByID?.status === 1
-                                    ? 'green'
-                                    : 'red'
-                                  : 'inherit',
-                              }}
-                            >
-                              {moduleByID?.status === 1
-                                ? 'Available'
-                                : moduleByID?.status === 0
-                                  ? 'Unavailable'
-                                  : ''}
-                            </p>
-                          </span>
-                          <span>
-                            <b>Connect: </b>
-                            <p
-                              style={{
-                                display: 'inline',
-                                alignItems: 'center',
-                              }}
-                            >
-                              {moduleByID?.connectionStatus === 1 ? (
-                                <>
-                                  <Badge status="success" /> online
-                                </>
-                              ) : moduleByID?.connectionStatus === 2 ? (
-                                <>
-                                  <Badge status="error" /> offline
-                                </>
-                              ) : null}
-                            </p>
-                          </span>
-                          <span>
-                            <b>Mode: </b>
-                            <p style={{ display: 'inline' }}>
-                              {moduleByID?.mode === 1
-                                ? 'Register'
-                                : moduleByID?.mode === 2
-                                  ? 'Attendance'
-                                  : ''}
-                            </p>
-                          </span>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Button
-                      style={{
-                        width: '100%',
-                        marginTop: 20,
-                        marginBottom: 20,
-                      }}
-                      type="primary"
-                      block
-                      onClick={() => {
-                        showModalModule();
-                      }}
-                      disabled={disable}
-                    >
-                      <p>Select Module</p>
-                    </Button>
-                  </Row>
-                  <Modal
-                    title="Select Module"
-                    visible={isModalVisibleModule}
-                    onOk={handleOkModule}
-                    onCancel={handleCancelModule}
-                    width={500}
-                    footer={[
-                      <Button key="cancel" onClick={handleCancelModule}>
-                        Exit
-                      </Button>,
-                    ]}
-                  >
-                    <Row style={{ marginTop: 20 }}>
-                      <Card style={{ width: '100%' }}>
-                        <Row gutter={[16, 16]}>
-                          <Col span={14}>
-                            <p style={{ fontWeight: 500 }}>
-                              Module Connecting:{' '}
-                              {moduleID > 0 && <span>{moduleID}</span>}
-                            </p>
-                          </Col>
-
-                          <Col span={10}>
-                            <p style={{ fontWeight: 500 }}>
-                              Status:
-                              {loading && <LoadingIndicator />}
-                              {status === 'success' && (
-                                <span style={{ color: 'green' }}>
-                                  Connected
-                                </span>
-                              )}
-                              {status === 'fail' && (
-                                <span style={{ color: 'red' }}>Fail</span>
-                              )}
-                            </p>
-                          </Col>
-                        </Row>
-                      </Card>
-                      <Content
-                        className="module_cards"
-                        style={{ marginTop: 5 }}
-                      >
-                        <Row gutter={[16, 16]} style={{ marginBottom: 5 }}>
-                          <Col span={18}>
-                            <Input
-                              placeholder="Search by Module ID"
-                              type="number"
-                              onChange={(e) =>
-                                setSearchModuleID(
-                                  Number(e.target.value) || undefined,
-                                )
-                              }
-                            />
-                          </Col>
-                          <Col span={6}>
-                            <Select
-                              defaultValue=""
-                              style={{ width: '100%' }}
-                              onChange={(e) =>
-                                setConnectionStatusFilter(
-                                  Number(e) || undefined,
-                                )
-                              }
-                            >
-                              <Option value={''}>All</Option>
-                              <Option value={'1'}>Online</Option>
-                              <Option value={'2'}>Offline</Option>
-                            </Select>
-                          </Col>
-                        </Row>
-                        {moduleDetail.length === 0 ? (
-                          <Empty description="No modules available" />
-                        ) : (
-                          <Card style={{ height: 400, overflowY: 'auto' }}>
-                            {moduleDetail
-                              .filter(
-                                (item) =>
-                                  (connectionStatusFilter === undefined ||
-                                    item.connectionStatus ===
-                                    connectionStatusFilter) &&
-                                  (searchModuleID === undefined ||
-                                    item.moduleID === searchModuleID),
-                              )
-                              .sort(
-                                (a, b) =>
-                                  a.connectionStatus - b.connectionStatus,
-                              )
-                              .map((item, index) => (
-                                <Button
-                                  onClick={() =>
-                                    handleModuleClick(item.moduleID, item)
-                                  }
-                                  key={index}
-                                  className={`${styles.unselectedModule} ${moduleID === item.moduleID
-                                      ? styles.selectedModule
-                                      : ''
-                                    }`}
-                                  disabled={isActiveModule || modalContinue}
-                                >
-                                  <Row>
-                                    <Col span={3} style={{ marginRight: 80 }}>
-                                      <p className={styles.upTitle}>
-                                        Module {item.moduleID}
-                                      </p>
-                                      <br />
-                                      <img
-                                        src={moduleImg}
-                                        alt="module"
-                                        style={{ width: 45, height: 45 }}
-                                      />
-                                    </Col>
-                                    <Col span={3}>
-                                      <p>
-                                        {item.mode === 1 ? (
-                                          <p>
-                                            Mode:{' '}
-                                            <span
-                                              style={{ fontWeight: 'bold' }}
-                                            >
-                                              Register
-                                            </span>
-                                          </p>
-                                        ) : item.mode === 2 ? (
-                                          <p>
-                                            Mode:{' '}
-                                            <span
-                                              style={{ fontWeight: 'bold' }}
-                                            >
-                                              Attendance
-                                            </span>
-                                          </p>
-                                        ) : null}
-                                      </p>
-                                      <p className={styles.upDetail}>
-                                        {item.status === 1 ? (
-                                          <p style={{ color: 'blue' }}>
-                                            available
-                                          </p>
-                                        ) : item.status === 2 ? (
-                                          <p style={{ color: 'red' }}>
-                                            unavailable
-                                          </p>
-                                        ) : null}
-                                      </p>
-                                      <p className={styles.upDetail}>
-                                        {item.connectionStatus === 1 ? (
-                                          <>
-                                            <Badge status="success" /> online
-                                          </>
-                                        ) : item.connectionStatus === 2 ? (
-                                          <>
-                                            <Badge status="error" /> offline
-                                          </>
-                                        ) : null}
-                                      </p>
-                                    </Col>
-                                  </Row>
-                                </Button>
-                              ))}
-                          </Card>
-                        )}
-                      </Content>
-                    </Row>
-                  </Modal>
-                </Col>
-              </div>
             </div>
-            <div>
-              <Card style={{ width: '100%' }}>
-                {studentFinger.length === 0 ? (
-                  <Empty description="Student have no fingerprint data" />
-                ) : (
-                  <Row gutter={[5, 5]}>
-                    {studentFinger.map((item, index) => (
-                      <Col span={12}>
-                        <Card
-                          onClick={() => {
-                            if (!modalContinue) {
-                              fingerSelected(item.fingerprintTemplateID);
-                            }
-                          }}
-                          key={index}
-                          className={
-                            selectedFingers.includes(item.fingerprintTemplateID)
-                              ? styles.selectedFinger
-                              : styles.unselectedFinger
-                          }
-                        >
-                          <Row>
-                            <Row>
-                              <BsFingerprint size={30} />
-                            </Row>
-                            <Row>
-                              <Row style={{ gap: '4px' }}>
-                                <b>Status:</b>
-                                <span
-                                  style={{
-                                    color:
-                                      item.status === 1
-                                        ? 'green'
-                                        : item.status === 2
-                                          ? 'red'
-                                          : 'inherit',
-                                  }}
-                                >
-                                  {item.status === 1
-                                    ? 'Available'
-                                    : item.status === 2
-                                      ? 'Unavailable'
-                                      : ''}
-                                </span>
-                              </Row>
-                              <Row style={{ gap: '4px' }}>
-                                <b>Create at:</b>
-                                <span>
-                                  {new Date(item.createdAt).toLocaleDateString(
-                                    'en-GB',
-                                    {
-                                      day: '2-digit',
-                                      month: 'long',
-                                      year: 'numeric',
-                                    },
-                                  )}
-                                </span>
-                              </Row>
-                            </Row>
-                          </Row>
-                        </Card>
-                        {/* <Button
-                          disabled={
-                            isActiveModule ||
-                            !moduleID ||
-                            status === 'fail' ||
-                            !sessionID ||
-                            disable
-                          }
-                          onClick={() => {
-                            if (index === 0) {
-                              setFingerTwo(null);
-                              setFingerOne(item.fingerprintTemplateID);
-                            } else if (index === 1) {
-                              setFingerOne(null);
-                              setFingerTwo(item.fingerprintTemplateID);
-                            }
-                            showModalUpdate();
-                          }}
-                          style={{ width: ' 100%', marginTop: 5 }}
-                        >
-                          Update Fingerprint {index + 1}
-                        </Button> */}
-                      </Col>
-                    ))}
-                  </Row>
-                )}
-                {student.result.fingerprintTemplates.length > 0 && (
-                  <Row>
-                    <Button
-                      disabled={
-                        isActiveModule ||
-                        !moduleID ||
-                        status === 'fail' ||
-                        !sessionID ||
-                        disable ||
-                        !haveFinger
-                      }
-                      onClick={() => showModalUpdate()}
-                      style={{ width: ' 100%', marginTop: 5 }}
-                    >
-                      Update Fingerprints
-                    </Button>
-                  </Row>
-                )}
-                {student.result.fingerprintTemplates.length === 0 && (
-                  <Row>
-                    <Button
-                      style={{ width: '100%', marginBottom: 10 }}
-                      type="primary"
-                      block
-                      onClick={() => {
-                        showModalRegister();
-                        // activeModuleRegisterThree(moduleID, 3);
-                      }}
-                      disabled={
-                        isActiveModule ||
-                        !moduleID ||
-                        status === 'fail' ||
-                        !sessionID ||
-                        disable
-                      }
-                    >
-                      <p>Register Fingerprints</p>
-                    </Button>
-                  </Row>
-                )}
-              </Card>
-            </div>
+            <div></div>
           </Col>
           <Col span={15}>
             <Content>
-              <AntHeader className={styles.tableHeader}>
+              {/* <AntHeader className={styles.tableHeader}>
                 <p className={styles.tableTitle}>Student Details</p>
-              </AntHeader>
+              </AntHeader> */}
 
               {/* <Col span={24}>
                 <Content>
@@ -1325,61 +963,450 @@ const AccountStudentsDetail: React.FC = () => {
                   ))}
                 </Card>
               </Col>
-              <Divider
-                style={{
-                  borderColor: '#7cb305',
-                }}
-              >
-                Class
-              </Divider>
-              <Col>
-                <Card className={styles.cardHeader}>
-                  <Content>
-                    <AntHeader className={styles.tableHeader}>
-                      <p className={styles.tableTitle}>
-                        Class of {student.result.displayName}
-                      </p>
-                      <Row gutter={[16, 16]}>
-                        <Col>
-                          <Input
-                            placeholder="Search by class code"
-                            suffix={<CiSearch />}
-                            variant="filled"
-                            value={searchInput}
-                            onChange={(e) => handleSearchClass(e.target.value)}
-                          ></Input>
-                        </Col>
-                      </Row>
-                    </AntHeader>
-                  </Content>
-                </Card>
-                <Table
-                  columns={columns}
-                  dataSource={(!isUpdate
-                    ? studentClass
-                    : filteredSemesterClass
-                  ).map((item, index) => ({
-                    key: index,
-                    classCode: item.classCode || 'N/A',
-                    classStatus: item.classStatus,
-                    absencePercentage: item.absencePercentage,
-                  }))}
-                  pagination={{
-                    showSizeChanger: true,
-                  }}
-                ></Table>
-              </Col>
+
+              <Col></Col>
             </Content>
           </Col>
         </Row>
+
+        <Divider
+          style={{
+            borderColor: '#7cb305',
+          }}
+        >
+          Fingerprints
+        </Divider>
+
+        <Row gutter={[16, 16]}>
+          <Col span={9}>
+            <div>
+              <Col>
+                <Row>
+                  <Col
+                    span={24}
+                    style={{ display: 'flex', justifyContent: 'center' }}
+                  >
+                    <div className={styles.moduleCard}>
+                      <div className={styles.moduleImgCtn}>
+                        <img
+                          src={modules}
+                          alt="Module image"
+                          className={styles.moduleImg}
+                        />
+                      </div>
+                      <div className={styles.moduleInfo}>
+                        <span>
+                          <b>ID: </b>
+                          {moduleID > 0 && moduleID}
+                        </span>
+                        <span>
+                          <b>Status: </b>
+                          <p
+                            style={{
+                              display: 'inline',
+                              color: moduleByID?.status
+                                ? moduleByID?.status === 1
+                                  ? 'green'
+                                  : 'red'
+                                : 'inherit',
+                            }}
+                          >
+                            {moduleByID?.status === 1
+                              ? 'Available'
+                              : moduleByID?.status === 0
+                              ? 'Unavailable'
+                              : ''}
+                          </p>
+                        </span>
+                        <span>
+                          <b>Connect: </b>
+                          <p
+                            style={{
+                              display: 'inline',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {moduleByID?.connectionStatus === 1 ? (
+                              <>
+                                <Badge status="success" /> online
+                              </>
+                            ) : moduleByID?.connectionStatus === 2 ? (
+                              <>
+                                <Badge status="error" /> offline
+                              </>
+                            ) : null}
+                          </p>
+                        </span>
+                        <span>
+                          <b>Mode: </b>
+                          <p style={{ display: 'inline' }}>
+                            {moduleByID?.mode === 1
+                              ? 'Register'
+                              : moduleByID?.mode === 2
+                              ? 'Attendance'
+                              : ''}
+                          </p>
+                        </span>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Button
+                    style={{
+                      width: '100%',
+                      marginTop: 20,
+                      marginBottom: 20,
+                    }}
+                    type="primary"
+                    block
+                    onClick={() => {
+                      showModalModule();
+                    }}
+                    disabled={disable}
+                  >
+                    <p>Select Module</p>
+                  </Button>
+                </Row>
+                {student.result.fingerprintTemplates.length === 0 && (
+                  <Row>
+                    <Button
+                      style={{ width: '100%', marginBottom: 10 }}
+                      type="primary"
+                      block
+                      onClick={() => {
+                        showModalRegister();
+                        // activeModuleRegisterThree(moduleID, 3);
+                      }}
+                      disabled={
+                        isActiveModule ||
+                        !moduleID ||
+                        status === 'fail' ||
+                        !sessionID ||
+                        disable
+                      }
+                    >
+                      <p>Register Fingerprints</p>
+                    </Button>
+                  </Row>
+                )}
+                {student.result.fingerprintTemplates.length > 0 && (
+                  <Row>
+                    <Button
+                      disabled={
+                        isActiveModule ||
+                        !moduleID ||
+                        status === 'fail' ||
+                        !sessionID ||
+                        disable ||
+                        !haveFinger
+                      }
+                      onClick={() => showModalUpdate()}
+                      style={{ width: ' 100%', marginTop: 5 }}
+                    >
+                      Update Fingerprints
+                    </Button>
+                  </Row>
+                )}
+                <Modal
+                  title="Select Module"
+                  visible={isModalVisibleModule}
+                  onOk={handleOkModule}
+                  onCancel={handleCancelModule}
+                  width={500}
+                  footer={[
+                    <Button key="cancel" onClick={handleCancelModule}>
+                      Exit
+                    </Button>,
+                  ]}
+                >
+                  <Row style={{ marginTop: 20 }}>
+                    <Card style={{ width: '100%' }}>
+                      <Row gutter={[16, 16]}>
+                        <Col span={14}>
+                          <p style={{ fontWeight: 500 }}>
+                            Module Connecting:{' '}
+                            {moduleID > 0 && <span>{moduleID}</span>}
+                          </p>
+                        </Col>
+
+                        <Col span={10}>
+                          <p style={{ fontWeight: 500 }}>
+                            Status:
+                            {loading && <LoadingIndicator />}
+                            {status === 'success' && (
+                              <span style={{ color: 'green' }}>Connected</span>
+                            )}
+                            {status === 'fail' && (
+                              <span style={{ color: 'red' }}>Fail</span>
+                            )}
+                          </p>
+                        </Col>
+                      </Row>
+                    </Card>
+                    <Content className="module_cards" style={{ marginTop: 5 }}>
+                      <Row gutter={[16, 16]} style={{ marginBottom: 5 }}>
+                        <Col span={18}>
+                          <Input
+                            placeholder="Search by Module ID"
+                            type="number"
+                            onChange={(e) =>
+                              setSearchModuleID(
+                                Number(e.target.value) || undefined,
+                              )
+                            }
+                          />
+                        </Col>
+                        <Col span={6}>
+                          <Select
+                            defaultValue=""
+                            style={{ width: '100%' }}
+                            onChange={(e) =>
+                              setConnectionStatusFilter(Number(e) || undefined)
+                            }
+                          >
+                            <Option value={''}>All</Option>
+                            <Option value={'1'}>Online</Option>
+                            <Option value={'2'}>Offline</Option>
+                          </Select>
+                        </Col>
+                      </Row>
+                      {moduleDetail.length === 0 ? (
+                        <Empty description="No modules available" />
+                      ) : (
+                        <Card style={{ height: 400, overflowY: 'auto' }}>
+                          {moduleDetail
+                            .filter(
+                              (item) =>
+                                (connectionStatusFilter === undefined ||
+                                  item.connectionStatus ===
+                                    connectionStatusFilter) &&
+                                (searchModuleID === undefined ||
+                                  item.moduleID === searchModuleID),
+                            )
+                            .sort(
+                              (a, b) => a.connectionStatus - b.connectionStatus,
+                            )
+                            .map((item, index) => (
+                              <Button
+                                onClick={() =>
+                                  handleModuleClick(item.moduleID, item)
+                                }
+                                key={index}
+                                className={`${styles.unselectedModule} ${
+                                  moduleID === item.moduleID
+                                    ? styles.selectedModule
+                                    : ''
+                                }`}
+                                disabled={isActiveModule || modalContinue}
+                              >
+                                <Row>
+                                  <Col span={3} style={{ marginRight: 80 }}>
+                                    <p className={styles.upTitle}>
+                                      Module {item.moduleID}
+                                    </p>
+                                    <br />
+                                    <img
+                                      src={moduleImg}
+                                      alt="module"
+                                      style={{ width: 45, height: 45 }}
+                                    />
+                                  </Col>
+                                  <Col span={3}>
+                                    <p>
+                                      {item.mode === 1 ? (
+                                        <p>
+                                          Mode:{' '}
+                                          <span style={{ fontWeight: 'bold' }}>
+                                            Register
+                                          </span>
+                                        </p>
+                                      ) : item.mode === 2 ? (
+                                        <p>
+                                          Mode:{' '}
+                                          <span style={{ fontWeight: 'bold' }}>
+                                            Attendance
+                                          </span>
+                                        </p>
+                                      ) : null}
+                                    </p>
+                                    <p className={styles.upDetail}>
+                                      {item.status === 1 ? (
+                                        <p style={{ color: 'blue' }}>
+                                          available
+                                        </p>
+                                      ) : item.status === 2 ? (
+                                        <p style={{ color: 'red' }}>
+                                          unavailable
+                                        </p>
+                                      ) : null}
+                                    </p>
+                                    <p className={styles.upDetail}>
+                                      {item.connectionStatus === 1 ? (
+                                        <>
+                                          <Badge status="success" /> online
+                                        </>
+                                      ) : item.connectionStatus === 2 ? (
+                                        <>
+                                          <Badge status="error" /> offline
+                                        </>
+                                      ) : null}
+                                    </p>
+                                  </Col>
+                                </Row>
+                              </Button>
+                            ))}
+                        </Card>
+                      )}
+                    </Content>
+                  </Row>
+                </Modal>
+              </Col>
+            </div>
+          </Col>
+          <Col span={15}>
+            <Card style={{ width: '100%' }}>
+              {studentFinger.length === 0 ? (
+                <Empty description="Student have no fingerprint data" />
+              ) : (
+                <Row gutter={[5, 5]}>
+                  {studentFinger.map((item, index) => (
+                    <Col span={12}>
+                      <Card
+                        onClick={() => {
+                          if (!modalContinue) {
+                            fingerSelected(item.fingerprintTemplateID);
+                          }
+                        }}
+                        key={index}
+                        className={
+                          selectedFingers.includes(item.fingerprintTemplateID)
+                            ? styles.selectedFinger
+                            : styles.unselectedFinger
+                        }
+                      >
+                        <div className="card-row">
+                          <div className="card-icon">
+                            <BsFingerprint size={30} />
+                          </div>
+                          <div className="card-content">
+                            <div className="card-status">
+                              <b>Status: </b>
+                              <span
+                                style={{
+                                  color:
+                                    item.status === 1
+                                      ? 'green'
+                                      : item.status === 2
+                                      ? 'red'
+                                      : 'inherit',
+                                }}
+                              >
+                                {item.status === 1
+                                  ? 'Available'
+                                  : item.status === 2
+                                  ? 'Unavailable'
+                                  : ''}
+                              </span>
+                            </div>
+                            <div className="card-timestamp">
+                              <b>Timestamp: </b>
+                              <span>
+                                {new Date(item.createdAt).toLocaleDateString(
+                                  'en-GB',
+                                  {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric',
+                                  },
+                                )}
+                              </span>
+                            </div>
+                            <p>This is description of fingerprint</p>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* <Button
+                          disabled={
+                            isActiveModule ||
+                            !moduleID ||
+                            status === 'fail' ||
+                            !sessionID ||
+                            disable
+                          }
+                          onClick={() => {
+                            if (index === 0) {
+                              setFingerTwo(null);
+                              setFingerOne(item.fingerprintTemplateID);
+                            } else if (index === 1) {
+                              setFingerOne(null);
+                              setFingerTwo(item.fingerprintTemplateID);
+                            }
+                            showModalUpdate();
+                          }}
+                          style={{ width: ' 100%', marginTop: 5 }}
+                        >
+                          Update Fingerprint {index + 1}
+                        </Button> */}
+                    </Col>
+                  ))}
+                </Row>
+              )}
+            </Card>
+          </Col>
+        </Row>
+
+        <Divider
+          style={{
+            borderColor: '#7cb305',
+          }}
+        >
+          Class
+        </Divider>
+
+        <Card className={styles.cardHeader}>
+          <Content>
+            <AntHeader className={styles.tableHeader}>
+              <p className={styles.tableTitle}>
+                Class of {student.result.displayName}
+              </p>
+              <Row gutter={[16, 16]}>
+                <Col>
+                  <Input
+                    placeholder="Search by class code"
+                    suffix={<CiSearch />}
+                    variant="filled"
+                    value={searchInput}
+                    onChange={(e) => handleSearchClass(e.target.value)}
+                  ></Input>
+                </Col>
+              </Row>
+            </AntHeader>
+          </Content>
+        </Card>
+        <Table
+          columns={columns}
+          dataSource={(!isUpdate ? studentClass : filteredSemesterClass).map(
+            (item, index) => ({
+              key: index,
+              classCode: item.classCode || 'N/A',
+              classStatus: item.classStatus,
+              absencePercentage: item.absencePercentage,
+            }),
+          )}
+          pagination={{
+            showSizeChanger: true,
+          }}
+        ></Table>
       </Card>
       <Modal
         title={
           isRegisterPressed
             ? 'Register Fingerprint'
             : isUpdatePressed
-              ? 'Update Fingerprint'
-              : 'Fingerprint Registration'
+            ? 'Update Fingerprint'
+            : 'Fingerprint Registration'
         }
         visible={isModalVisible}
         onOk={handleOk}
@@ -1409,7 +1436,7 @@ const AccountStudentsDetail: React.FC = () => {
                 onOk: handleConfirmUpload,
               });
             }}
-          // disabled={progressStep2 !== 3}
+            // disabled={progressStep2 !== 3}
           >
             Submit
           </Button>,
@@ -1419,15 +1446,53 @@ const AccountStudentsDetail: React.FC = () => {
           {isRegisterPressed && (
             <Col span={24}>
               <Col style={{ textAlign: 'center', marginBottom: 60 }}>
-                <Lottie options={defaultOptions} height={100} width={100} />
-                <p>Registering Fingerprint Template 1...</p>
-                {renderProgress(progressStep1)}
+                <Row>
+                  <Col span={18}>
+                    <Lottie options={defaultOptions} height={100} width={100} />
+                    <p>Registering Fingerprint Template 1...</p>
+                    {renderProgress(progressStep1)}
+                  </Col>
+                  <Col span={6}>
+                    <TextArea
+                      maxLength={100}
+                      onChange={(e) =>
+                        setFingerprint1Description(e.target.value)
+                      }
+                      placeholder="Fingerprint description"
+                      style={{
+                        height: '100%',
+                        resize: 'none',
+                      }}
+                    />
+                  </Col>
+                </Row>
               </Col>
               {(progressStep2 === 1 || progressStep2 === 3) && (
                 <Col style={{ textAlign: 'center' }}>
-                  <Lottie options={defaultOptions} height={100} width={100} />
-                  <p>Registering Fingerprint Template 2...</p>
-                  {renderProgress(progressStep2)}
+                  <Row>
+                    <Col span={18}>
+                      <Lottie
+                        options={defaultOptions}
+                        height={100}
+                        width={100}
+                      />
+                      <p>Registering Fingerprint Template 2...</p>
+                      {renderProgress(progressStep2)}
+                    </Col>
+                    <Col span={6}>
+                      <TextArea
+                        maxLength={100}
+                        onChange={(e) =>
+                          setFingerprint2Description(e.target.value)
+                        }
+                        placeholder="Fingerprintdescription"
+                        style={{
+                          height: '100%',
+                          resize: 'none',
+                        }}
+                      />
+                    </Col>
+                  </Row>
                 </Col>
               )}
             </Col>
@@ -1435,15 +1500,55 @@ const AccountStudentsDetail: React.FC = () => {
           {isUpdatePressed && (
             <Col span={24}>
               <Col style={{ textAlign: 'center', marginBottom: 60 }}>
-                <Lottie options={defaultOptions} height={100} width={100} />
-                <p>Update Fingerprint Template 1...</p>
-                {renderProgress(progressStep1)}
+                <Row>
+                  <Col span={18}>
+                    <Lottie options={defaultOptions} height={100} width={100} />
+                    <p>Update Fingerprint Template 1...</p>
+                    {renderProgress(progressStep1)}
+                  </Col>
+                  <Col span={6}>
+                    <TextArea
+                      value={fingerprint1Description}
+                      maxLength={100}
+                      onChange={(e) =>
+                        setFingerprint1Description(e.target.value)
+                      }
+                      placeholder="Fingerprint description"
+                      style={{
+                        height: '100%',
+                        resize: 'none',
+                      }}
+                    />
+                  </Col>
+                </Row>
               </Col>
               {(progressStep2 === 1 || progressStep2 === 3) && (
                 <Col style={{ textAlign: 'center' }}>
-                  <Lottie options={defaultOptions} height={100} width={100} />
-                  <p>Update Fingerprint Template 2...</p>
-                  {renderProgress(progressStep2)}
+                  <Row>
+                    <Col span={18}>
+                      <Lottie
+                        options={defaultOptions}
+                        height={100}
+                        width={100}
+                      />
+                      <p>Update Fingerprint Template 2...</p>
+                      {renderProgress(progressStep2)}
+                    </Col>
+                    <Col span={6}>
+                      <TextArea
+                        value={fingerprint2Description}
+                        maxLength={100}
+                        onChange={(e) =>
+                          setFingerprint2Description(e.target.value)
+                        }
+                        placeholder="Fingerprint description"
+                        style={{
+                          height: '100%',
+                          resize: 'none',
+                        }}
+                      />
+                    </Col>
+                  </Row>
                 </Col>
               )}
             </Col>

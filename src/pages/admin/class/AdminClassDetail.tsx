@@ -1166,9 +1166,9 @@ const AdminClassDetail: React.FC = () => {
                 <>
                   <p className={styles.createClassTitle}>
                     Date{' '}
-                    {`(${dayjs(classes?.result.semester.startDate).format(
+                    {`(from ${dayjs(classes?.result.semester.startDate).format(
                       'DD-MM-YYYY',
-                    )} - ${dayjs(classes?.result.semester.endDate).format(
+                    )} to ${dayjs(classes?.result.semester.endDate).format(
                       'DD-MM-YYYY',
                     )})`}
                   </p>{' '}
