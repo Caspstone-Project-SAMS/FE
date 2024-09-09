@@ -30,6 +30,7 @@ import ContentHeader from '../../../components/header/contentHeader/ContentHeade
 
 import type {
   ModuleActivity,
+  ModuleActivityByID,
   ModuleByID,
   ModuleDetail,
   preparedSchedule,
@@ -55,6 +56,7 @@ const ModuleDetail: React.FC = () => {
   const [module, setModule] = useState<ModuleByID>();
   const [lecturerId, setLecturerId] = useState('');
   const [moduleActivity, setModuleActivity] = useState<ModuleActivity[]>([]);
+  // const [specificModuleActivity, setSpecificModuleActivity] = useState<ModuleActivityByID>();
   const [moduleID, setModuleID] = useState<number>(0);
   const [listScheduleId, setListScheduleId] = useState<number[]>([]);
   const [scheduleList, setScheduleList] = useState<ScheduleResult[]>([]);
@@ -63,6 +65,7 @@ const ModuleDetail: React.FC = () => {
   >([]);
   const [schedule, setSchedule] = useState<Schedules>();
   const [activeKey, setActiveKey] = useState<string | string[]>();
+  const [activeKey1, setActiveKey1] = useState<string>('2');
   const [AutoPrepare, setAutoPrepare] = useState(false);
   const [PreparedTime, setPreparedTime] = useState('');
   const [AttendanceDurationMinutes, setAttendanceDurationMinutes] = useState(0);
@@ -77,7 +80,7 @@ const ModuleDetail: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const pageSizeOptions = [10, 20, 30, 50];
 
-  console.log('edfvsfv', schedule);
+  console.log('edfvsfv', activeKey);
 
   const dispatch = useDispatch();
   const token = useSelector(
@@ -275,7 +278,20 @@ const ModuleDetail: React.FC = () => {
     if (location.state && location.state.moduleID) {
       setModuleID(location.state.moduleID);
     }
-  }, [location.state]);
+    if (location.state && location.state.key) {
+      setActiveKey1(location.state.key);
+    }
+    if (location.state && location.state.moduleActivityID) {
+      setActiveKey(location.state.moduleActivityID);
+      // handleShowModuleActivityDetail(moduleActivity)
+      getModuleActivityByIDs(location.state.moduleActivityID);
+      const index = moduleActivity.findIndex(activity => activity.moduleActivityId === location.state.moduleActivityID);
+      if (index !== -1) {
+        const page = Math.floor(index / pageSize) + 1; // Calculate the page number
+        setCurrentPage(page); // Update the current page
+      }
+    }
+  }, [location.state, moduleActivity]);
 
   useEffect(() => {
     if (moduleID !== 0) {
@@ -314,6 +330,19 @@ const ModuleDetail: React.FC = () => {
         });
     }
   }, [moduleID, reload]);
+
+  const getModuleActivityByIDs = async (ids: number) => {
+    try {
+      const response: ModuleActivityByID | null = await ModuleService.getModuleActivityByID(ids);
+      // setSpecificModuleActivity(response || undefined);
+      if (response) {
+        handleNavigateShowModuleActivityDetail(response);
+      }
+      return response;
+    } catch (error) {
+      console.log('error on get module activities by ids: ', error);
+    }
+  }
 
   const getScheduleByID = async (scheduleID: number) => {
     try {
@@ -380,6 +409,9 @@ const ModuleDetail: React.FC = () => {
   const handlePanelChange = (key: string | string[]) => {
     setActiveKey(key); // Update the active key
   };
+  const handlePanelChange1 = (key: string) => {
+    setActiveKey1(key); // Update the active key
+  };
 
   const teacherDetails = [
     { label: 'Name', value: module?.result.employee.displayName },
@@ -399,6 +431,36 @@ const ModuleDetail: React.FC = () => {
   const handlePageSizeChange = (value: number) => {
     setPageSize(value);
     setCurrentPage(1);
+  };
+
+  const handleShowModuleActivityDetail = (item: ModuleActivity) => {
+    if (
+      item.preparationTask &&
+      item.preparationTask.preparedSchedules.length > 0
+    ) {
+      getAllSchedule(item.preparationTask.preparedSchedules);
+      console.log('srgvrsdgvswrdvgs', item.preparationTask.preparedSchedules);
+    } else if (
+      item.preparationTask &&
+      item.preparationTask.preparedScheduleId
+    ) {
+      getScheduleByID(item.preparationTask.preparedScheduleId);
+    }
+  };
+
+  const handleNavigateShowModuleActivityDetail = (item: ModuleActivityByID) => {
+    if (
+      item.result?.preparationTask &&
+      item.result?.preparationTask.preparedSchedules.length > 0
+    ) {
+      getAllSchedule(item.result?.preparationTask.preparedSchedules);
+      console.log('srgvrsdgvswrdvgs', item.result?.preparationTask.preparedSchedules);
+    } else if (
+      item.result?.preparationTask &&
+      item.result?.preparationTask.preparedScheduleId
+    ) {
+      getScheduleByID(item.result?.preparationTask.preparedScheduleId);
+    }
   };
 
   return (
@@ -510,7 +572,7 @@ const ModuleDetail: React.FC = () => {
         </Row>
         <Row>
           <Col span={24}>
-            <Tabs defaultActiveKey="1">
+            <Tabs activeKey={activeKey1} onChange={handlePanelChange1}>
               <TabPane
                 tab={
                   <span>
@@ -842,27 +904,30 @@ const ModuleDetail: React.FC = () => {
                           }
                           key={item.moduleActivityId}
                           style={{ cursor: 'pointer' }}
+                          // onClick={() => {
+                          //   if (
+                          //     item.preparationTask && item.preparationTask.preparedSchedules.length > 0
+                          //   ) {
+                          //     // setListScheduleId(
+                          //     //   item.preparationTask.preparedSchedules,
+                          //     // );
+                          //     getAllSchedule(
+                          //       item.preparationTask.preparedSchedules,
+                          //     );
+                          //     console.log(
+                          //       'srgvrsdgvswrdvgs',
+                          //       item.preparationTask.preparedSchedules,
+                          //     );
+                          //   } else if (
+                          //     item.preparationTask && item.preparationTask.preparedScheduleId
+                          //   ) {
+                          //     getScheduleByID(
+                          //       item.preparationTask.preparedScheduleId,
+                          //     );
+                          //   }
+                          // }}
                           onClick={() => {
-                            if (
-                              item.preparationTask && item.preparationTask.preparedSchedules.length > 0
-                            ) {
-                              // setListScheduleId(
-                              //   item.preparationTask.preparedSchedules,
-                              // );
-                              getAllSchedule(
-                                item.preparationTask.preparedSchedules,
-                              );
-                              console.log(
-                                'srgvrsdgvswrdvgs',
-                                item.preparationTask.preparedSchedules,
-                              );
-                            } else if (
-                              item.preparationTask && item.preparationTask.preparedScheduleId
-                            ) {
-                              getScheduleByID(
-                                item.preparationTask.preparedScheduleId,
-                              );
-                            }
+                            handleShowModuleActivityDetail(item);
                           }}
                         >
                           <List.Item key={item.moduleActivityId}>

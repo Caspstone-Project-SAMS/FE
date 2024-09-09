@@ -514,7 +514,7 @@ const Headers: React.FC<HeadersProps> = ({
               </Text>
             </div>
             <div>
-              {NotificationModuleDetail.map((item, index) => (
+              {/* {NotificationModuleDetail.map((item, index) => ( */}
                 <>
                   {/* <Text style={{ fontSize: '1rem', fontWeight: 500 }}>
                     {item.label}: {item.value}
@@ -581,7 +581,7 @@ const Headers: React.FC<HeadersProps> = ({
                     )}
                   </div>
                 </>
-              ))}
+              {/* ))} */}
             </div>
           </div>
         ) : (
