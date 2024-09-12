@@ -504,6 +504,42 @@ const settingModule = async (
   }
 };
 
+const prepareScheduleDay = async (
+  ModuleID: number,
+  Mode: number,
+  SessionId: number,
+  PrepareSchedules: { preparedDate: string }, 
+  token: string,
+) => {
+  try {
+    const response = await axios.post(
+      `${MODULE_API}/Activate`,
+      {
+        ModuleID,
+        Mode,
+        SessionId,
+        PrepareSchedules,
+      },
+      {
+        headers: {
+          Accept: '*/*',
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
+    );
+    console.log('Response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('Error:', error);
+      throw error.response.data;
+    }
+    console.log('Unexpected error:', error.message);
+    throw error.message;
+  }
+};
+
 const setUpWifi = async (ssid: string, pass: string) => {
   return await axios.post(
     SET_WIFI_API,
@@ -537,4 +573,5 @@ export const ModuleService = {
   getModuleActivityByScheduleID,
   applySettingModule,
   getModuleActivityByID,
+  prepareScheduleDay,
 };

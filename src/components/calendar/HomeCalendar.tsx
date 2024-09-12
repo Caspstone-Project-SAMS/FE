@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { clearScheduleRecordMessages } from '../../redux/slice/ScheduleRecord';
 import ImportRecord from './ImportRecord';
+import PrepareSchedule from './PrepareSchedule';
 
 const HomeCalendar: React.FC = () => {
   const userRole = useSelector(
@@ -33,18 +34,21 @@ const HomeCalendar: React.FC = () => {
           {/* </Link> */}
           <ImportRecord />
           {userRole && userRole === 'Lecturer' ? (
-            <Link to={'/calendar/import-schedule'}>
-              <Button
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                size="large"
-                icon={<CiImageOn size={18} />}
-              >
-                Import FAP Image
-              </Button>
-            </Link>
+            <>
+              <PrepareSchedule />
+              <Link to={'/calendar/import-schedule'}>
+                <Button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  size="large"
+                  icon={<CiImageOn size={18} />}
+                >
+                  Import FAP Image
+                </Button>
+              </Link>
+            </>
           ) : (
             userRole &&
             userRole === 'Admin' && (

@@ -52,6 +52,9 @@ import {
 } from '../../../redux/slice/Module';
 import modules from '../../../assets/imgs/module.png';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import onlineDots from '../../../assets/animations/Online_Dot.json';
+import Lottie from 'react-lottie';
+
 const { Option } = Select;
 
 const ClassDetails: React.FC = () => {
@@ -111,6 +114,15 @@ const ClassDetails: React.FC = () => {
   );
 
   const [moduleActivity, setModuleActivity] = useState<ModuleActivity[]>([]);
+
+  const onlineDot = {
+    loop: true,
+    autoplay: true,
+    animationData: onlineDots,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+    },
+  };
 
   useEffect(() => {
     if (successMessage) {
@@ -383,8 +395,8 @@ const ClassDetails: React.FC = () => {
         status === 'past'
           ? 'Past'
           : status === 'current'
-            ? 'On going'
-            : 'Future';
+          ? 'On going'
+          : 'Future';
 
       setClassInfo([
         { label: 'Class', value: classCode },
@@ -802,23 +814,44 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.status === 1
                             ? 'available'
                             : moduleByID?.status === 0
-                              ? 'unavailable'
-                              : ''}
+                            ? 'unavailable'
+                            : ''}
                         </p>
                       </span>
-                      <span>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                      >
                         <b>Connect: </b>
-                        <p style={{ display: 'inline', alignItems: 'center' }}>
-                          {moduleByID?.connectionStatus === 1 ? (
-                            <>
-                              <Badge status="success" /> online
-                            </>
-                          ) : moduleByID?.connectionStatus === 2 ? (
-                            <>
-                              <Badge status="error" /> offline
-                            </>
-                          ) : null}
-                        </p>
+                        {moduleByID?.connectionStatus === 1 ? (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <div style={{ marginRight: -5 }}>
+                              <Lottie
+                                options={onlineDot}
+                                height={30}
+                                width={30}
+                              />
+                            </div>
+                            <div style={{ marginBottom: 2 }}>online</div>
+                          </div>
+                        ) : moduleByID?.connectionStatus === 2 ? (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              marginLeft: 5,
+                            }}
+                          >
+                            <Badge status="error" /> offline
+                          </div>
+                        ) : null}
                       </span>
                       <span>
                         <b>Mode: </b>
@@ -826,8 +859,8 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.mode === 1
                             ? 'Register'
                             : moduleByID?.mode === 2
-                              ? 'Attendance'
-                              : ''}
+                            ? 'Attendance'
+                            : ''}
                         </p>
                       </span>
                     </div>
@@ -923,12 +956,16 @@ const ClassDetails: React.FC = () => {
                       let totalFingers = 0;
                       let uploadedFingers = 0;
 
-                      if (item.preparationTask.preparedScheduleId == scheduleID) {
-                        totalFingers = item.preparationTask.totalFingers;
-                        uploadedFingers = item.preparationTask.uploadedFingers;
-                      }
-                      else {
-                        let schedule = item.preparationTask.preparedSchedules.find(s => s.scheduleId == scheduleID);
+                      if (
+                        item.preparationTask?.preparedScheduleId == scheduleID
+                      ) {
+                        totalFingers = item.preparationTask?.totalFingers ?? 0;
+                        uploadedFingers = item.preparationTask?.uploadedFingers ?? 0;
+                      } else {
+                        const schedule =
+                          item.preparationTask?.preparedSchedules.find(
+                            (s) => s.scheduleId == scheduleID,
+                          );
                         if (schedule !== undefined) {
                           totalFingers = schedule.totalFingers;
                           uploadedFingers = schedule.uploadedFingers;
@@ -942,17 +979,17 @@ const ClassDetails: React.FC = () => {
                             borderRadius: 10,
                             marginBottom: 10,
                           }}
-                        // actions={[
-                        //   <a style={{ color: 'green' }} key="list-loadmore-edit">
-                        //     start
-                        //   </a>,
-                        //   <a style={{ color: 'red' }} key="list-loadmore-more">
-                        //     stop
-                        //   </a>,
-                        //   <a style={{ color: 'blue' }} key="list-loadmore-more">
-                        //     sync
-                        //   </a>,
-                        // ]}
+                          // actions={[
+                          //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                          //     start
+                          //   </a>,
+                          //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                          //     stop
+                          //   </a>,
+                          //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                          //     sync
+                          //   </a>,
+                          // ]}
                         >
                           <List.Item.Meta
                             avatar={
@@ -969,11 +1006,11 @@ const ClassDetails: React.FC = () => {
                                 />
                               </div>
                             }
-                          // title={
-                          //   <a href="https://ant.design">{item.name?.last}</a>
-                          // }
-                          // title={`Module ${item.module.moduleID}`}
-                          // description="a"
+                            // title={
+                            //   <a href="https://ant.design">{item.name?.last}</a>
+                            // }
+                            // title={`Module ${item.module.moduleID}`}
+                            // description="a"
                           />
                           {/* <div style={{width:'10%', marginRight: 40}}>
                               <b>{'Module' + item.module.moduleID}</b>
@@ -984,7 +1021,7 @@ const ClassDetails: React.FC = () => {
                               {item.startTime}
                             </div> */}
                           <div>
-                            <b>Time:</b>{' '}
+                            <b>Timestamp:</b>{' '}
                             {new Date(item.startTime).toLocaleString('en-GB', {
                               day: '2-digit',
                               month: '2-digit',
@@ -1085,7 +1122,7 @@ const ClassDetails: React.FC = () => {
                             </Popover>
                           </Space>
                         </List.Item>
-                      )
+                      );
                     }}
                   />
                 </Row>
@@ -1185,10 +1222,11 @@ const ClassDetails: React.FC = () => {
                       <Button
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
-                        className={`${styles.unselectedModule} ${moduleID === item.moduleID
+                        className={`${styles.unselectedModule} ${
+                          moduleID === item.moduleID
                             ? styles.selectedModule
                             : ''
-                          }`}
+                        }`}
                         disabled={isActiveModule}
                       >
                         <Row>
@@ -1230,9 +1268,26 @@ const ClassDetails: React.FC = () => {
                             </p>
                             <p className={styles.upDetail}>
                               {item.connectionStatus === 1 ? (
-                                <>
-                                  <Badge status="success" /> online
-                                </>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: -10,
+                                  }}
+                                >
+                                  <div style={{ marginRight: 5 }}>
+                                    <Lottie
+                                      options={onlineDot}
+                                      height={30}
+                                      width={30}
+                                    />
+                                  </div>
+                                  <div
+                                    style={{ marginLeft: -10, marginBottom: 3 }}
+                                  >
+                                    online
+                                  </div>
+                                </div>
                               ) : item.connectionStatus === 2 ? (
                                 <>
                                   <Badge status="error" /> offline

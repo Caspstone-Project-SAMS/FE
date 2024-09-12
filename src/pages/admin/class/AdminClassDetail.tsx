@@ -194,11 +194,14 @@ const AdminClassDetail: React.FC = () => {
     { title: 'Class Code', value: classes?.result.classCode || 'N/A' },
     {
       title: 'Status',
-      value: classes?.result.classStatus ? (
-        <Tag color="green">Active</Tag>
-      ) : (
-        <Tag color="red">Inactive</Tag>
-      ),
+      value:
+        classes?.result.classStatus === 1 ? (
+          <Tag color="green">Available</Tag>
+        ) : classes?.result.classStatus === 2 ? (
+          <Tag color="red">Unvailable</Tag>
+        ) : (
+          <Tag color="gray">N/A</Tag>
+        ),
       classStatus: true,
     },
     {
@@ -764,24 +767,24 @@ const AdminClassDetail: React.FC = () => {
             <Card style={{ height: '100%' }}>
               <Row>
                 {/* <Col span={1}> */}
-                  <Row style={{ display: 'flex', alignItems: 'center' }}>
-                    <img
-                      alt="Lecturer"
-                      src={classes?.result.lecturer.avatar}
-                      style={{ width: 100, height: 100, borderRadius: '50%' }}
-                    />
-                    <p
-                      style={{
-                        fontWeight: 'bold',
-                        fontSize: 20,
-                        marginLeft: 10,
-                      }}
-                    >
-                      <IoPersonSharp size={20} /> About
-                    </p>
-                  </Row>
+                <Row style={{ display: 'flex', alignItems: 'center' }}>
+                  <img
+                    alt="Lecturer"
+                    src={classes?.result.lecturer.avatar}
+                    style={{ width: 100, height: 100, borderRadius: '50%' }}
+                  />
+                  <p
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 20,
+                      marginLeft: 10,
+                    }}
+                  >
+                    <IoPersonSharp size={20} /> About
+                  </p>
+                </Row>
                 {/* </Col> */}
-                <Col span={23} style={{ marginLeft: 20, marginTop:25 }}>
+                <Col span={23} style={{ marginLeft: 20, marginTop: 25 }}>
                   {/* <Row gutter={[16, 16]}>
                     <Col span={12}>
                       <Row style={{ marginBottom: 40 }}>
@@ -880,7 +883,12 @@ const AdminClassDetail: React.FC = () => {
             </Content>
           </Col>
           <Col span={6}>
-            <Box flexGrow={1} display="flex" flexDirection="column" alignItems="center">
+            <Box
+              flexGrow={1}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+            >
               <Typography className={styles.tableTitle}>Attendance</Typography>
               <PieChart
                 colors={palette}

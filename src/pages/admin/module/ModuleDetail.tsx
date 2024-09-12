@@ -196,10 +196,10 @@ const ModuleDetail: React.FC = () => {
       title: 'Status',
       value: (
         <Tag
-          color={status ? 'green' : 'red'}
+          color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
-          {status ? 'active' : 'inactive'}
+          {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
         </Tag>
       ),
       status: true,
@@ -232,17 +232,17 @@ const ModuleDetail: React.FC = () => {
         : String(module?.result?.preparedTime ?? 'N/A')
       ).slice(0, 5),
     },
-    {
-      title: 'Auto Reset',
-      value: (
-        <Tag
-          color={autoReset ? 'green' : 'red'}
-          style={{ fontWeight: 'bold', fontSize: '10px' }}
-        >
-          {autoReset ? 'Auto' : 'Not Auto'}
-        </Tag>
-      ),
-    },
+    // {
+    //   title: 'Auto Reset',
+    //   value: (
+    //     <Tag
+    //       color={autoReset ? 'green' : 'red'}
+    //       style={{ fontWeight: 'bold', fontSize: '10px' }}
+    //     >
+    //       {autoReset ? 'Auto' : 'Not Auto'}
+    //     </Tag>
+    //   ),
+    // },
     // { title: 'Reset Time', value: module?.result.resetTime || 'N/A' },
   ];
 
@@ -285,7 +285,10 @@ const ModuleDetail: React.FC = () => {
       setActiveKey(location.state.moduleActivityID);
       // handleShowModuleActivityDetail(moduleActivity)
       getModuleActivityByIDs(location.state.moduleActivityID);
-      const index = moduleActivity.findIndex(activity => activity.moduleActivityId === location.state.moduleActivityID);
+      const index = moduleActivity.findIndex(
+        (activity) =>
+          activity.moduleActivityId === location.state.moduleActivityID,
+      );
       if (index !== -1) {
         const page = Math.floor(index / pageSize) + 1; // Calculate the page number
         setCurrentPage(page); // Update the current page
@@ -333,7 +336,8 @@ const ModuleDetail: React.FC = () => {
 
   const getModuleActivityByIDs = async (ids: number) => {
     try {
-      const response: ModuleActivityByID | null = await ModuleService.getModuleActivityByID(ids);
+      const response: ModuleActivityByID | null =
+        await ModuleService.getModuleActivityByID(ids);
       // setSpecificModuleActivity(response || undefined);
       if (response) {
         handleNavigateShowModuleActivityDetail(response);
@@ -342,7 +346,7 @@ const ModuleDetail: React.FC = () => {
     } catch (error) {
       console.log('error on get module activities by ids: ', error);
     }
-  }
+  };
 
   const getScheduleByID = async (scheduleID: number) => {
     try {
@@ -454,7 +458,10 @@ const ModuleDetail: React.FC = () => {
       item.result?.preparationTask.preparedSchedules.length > 0
     ) {
       getAllSchedule(item.result?.preparationTask.preparedSchedules);
-      console.log('srgvrsdgvswrdvgs', item.result?.preparationTask.preparedSchedules);
+      console.log(
+        'srgvrsdgvswrdvgs',
+        item.result?.preparationTask.preparedSchedules,
+      );
     } else if (
       item.result?.preparationTask &&
       item.result?.preparationTask.preparedScheduleId
@@ -936,7 +943,7 @@ const ModuleDetail: React.FC = () => {
                                 description={item.description}
                               />
                               <div>Additional Content</div> */}
-                            <div style={{ width: '60%' }}>
+                            <div style={{ width: '66%' }}>
                               <div
                                 style={{
                                   display: 'inline-flex',
@@ -985,8 +992,15 @@ const ModuleDetail: React.FC = () => {
                                 </span>
                               </div>
                               <br />
-                              <b>{item.title}</b>
-                              <p>{item.description}</p>
+                              <b>{item.title}: </b>
+                              <span>{item.description}</span>
+                              {JSON.stringify(item.errors) !==
+                                JSON.stringify(['']) && (
+                                <p>
+                                  <b>Error: </b>
+                                  <span style={{ color: 'red' }}>{item.errors}</span>
+                                </p>
+                              )}
                               <p>
                                 <b>Start Time:</b>
                                 {' ' +
@@ -1022,7 +1036,7 @@ const ModuleDetail: React.FC = () => {
                             </div>
                             {item.preparationTask?.preparedScheduleId && (
                               <>
-                                <div style={{ width: '20%' }}>
+                                <div style={{ width: '17%' }}>
                                   <p>
                                     <b>Date:</b>{' '}
                                     {schedule?.result.date || 'N/A'}
@@ -1032,7 +1046,7 @@ const ModuleDetail: React.FC = () => {
                                     {schedule?.result.class.classCode || 'N/A'}
                                   </p>
                                 </div>
-                                <div style={{ width: '20%' }}>
+                                <div style={{ width: '17%' }}>
                                   <p>
                                     <b>Slot:</b>{' '}
                                     {schedule?.result.slot.slotNumber || 'N/A'}
