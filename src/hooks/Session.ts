@@ -9,8 +9,6 @@ const submitSession = async (
   fingerprint1Description: string | '',
   fingerprint2Description: string | '',
 ) => {
-  console.log('fingerprint1Description', fingerprint1Description);
-  console.log('fingerprint2Description', fingerprint2Description);
   try {
     const auth = {
       headers: { Authorization: 'Bearer ' + token },

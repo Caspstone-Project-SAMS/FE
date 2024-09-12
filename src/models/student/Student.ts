@@ -42,9 +42,7 @@ export interface StudentDetail {
 export interface FingerprintTemplate {
   fingerprintTemplateID: number;
   status: number;
-  description: string;
   createdAt: string;
-  fingerNumber: number;
 }
 
 export interface EnrolledClasses {

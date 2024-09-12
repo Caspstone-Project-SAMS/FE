@@ -161,7 +161,7 @@ const SystemComponent: React.FC = () => {
           <div className={styles.settingItem}>
             <div>
               <span className={styles.settingLabel}>
-                Reversible Duration (hours)
+                Revert Able Duration (hours)
               </span>
               <br />
               <InputNumber
@@ -177,7 +177,7 @@ const SystemComponent: React.FC = () => {
                 className={styles.inputNumber}
               />{' '}
               {/* {' hours'} */}
-              <p className={styles.suggestText}>Specify the reversible duration since importing the schedules</p>
+              <p className={styles.suggestText}>abc</p>
             </div>
           </div>
           <div className={styles.settingItem}>
@@ -199,7 +199,7 @@ const SystemComponent: React.FC = () => {
                 className={styles.inputNumber}
               />{' '}
               {/* {' %'} */}
-              <p className={styles.suggestText}>Specify the match ratio of the class code when analyzing the schedule image</p>
+              <p className={styles.suggestText}>abc</p>
             </div>
           </div>
           <div className={styles.settingItem}>
@@ -221,7 +221,7 @@ const SystemComponent: React.FC = () => {
                 className={styles.inputNumber}
               />{' '}
               {/* {' days'} */}
-              <p className={styles.suggestText}>Specify the duration of a semester</p>
+              <p className={styles.suggestText}>abc</p>
             </div>
           </div>
         </Col>

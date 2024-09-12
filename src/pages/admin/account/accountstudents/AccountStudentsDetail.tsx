@@ -19,7 +19,6 @@ import {
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import Lottie from 'react-lottie';
 import fingerprintScanAnimation from '../../../../assets/animations/Scanning_Fingerprint_animation.json';
-import onlineDots from '../../../../assets/animations/Online_Dot.json';
 import styles from './AccountStudents.module.less';
 import { useLocation } from 'react-router-dom';
 import {
@@ -111,8 +110,6 @@ const AccountStudentsDetail: React.FC = () => {
 
   const [fingerOne, setFingerOne] = useState(false);
   const [fingerTwo, setFingerTwo] = useState(false);
-  const [fingerPositionOne, setFingerPositionOne] = useState(false);
-  const [fingerPositionTwo, setFingerPositionTwo] = useState(false);
 
   const [selectedFingers, setSelectedFingers] = useState<number[]>([]);
 
@@ -172,6 +169,7 @@ const AccountStudentsDetail: React.FC = () => {
 
   const checkFingerID = useCallback(
     async (fingerId: number) => {
+      console.log('okkkkkkkkkkkkkkkkkkk', selectedFingers);
       try {
         if (fingerTwo === true) {
           if (length === 2) {
@@ -385,19 +383,12 @@ const AccountStudentsDetail: React.FC = () => {
             }
             return prevClasses;
           });
-          const updatedFingerprints = (
-            data?.result.fingerprintTemplates || []
-          ).map((template, index) => ({
-            ...template,
-            fingerNumber: template.fingerNumber || index + 1, // Default to index + 1 if fingerNumber is missing
-          }));
           setStudentFinger((prevFingers) => {
             if (
               JSON.stringify(prevFingers) !==
               JSON.stringify(data?.result.fingerprintTemplates)
             ) {
-              // return data?.result.fingerprintTemplates || [];
-              return updatedFingerprints;
+              return data?.result.fingerprintTemplates || [];
             }
             return prevFingers;
           });
@@ -609,7 +600,7 @@ const AccountStudentsDetail: React.FC = () => {
       render: (classStatus: number) => (
         <div>
           <Tag
-            color={classStatus === 1 ? 'green' : classStatus === 2 ? 'red' : 'gray'}
+            color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
             {classStatus === 1
@@ -732,16 +723,6 @@ const AccountStudentsDetail: React.FC = () => {
     setProgressStep1(0);
     setProgressStep2(0);
     setModalContinue(false);
-    if (fingerPositionOne === true) {
-      setFingerprint1Description(studentFinger[0]?.description || '');
-    } else {
-      setFingerprint1Description('');
-    }
-    if (fingerPositionTwo === true) {
-      setFingerprint2Description(studentFinger[1]?.description || '');
-    } else {
-      setFingerprint2Description('');
-    }
   };
 
   const handleOkModule = () => {
@@ -781,16 +762,6 @@ const AccountStudentsDetail: React.FC = () => {
   }, []);
 
   const handleExit = async () => {
-    if (fingerPositionOne === true) {
-      setFingerprint1Description(studentFinger[0]?.description || '');
-    } else {
-      setFingerprint1Description('');
-    }
-    if (fingerPositionTwo === true) {
-      setFingerprint2Description(studentFinger[1]?.description || '');
-    } else {
-      setFingerprint2Description('');
-    }
     try {
       const response = await ModuleService.cancelSession(
         moduleID,
@@ -827,11 +798,15 @@ const AccountStudentsDetail: React.FC = () => {
     }
   };
 
+  console.log('one', fingerOne);
+  console.log('two', fingerTwo);
+
   const handleCancel = () => {
     setIsModalVisible(false);
     setModalContinue(true);
     setIsActiveModule(false);
   };
+  console.log('active', isActiveModule);
 
   const handleCancelModule = () => {
     setIsModalVisibleModule(false);
@@ -891,39 +866,9 @@ const AccountStudentsDetail: React.FC = () => {
     },
   };
 
-  const onlineDot = {
-    loop: true,
-    autoplay: true,
-    animationData: onlineDots,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
-
   if (!student) {
     return <div>Loading...</div>;
   }
-
-  // const fingerSelected = (fingerID: number) => {
-  //   let newFingers;
-  //   if (selectedFingers.includes(fingerID)) {
-  //     newFingers = selectedFingers.filter((fingerId) => fingerId !== fingerID);
-  //   } else {
-  //     newFingers = [...selectedFingers, fingerID];
-  //   }
-  //   setSelectedFingers(newFingers);
-  //   sethaveFinger(newFingers.length > 0);
-  //   if (newFingers.length === 1) {
-  //     setFingerOne(true);
-  //     setFingerTwo(false);
-  //   } else if (newFingers.length === 2) {
-  //     setFingerOne(false);
-  //     setFingerTwo(true);
-  //   } else if (newFingers.length === 0) {
-  //     setFingerOne(false);
-  //     setFingerTwo(false);
-  //   }
-  // };
 
   const fingerSelected = (fingerID: number) => {
     let newFingers;
@@ -944,59 +889,6 @@ const AccountStudentsDetail: React.FC = () => {
       setFingerOne(false);
       setFingerTwo(false);
     }
-
-    const fingerTemplates = studentFinger || [];
-    const fingerOneID = fingerTemplates.find(
-      (template) => template.fingerNumber === 1,
-    )?.fingerprintTemplateID;
-    const fingerTwoID = fingerTemplates.find(
-      (template) => template.fingerNumber === 2,
-    )?.fingerprintTemplateID;
-
-    if (fingerOneID !== undefined && newFingers.includes(fingerOneID)) {
-      setFingerPositionOne(true);
-      setFingerprint1Description(fingerTemplates[0]?.description || '');
-    } else {
-      setFingerPositionOne(false);
-      setFingerprint1Description('');
-    }
-
-    if (fingerTwoID !== undefined && newFingers.includes(fingerTwoID)) {
-      setFingerPositionTwo(true);
-      setFingerprint2Description(fingerTemplates[1]?.description || '');
-    } else {
-      setFingerPositionTwo(false);
-      setFingerprint2Description('');
-    }
-
-    if (newFingers.length === 0) {
-      setFingerPositionOne(false);
-      setFingerPositionTwo(false);
-    }
-  };
-
-  console.log('finger1', fingerprint1Description);
-  console.log('finger2', fingerprint2Description);
-
-  const getFingerOptions = () => {
-    const fingerData = [
-      { value: 'Left Thumb', label: 'Left Thumb' },
-      { value: 'Left Index Finger', label: 'Left Index Finger' },
-      { value: 'Left Middle Finger', label: 'Left Middle Finger' },
-      { value: 'Left Ring Finger', label: 'Left Ring Finger' },
-      { value: 'Left Pinky Finger', label: 'Left Pinky Finger' },
-      { value: 'Right Thumb', label: 'Right Thumb' },
-      { value: 'Right Index Finger', label: 'Right Index Finger' },
-      { value: 'Right Middle Finger', label: 'Right Middle Finger' },
-      { value: 'Right Ring Finger', label: 'Right Ring Finger' },
-      { value: 'Right Pinky Finger', label: 'Right Pinky Finger' },
-    ];
-
-    return fingerData.map((finger) => (
-      <Option key={finger.value} value={finger.value}>
-        {finger.label}
-      </Option>
-    ));
   };
 
   return (
@@ -1126,42 +1018,25 @@ const AccountStudentsDetail: React.FC = () => {
                               : ''}
                           </p>
                         </span>
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                          }}
-                        >
+                        <span>
                           <b>Connect: </b>
-                          {moduleByID?.connectionStatus === 1 ? (
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <div style={{ marginRight: -5 }}>
-                                <Lottie
-                                  options={onlineDot}
-                                  height={30}
-                                  width={30}
-                                />
-                              </div>
-                              <div style={{ marginBottom: 2 }}>online</div>
-                            </div>
-                          ) : moduleByID?.connectionStatus === 2 ? (
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginLeft: 5,
-                              }}
-                            >
-                              <Badge status="error" /> offline
-                            </div>
-                          ) : null}
+                          <p
+                            style={{
+                              display: 'inline',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {moduleByID?.connectionStatus === 1 ? (
+                              <>
+                                <Badge status="success" /> online
+                              </>
+                            ) : moduleByID?.connectionStatus === 2 ? (
+                              <>
+                                <Badge status="error" /> offline
+                              </>
+                            ) : null}
+                          </p>
                         </span>
-
                         <span>
                           <b>Mode: </b>
                           <p style={{ display: 'inline' }}>
@@ -1368,29 +1243,9 @@ const AccountStudentsDetail: React.FC = () => {
                                     </p>
                                     <p className={styles.upDetail}>
                                       {item.connectionStatus === 1 ? (
-                                        <div
-                                          style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            marginLeft: -10,
-                                          }}
-                                        >
-                                          <div style={{ marginRight: 5 }}>
-                                            <Lottie
-                                              options={onlineDot}
-                                              height={30}
-                                              width={30}
-                                            />
-                                          </div>
-                                          <div
-                                            style={{
-                                              marginLeft: -10,
-                                              marginBottom: 3,
-                                            }}
-                                          >
-                                            online
-                                          </div>
-                                        </div>
+                                        <>
+                                          <Badge status="success" /> online
+                                        </>
                                       ) : item.connectionStatus === 2 ? (
                                         <>
                                           <Badge status="error" /> offline
@@ -1467,7 +1322,7 @@ const AccountStudentsDetail: React.FC = () => {
                                 )}
                               </span>
                             </div>
-                            <p>{item.description}</p>
+                            <p>This is description of fingerprint</p>
                           </div>
                         </div>
                       </Card>
@@ -1591,26 +1446,30 @@ const AccountStudentsDetail: React.FC = () => {
           {isRegisterPressed && (
             <Col span={24}>
               <Col style={{ textAlign: 'center', marginBottom: 60 }}>
-                <Row style={{ display: 'flex', alignItems: 'center' }}>
+                <Row>
                   <Col span={18}>
                     <Lottie options={defaultOptions} height={100} width={100} />
                     <p>Registering Fingerprint Template 1...</p>
                     {renderProgress(progressStep1)}
                   </Col>
                   <Col span={6}>
-                    <Select
-                      placeholder="Select Finger"
-                      onChange={(value) => setFingerprint1Description(value)}
-                      style={{ width: '100%' }}
-                    >
-                      {getFingerOptions()}
-                    </Select>
+                    <TextArea
+                      maxLength={100}
+                      onChange={(e) =>
+                        setFingerprint1Description(e.target.value)
+                      }
+                      placeholder="Fingerprint description"
+                      style={{
+                        height: '100%',
+                        resize: 'none',
+                      }}
+                    />
                   </Col>
                 </Row>
               </Col>
               {(progressStep2 === 1 || progressStep2 === 3) && (
                 <Col style={{ textAlign: 'center' }}>
-                  <Row style={{ display: 'flex', alignItems: 'center' }}>
+                  <Row>
                     <Col span={18}>
                       <Lottie
                         options={defaultOptions}
@@ -1621,43 +1480,51 @@ const AccountStudentsDetail: React.FC = () => {
                       {renderProgress(progressStep2)}
                     </Col>
                     <Col span={6}>
-                      <Select
-                        placeholder="Select Finger"
-                        onChange={(value) => setFingerprint2Description(value)}
-                        style={{ width: '100%' }}
-                      >
-                        {getFingerOptions()}
-                      </Select>
+                      <TextArea
+                        maxLength={100}
+                        onChange={(e) =>
+                          setFingerprint2Description(e.target.value)
+                        }
+                        placeholder="Fingerprintdescription"
+                        style={{
+                          height: '100%',
+                          resize: 'none',
+                        }}
+                      />
                     </Col>
                   </Row>
                 </Col>
               )}
             </Col>
           )}
-          {isUpdatePressed && fingerTwo && (
+          {isUpdatePressed && (
             <Col span={24}>
               <Col style={{ textAlign: 'center', marginBottom: 60 }}>
-                <Row style={{ display: 'flex', alignItems: 'center' }}>
+                <Row>
                   <Col span={18}>
                     <Lottie options={defaultOptions} height={100} width={100} />
                     <p>Update Fingerprint Template 1...</p>
                     {renderProgress(progressStep1)}
                   </Col>
                   <Col span={6}>
-                    <Select
+                    <TextArea
                       value={fingerprint1Description}
-                      placeholder="Select Finger"
-                      onChange={(value) => setFingerprint1Description(value)}
-                      style={{ width: '100%' }}
-                    >
-                      {getFingerOptions()}
-                    </Select>
+                      maxLength={100}
+                      onChange={(e) =>
+                        setFingerprint1Description(e.target.value)
+                      }
+                      placeholder="Fingerprint description"
+                      style={{
+                        height: '100%',
+                        resize: 'none',
+                      }}
+                    />
                   </Col>
                 </Row>
               </Col>
               {(progressStep2 === 1 || progressStep2 === 3) && (
                 <Col style={{ textAlign: 'center' }}>
-                  <Row style={{ display: 'flex', alignItems: 'center' }}>
+                  <Row>
                     <Col span={18}>
                       <Lottie
                         options={defaultOptions}
@@ -1668,56 +1535,22 @@ const AccountStudentsDetail: React.FC = () => {
                       {renderProgress(progressStep2)}
                     </Col>
                     <Col span={6}>
-                      <Select
+                      <TextArea
                         value={fingerprint2Description}
-                        placeholder="Select Finger"
-                        onChange={(value) => setFingerprint2Description(value)}
-                        style={{ width: '100%' }}
-                      >
-                        {getFingerOptions()}
-                      </Select>
+                        maxLength={100}
+                        onChange={(e) =>
+                          setFingerprint2Description(e.target.value)
+                        }
+                        placeholder="Fingerprint description"
+                        style={{
+                          height: '100%',
+                          resize: 'none',
+                        }}
+                      />
                     </Col>
                   </Row>
                 </Col>
               )}
-            </Col>
-          )}
-          {isUpdatePressed && fingerOne && (
-            <Col span={24}>
-              <Col style={{ textAlign: 'center', marginBottom: 60 }}>
-                <Row style={{ display: 'flex', alignItems: 'center' }}>
-                  <Col span={18}>
-                    <Lottie options={defaultOptions} height={100} width={100} />
-                    {fingerPositionOne ? (
-                      <p>Update Fingerprint Template 1...</p>
-                    ) : fingerPositionTwo ? (
-                      <p>Update Fingerprint Template 2...</p>
-                    ) : null}
-                    {renderProgress(progressStep1)}
-                  </Col>
-                  <Col span={6}>
-                    {fingerPositionOne ? (
-                      <Select
-                        value={fingerprint1Description}
-                        placeholder="Select Finger"
-                        onChange={(value) => setFingerprint1Description(value)}
-                        style={{ width: '100%' }}
-                      >
-                        {getFingerOptions()}
-                      </Select>
-                    ) : fingerPositionTwo ? (
-                      <Select
-                        value={fingerprint2Description}
-                        placeholder="Select Finger"
-                        onChange={(value) => setFingerprint2Description(value)}
-                        style={{ width: '100%' }}
-                      >
-                        {getFingerOptions()}
-                      </Select>
-                    ) : null}
-                  </Col>
-                </Row>
-              </Col>
             </Col>
           )}
         </Row>

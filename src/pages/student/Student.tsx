@@ -89,19 +89,11 @@ const Student: React.FC = () => {
       title: 'Start date',
       dataIndex: 'startDate',
       key: '2',
-      render: (date: string) => {
-        const formattedDate = new Date(date).toLocaleDateString('en-GB');
-        return formattedDate;
-      },
     },
     {
       title: 'End date',
       dataIndex: 'endDate',
       key: '3',
-      render: (date: string) => {
-        const formattedDate = new Date(date).toLocaleDateString('en-GB');
-        return formattedDate;
-      },
     },
   ];
 

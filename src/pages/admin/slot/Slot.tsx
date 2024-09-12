@@ -336,13 +336,13 @@ const Slot: React.FC = () => {
       key: '3',
       title: 'status',
       dataIndex: 'slotstatus',
-      render: (status: number) => (
+      render: (status: boolean) => (
         <div>
           <Tag
-            color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
+            color={status ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+            {status ? 'available' : 'unavailable'}
           </Tag>
         </div>
       ),
@@ -387,10 +387,10 @@ const Slot: React.FC = () => {
       dataIndex: 'status',
       render: (status: number) => (
         <Tag
-          color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
+          color={status ? 'green' : 'red'}
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
-          {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+          {status ? 'available' : 'unavailable'}
         </Tag>
       ),
     },

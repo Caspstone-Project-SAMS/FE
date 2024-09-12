@@ -264,11 +264,7 @@ const Headers: React.FC<HeadersProps> = ({
     }
   };
 
-  const handleMoreDetail = (
-    moduleId: number | null,
-    moduleActivityId: number | null,
-    scheduleId: number | null,
-  ) => {
+  const handleMoreDetail = (moduleId: number | null, moduleActivityId: number | null, scheduleId: number | null) => {
     if (scheduleId !== null) {
       // navigate('/')
     } else if (moduleId !== null) {
@@ -276,10 +272,10 @@ const Headers: React.FC<HeadersProps> = ({
         state: {
           moduleActivityID: moduleActivityId,
           moduleID: moduleId,
-          key: '3',
-        },
+          key: "3"
+        }
       });
-    }
+    } 
   };
 
   const getAllSchedule = async (schedules: preparedSchedule[]) => {
@@ -378,16 +374,10 @@ const Headers: React.FC<HeadersProps> = ({
       style: { padding: 0 },
       label: (
         <>
-          {(user?.result?.role.name as any === 'Admin') ||
-            (user?.result?.role.name as any === 'Lecturer') ? (
-              <>
-                <Button type="text" onClick={handleNavigateHome}>
-                  Home
-                </Button>
-                <br />
-              </>
-            ) : null}
-
+          <Button type="text" onClick={handleNavigateHome}>
+            Home
+          </Button>
+          <br />
           {(user?.result?.role.name as any) === 'Admin' ? (
             <div>
               <Button type="text" onClick={handleNavigateScript}>
@@ -467,7 +457,7 @@ const Headers: React.FC<HeadersProps> = ({
                   border: 'none',
                   boxShadow: 'none',
                   background: 'transparent',
-                  marginLeft: -20,
+                  marginLeft:-20
                 }}
                 onClick={handleBackToList}
               >
@@ -479,14 +469,8 @@ const Headers: React.FC<HeadersProps> = ({
                   boxShadow: 'none',
                   background: 'transparent',
                 }}
-                type="link"
-                onClick={() =>
-                  handleMoreDetail(
-                    selectedNotification.moduleId,
-                    selectedNotification.moduleActivityId,
-                    selectedNotification.scheduleID,
-                  )
-                }
+                type='link'
+                onClick={() => handleMoreDetail(selectedNotification.moduleId, selectedNotification.moduleActivityId, selectedNotification.scheduleID)}
               >
                 <p>More Detail</p>
               </Button>
@@ -532,72 +516,72 @@ const Headers: React.FC<HeadersProps> = ({
             </div>
             <div>
               {/* {NotificationModuleDetail.map((item, index) => ( */}
-              <>
-                {/* <Text style={{ fontSize: '1rem', fontWeight: 500 }}>
+                <>
+                  {/* <Text style={{ fontSize: '1rem', fontWeight: 500 }}>
                     {item.label}: {item.value}
                   </Text> */}
-                <div>
-                  {scheduleList !== undefined && (
-                    <Table
-                      columns={columns}
-                      dataSource={scheduleList.map((item1, index) => ({
-                        key: index,
-                        date: item1.date
-                          ? new Date(item1.date).toLocaleDateString('en-GB')
-                          : 'N/A',
-                        slot: item1.slot.slotNumber || 'N/A',
-                        time: (
-                          <div>
-                            {item1.slot.startTime.slice(0, 5)} -{' '}
-                            {item1.slot.endtime.slice(0, 5)}
+                  <div>
+                    {scheduleList !== undefined && (
+                      <Table
+                        columns={columns}
+                        dataSource={scheduleList.map((item1, index) => ({
+                          key: index,
+                          date: item1.date
+                            ? new Date(item1.date).toLocaleDateString('en-GB')
+                            : 'N/A',
+                          slot: item1.slot.slotNumber || 'N/A',
+                          time: (
+                            <div>
+                              {item1.slot.startTime.slice(0, 5)} -{' '}
+                              {item1.slot.endtime.slice(0, 5)}
+                            </div>
+                          ),
+                          class: item1.class.classCode || 'N/A',
+                          uploadFingerprints: (
+                            <>
+                              {item1.uploaded} / {item1.total}
+                            </>
+                          ),
+                        }))}
+                        pagination={false}
+                      ></Table>
+                    )}
+                    {schedule !== undefined && (
+                      <>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <div style={{ width: '50%' }}>
+                            <p>
+                              <b>Date:</b> {schedule?.result.date || 'N/A'}
+                            </p>
+                            <p>
+                              <b>Class:</b>{' '}
+                              {schedule?.result.class.classCode || 'N/A'}
+                            </p>
                           </div>
-                        ),
-                        class: item1.class.classCode || 'N/A',
-                        uploadFingerprints: (
-                          <>
-                            {item1.uploaded} / {item1.total}
-                          </>
-                        ),
-                      }))}
-                      pagination={false}
-                    ></Table>
-                  )}
-                  {schedule !== undefined && (
-                    <>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <div style={{ width: '50%' }}>
-                          <p>
-                            <b>Date:</b> {schedule?.result.date || 'N/A'}
-                          </p>
-                          <p>
-                            <b>Class:</b>{' '}
-                            {schedule?.result.class.classCode || 'N/A'}
-                          </p>
+                          <div style={{ width: '50%' }}>
+                            <p>
+                              <b>Slot:</b>{' '}
+                              {schedule?.result.slot.slotNumber || 'N/A'}
+                            </p>
+                            <p>
+                              <b>Time:</b>{' '}
+                              {schedule?.result.slot
+                                ? schedule?.result.slot.startTime +
+                                  '-' +
+                                  schedule?.result.slot.endtime
+                                : 'N/A'}
+                            </p>
+                          </div>
                         </div>
-                        <div style={{ width: '50%' }}>
-                          <p>
-                            <b>Slot:</b>{' '}
-                            {schedule?.result.slot.slotNumber || 'N/A'}
-                          </p>
-                          <p>
-                            <b>Time:</b>{' '}
-                            {schedule?.result.slot
-                              ? schedule?.result.slot.startTime +
-                                '-' +
-                                schedule?.result.slot.endtime
-                              : 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </>
+                      </>
+                    )}
+                  </div>
+                </>
               {/* ))} */}
             </div>
           </div>

@@ -35,7 +35,7 @@ const SemesterDetail: React.FC = () => {
         ) : semester?.result.semesterStatus === 3 ? (
           <Tag color="green">Finished</Tag>
         ) : (
-          <Tag color="gray">N/A</Tag>
+          'N/A'
         ),
       isAuthenticated: true,
     },
@@ -122,10 +122,10 @@ const SemesterDetail: React.FC = () => {
       render: (classStatus: number) => (
         <div>
           <Tag
-            color={classStatus === 1 ? 'green' : classStatus === 2 ? 'red' : 'gray'}
+            color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus === 1 ? 'available' : classStatus === 2 ? 'unavailable' : 'N/A'}
+            {classStatus === 1 ? 'active' : classStatus === 2 ? 'inactive' : 'N/A'}
           </Tag>
         </div>
       ),

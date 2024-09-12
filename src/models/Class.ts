@@ -69,7 +69,7 @@ export interface ClassDetail {
   result: {
     classID: number;
     classCode: string;
-    classStatus: number;
+    classStatus: boolean;
     slotType: SlotType;
     semester: Semester;
     room: Room;

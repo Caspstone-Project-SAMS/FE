@@ -79,7 +79,7 @@ const lecture = [
   },
   {
     path: '/module',
-    element: <Module />
+    element: <LecturerModule />
   },
   {
     path: '/module/module-detail',

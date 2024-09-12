@@ -1,6 +1,6 @@
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
-import { Badge, Button, Card, Col, Input, Layout, Row, Table, Tag } from 'antd';
+import { Button, Card, Col, Input, Layout, Row, Table, Tag } from 'antd';
 import styles from './Module.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { useNavigate } from 'react-router-dom';
@@ -8,19 +8,13 @@ import type { Module, ModuleDetail } from '../../../models/module/Module';
 import { ModuleService } from '../../../hooks/Module';
 import { IoMdInformation } from 'react-icons/io';
 import { CiSearch } from 'react-icons/ci';
-import { RootState } from '../../../redux/Store';
-import { useSelector } from 'react-redux';
-import onlineDots from '../../../assets/animations/Online_Dot.json';
-import Lottie from 'react-lottie';
 
 const { Header: AntHeader } = Layout;
 
 const Module: React.FC = () => {
-  const userDetail = useSelector((state: RootState) => state.auth.userDetail);
   const [module, setModule] = useState<ModuleDetail[]>([]);
   const [searchInput, setSearchInput] = useState('');
-  const [filteredModules, setFilteredModules] =
-    useState<ModuleDetail[]>(module);
+  const [filteredModules, setFilteredModules] = useState<ModuleDetail[]>(module);
   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
 
@@ -29,6 +23,8 @@ const Module: React.FC = () => {
       state: { moduleID: moduleID },
     });
   };
+
+  console.log('rrrr')
 
   const handleSearchModule = (value: string) => {
     setSearchInput(value);
@@ -70,13 +66,13 @@ const Module: React.FC = () => {
       key: '2',
       title: 'status',
       dataIndex: 'status',
-      render: (status: number) => (
+      render: (status: boolean) => (
         <div>
           <Tag
-            color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
+            color={status ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+            {status ? 'active' : 'inactive'}
           </Tag>
         </div>
       ),
@@ -88,14 +84,10 @@ const Module: React.FC = () => {
       render: (mode: number) => (
         <div>
           <Tag
-            color={mode === 1 ? 'green' : mode === 2 ? 'blue' : 'gray'}
-            style={{
-              fontWeight: 'bold',
-              fontSize: '10px',
-              textAlign: 'center',
-            }}
+            color={mode === 1 ? 'green' : 'blue'}
+            style={{ fontWeight: 'bold', fontSize: '10px', textAlign: 'center' }}
           >
-            {mode === 1 ? 'Register' : mode === 2 ? 'Attendance' : 'N/A'}
+            {mode === 1 ? 'Register' : 'Attendance'}
           </Tag>
         </div>
       ),
@@ -107,11 +99,6 @@ const Module: React.FC = () => {
     },
     {
       key: '5',
-      title: 'Connection',
-      dataIndex: 'connection',
-    },
-    {
-      key: '6',
       title: 'Info',
       dataIndex: 'info',
       render: (moduleID: number) => (
@@ -155,41 +142,16 @@ const Module: React.FC = () => {
     // },
   ];
 
-  const onlineDot = {
-    loop: true,
-    autoplay: true,
-    animationData: onlineDots,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
-
   useEffect(() => {
-    if (userDetail && userDetail.result?.role.name === 'Admin') {
-      const response = ModuleService.getAllModule();
+    const response = ModuleService.getAllModule();
 
-      response
-        .then((data) => {
-          setModule(data?.result || []);
-        })
-        .catch((error) => {
-          console.log('get module error: ', error);
-        });
-    }
-
-    if (userDetail && userDetail.result?.role.name === 'Lecturer') {
-      const response = ModuleService.getModuleByEmployeeID(
-        userDetail.result.employeeID,
-      );
-
-      response
-        .then((data) => {
-          setModule(data?.result || []);
-        })
-        .catch((error) => {
-          console.log('get module error: ', error);
-        });
-    }
+    response
+      .then((data) => {
+        setModule(data?.result || []);
+      })
+      .catch((error) => {
+        console.log('get module error: ', error);
+      });
   }, []);
 
   return (
@@ -223,50 +185,20 @@ const Module: React.FC = () => {
       </Card>
       <Table
         columns={columns}
-        dataSource={(!isUpdate ? module : filteredModules).map(
-          (item, index) => ({
-            key: index,
-            moduleID: item.moduleID || 'N/A',
-            status: item.status,
-            mode: item.mode,
-            owner: item.employee.displayName || 'N/A',
-            connection: (
-              <>
-                {item.connectionStatus === 1 ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginLeft:-5
-                    }}
-                  >
-                    <div style={{ marginRight: -8 }}>
-                      <Lottie options={onlineDot} height={30} width={30} />
-                    </div>
-                    <div style={{ marginBottom: 2 }}>online</div>
-                  </div>
-                ) : item.connectionStatus === 2 ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginLeft: 5,
-                    }}
-                  >
-                    <Badge status="error" /> offline
-                  </div>
-                ) : null}
-              </>
-            ),
-            info: item.moduleID,
-          }),
-        )}
+        dataSource={(!isUpdate ? module : filteredModules).map((item, index) => ({
+          key: index,
+          moduleID: item.moduleID || 'N/A',
+          status: item.status,
+          mode: item.mode || 'N/A',
+          owner: item.employee.displayName || 'N/A',
+          info: item.moduleID,
+        }))}
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.moduleID),
-        // })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.moduleID),
+      // })}
       ></Table>
     </Content>
   );

@@ -338,7 +338,7 @@ const Room: React.FC = () => {
                 color={item.roomStatus === 1 ? 'green' : item.roomStatus === 0 ? 'red' : 'gray'}
                 style={{ fontWeight: 'bold', fontSize: '10px' }}
               >
-                {item.roomStatus === 1 ? 'available' : item.roomStatus === 0 ? 'unavailable' : 'N/A'}
+                {item.roomStatus === 1 ? 'active' : item.roomStatus === 0 ? 'inactive' : 'N/A'}
               </Tag>
             </div>
           ),
@@ -424,8 +424,8 @@ const Room: React.FC = () => {
           value={RoomStatus}
           style={{ marginBottom: '10px' }}
         >
-          <Radio value={1}>Available</Radio>
-          <Radio value={0}>Unavailable</Radio>
+          <Radio value={1}>Active</Radio>
+          <Radio value={0}>Inactive</Radio>
         </Radio.Group>
         {/* {!isCheck && (
           <>

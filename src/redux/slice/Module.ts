@@ -16,10 +16,6 @@ interface StopAttendance {
   ScheduleID: number;
 }
 
-interface PrepareSchedules {
-  preparedDate: string;
-}
-
 interface ModuleState {
   message?: ActiveModuleFail;
   moduleDetail?: ActiveModule;
@@ -186,40 +182,6 @@ const stopCheckAttendances = createAsyncThunk(
       );
       console.log('active', StopAttendanceResponse);
       return StopAttendanceResponse;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.log('Error:', error.response.data);
-        return rejectWithValue(error.response.data);
-      } else {
-        console.log('Unexpectedd error:', error);
-        return rejectWithValue({ error });
-      }
-    }
-  },
-);
-
-const prepareScheduleDay = createAsyncThunk(
-  'module/prepare-schedule-day',
-  async (
-    arg: {
-      ModuleID: number;
-      Mode: number;
-      SessionId: number;
-      PrepareSchedules: PrepareSchedules;
-      token: string;
-    },
-    { rejectWithValue },
-  ) => {
-    try {
-      const { ModuleID, Mode, SessionId, PrepareSchedules, token } = arg;
-      const PrepareScheduleDayResponse = await ModuleService.prepareScheduleDay(
-        ModuleID,
-        Mode,
-        SessionId,
-        PrepareSchedules,
-        token,
-      );
-      return PrepareScheduleDayResponse;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         console.log('Error:', error.response.data);
@@ -471,33 +433,9 @@ const ModuleSlice = createSlice({
         message: { data: action.payload || 'Failed to apply module setting' },
       };
     });
-
-    builder.addCase(prepareScheduleDay.pending, (state) => {
-      return {
-        ...state,
-        loading: true,
-      };
-    });
-    builder.addCase(prepareScheduleDay.fulfilled, (state, action) => {
-      const { payload } = action;
-      return {
-        ...state,
-        loading: false,
-        moduleDetail: payload,
-        message: undefined,
-      };
-    });
-    builder.addCase(prepareScheduleDay.rejected, (state, action) => {
-      return {
-        ...state,
-        loading: false,
-        moduleDetail: undefined,
-        message: { data: action.payload || 'Failed to prepare schedule day' },
-      };
-    });
   },
 });
 
 export const { clearModuleMessages } = ModuleSlice.actions;
-export { activeModule, settingModules, startCheckAttendances, syncAttendance, stopCheckAttendances, applySetting, prepareScheduleDay };
+export { activeModule, settingModules, startCheckAttendances, syncAttendance, stopCheckAttendances, applySetting };
 export default ModuleSlice.reducer;

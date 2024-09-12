@@ -65,10 +65,10 @@ const AccountTeacherDetail: React.FC = () => {
       render: (classStatus: number) => (
         <div>
           <Tag
-            color={classStatus === 1 ? 'green' : classStatus === 2 ? 'red' : 'gray'}
+            color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus === 1 ? 'available' : classStatus === 2 ? 'unavailable' : 'N/A'}
+            {classStatus === 1 ? 'active' : classStatus === 2 ? 'inactive' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -103,7 +103,7 @@ const AccountTeacherDetail: React.FC = () => {
       render: (mode: number) => (
         <div>
           <Tag
-            color={mode === 1 ? 'green' : mode === 2 ? 'blue' : 'gray'}
+            color={mode === 1 ? 'green' : 'blue'}
             style={{
               fontWeight: 'bold',
               fontSize: '10px',
@@ -119,13 +119,13 @@ const AccountTeacherDetail: React.FC = () => {
       key: '4',
       title: 'Status',
       dataIndex: 'moduleStatus',
-      render: (moduleStatus: number) => (
+      render: (moduleStatus: boolean) => (
         <div>
           <Tag
-            color={moduleStatus === 1 ? 'green' : moduleStatus === 2 ? 'red' : 'gray'}
+            color={moduleStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {moduleStatus === 1 ? 'available' : moduleStatus === 2 ? 'unavailable' : 'N/A'}
+            {moduleStatus ? 'active' : 'inactive'}
           </Tag>
         </div>
       ),
@@ -137,10 +137,10 @@ const AccountTeacherDetail: React.FC = () => {
       render: (autoPrepare: boolean) => (
         <div>
           <Tag
-            color={autoPrepare === true ? 'green' : autoPrepare === false ? 'red' : 'gray'}
+            color={autoPrepare ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {autoPrepare === true ? 'Auto' : autoPrepare === false ? 'Not Auto' : 'N/A'}
+            {autoPrepare ? 'Auto' : 'Not Auto'}
           </Tag>
         </div>
       ),
@@ -150,21 +150,21 @@ const AccountTeacherDetail: React.FC = () => {
       title: 'Prepared Time',
       dataIndex: 'preparedTime',
     },
-    // {
-    //   key: '7',
-    //   title: 'Auto Reset',
-    //   dataIndex: 'autoReset',
-    //   render: (autoReset: boolean) => (
-    //     <div>
-    //       <Tag
-    //         color={autoReset ? 'green' : 'red'}
-    //         style={{ fontWeight: 'bold', fontSize: '10px' }}
-    //       >
-    //         {autoReset ? 'Auto' : 'Not Auto'}
-    //       </Tag>
-    //     </div>
-    //   ),
-    // },
+    {
+      key: '7',
+      title: 'Auto Reset',
+      dataIndex: 'autoReset',
+      render: (autoReset: boolean) => (
+        <div>
+          <Tag
+            color={autoReset ? 'green' : 'red'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {autoReset ? 'Auto' : 'Not Auto'}
+          </Tag>
+        </div>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -358,13 +358,13 @@ const AccountTeacherDetail: React.FC = () => {
                 key: index,
                 moduleID: item.moduleID || 'N/A',
                 mode: item.mode,
-                moduleStatus: item.status,
-                autoPrepare: item.autoPrepare,
+                moduleStatus: item.status || 'N/A',
+                autoPrepare: item.autoPrepare || 'N/A',
                 preparedTime: (typeof item.preparedTime === 'string'
                   ? item.preparedTime
                   : String(item.preparedTime ?? 'N/A')
                 ).slice(0, 5),
-                // autoReset: item.autoReset,
+                autoReset: item.autoReset || 'N/A',
               }))}
               pagination={{
                 showSizeChanger: true,
