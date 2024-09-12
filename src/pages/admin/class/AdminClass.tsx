@@ -429,7 +429,7 @@ const AdminClass: React.FC = () => {
               ? '(On-going)'
               : sem.semesterStatus === 3
               ? '(Finished)'
-              : ''}
+              : 'N/A'}
           </span>
         ),
         value: sem.semesterID,
@@ -476,13 +476,13 @@ const AdminClass: React.FC = () => {
       key: '7',
       title: 'status',
       dataIndex: 'classStatus',
-      render: (classStatus: boolean) => (
+      render: (classStatus: number) => (
         <div>
           <Tag
-            color={classStatus ? 'green' : 'red'}
+            color={classStatus === 1 ? 'green' : classStatus === 2 ? 'red' : 'gray'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'available' : 'unavailable'}
+            {classStatus === 1 ? 'available' : classStatus === 2 ? 'unavailable' : 'N/A'}
           </Tag>
         </div>
       ),

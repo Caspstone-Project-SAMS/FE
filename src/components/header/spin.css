@@ -1,10 +1,9 @@
 .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1); /* Light border */
-    border-left-color: #1890ff; /* Blue color for the spinning part */
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #1890ff;
     border-radius: 50%;
     width: 40px;
     height: 40px;
-    /* No animation by default */
   }
   
   .spinner.spin {
@@ -18,5 +17,5 @@
   }
   
   .spinner.static {
-    border-left-color: #d9d9d9; /* Grey color for the static circle */
+    border-left-color: #d9d9d9;
   }

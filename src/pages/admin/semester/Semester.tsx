@@ -431,8 +431,7 @@ const Semester: React.FC = () => {
                 </Tag>
               </div>
             ),
-            startdate:(item.startDate)? moment(item.startDate, 'YYYY-MM-DD').format(
-              'DD/MM/YYYY') : 'N/A',
+            startdate:(item.startDate)? moment(item.startDate, 'YYYY-MM-DD').format('DD/MM/YYYY') : 'N/A',
             enddate: (item.endDate)? moment(item.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY') : 'N/A',
             action: (
               <div>

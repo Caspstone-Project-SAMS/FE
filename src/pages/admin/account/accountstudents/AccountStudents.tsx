@@ -128,7 +128,7 @@ const AccountStudents: React.FC = () => {
       render: (isAuthenticated: boolean) => (
         <div>
           <Tag
-            color={isAuthenticated ? 'green' : 'red'}
+            color={isAuthenticated === true ? 'green': isAuthenticated === false ? 'red' : 'gray'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
             {isAuthenticated === true ? 'Authenticated' : isAuthenticated === false ? 'Not Authenticated' : 'N/A'}
