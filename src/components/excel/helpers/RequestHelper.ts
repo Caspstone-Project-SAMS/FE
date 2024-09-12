@@ -97,7 +97,7 @@ const postExcelClass = async (
 
   return response
     .then((response) => {
-      console.log('SUCCESS when add to class ', response);
+      // console.log('SUCCESS when add to class ', response);
       const createdListArr = response.result.map((item) => {
         console.log('Im in each item ', item);
         return item.studentCode;
