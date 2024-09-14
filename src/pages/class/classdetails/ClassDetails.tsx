@@ -395,8 +395,8 @@ const ClassDetails: React.FC = () => {
         status === 'past'
           ? 'Past'
           : status === 'current'
-          ? 'On going'
-          : 'Future';
+            ? 'On going'
+            : 'Future';
 
       setClassInfo([
         { label: 'Class', value: classCode },
@@ -736,7 +736,7 @@ const ClassDetails: React.FC = () => {
 
                 <Row className={styles.rowDetails}>
                   <Col span={10}>
-                    <div>{detail.label}</div>
+                    <div>{detail.label}:</div>
                   </Col>
                   <Col>
                     {detail.label === 'Class status' ? (
@@ -814,8 +814,8 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.status === 1
                             ? 'available'
                             : moduleByID?.status === 0
-                            ? 'unavailable'
-                            : ''}
+                              ? 'unavailable'
+                              : ''}
                         </p>
                       </span>
                       <span
@@ -839,7 +839,7 @@ const ClassDetails: React.FC = () => {
                                 width={30}
                               />
                             </div>
-                            <div style={{ marginBottom: 2 }}>online</div>
+                            <div style={{ marginBottom: 2 }}>Online</div>
                           </div>
                         ) : moduleByID?.connectionStatus === 2 ? (
                           <div
@@ -847,9 +847,10 @@ const ClassDetails: React.FC = () => {
                               display: 'flex',
                               alignItems: 'center',
                               marginLeft: 5,
+                              gap: 4,
                             }}
                           >
-                            <Badge status="error" /> offline
+                            <Badge status="error" /> Offline
                           </div>
                         ) : null}
                       </span>
@@ -859,8 +860,8 @@ const ClassDetails: React.FC = () => {
                           {moduleByID?.mode === 1
                             ? 'Register'
                             : moduleByID?.mode === 2
-                            ? 'Attendance'
-                            : ''}
+                              ? 'Attendance'
+                              : ''}
                         </p>
                       </span>
                     </div>
@@ -979,17 +980,17 @@ const ClassDetails: React.FC = () => {
                             borderRadius: 10,
                             marginBottom: 10,
                           }}
-                          // actions={[
-                          //   <a style={{ color: 'green' }} key="list-loadmore-edit">
-                          //     start
-                          //   </a>,
-                          //   <a style={{ color: 'red' }} key="list-loadmore-more">
-                          //     stop
-                          //   </a>,
-                          //   <a style={{ color: 'blue' }} key="list-loadmore-more">
-                          //     sync
-                          //   </a>,
-                          // ]}
+                        // actions={[
+                        //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                        //     start
+                        //   </a>,
+                        //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                        //     stop
+                        //   </a>,
+                        //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                        //     sync
+                        //   </a>,
+                        // ]}
                         >
                           <List.Item.Meta
                             avatar={
@@ -1006,11 +1007,11 @@ const ClassDetails: React.FC = () => {
                                 />
                               </div>
                             }
-                            // title={
-                            //   <a href="https://ant.design">{item.name?.last}</a>
-                            // }
-                            // title={`Module ${item.module.moduleID}`}
-                            // description="a"
+                          // title={
+                          //   <a href="https://ant.design">{item.name?.last}</a>
+                          // }
+                          // title={`Module ${item.module.moduleID}`}
+                          // description="a"
                           />
                           {/* <div style={{width:'10%', marginRight: 40}}>
                               <b>{'Module' + item.module.moduleID}</b>
@@ -1222,11 +1223,10 @@ const ClassDetails: React.FC = () => {
                       <Button
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
-                        className={`${styles.unselectedModule} ${
-                          moduleID === item.moduleID
-                            ? styles.selectedModule
-                            : ''
-                        }`}
+                        className={`${styles.unselectedModule} ${moduleID === item.moduleID
+                          ? styles.selectedModule
+                          : ''
+                          }`}
                         disabled={isActiveModule}
                       >
                         <Row>
@@ -1285,13 +1285,13 @@ const ClassDetails: React.FC = () => {
                                   <div
                                     style={{ marginLeft: -10, marginBottom: 3 }}
                                   >
-                                    online
+                                    Online
                                   </div>
                                 </div>
                               ) : item.connectionStatus === 2 ? (
-                                <>
-                                  <Badge status="error" /> offline
-                                </>
+                                <div style={{ gap: 4 }}>
+                                  <Badge status="error" /> Offline
+                                </div>
                               ) : null}
                             </p>
                           </Col>

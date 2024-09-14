@@ -416,20 +416,20 @@ const AdminClass: React.FC = () => {
                 sem.semesterStatus === 1
                   ? 'gray'
                   : sem.semesterStatus === 2
-                  ? 'blue'
-                  : sem.semesterStatus === 3
-                  ? 'green'
-                  : 'black',
+                    ? 'blue'
+                    : sem.semesterStatus === 3
+                      ? 'green'
+                      : 'black',
             }}
           >
             {sem.semesterCode}{' '}
             {sem.semesterStatus === 1
               ? '(Not yet)'
               : sem.semesterStatus === 2
-              ? '(On-going)'
-              : sem.semesterStatus === 3
-              ? '(Finished)'
-              : 'N/A'}
+                ? '(On-going)'
+                : sem.semesterStatus === 3
+                  ? '(Finished)'
+                  : 'N/A'}
           </span>
         ),
         value: sem.semesterID,
@@ -474,7 +474,7 @@ const AdminClass: React.FC = () => {
     },
     {
       key: '7',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'classStatus',
       render: (classStatus: number) => (
         <div>
@@ -482,7 +482,7 @@ const AdminClass: React.FC = () => {
             color={classStatus === 1 ? 'green' : classStatus === 2 ? 'red' : 'gray'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus === 1 ? 'available' : classStatus === 2 ? 'unavailable' : 'N/A'}
+            {classStatus === 1 ? 'Available' : classStatus === 2 ? 'Unavailable' : 'N/A'}
           </Tag>
         </div>
       ),

@@ -55,7 +55,7 @@ const PrepareSchedule: React.FC = () => {
   const [moduleByID, setModuleByID] = useState<ModuleDetail>();
   const [sessionID, setSessionID] = useState<number>(0);
   const [isCheckAttendance, setIsCheckAttendance] = useState(false);
-    const [preparedDate, setPreparedDate] = useState<string>('');
+  const [preparedDate, setPreparedDate] = useState<string>('');
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -67,14 +67,14 @@ const PrepareSchedule: React.FC = () => {
   );
 
   const handleDateChange = (date: Date | null) => {
-    
+
     if (date) {
-        const formattedDate = date.toISOString().slice(0, 10); // Formats as yyyy-mm-dd
-        setSelectedDate(date);
-        setPreparedDate(formattedDate);
-      } else {
-        setSelectedDate(null);
-      }
+      const formattedDate = date.toISOString().slice(0, 10); // Formats as yyyy-mm-dd
+      setSelectedDate(date);
+      setPreparedDate(formattedDate);
+    } else {
+      setSelectedDate(null);
+    }
   };
 
 
@@ -172,14 +172,14 @@ const PrepareSchedule: React.FC = () => {
     };
 
     const arg = {
-        ModuleID: moduleID,
-        Mode: 5,
-        SessionId: SessionId,
-        PrepareSchedules: PrepareSchedules,
-        token: token,
-      };
+      ModuleID: moduleID,
+      Mode: 5,
+      SessionId: SessionId,
+      PrepareSchedules: PrepareSchedules,
+      token: token,
+    };
 
-      await dispatch(prepareScheduleDay(arg) as any);
+    await dispatch(prepareScheduleDay(arg) as any);
   };
 
   const LoadingIndicator = () => (
@@ -348,11 +348,10 @@ const PrepareSchedule: React.FC = () => {
                       <Button
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
-                        className={`${styles.unselectedModule} ${
-                          moduleID === item.moduleID
+                        className={`${styles.unselectedModule} ${moduleID === item.moduleID
                             ? styles.selectedModule
                             : ''
-                        }`}
+                          }`}
                         disabled={isActiveModule}
                       >
                         <Row>
@@ -411,13 +410,13 @@ const PrepareSchedule: React.FC = () => {
                                   <div
                                     style={{ marginLeft: -10, marginBottom: 3 }}
                                   >
-                                    online
+                                    Online
                                   </div>
                                 </div>
                               ) : item.connectionStatus === 2 ? (
-                                <>
-                                  <Badge status="error" /> offline
-                                </>
+                                <div style={{ gap: 4 }}>
+                                  <Badge status="error" /> Offline
+                                </div>
                               ) : null}
                             </p>
                           </Col>

@@ -28,8 +28,6 @@ import ScheduleImport from '../pages/schedule/ScheduleImport';
 import AccountTeacherDetail from '../pages/admin/account/accountteachers/AccountTeacherDetail';
 import ClassReport from '../pages/class/classReport/ClassReport';
 import LecturerModuleDetail from '../pages/module/LecturerModuleDetail';
-import { IoMdTime } from 'react-icons/io';
-import { LuFingerprint } from 'react-icons/lu';
 import ScriptTime from '../pages/script/ScriptTime';
 import RegisterFingerprint from '../pages/script/RegisterFingerprint';
 import ImportScheduleRecord from '../components/calendar/ImportScheduleRecord';

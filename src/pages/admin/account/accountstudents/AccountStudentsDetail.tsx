@@ -615,8 +615,8 @@ const AccountStudentsDetail: React.FC = () => {
             {classStatus === 1
               ? 'active'
               : classStatus === 2
-              ? 'inactive'
-              : 'N/A'}
+                ? 'inactive'
+                : 'N/A'}
           </Tag>
         </div>
       ),
@@ -633,8 +633,8 @@ const AccountStudentsDetail: React.FC = () => {
                 Number(absencePercentage) >= 20
                   ? 'red'
                   : Number(absencePercentage) < 20
-                  ? 'green'
-                  : 'gray',
+                    ? 'green'
+                    : 'gray',
             }}
           >
             {absencePercentage ? absencePercentage + '%' : 'N/A'}
@@ -1053,7 +1053,7 @@ const AccountStudentsDetail: React.FC = () => {
                     <div key={`info_${i}`}>
                       <Row className={styles.rowDetails}>
                         <Col span={10}>
-                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                          <div style={{ fontWeight: 500 }}>{detail.title}:</div>
                         </Col>
                         <Col span={14}>
                           <div style={{ fontWeight: 500, color: '#667085' }}>
@@ -1122,8 +1122,8 @@ const AccountStudentsDetail: React.FC = () => {
                             {moduleByID?.status === 1
                               ? 'Available'
                               : moduleByID?.status === 0
-                              ? 'Unavailable'
-                              : ''}
+                                ? 'Unavailable'
+                                : ''}
                           </p>
                         </span>
                         <span
@@ -1147,7 +1147,7 @@ const AccountStudentsDetail: React.FC = () => {
                                   width={30}
                                 />
                               </div>
-                              <div style={{ marginBottom: 2 }}>online</div>
+                              <div style={{ marginBottom: 2 }}>Online</div>
                             </div>
                           ) : moduleByID?.connectionStatus === 2 ? (
                             <div
@@ -1155,9 +1155,10 @@ const AccountStudentsDetail: React.FC = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 marginLeft: 5,
+                                gap: 4
                               }}
                             >
-                              <Badge status="error" /> offline
+                              <Badge status="error" /> Offline
                             </div>
                           ) : null}
                         </span>
@@ -1168,8 +1169,8 @@ const AccountStudentsDetail: React.FC = () => {
                             {moduleByID?.mode === 1
                               ? 'Register'
                               : moduleByID?.mode === 2
-                              ? 'Attendance'
-                              : ''}
+                                ? 'Attendance'
+                                : ''}
                           </p>
                         </span>
                       </div>
@@ -1305,7 +1306,7 @@ const AccountStudentsDetail: React.FC = () => {
                               (item) =>
                                 (connectionStatusFilter === undefined ||
                                   item.connectionStatus ===
-                                    connectionStatusFilter) &&
+                                  connectionStatusFilter) &&
                                 (searchModuleID === undefined ||
                                   item.moduleID === searchModuleID),
                             )
@@ -1318,11 +1319,10 @@ const AccountStudentsDetail: React.FC = () => {
                                   handleModuleClick(item.moduleID, item)
                                 }
                                 key={index}
-                                className={`${styles.unselectedModule} ${
-                                  moduleID === item.moduleID
-                                    ? styles.selectedModule
-                                    : ''
-                                }`}
+                                className={`${styles.unselectedModule} ${moduleID === item.moduleID
+                                  ? styles.selectedModule
+                                  : ''
+                                  }`}
                                 disabled={isActiveModule || modalContinue}
                               >
                                 <Row>
@@ -1388,13 +1388,13 @@ const AccountStudentsDetail: React.FC = () => {
                                               marginBottom: 3,
                                             }}
                                           >
-                                            online
+                                            Online
                                           </div>
                                         </div>
                                       ) : item.connectionStatus === 2 ? (
-                                        <>
-                                          <Badge status="error" /> offline
-                                        </>
+                                        <div style={{ gap: 4 }}>
+                                          <Badge status="error" /> Offline
+                                        </div>
                                       ) : null}
                                     </p>
                                   </Col>
@@ -1443,15 +1443,15 @@ const AccountStudentsDetail: React.FC = () => {
                                     item.status === 1
                                       ? 'green'
                                       : item.status === 2
-                                      ? 'red'
-                                      : 'inherit',
+                                        ? 'red'
+                                        : 'inherit',
                                 }}
                               >
                                 {item.status === 1
                                   ? 'Available'
                                   : item.status === 2
-                                  ? 'Unavailable'
-                                  : ''}
+                                    ? 'Unavailable'
+                                    : ''}
                               </span>
                             </div>
                             <div className="card-timestamp">
@@ -1550,8 +1550,8 @@ const AccountStudentsDetail: React.FC = () => {
           isRegisterPressed
             ? 'Register Fingerprint'
             : isUpdatePressed
-            ? 'Update Fingerprint'
-            : 'Fingerprint Registration'
+              ? 'Update Fingerprint'
+              : 'Fingerprint Registration'
         }
         visible={isModalVisible}
         onOk={handleOk}
@@ -1581,7 +1581,7 @@ const AccountStudentsDetail: React.FC = () => {
                 onOk: handleConfirmUpload,
               });
             }}
-            // disabled={progressStep2 !== 3}
+          // disabled={progressStep2 !== 3}
           >
             Submit
           </Button>,
