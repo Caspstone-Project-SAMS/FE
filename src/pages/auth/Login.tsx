@@ -181,7 +181,7 @@ const Login: React.FC<RoutersProps> = ({
               <Typography.Link
                 onClick={() => {
                   // logOut();
-                  navigate('/excel-test')
+                  navigate('/forgot-password')
                 }}
               >
                 Forgot password
