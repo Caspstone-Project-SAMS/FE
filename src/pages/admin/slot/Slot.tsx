@@ -334,7 +334,7 @@ const Slot: React.FC = () => {
     },
     {
       key: '3',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'slotstatus',
       render: (status: number) => (
         <div>
@@ -342,7 +342,7 @@ const Slot: React.FC = () => {
             color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+            {status === 1 ? 'Available' : status === 2 ? 'Unavailable' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -390,7 +390,7 @@ const Slot: React.FC = () => {
           color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
-          {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+          {status === 1 ? 'Available' : status === 2 ? 'Unavailable' : 'N/A'}
         </Tag>
       ),
     },
@@ -608,54 +608,54 @@ const Slot: React.FC = () => {
         expandable={{
           expandedRowRender: (record) => (
             <>
-            <Table
-              style={{ marginLeft: 70 }}
-              columns={slotColumns}
-              // dataSource={record.slots}
-              dataSource={record.slots.map((item, index) => ({
-                key: index,
-                slotnumber: item.slotNumber || 'N/A',
-                order: item.order || 'N/A',
-                slotstatus: item.status,
-                starttime: (typeof item.startTime === 'string'
-                  ? item.startTime
-                  : String(item.startTime ?? 'N/A')
-                ).slice(0, 5),
-                endtime: (typeof item.endtime === 'string'
-                  ? item.endtime
-                  : String(item.endtime ?? 'N/A')
-                ).slice(0, 5),
-                slotID: item.slotID,
-                action: (
-                  <div>
-                    <Button
-                      shape="circle"
-                      style={{ border: 'none', backgroundColor: 'white' }}
-                    >
-                      <CiEdit
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsCheck(true);
-                          showModalUpdate(item);
-                        }}
-                        size={20}
-                        style={{ color: 'blue' }}
-                      />
-                    </Button>
-                    <Button
-                      shape="circle"
-                      style={{ border: 'none', backgroundColor: 'white' }}
-                      onClick={() => deleteSpecificSlot(item.slotID!)}
-                    >
-                      <MdDeleteForever size={20} style={{ color: 'red' }} />
-                    </Button>
-                  </div>
-                ),
-              }))}
-              pagination={false}
-              rowKey="slotID"
-            />
-            <br/>
+              <Table
+                style={{ marginLeft: 70 }}
+                columns={slotColumns}
+                // dataSource={record.slots}
+                dataSource={record.slots.map((item, index) => ({
+                  key: index,
+                  slotnumber: item.slotNumber || 'N/A',
+                  order: item.order || 'N/A',
+                  slotstatus: item.status,
+                  starttime: (typeof item.startTime === 'string'
+                    ? item.startTime
+                    : String(item.startTime ?? 'N/A')
+                  ).slice(0, 5),
+                  endtime: (typeof item.endtime === 'string'
+                    ? item.endtime
+                    : String(item.endtime ?? 'N/A')
+                  ).slice(0, 5),
+                  slotID: item.slotID,
+                  action: (
+                    <div>
+                      <Button
+                        shape="circle"
+                        style={{ border: 'none', backgroundColor: 'white' }}
+                      >
+                        <CiEdit
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsCheck(true);
+                            showModalUpdate(item);
+                          }}
+                          size={20}
+                          style={{ color: 'blue' }}
+                        />
+                      </Button>
+                      <Button
+                        shape="circle"
+                        style={{ border: 'none', backgroundColor: 'white' }}
+                        onClick={() => deleteSpecificSlot(item.slotID!)}
+                      >
+                        <MdDeleteForever size={20} style={{ color: 'red' }} />
+                      </Button>
+                    </div>
+                  ),
+                }))}
+                pagination={false}
+                rowKey="slotID"
+              />
+              <br />
             </>
           ),
           // rowExpandable: (record) => record.slots && record.slots.length > 0,
@@ -676,12 +676,12 @@ const Slot: React.FC = () => {
           isCheck === true && isUpdate === ''
             ? 'Edit Slot'
             : isCheck === false && isUpdate === ''
-            ? 'Add New Slot'
-            : isUpdate === 'true' && isCheck === false
-            ? 'Update Slot Type'
-            : isUpdate === 'false' && isCheck === false
-            ? 'Add New Slot Type'
-            : 'Undefined'
+              ? 'Add New Slot'
+              : isUpdate === 'true' && isCheck === false
+                ? 'Update Slot Type'
+                : isUpdate === 'false' && isCheck === false
+                  ? 'Add New Slot Type'
+                  : 'Undefined'
         }
         visible={isModalVisible}
         onCancel={handleCancel}
@@ -697,12 +697,12 @@ const Slot: React.FC = () => {
               isCheck === true && isUpdate === ''
                 ? handleUpdate
                 : isCheck === false && isUpdate === ''
-                ? handleCreate
-                : isUpdate === 'true' && isCheck === false
-                ? handleUpdateSlotType
-                : isUpdate === 'false' && isCheck === false
-                ? handleCreateSlotType
-                : undefined
+                  ? handleCreate
+                  : isUpdate === 'true' && isCheck === false
+                    ? handleUpdateSlotType
+                    : isUpdate === 'false' && isCheck === false
+                      ? handleCreateSlotType
+                      : undefined
             }
           >
             Submit
@@ -871,7 +871,7 @@ const Slot: React.FC = () => {
             )}
 
             <p className={styles.createSemesterTitle}>Session Count
-            <Tooltip title="Session Count">
+              <Tooltip title="Session Count">
                 <Button
                   type="link"
                   icon={<InfoCircleOutlined />}

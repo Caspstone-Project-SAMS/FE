@@ -10,6 +10,7 @@ import {
   AuthFailMessage,
 } from '../../models/auth/ResetPassword';
 import { UserService } from '../../hooks/User';
+import useDispatch from '../UseDispatch';
 // import axios, { Axios, AxiosError } from 'axios';
 
 // import { history } from '../../hooks/helpers/history';
@@ -64,6 +65,23 @@ const fakeUser = {
 const fakeLogin = createAction('auth/fakeLogin');
 
 const updateUser = createAction('auth/updateUser');
+const updateUser2 = createAsyncThunk(
+  'auth/updateUser2',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const userAuth = localStorage.getItem('userAuth');
+      if (userAuth) {
+        const userInfo: UserInfo = HelperService.decryptString(userAuth);
+        console.log('Yes, im in updateUser!!!!', userInfo.result?.id);
+        dispatch(getUserByID({ UserId: userInfo.result?.id || '' }));
+
+        return userInfo;
+      }
+    } catch (error) {
+      rejectWithValue('err');
+    }
+  },
+);
 
 // const updateName = createAction('auth/updateName', (name) => {
 //   return {
@@ -119,7 +137,7 @@ const login = createAsyncThunk(
 
 const loginGG = createAsyncThunk(
   'auth/loginGG',
-  async (arg: { accessToken: string }, { rejectWithValue }) => {
+  async (arg: { accessToken: string }, { rejectWithValue, dispatch }) => {
     const { accessToken } = arg;
     try {
       //Toast chỉ nhận promise, nhưng redux async thunk cần trả về promise đã hoàn thành để thực hiện pending, fulfilled,...
@@ -148,6 +166,7 @@ const loginGG = createAsyncThunk(
       //   localStorage.setItem('session', JSON.stringify(session));
       // }
       console.log('User result here ', result);
+      dispatch(getUserByID({ UserId: result?.result?.id || '' }));
       return result;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -306,16 +325,20 @@ const AuthSlice = createSlice({
   },
   extraReducers: (builder) => {
     //CreateAction
-    // builder.addCase(updateUser, (state) => {
-    //   const userAuth = localStorage.getItem('userAuth');
-    //   if (userAuth) {
-    //     const userInfo: UserInfo = HelperService.decryptString(userAuth);
+    builder.addCase(updateUser, (state, action) => {
+      const userAuth = localStorage.getItem('userAuth');
+      if (userAuth) {
+        const userInfo: UserInfo = HelperService.decryptString(userAuth);
+        console.log('Yes, im in updateUser!!!!', userInfo.result?.id);
+        // const dispatch = useDispatch();
+        // dispatch(getUserByID({ UserId: userInfo.result?.id || '' }));
+        getUserByID({ UserId: userInfo.result?.id || '' });
 
-    //     state.authStatus = true;
-    //     state.loadingStatus = false;
-    //     state.userDetail = userInfo;
-    //   }
-    // });
+        state.authStatus = true;
+        state.loadingStatus = false;
+        state.userDetail = userInfo;
+      }
+    });
     // builder.addCase(updateName, (state, {payload}) => {
     //   const {name} = payload
     //   console.log("in the udpate name", name);
@@ -379,6 +402,23 @@ const AuthSlice = createSlice({
         loadingStatus: false,
       };
     });
+    builder.addCase(updateUser2.fulfilled, (state, { payload }) => {
+      return {
+        ...state,
+        authStatus: true,
+        loadingStatus: false,
+        userDetail: payload,
+      };
+    }),
+      builder.addCase(updateUser2.rejected, (state) => {
+        return {
+          ...state,
+          userDetail: undefined,
+          authStatus: false,
+          loadingStatus: false,
+        };
+      });
+
     builder.addCase(fakeLogin, (state) => {
       // let result = state.userDetail?.result?.roles[0].name;
       // result = 'Lecturer';
@@ -435,6 +475,7 @@ const AuthSlice = createSlice({
     });
     builder.addCase(getUserByID.fulfilled, (state, action) => {
       const { payload } = action;
+      console.log('IN the getuserbyId --------', payload);
       return {
         ...state,
         data: payload,
@@ -450,7 +491,9 @@ export {
   updateUser,
   resetPassword,
   editProfile,
-  updateName,
+  getUserByID,
+  updateUser2,
+  // updateName,
 };
 export const { logout, clearResetPasswordMessages } = AuthSlice.actions;
 

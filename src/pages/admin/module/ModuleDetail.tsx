@@ -199,7 +199,7 @@ const ModuleDetail: React.FC = () => {
           color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
-          {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+          {status === 1 ? 'Available' : status === 2 ? 'Unavailable' : 'N/A'}
         </Tag>
       ),
       status: true,
@@ -212,16 +212,16 @@ const ModuleDetail: React.FC = () => {
             autoPrepareStatus === true
               ? 'green'
               : autoPrepareStatus === false
-              ? 'red'
-              : 'gray'
+                ? 'red'
+                : 'gray'
           }
           style={{ fontWeight: 'bold', fontSize: '10px' }}
         >
           {autoPrepareStatus === true
             ? 'Auto'
             : autoPrepareStatus === false
-            ? 'Not Auto'
-            : 'N/A'}
+              ? 'Not Auto'
+              : 'N/A'}
         </Tag>
       ),
     },
@@ -483,11 +483,11 @@ const ModuleDetail: React.FC = () => {
           <Col span={9}>
             <Card style={{ height: '100%' }}>
               <Row>
-                <Row style={{ display: 'flex', alignItems: 'center' }}>
+                <Row style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <img
                     alt="Employee"
                     src={module?.result.employee.avatar}
-                    style={{ width: 100, height: 100, borderRadius: '50%' }}
+                    style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover' }}
                   />
                   <p
                     style={{
@@ -556,7 +556,7 @@ const ModuleDetail: React.FC = () => {
                     <div key={`info_${i}`}>
                       <Row className={styles.rowDetails}>
                         <Col span={14}>
-                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                          <div style={{ fontWeight: 500 }}>{detail.title}:</div>
                         </Col>
                         <Col span={10}>
                           <div style={{ fontWeight: 500, color: '#667085' }}>
@@ -878,8 +878,8 @@ const ModuleDetail: React.FC = () => {
                                       item.title === 'Schedule preparation'
                                         ? 'green'
                                         : item.title === 'Schedules preparation'
-                                        ? 'blue'
-                                        : 'initial',
+                                          ? 'blue'
+                                          : 'initial',
                                   }}
                                 >
                                   {item.title}
@@ -893,10 +893,10 @@ const ModuleDetail: React.FC = () => {
                                       .includes('failed')
                                       ? 'red'
                                       : item.description
-                                          .toLowerCase()
-                                          .includes('successfully')
-                                      ? 'green'
-                                      : 'black',
+                                        .toLowerCase()
+                                        .includes('successfully')
+                                        ? 'green'
+                                        : 'black',
                                   }}
                                 >
                                   {item.description}
@@ -996,11 +996,11 @@ const ModuleDetail: React.FC = () => {
                               <span>{item.description}</span>
                               {JSON.stringify(item.errors) !==
                                 JSON.stringify(['']) && (
-                                <p>
-                                  <b>Error: </b>
-                                  <span style={{ color: 'red' }}>{item.errors}</span>
-                                </p>
-                              )}
+                                  <p>
+                                    <b>Error: </b>
+                                    <span style={{ color: 'red' }}>{item.errors}</span>
+                                  </p>
+                                )}
                               <p>
                                 <b>Start Time:</b>
                                 {' ' +
@@ -1055,8 +1055,8 @@ const ModuleDetail: React.FC = () => {
                                     <b>Time:</b>{' '}
                                     {schedule?.result.slot
                                       ? schedule?.result.slot.startTime +
-                                        '-' +
-                                        schedule?.result.slot.endtime
+                                      '-' +
+                                      schedule?.result.slot.endtime
                                       : 'N/A'}
                                   </p>
                                 </div>
@@ -1070,8 +1070,8 @@ const ModuleDetail: React.FC = () => {
                                 key: index,
                                 date: item1.date
                                   ? new Date(item1.date).toLocaleDateString(
-                                      'en-GB',
-                                    )
+                                    'en-GB',
+                                  )
                                   : 'N/A',
                                 slot: item1.slot.slotNumber || 'N/A',
                                 time: (

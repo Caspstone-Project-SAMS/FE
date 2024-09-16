@@ -276,7 +276,7 @@ const AccountTeacherDetail: React.FC = () => {
                     <div key={`info_${i}`}>
                       <Row className={styles.rowDetails}>
                         <Col span={8}>
-                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                          <div style={{ fontWeight: 500 }}>{detail.title}:</div>
                         </Col>
                         <Col span={16}>
                           <div style={{ fontWeight: 500, color: '#667085' }}>

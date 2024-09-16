@@ -438,20 +438,20 @@ const New: React.FC = () => {
                 sem.semesterStatus === 1
                   ? 'gray'
                   : sem.semesterStatus === 2
-                  ? 'blue'
-                  : sem.semesterStatus === 3
-                  ? 'green'
-                  : 'black',
+                    ? 'blue'
+                    : sem.semesterStatus === 3
+                      ? 'green'
+                      : 'black',
             }}
           >
             {sem.semesterCode}{' '}
             {sem.semesterStatus === 1
               ? '(Not yet)'
               : sem.semesterStatus === 2
-              ? '(On-going)'
-              : sem.semesterStatus === 3
-              ? '(Finished)'
-              : 'N/A'}
+                ? '(On-going)'
+                : sem.semesterStatus === 3
+                  ? '(Finished)'
+                  : 'N/A'}
           </span>
         ),
         value: sem.semesterID,
@@ -491,7 +491,7 @@ const New: React.FC = () => {
     },
     {
       key: '6',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'classStatus',
       render: (classStatus: boolean) => (
         <div>
@@ -499,7 +499,7 @@ const New: React.FC = () => {
             color={classStatus ? 'green' : 'red'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {classStatus ? 'available' : 'unavailable'}
+            {classStatus ? 'Available' : 'Unavailable'}
           </Tag>
         </div>
       ),
