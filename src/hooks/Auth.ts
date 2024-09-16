@@ -119,12 +119,26 @@ const editProfile = async (
   }
 };
 
+const forgotPassword = async (email: string) => {
+  const response = await axios.post(
+    USER_AUTH_API + '/forget-password',
+    undefined,
+    {
+      params: {
+        email,
+      },
+    },
+  );
+  return response.data;
+};
+
 const AuthService = {
   login,
   getGGInfo,
   loginGG,
   resetPassword,
   editProfile,
+  forgotPassword
 };
 
 export default AuthService;

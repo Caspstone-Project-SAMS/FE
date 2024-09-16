@@ -380,13 +380,13 @@ const Headers: React.FC<HeadersProps> = ({
         <>
           {(user?.result?.role.name as any === 'Admin') ||
             (user?.result?.role.name as any === 'Lecturer') ? (
-              <>
-                <Button type="text" onClick={handleNavigateHome}>
-                  Home
-                </Button>
-                <br />
-              </>
-            ) : null}
+            <>
+              <Button type="text" onClick={handleNavigateHome}>
+                Home
+              </Button>
+              <br />
+            </>
+          ) : null}
 
           {(user?.result?.role.name as any) === 'Admin' ? (
             <div>
@@ -499,15 +499,15 @@ const Headers: React.FC<HeadersProps> = ({
                 style={{
                   color:
                     selectedNotification.notificationType.typeName ===
-                    'Information'
+                      'Information'
                       ? 'green'
                       : selectedNotification.notificationType.typeName ===
                         'Error'
-                      ? 'red'
-                      : selectedNotification.notificationType.typeName ===
-                        'Warning'
-                      ? 'orange'
-                      : 'inherit',
+                        ? 'red'
+                        : selectedNotification.notificationType.typeName ===
+                          'Warning'
+                          ? 'orange'
+                          : 'inherit',
                   display: 'block',
                   whiteSpace: 'pre-wrap',
                 }}
@@ -588,8 +588,8 @@ const Headers: React.FC<HeadersProps> = ({
                             <b>Time:</b>{' '}
                             {schedule?.result.slot
                               ? schedule?.result.slot.startTime +
-                                '-' +
-                                schedule?.result.slot.endtime
+                              '-' +
+                              schedule?.result.slot.endtime
                               : 'N/A'}
                           </p>
                         </div>
@@ -614,10 +614,10 @@ const Headers: React.FC<HeadersProps> = ({
           >
             <Menu>
               <div className="notificationFilterCtn">
-                <Text style={{ marginRight: '10px', fontSize: '1rem' }}>
+                <Text style={{ marginRight: '10px', fontSize: '1.2rem', fontWeight: 500 }}>
                   Notification
                 </Text>
-                <Menu.SubMenu
+                {/* <Menu.SubMenu
                   key="sub1"
                   title={
                     <Text style={{ fontSize: '0.9rem', color: '#64748B' }}>
@@ -646,7 +646,7 @@ const Headers: React.FC<HeadersProps> = ({
                   >
                     <Text>Last 2 weeks</Text>
                   </Menu.Item>
-                </Menu.SubMenu>
+                </Menu.SubMenu> */}
               </div>
               {notification.length === 0 ? (
                 <Empty description={'No Notification found'}></Empty>
@@ -656,11 +656,10 @@ const Headers: React.FC<HeadersProps> = ({
                     <React.Fragment key={index}>
                       <Menu.Item
                         key={index}
-                        className={`${styles.notiItemCtn} ${
-                          item.read
-                            ? styles.readNotification
-                            : styles.unreadNotification
-                        }`}
+                        className={`${styles.notiItemCtn} ${item.read
+                          ? styles.readNotification
+                          : styles.unreadNotification
+                          }`}
                         style={{ marginBottom: 5 }}
                         onClick={() =>
                           handleReadNotification(
@@ -684,7 +683,7 @@ const Headers: React.FC<HeadersProps> = ({
                         </Avatar> */}
                             <div style={{ marginLeft: 'auto' }}>
                               {item.notificationType.typeName ===
-                              'Information' ? (
+                                'Information' ? (
                                 <IoIosInformationCircle
                                   style={{ color: 'green', fontSize: '1.5rem' }}
                                 />
@@ -734,14 +733,14 @@ const Headers: React.FC<HeadersProps> = ({
                               style={{
                                 color:
                                   item.notificationType.typeName ===
-                                  'Information'
+                                    'Information'
                                     ? 'green'
                                     : item.notificationType.typeName === 'Error'
-                                    ? 'red'
-                                    : item.notificationType.typeName ===
-                                      'Warning'
-                                    ? 'orange'
-                                    : 'inherit',
+                                      ? 'red'
+                                      : item.notificationType.typeName ===
+                                        'Warning'
+                                        ? 'orange'
+                                        : 'inherit',
                                 display: 'block',
                                 whiteSpace: 'pre-wrap',
                               }}

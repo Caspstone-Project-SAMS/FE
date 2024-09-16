@@ -5,6 +5,7 @@ import ErrorPage from '../pages/ErrorPage';
 import ProtectedRoute from './ProtectedRoute';
 import TestComponent from './TestComponent';
 import toast from 'react-hot-toast';
+import ForgotPassword from '../pages/auth/ForgotPassword';
 
 interface PreparationProgress {
   SessionId: number;
@@ -93,7 +94,7 @@ const Router = () => {
         <ProtectedRoute closeWebsocket={closeWebsocket} preparationProgress={preparationProgress} NotificationId={NotificationId} setNotificationId={setNotificationId} setPreparationProgress={setPreparationProgress} />
       } />
       <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket} />} />
-      <Route path="/excel-test" element={<TestComponent />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   )
