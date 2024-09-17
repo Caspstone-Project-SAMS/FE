@@ -276,7 +276,7 @@ const AccountStudentsDetail: React.FC = () => {
           const data = message.Data;
           const moduleId = data.ModuleId;
           modifyModuleConnection(moduleId, 2);
-          setSessionID(0);
+          // setSessionID(0);
           if (moduleID === moduleId) {
             const specificModule = moduleDetail.find(
               (module) => module.moduleID === moduleId,
@@ -637,7 +637,7 @@ const AccountStudentsDetail: React.FC = () => {
                     : 'gray',
             }}
           >
-            {absencePercentage ? absencePercentage + '%' : 'N/A'}
+            {absencePercentage + '%'}
           </p>
         </div>
       ),
@@ -1597,7 +1597,7 @@ const AccountStudentsDetail: React.FC = () => {
                     <p>Registering Fingerprint Template 1...</p>
                     {renderProgress(progressStep1)}
                   </Col>
-                  <Col span={6}>
+                  {/* <Col span={6}>
                     <Select
                       placeholder="Select Finger"
                       onChange={(value) => setFingerprint1Description(value)}
@@ -1605,7 +1605,7 @@ const AccountStudentsDetail: React.FC = () => {
                     >
                       {getFingerOptions()}
                     </Select>
-                  </Col>
+                  </Col> */}
                 </Row>
               </Col>
               {(progressStep2 === 1 || progressStep2 === 3) && (
@@ -1620,7 +1620,7 @@ const AccountStudentsDetail: React.FC = () => {
                       <p>Registering Fingerprint Template 2...</p>
                       {renderProgress(progressStep2)}
                     </Col>
-                    <Col span={6}>
+                    {/* <Col span={6}>
                       <Select
                         placeholder="Select Finger"
                         onChange={(value) => setFingerprint2Description(value)}
@@ -1628,7 +1628,7 @@ const AccountStudentsDetail: React.FC = () => {
                       >
                         {getFingerOptions()}
                       </Select>
-                    </Col>
+                    </Col> */}
                   </Row>
                 </Col>
               )}
@@ -1643,7 +1643,7 @@ const AccountStudentsDetail: React.FC = () => {
                     <p>Update Fingerprint Template 1...</p>
                     {renderProgress(progressStep1)}
                   </Col>
-                  <Col span={6}>
+                  {/* <Col span={6}>
                     <Select
                       value={fingerprint1Description}
                       placeholder="Select Finger"
@@ -1652,7 +1652,7 @@ const AccountStudentsDetail: React.FC = () => {
                     >
                       {getFingerOptions()}
                     </Select>
-                  </Col>
+                  </Col> */}
                 </Row>
               </Col>
               {(progressStep2 === 1 || progressStep2 === 3) && (
@@ -1667,7 +1667,7 @@ const AccountStudentsDetail: React.FC = () => {
                       <p>Update Fingerprint Template 2...</p>
                       {renderProgress(progressStep2)}
                     </Col>
-                    <Col span={6}>
+                    {/* <Col span={6}>
                       <Select
                         value={fingerprint2Description}
                         placeholder="Select Finger"
@@ -1676,7 +1676,7 @@ const AccountStudentsDetail: React.FC = () => {
                       >
                         {getFingerOptions()}
                       </Select>
-                    </Col>
+                    </Col> */}
                   </Row>
                 </Col>
               )}
@@ -1695,7 +1695,7 @@ const AccountStudentsDetail: React.FC = () => {
                     ) : null}
                     {renderProgress(progressStep1)}
                   </Col>
-                  <Col span={6}>
+                  {/* <Col span={6}>
                     {fingerPositionOne ? (
                       <Select
                         value={fingerprint1Description}
@@ -1715,7 +1715,7 @@ const AccountStudentsDetail: React.FC = () => {
                         {getFingerOptions()}
                       </Select>
                     ) : null}
-                  </Col>
+                  </Col> */}
                 </Row>
               </Col>
             </Col>

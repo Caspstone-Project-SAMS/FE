@@ -128,6 +128,7 @@ export interface Schedule {
   dateOfWeek: number;
   scheduleStatus: number;
   attended: number;
+  attendedStudent: string
   slot: Slot;
   room: RoomSchedule;
 }

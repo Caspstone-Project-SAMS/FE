@@ -55,6 +55,7 @@ export interface ModuleDetail {
   createdBy?: string;
   createdAt: string;
   isDeleted: boolean;
+  using?: number;
   connectionStatus: number;
 }
 

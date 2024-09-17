@@ -1,18 +1,25 @@
 import * as React from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, PaletteOptions, ThemeProvider } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { unstable_capitalize as capitalize } from '@mui/utils';
 import Typography from '@mui/material/Typography';
 
+interface CustomPaletteOptions extends PaletteOptions { // Extend PaletteOptions
+  custom?: {
+    main: string;
+    light: string;
+  };
+}
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: 'green', // Main color (used for buttons, icons, etc.)
-      light: 'gray', // Light version of primary
-      dark: 'red', // Dark version of primary
-      contrastText: '#FFFFFF', // Text color to ensure readability against main color
+      main: 'green', 
+      light: 'gray', 
+      dark: 'red', 
+      contrastText: '#FFFFFF', 
     },
     secondary: {
       main: '#E0C2FF',
@@ -20,7 +27,11 @@ const theme = createTheme({
       dark: '#8E24AA',
       contrastText: '#47008F',
     },
-  },
+    custom: { 
+      main: 'green', 
+      light: 'red',
+    },
+  } as CustomPaletteOptions,
 });
 
 const colorExplain = {
@@ -34,6 +45,10 @@ const colorExplain = {
     { id: 2, label: 'b' },
     { id: 3, label: 'c' },
   ],
+  status: [
+    { id: 1, label: 'success' },
+    { id: 2, label: 'fail' },
+  ],
 };
 
 const colorText = {
@@ -45,8 +60,8 @@ export default function ColorShowcase({
   color,
   explain,
 }: {
-  color: 'primary' | 'secondary';
-  explain: 'lecturerAttendance' | 'test';
+  color: 'primary' | 'secondary' | 'custom';
+  explain: 'lecturerAttendance' | 'test' | 'status';
 }) {
   return (
     <ThemeProvider theme={theme}>
@@ -56,7 +71,7 @@ export default function ColorShowcase({
             {capitalize(color)}
           </Button> */}
           <Stack direction="row" sx={{ gap: 1 }}>
-            {colorText.id.map((id) => (
+            {/* {colorText.id.map((id) => (
               <Stack sx={{ alignItems: 'center' }}>
                 <Typography variant="body2">
                 {colorExplain[explain][id - 1].label}
@@ -69,7 +84,25 @@ export default function ColorShowcase({
                   }}
                 />
               </Stack>
-            ))}
+            ))} */}
+
+            {colorText.id.map((id) => {
+              const label = colorExplain[explain][id - 1]?.label;
+              return (
+                <Stack sx={{ alignItems: 'center' }} key={id}>
+                  <Typography variant="body2">
+                    {label}
+                  </Typography>
+                  <Box
+                    sx={{
+                      bgcolor: `${color}.${colorText.color[id - 1]}`,
+                      width: 20,
+                      height: 20,
+                    }}
+                  />
+                </Stack>
+              );
+            })}
 
             {/* <Stack sx={{ alignItems: 'center' }}>
               <Typography variant="body2">main</Typography>

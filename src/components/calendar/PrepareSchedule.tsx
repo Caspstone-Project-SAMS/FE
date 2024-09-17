@@ -30,7 +30,12 @@ import { CiDatabase } from "react-icons/ci";
 
 const { Option } = Select;
 
-const PrepareSchedule: React.FC = () => {
+interface ModuleProps {
+  moduleId: number;
+  connection: boolean;
+}
+
+const PrepareSchedule: React.FC<ModuleProps> = ({ moduleId, connection }) => {
   const token = useSelector(
     (state: RootState) => state.auth.userDetail?.token ?? '',
   );
@@ -69,7 +74,7 @@ const PrepareSchedule: React.FC = () => {
   const handleDateChange = (date: Date | null) => {
 
     if (date) {
-      const formattedDate = date.toISOString().slice(0, 10); // Formats as yyyy-mm-dd
+      const formattedDate = date.toLocaleDateString('en-CA');
       setSelectedDate(date);
       setPreparedDate(formattedDate);
     } else {
@@ -107,6 +112,23 @@ const PrepareSchedule: React.FC = () => {
       dispatch(clearModuleMessages());
     }
   }, [successMessage, failMessage, dispatch]);
+
+  useEffect(() => {
+    if (connection === true) {
+      const existedModule = moduleDetail.find((m) => m.moduleID === moduleId);
+      if (existedModule) {
+        existedModule.connectionStatus = 1;
+      }
+      setModuleDetail([...moduleDetail])
+    } else if (connection === false) {
+      const existedModule = moduleDetail.find((m) => m.moduleID === moduleId);
+      if (existedModule) {
+        existedModule.connectionStatus = 2;
+      }
+      setModuleDetail([...moduleDetail])
+    }
+  }, [moduleId, connection]);
+
 
   useEffect(() => {
     const response = ModuleService.getModuleByEmployeeID(employeeID ?? '');
@@ -349,8 +371,8 @@ const PrepareSchedule: React.FC = () => {
                         onClick={() => handleModuleClick(item.moduleID, item)}
                         key={index}
                         className={`${styles.unselectedModule} ${moduleID === item.moduleID
-                            ? styles.selectedModule
-                            : ''
+                          ? styles.selectedModule
+                          : ''
                           }`}
                         disabled={isActiveModule}
                       >
@@ -451,7 +473,7 @@ const PrepareSchedule: React.FC = () => {
                 style={{ width: 'auto', marginTop: 0 }}
                 disabled={isActiveModule || !moduleID}
               >
-                Check Attendance
+                Prepare Data
               </Button>
             </div>
           </Col>
