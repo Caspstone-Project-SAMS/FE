@@ -171,7 +171,16 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
       getScheduleDetail()
       toast.success('Update Attendance Successfully!')
     }).catch(err => {
-      toast.error('Something went wrong, please try again later');
+      const errData = err.response.data;
+      if (errData && Array.isArray(errData)) {
+        toast.error('Can not update status, modify time has ended!!! ');
+        setIsManual(true);
+        setIsUpdate(false);
+        getScheduleDetail()
+      }
+      else {
+        toast.error('Something went wrong, please try again later');
+      }
     })
   }
   const handleCancel = () => {
