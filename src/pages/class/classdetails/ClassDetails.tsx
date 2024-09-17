@@ -541,6 +541,7 @@ const ClassDetails: React.FC = () => {
   // };
 
   const handleReset = async (moduleID: number) => {
+    setLoading(true);
     const StopAttendance = {
       ScheduleID: scheduleID,
     };
@@ -556,9 +557,11 @@ const ClassDetails: React.FC = () => {
     setIsModalVisible(false);
     setIsActiveModule(false);
     setExit(true);
+    setLoading(false);
   };
 
   const handleStart = async (moduleID: number) => {
+    setLoading(true);
     const StartAttendance = {
       ScheduleID: scheduleID,
     };
@@ -569,9 +572,11 @@ const ClassDetails: React.FC = () => {
       token: token,
     };
     await dispatch(startCheckAttendances(arg) as any);
+    setLoading(false);
   };
 
   const handleSync = async (moduleID: number) => {
+    setLoading(true);
     const SyncingAttendanceData = {
       ScheduleID: scheduleID,
     };
@@ -582,6 +587,7 @@ const ClassDetails: React.FC = () => {
       token: token,
     };
     await dispatch(syncAttendance(arg) as any);
+    setLoading(false);
   };
 
   const handleModuleClick = async (moduleId: number, module: any) => {
@@ -1093,6 +1099,7 @@ const ClassDetails: React.FC = () => {
                                     onClick={() =>
                                       handleStart(item.module.moduleID)
                                     }
+                                    disabled={loading}
                                   >
                                     Start
                                   </Button>
@@ -1101,6 +1108,7 @@ const ClassDetails: React.FC = () => {
                                     onClick={() =>
                                       handleReset(item.module.moduleID)
                                     }
+                                    disabled={loading}
                                   >
                                     Stop
                                   </Button>
@@ -1109,12 +1117,13 @@ const ClassDetails: React.FC = () => {
                                     onClick={() =>
                                       handleSync(item.module.moduleID)
                                     }
+                                    disabled={loading}
                                   >
                                     Sync
                                   </Button>
                                 </Space>
                               }
-                              trigger="click"
+                              trigger="hover"
                             >
                               <Button style={{ marginBottom: 50 }} type="link">
                                 <BsThreeDotsVertical size={25} />

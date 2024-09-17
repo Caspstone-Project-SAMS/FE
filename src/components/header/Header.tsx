@@ -56,7 +56,7 @@ const ColorList = [
   '#00a2ae',
 ];
 
-type FilterNotiFication = 'all' | 'today' | 'past';
+type FilterNotiFication = 'all' | 'read' | 'unread';
 
 interface PreparationProgress {
   SessionId: number;
@@ -131,6 +131,7 @@ const Headers: React.FC<HeadersProps> = ({
   const name = user?.result?.displayName;
   const avatar = user?.result?.avatar;
   const [reload, setReload] = useState(0);
+  const [readFilter, setReadFilter] = useState<boolean | null>(null);
   const [read, setRead] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -140,8 +141,9 @@ const Headers: React.FC<HeadersProps> = ({
     closeWebsocket();
   };
 
-  const handleChangeFilter = (change: FilterNotiFication) => {
-    setOnFilterNoti(change);
+  const handleChangeFilter = (change: boolean | null) => {
+    setReadFilter(change);
+    setOnFilterNoti(change === null ? 'all' : change ? 'read' : 'unread');
   };
 
   // const handleReadNotification = async (
@@ -204,13 +206,11 @@ const Headers: React.FC<HeadersProps> = ({
   ) => {
     console.log(moduleActivityID);
     try {
-      // Reset states before processing
       setScheduleList(undefined);
       setSchedule(undefined);
       setModuleActivity(null);
       setSelectedNotification(null);
 
-      // Mark the notification as read
       const response = await NotificationService.readNotification(
         NotificationID,
       );
@@ -218,41 +218,34 @@ const Headers: React.FC<HeadersProps> = ({
       setReload((prev) => prev + 1);
       setDropdownVisible(true);
 
-      // Find the notification details
       const notificationDetail = notification.find(
         (n) => n.notificationID === NotificationID,
       );
       setSelectedNotification(notificationDetail || null);
 
-      // Process module activities if moduleActivityID exists
       if (moduleActivityID) {
         const moduleActivities = await ModuleService.getModuleActivityByID(
           moduleActivityID,
         );
         setModuleActivity(moduleActivities || null);
 
-        // Check for prepared schedules
         const preparedSchedules =
           moduleActivities?.result?.preparationTask?.preparedSchedules;
         const preparedScheduleId =
           moduleActivities?.result?.preparationTask?.preparedScheduleId;
 
         if (preparedSchedules && preparedSchedules.length > 0) {
-          // If prepared schedules exist, fetch all schedules
           setSchedule(undefined);
           getAllSchedule(preparedSchedules);
         } else if (preparedScheduleId) {
-          // If a single preparedScheduleId exists, fetch by ID
           setScheduleList(undefined);
           getScheduleByID(preparedScheduleId);
         } else if (scheduleID) {
-          // If no prepared schedules, check scheduleID as fallback
           console.log('schedule id: ', scheduleID);
           setScheduleList(undefined);
           getScheduleByID(scheduleID);
         }
       } else if (scheduleID) {
-        // Handle case where there's no moduleActivityID but scheduleID exists
         console.log('schedule id: ', scheduleID);
         setScheduleList(undefined);
         getScheduleByID(scheduleID);
@@ -318,7 +311,10 @@ const Headers: React.FC<HeadersProps> = ({
   };
 
   useEffect(() => {
-    const response = NotificationService.getAllNotification(userID ?? '');
+    const response = NotificationService.getAllNotification(
+      readFilter,
+      userID ?? '',
+    );
 
     response
       .then((data) => {
@@ -337,7 +333,7 @@ const Headers: React.FC<HeadersProps> = ({
       .catch((error) => {
         console.log('get notification error: ', error);
       });
-  }, [userID, NotificationId, reload]);
+  }, [userID, NotificationId, reload, readFilter]);
 
   useEffect(() => {
     if (newNotificaton) {
@@ -378,17 +374,17 @@ const Headers: React.FC<HeadersProps> = ({
       style: { padding: 0 },
       label: (
         <>
-          {(user?.result?.role.name as any === 'Admin') ||
-            (user?.result?.role.name as any === 'Lecturer') ? (
-              <>
-                <Button type="text" onClick={handleNavigateHome}>
-                  Home
-                </Button>
-                <br />
-              </>
-            ) : null}
+          {(user?.result?.role.name as any) === 'Admin' ||
+          (user?.result?.role.name as any) === 'Lecturer' ? (
+            <>
+              <Button type="text" onClick={handleNavigateHome}>
+                Home
+              </Button>
+              <br />
+            </>
+          ) : null}
 
-          {(user?.result?.role.name as any) === 'Admin' ? (
+          {(user?.result?.role.name as any) === 'SupAdmin' ? (
             <div>
               <Button type="text" onClick={handleNavigateScript}>
                 Script
@@ -626,25 +622,20 @@ const Headers: React.FC<HeadersProps> = ({
                   }
                   style={{ color: '#64748B' }}
                 >
-                  <Menu.Item
-                    key="all"
-                    onClick={() => {
-                      handleChangeFilter('all');
-                    }}
-                  >
+                  <Menu.Item key="All" onClick={() => handleChangeFilter(null)}>
                     <Text>All</Text>
                   </Menu.Item>
                   <Menu.Item
-                    key="today"
-                    onClick={() => handleChangeFilter('today')}
+                    key="read"
+                    onClick={() => handleChangeFilter(true)}
                   >
-                    <Text>Today</Text>
+                    <Text>Read</Text>
                   </Menu.Item>
                   <Menu.Item
-                    key="past"
-                    onClick={() => handleChangeFilter('past')}
+                    key="unread"
+                    onClick={() => handleChangeFilter(false)}
                   >
-                    <Text>Last 2 weeks</Text>
+                    <Text>Unread</Text>
                   </Menu.Item>
                 </Menu.SubMenu>
               </div>
@@ -812,12 +803,12 @@ const Headers: React.FC<HeadersProps> = ({
         </Dropdown>
         <Avatar
           size={{
-            xs: 24,
-            sm: 32,
-            md: 10,
-            lg: 14,
+            xs: 40,
+            sm: 40,
+            md: 40,
+            lg: 40,
             xl: 40,
-            xxl: 10,
+            xxl: 40,
           }}
           src={
             <img

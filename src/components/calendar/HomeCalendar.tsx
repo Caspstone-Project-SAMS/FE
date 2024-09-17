@@ -15,7 +15,12 @@ import { clearScheduleRecordMessages } from '../../redux/slice/ScheduleRecord';
 import ImportRecord from './ImportRecord';
 import PrepareSchedule from './PrepareSchedule';
 
-const HomeCalendar: React.FC = () => {
+interface ModuleProps {
+  moduleId: number;
+  connection: boolean;
+}
+
+const HomeCalendar: React.FC<ModuleProps> = ({ moduleId, connection }) => {
   const userRole = useSelector(
     (state: RootState) => state.auth.userDetail?.result?.role.name,
   );
@@ -35,7 +40,7 @@ const HomeCalendar: React.FC = () => {
           <ImportRecord />
           {userRole && userRole === 'Lecturer' ? (
             <>
-              <PrepareSchedule />
+              <PrepareSchedule moduleId={moduleId} connection={connection}/>
               <Link to={'/calendar/import-schedule'}>
                 <Button
                   style={{

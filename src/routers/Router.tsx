@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/auth/Login';
 import ErrorPage from '../pages/ErrorPage';
@@ -12,11 +12,13 @@ interface PreparationProgress {
 }
 
 const Router = () => {
-
   // const [notification, setNotifications] = useState(0);
   const [NotificationId, setNotificationId] = useState(0);
-  const [preparationProgress, setPreparationProgress] = useState<PreparationProgress | null>(null);
+  const [preparationProgress, setPreparationProgress] =
+    useState<PreparationProgress | null>(null);
   const [wsError, setWsError] = useState<string | null>(null);
+  const [moduleId, setModuleId] = useState(0);
+  const [connection, setConnection] = useState(false);
 
   let ws: WebSocket | null;
   const ConnectWebsocket = (tokenString: string) => {
@@ -28,7 +30,7 @@ const Router = () => {
     ws.onopen = () => {
       console.log('WebSocket root connection opened');
       toast.success('WebSocket connection opened', {
-        position: 'bottom-right'
+        position: 'bottom-right',
       });
     };
 
@@ -48,9 +50,25 @@ const Router = () => {
           const data = message.Data;
           const progressTrack: PreparationProgress = {
             SessionId: data.SessionId as number,
-            Progress: data.Progress as number
+            Progress: data.Progress as number,
           };
           setPreparationProgress(progressTrack);
+          break;
+        }
+
+        case 'ModuleConnected': {
+          const data = message.Data;
+          const moduleId = data.ModuleId;
+          setConnection(true);
+          setModuleId(moduleId);
+          break;
+        }
+
+        case 'ModuleLostConnected': {
+          const data = message.Data;
+          const moduleId = data.ModuleId;
+          setConnection(false);
+          setModuleId(moduleId);
           break;
         }
 
@@ -64,7 +82,7 @@ const Router = () => {
     ws.onclose = () => {
       console.log('WebSocket root connection closed');
       toast.success('WebSocket connection closed', {
-        position: 'bottom-right'
+        position: 'bottom-right',
       });
     };
 
@@ -72,7 +90,7 @@ const Router = () => {
       console.error('WebSocket root error:', error);
       setWsError('WebSocket connection error: ' + error);
       toast.error('WebSocket connection error', {
-        position: 'bottom-right'
+        position: 'bottom-right',
       });
     };
 
@@ -82,21 +100,37 @@ const Router = () => {
   };
 
   const closeWebsocket = () => {
-    console.log('WebSocket root connection closedddddddddddddddddddddddddddddddd');
+    console.log(
+      'WebSocket root connection closedddddddddddddddddddddddddddddddd',
+    );
     setPreparationProgress(null);
     ws?.close();
-  }
+  };
+  
 
   return (
     <Routes>
-      <Route path='/*' element={
-        <ProtectedRoute closeWebsocket={closeWebsocket} preparationProgress={preparationProgress} NotificationId={NotificationId} setNotificationId={setNotificationId} setPreparationProgress={setPreparationProgress} />
-      } />
-      <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket} />} />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute
+            closeWebsocket={closeWebsocket}
+            preparationProgress={preparationProgress}
+            NotificationId={NotificationId}
+            setNotificationId={setNotificationId}
+            moduleId={moduleId}
+            connection={connection}
+          />
+        }
+      />
+      <Route
+        path="/login"
+        element={<Login ConnectWebsocket={ConnectWebsocket} />}
+      />
       <Route path="/excel-test" element={<TestComponent />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
-  )
-}
+  );
+};
 
-export default Router
+export default Router;

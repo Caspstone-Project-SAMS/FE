@@ -13,10 +13,12 @@ import { Layout } from 'antd';
 
 import Sidebar from '../components/sidebar/Sidebar';
 import Headers from '../components/header/Header';
-import routeConfig from './RouterConfig';
+import generateRouteConfig  from './RouterConfig';
 import ErrorPage from '../pages/ErrorPage';
+import Module from '../pages/admin/module/Module';
+import HomeCalendar from '../components/calendar/HomeCalendar';
 
-interface PreparationProgress{
+interface PreparationProgress {
   SessionId: number;
   Progress: number;
 }
@@ -24,9 +26,11 @@ interface PreparationProgress{
 interface RouterProps {
   closeWebsocket: () => void;
   // notification: number;
-  preparationProgress ?: PreparationProgress | null;
+  preparationProgress?: PreparationProgress | null;
   NotificationId: number;
   setNotificationId: (NotificationId: number) => void;
+  moduleId: number;
+  connection: boolean;
 }
 const ProtectedRoute: React.FC<RouterProps> = ({
   closeWebsocket,
@@ -34,6 +38,8 @@ const ProtectedRoute: React.FC<RouterProps> = ({
   preparationProgress,
   NotificationId,
   setNotificationId,
+  moduleId,
+  connection,
 }) => {
   const Auth = useSelector((state: RootState) => state.auth);
   const role = Auth.userDetail?.result?.role.name;
@@ -42,9 +48,14 @@ const ProtectedRoute: React.FC<RouterProps> = ({
   const [isRunScript, setIsRunScript] = useState(false);
   // const errs = Auth.userDetail?.errors?.length;
 
-  
+  const routeConfig = generateRouteConfig(moduleId, connection);
+
   useEffect(() => {
-    if (location.pathname === '/script' || location.pathname === '/script/set-reset-time' || location.pathname === '/script/register-fingerprint') {
+    if (
+      location.pathname === '/script' ||
+      location.pathname === '/script/set-reset-time' ||
+      location.pathname === '/script/register-fingerprint'
+    ) {
       setIsRunScript(true);
     } else {
       setIsRunScript(false);
@@ -53,7 +64,11 @@ const ProtectedRoute: React.FC<RouterProps> = ({
 
   useEffect(() => {
     const handlePopState = () => {
-      if (location.pathname === '/script' || location.pathname === '/script/set-reset-time' || location.pathname === '/script/register-fingerprint') {
+      if (
+        location.pathname === '/script' ||
+        location.pathname === '/script/set-reset-time' ||
+        location.pathname === '/script/register-fingerprint'
+      ) {
         setIsRunScript(true);
       } else {
         setIsRunScript(false);
@@ -105,12 +120,30 @@ const ProtectedRoute: React.FC<RouterProps> = ({
                 <Route key={index} path={route.path} element={route.element} />
               ))
             : ''}
+          {/* {role === 'Admin' && isRunScript === false && (
+            <Route
+              path="/module"
+              element={<Module moduleId={moduleId} connection={connection} />}
+            />
+          )}
+          {role === 'Lecturer' && (
+            <Route
+              path="/module"
+              element={<Module moduleId={moduleId} connection={connection} />}
+            />
+          )}
+          {role === 'Lecturer' && (
+            <Route
+              path="/module"
+              element={<HomeCalendar moduleId={moduleId} connection={connection} />}
+            />
+          )} */}
           {role === 'Student'
             ? routeConfig.student.map((route, index) => (
                 <Route key={index} path={route.path} element={route.element} />
               ))
             : ''}
-          {role === 'Admin' && isRunScript === true
+          {role === 'SupAdmin' && isRunScript === true
             ? routeConfig.script.map((route, index) => (
                 <Route key={index} path={route.path} element={route.element} />
               ))

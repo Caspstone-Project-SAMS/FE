@@ -211,6 +211,11 @@ const Room: React.FC = () => {
     setRoomStatus(0);
     // setCreateBy('');
     setIsCheck(false);
+    setErrors({
+      roomName: '',
+      roomDescription: '',
+      createBy: '',
+    });
   };
   const columns = [
     {

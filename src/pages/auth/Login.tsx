@@ -107,6 +107,8 @@ const Login: React.FC<RoutersProps> = ({
       navigate('/home');
     } else if (role === 'Student') {
       navigate('/student');
+    } else if (role === 'SupAdmin') {
+      navigate('/script/set-reset-time')
     }
   }, [role, navigate]);
 

@@ -3,11 +3,13 @@ import { NOTIFICATION_API } from '.';
 import { Notification, NotificationDetails } from '../models/notification/Notification';
 
 const getAllNotification = async (
+  read: boolean | null,
   userId: string,
 ): Promise<Notification | null> => {
   try {
     const response = await axios.get(NOTIFICATION_API, {
       params: {
+        read: read,
         userId,
         startPage:1,
         endPage:10,
