@@ -9,15 +9,13 @@ import {
   Radio,
   Row,
   Table,
-  DatePicker,
+  Tag,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import moment from 'moment';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './Semester.module.less';
-import type {
-  Semester,
-} from '../../../models/calendar/Semester';
+import type { Semester } from '../../../models/calendar/Semester';
 import { CalendarService } from '../../../hooks/Calendar';
 import { CiSearch, CiEdit } from 'react-icons/ci';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
@@ -27,12 +25,16 @@ import { RootState } from '../../../redux/Store';
 import {
   clearSemesterMessages,
   createSemester,
+  deleteSemester,
   updateSemester,
 } from '../../../redux/slice/Semester';
 import { SemesterService } from '../../../hooks/Semester';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { IoMdInformation } from 'react-icons/io';
+import DatePicker from 'react-datepicker'; 
+import 'react-datepicker/dist/react-datepicker.css'; 
+import { SystemService } from '../../../hooks/System';
 
 const { Header: AntHeader } = Layout;
 
@@ -48,14 +50,23 @@ const Semester: React.FC = () => {
 
   const [semesterID, setSemesterID] = useState(0);
   const [SemesterCode, setSemesterCode] = useState('');
-  const [SemesterStatus, setSemesterStatus] = useState(false);
-  const [StartDate, setStartDate] = useState('');
-  const [EndDate, setEndDate] = useState('');
-  const [CreatedBy, setCreatedBy] = useState('');
+  // const [SemesterStatus, setSemesterStatus] = useState(1);
+  const [StartDate, setStartDate] = useState<Date | null>(null); 
+  const [EndDate, setEndDate] = useState<Date | null>(null); 
+  const [semesterDurationInDays, setSemesterDurationInDays] = useState<number>(0);
 
-  const [reload, setReload] = useState(0);
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
+
+  const [errors, setErrors] = useState({
+    semesterCode: '',
+    semesterStatus: '',
+    startDate: '',
+    endDate: '',
+    createdBy: '',
+  });
+
+  console.log('start', StartDate)
 
   const handleRowClick = (semesterID: number) => {
     navigate(`/semester/semester-detail`, {
@@ -70,41 +81,116 @@ const Semester: React.FC = () => {
     (state: RootState) => state.semester.message,
   );
 
-  useEffect(() => {
-    const response = CalendarService.getAllSemester();
+  console.log('successMessage', successMessage);
 
-    response
-      .then((data) => {
-        setSemester(data || []);
-        // setFilteredSemester(data || []);
-      })
-      .catch((error) => {
-        console.log('get semester error: ', error);
-      });
-  }, [reload]);
+  // const handleSearchSemester = useCallback(
+  //   (value: string) => {
+  //     setSearchInput(value);
+  //     const filtered = semester.filter(
+  //       (item) =>
+  //         item.semesterCode &&
+  //         item.semesterCode.toLowerCase().includes(value.toLowerCase()),
+  //     );
+  //     setFilteredSemester(filtered);
+  //     setIsUpdate(true);
+  //   },
+  //   [semester],
+  // );
+
+  const handleSearchSemester = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+  
+      const normalizeString = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ') 
+          .trim();
+      };
+  
+      const normalizedValue = normalizeString(value).toLowerCase();
+      const filtered = semester.filter(
+        (item) =>
+          item.semesterCode &&
+          normalizeString(item.semesterCode).toLowerCase().includes(normalizedValue),
+      );
+  
+      setFilteredSemester(filtered);
+      setIsUpdate(true);
+    },
+    [semester],
+  );
+  
+
+  const fetchSemesters = useCallback(async () => {
+    try {
+      const data = await CalendarService.getAllSemester();
+      setSemester(data || []);
+    } catch (error) {
+      console.log('get semester error: ', error);
+    }
+  }, []);
+  useEffect(() => {
+    fetchSemesters();
+  }, [fetchSemesters]);
+
+  useEffect(() => {
+    if (searchInput !== '' && semester.length > 0) {
+      handleSearchSemester(searchInput);
+    } else if(searchInput === '') {
+      setIsUpdate(false);
+    }
+  }, [semester, searchInput, handleSearchSemester]);
+
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage === 'Update Semester Successfully' || successMessage === 'Create Semester Successfully') {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearSemesterMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearSemesterMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
+      if (successMessage.title) {
+        message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
+      }
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearSemesterMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearSemesterMessages());
     }
   }, [successMessage, failMessage, dispatch]);
 
+  const getAllSystem = async () => {
+    const response = await SystemService.getAllSystem();
+    setSemesterDurationInDays(response?.result.semesterDurationInDays || 0);
+  };
+
   const showModalUpdate = (item?: Semester) => {
+    getAllSystem();
     setIsCheck(true);
     if (item) {
       setSemesterID(item.semesterID!);
       setSemesterCode(item.semesterCode!);
-      setSemesterStatus(item.semesterStatus!);
-      setStartDate(item.startDate!);
-      setEndDate(item.endDate!);
+      // setSemesterStatus(item.semesterStatus!);
+      setStartDate(item.startDate ? new Date(item.startDate) : null); 
+      setEndDate(item.endDate ? new Date(item.endDate) : null); 
     } else {
       resetModalFields();
     }
@@ -112,38 +198,48 @@ const Semester: React.FC = () => {
   };
 
   const showModalCreate = () => {
+    getAllSystem();
     setIsCheck(false);
     setIsModalVisible(true);
   };
 
   const handleCreate = async () => {
+    const validationErrors = validateInputs();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setLoading(true);
     await CreatedNewSemester(
       SemesterCode,
-      SemesterStatus,
-      StartDate,
-      EndDate,
-      CreatedBy,
+      // SemesterStatus,
+      StartDate ? moment(StartDate).format('YYYY-MM-DD') : '',
+      EndDate ? moment(EndDate).format('YYYY-MM-DD') : '',
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    // setIsModalVisible(false);
+    // resetModalFields();
+    fetchSemesters();
   };
 
   const handleUpdate = async () => {
+    const validationErrors = validateInputs();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setLoading(true);
     await updateExistingSemester(
       SemesterCode,
-      SemesterStatus,
-      StartDate,
-      EndDate,
+      // SemesterStatus,
+      StartDate ? moment(StartDate).format('YYYY-MM-DD') : '',
+      EndDate ? moment(EndDate).format('YYYY-MM-DD') : '',
       semesterID,
     );
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    // setIsModalVisible(false);
+    // resetModalFields();
+    fetchSemesters();
   };
 
   const handleCancel = () => {
@@ -154,11 +250,17 @@ const Semester: React.FC = () => {
   const resetModalFields = () => {
     setSemesterID(0);
     setSemesterCode('');
-    setSemesterStatus(false);
-    setStartDate('');
-    setEndDate('');
-    setCreatedBy('');
+    // setSemesterStatus(1);
+    setStartDate(null); 
+    setEndDate(null); 
     setIsCheck(false);
+    setErrors({
+      semesterCode: '',
+      semesterStatus: '',
+      startDate: '',
+      endDate: '',
+      createdBy: '',
+    });
   };
   const columns = [
     {
@@ -200,37 +302,26 @@ const Semester: React.FC = () => {
             shape="circle"
             style={{ border: 'none' }}
           >
-            <span><IoMdInformation size={25}/></span>
+            <span>
+              <IoMdInformation size={25} />
+            </span>
           </Button>
         </div>
       ),
     },
   ];
 
-  const handleSearchSemester = (value: string) => {
-    setSearchInput(value);
-    const filtered = semester.filter(
-      (item) =>
-        item.semesterCode &&
-        item.semesterCode.toLowerCase().includes(value.toLowerCase()),
-    );
-    setFilteredSemester(filtered);
-    setIsUpdate(true);
-  };
-
   const CreatedNewSemester = async (
     SemesterCode: string,
-    SemesterStatus: boolean,
+    // SemesterStatus: number,
     StartDate: string,
     EndDate: string,
-    CreatedBy: string,
   ) => {
     const arg = {
       SemesterCode: SemesterCode,
-      SemesterStatus: SemesterStatus,
+      // SemesterStatus: SemesterStatus,
       StartDate: StartDate,
       EndDate: EndDate,
-      CreatedBy: CreatedBy,
     };
     await dispatch(createSemester(arg) as any);
     setIsCheck(false);
@@ -238,14 +329,14 @@ const Semester: React.FC = () => {
 
   const updateExistingSemester = async (
     SemesterCode: string,
-    SemesterStatus: boolean,
+    // SemesterStatus: number,
     StartDate: string,
     EndDate: string,
     semesterID: number,
   ) => {
     const arg = {
       SemesterCode: SemesterCode,
-      SemesterStatus: SemesterStatus,
+      // SemesterStatus: SemesterStatus,
       StartDate: StartDate,
       EndDate: EndDate,
       semesterID: semesterID,
@@ -253,16 +344,26 @@ const Semester: React.FC = () => {
     await dispatch(updateSemester(arg) as any);
   };
 
-  const deleteSemester = async (semesterID: number) => {
+  const deleteSpecificSemester = async (semesterID: number) => {
     Modal.confirm({
       title: 'Confirm Deletion',
       content: 'Are you sure you want to delete this semester?',
       onOk: async () => {
-        await SemesterService.deleteSemester(semesterID);
-        message.success('Semester deleted successfully');
-        setReload((prevReload) => prevReload + 1);
+        const arg = {semesterID: semesterID};
+        await dispatch(deleteSemester(arg) as any);
+        fetchSemesters();
       },
     });
+  };
+
+  const validateInputs = () => {
+    const errors: any = {};
+    if (!SemesterCode) errors.semesterCode = 'Semester Code is required';
+    // if (SemesterStatus === null)
+    //   errors.semesterStatus = 'Semester Status is required';
+    if (!StartDate) errors.startDate = 'Start Date is required';
+    if (!EndDate) errors.endDate = 'End Date is required';
+    return errors;
   };
 
   return (
@@ -305,18 +406,33 @@ const Semester: React.FC = () => {
         dataSource={(!isUpdate ? semester : filteredSemester).map(
           (item, index) => ({
             key: index,
-            semester: item.semesterCode,
+            semester: item.semesterCode || 'N/A',
             semesterstatus: (
               <div>
-                <p style={{ color: item.semesterStatus ? 'green' : 'red' }}>
-                  {item.semesterStatus ? 'active' : 'inactive'}
-                </p>
+                <Tag
+                  color={
+                    item.semesterStatus === 1
+                      ? 'gray'
+                      : item.semesterStatus === 2
+                      ? 'blue'
+                      : item.semesterStatus === 3
+                      ? 'green'
+                      : 'black'
+                  }
+                  style={{ fontWeight: 'bold', fontSize: '10px' }}
+                >
+                  {item.semesterStatus === 1
+                    ? 'Not Yet'
+                    : item.semesterStatus === 2
+                    ? 'On-going'
+                    : item.semesterStatus === 3
+                    ? 'Finished'
+                    : 'N/A'}
+                </Tag>
               </div>
             ),
-            startdate: moment(item.startDate, 'YYYY-MM-DD').format(
-              'DD/MM/YYYY',
-            ),
-            enddate: moment(item.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+            startdate:(item.startDate)? moment(item.startDate, 'YYYY-MM-DD').format('DD/MM/YYYY') : 'N/A',
+            enddate: (item.endDate)? moment(item.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY') : 'N/A',
             action: (
               <div>
                 <Button
@@ -339,7 +455,7 @@ const Semester: React.FC = () => {
                   style={{ border: 'none', backgroundColor: 'white' }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteSemester(item.semesterID!);
+                    deleteSpecificSemester(item.semesterID!);
                   }}
                 >
                   <MdDeleteForever size={20} style={{ color: 'red' }} />
@@ -353,14 +469,10 @@ const Semester: React.FC = () => {
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.register.semesterID),
-        // })}
       ></Table>
       <Modal
         title={isCheck ? 'Edit Semester' : 'Add New Semester'}
         visible={isModalVisible}
-        // onOk={isCheck ? handleUpdate : handleCreate}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -371,7 +483,6 @@ const Semester: React.FC = () => {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-            // disabled={!isFormValid()}
           >
             Submit
           </Button>,
@@ -381,451 +492,72 @@ const Semester: React.FC = () => {
         <Input
           placeholder="Semester Code"
           value={SemesterCode}
-          onChange={(e) => setSemesterCode(e.target.value)}
+          onChange={(e) => {
+            setSemesterCode(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, semesterCode: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
-        <p className={styles.createSemesterTitle}>Semester Status</p>
+        {errors.semesterCode && (
+          <p className={styles.errorText}>{errors.semesterCode}</p>
+        )}
+        {/* <p className={styles.createSemesterTitle}>Semester Status</p>
         <Radio.Group
-          onChange={(e) => setSemesterStatus(e.target.value)}
+          onChange={(e) => {
+            setSemesterStatus(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, semesterStatus: '' }));
+          }}
           value={SemesterStatus}
           style={{ marginBottom: '10px' }}
         >
-          <Radio value={1}>Active</Radio>
-          <Radio value={0}>Inactive</Radio>
+          <Radio value={1}>Not Yet</Radio>
+          <Radio value={2}>On going</Radio>
+          <Radio value={3}>Finished</Radio>
         </Radio.Group>
+        {errors.semesterStatus && (
+          <p className={styles.errorText}>{errors.semesterStatus}</p>
+        )} */}
         <p className={styles.createSemesterTitle}>Start Date</p>
         <DatePicker
-          placeholder="Start Date"
-          value={StartDate ? moment(StartDate, 'YYYY-MM-DD') : null}
-          onChange={(date, dateString) => setStartDate(`${dateString}`)}
-          format="YYYY-MM-DD"
-          style={{ marginBottom: '10px', width: '100%' }}
+          placeholderText="Start Date"
+          selected={StartDate}
+          onChange={(date) => {
+            setStartDate(date);
+            if (date) {
+              const endDate = new Date(date);
+              endDate.setDate(endDate.getDate() + semesterDurationInDays); 
+              setEndDate(endDate);
+            }
+            setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
+          }}
+          dateFormat="dd-MM-yyyy"
+          onKeyDown={(e) => e.preventDefault()}
+          className={styles.datePicker}
         />
+        {errors.startDate && (
+          <p className={styles.errorText}>{errors.startDate}</p>
+        )}
         <p className={styles.createSemesterTitle}>End Date</p>
         <DatePicker
-          placeholder="End Date"
-          value={EndDate ? moment(EndDate, 'YYYY-MM-DD') : null}
-          onChange={(date, dateString) => setEndDate(`${dateString}`)}
-          format="YYYY-MM-DD"
-          style={{ marginBottom: '10px', width: '100%' }}
+          placeholderText="End Date"
+          selected={EndDate}
+          onChange={(date) => {
+            setEndDate(date);
+            if (date) {
+              const startDate = new Date(date);
+              startDate.setDate(startDate.getDate() - semesterDurationInDays); 
+              setStartDate(startDate);
+            }
+            setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
+          }}
+          dateFormat="dd-MM-yyyy"
+          onKeyDown={(e) => e.preventDefault()}
+          className={styles.datePicker}
         />
-
-        {!isCheck && (
-          <>
-            <p className={styles.createSemesterTitle}>Create By</p>
-            <Input
-              placeholder="Create By"
-              value={CreatedBy}
-              onChange={(e) => setCreatedBy(e.target.value)}
-            />
-          </>
-        )}
+        {errors.endDate && <p className={styles.errorText}>{errors.endDate}</p>}
       </Modal>
     </Content>
   );
 };
 
 export default Semester;
-
-// import React, { useState, useEffect, useMemo } from 'react';
-// import {
-//   Button,
-//   Card,
-//   Col,
-//   Input,
-//   Layout,
-//   message,
-//   Modal,
-//   Radio,
-//   Row,
-//   Table,
-//   DatePicker,
-// } from 'antd';
-// import { Content } from 'antd/es/layout/layout';
-// import moment from 'moment';
-// import { CiSearch, CiEdit } from 'react-icons/ci';
-// import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
-// import { MdDeleteForever } from 'react-icons/md';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { RootState } from '../../../redux/Store';
-// import {
-//   clearSemesterMessages,
-//   createSemester,
-//   updateSemester,
-// } from '../../../redux/slice/Semester';
-// import { SemesterService } from '../../../hooks/Semester';
-// import { PlusOutlined } from '@ant-design/icons';
-// import { useNavigate } from 'react-router-dom';
-// import styles from './Semester.module.less';
-// import type { Semester } from '../../../models/calendar/Semester';
-// import { CalendarService } from '../../../hooks/Calendar';
-
-// const { Header: AntHeader } = Layout;
-
-// const columns = [
-//   {
-//     key: '1',
-//     title: 'Semester',
-//     dataIndex: 'semester',
-//   },
-//   {
-//     key: '2',
-//     title: 'Semester status',
-//     dataIndex: 'semesterstatus',
-//   },
-//   {
-//     key: '3',
-//     title: 'Start date',
-//     dataIndex: 'startdate',
-//   },
-//   {
-//     key: '4',
-//     title: 'End date',
-//     dataIndex: 'enddate',
-//   },
-//   {
-//     key: '5',
-//     title: 'Action',
-//     dataIndex: 'action',
-//   },
-// ];
-
-// const Semester: React.FC = () => {
-//   const [semester, setSemester] = useState<Semester[]>([]);
-//   const [searchInput, setSearchInput] = useState('');
-//   const [filteredSemester, setFilteredSemester] = useState<Semester[]>(semester);
-//   const [isUpdate, setIsUpdate] = useState(false);
-//   const [isModalVisible, setIsModalVisible] = useState(false);
-//   const [loading, setLoading] = useState(false);
-//   const navigate = useNavigate();
-
-//   const [semesterID, setSemesterID] = useState(0);
-//   const [SemesterCode, setSemesterCode] = useState('');
-//   const [SemesterStatus, setSemesterStatus] = useState(false);
-//   const [StartDate, setStartDate] = useState('');
-//   const [EndDate, setEndDate] = useState('');
-//   const [CreatedBy, setCreatedBy] = useState('');
-
-//   const [reload, setReload] = useState(0);
-//   const [isCheck, setIsCheck] = useState(false);
-//   const dispatch = useDispatch();
-
-//   const handleRowClick = (semesterID: number) => {
-//     navigate(`/semester/semester-detail`, {
-//       state: { semesterID: semesterID },
-//     });
-//   };
-
-//   const failMessage = useSelector(
-//     (state: RootState) => state.semester.semesterDetail,
-//   );
-//   const successMessage = useSelector(
-//     (state: RootState) => state.semester.message,
-//   );
-
-//   useEffect(() => {
-//     const response = CalendarService.getAllSemester();
-
-//     response
-//       .then((data) => {
-//         setSemester(data || []);
-//       })
-//       .catch((error) => {
-//         console.log('get semester error: ', error);
-//       });
-//   }, [reload]);
-
-//   useEffect(() => {
-//     if (successMessage) {
-//       message.success(successMessage);
-//       setReload((prevReload) => prevReload + 1);
-//       setIsModalVisible(false);
-//       resetModalFields();
-//       dispatch(clearSemesterMessages());
-//     }
-//     if (failMessage && failMessage.data) {
-//       message.error(`${failMessage.data.data.data.errors}`);
-//       dispatch(clearSemesterMessages());
-//     }
-//   }, [successMessage, failMessage, dispatch]);
-
-//   const showModalUpdate = (item?: Semester) => {
-//     setIsCheck(true);
-//     if (item) {
-//       setSemesterID(item.semesterID!);
-//       setSemesterCode(item.semesterCode!);
-//       setSemesterStatus(item.semesterStatus!);
-//       setStartDate(item.startDate!);
-//       setEndDate(item.endDate!);
-//     } else {
-//       resetModalFields();
-//     }
-//     setIsModalVisible(true);
-//   };
-
-//   const showModalCreate = () => {
-//     setIsCheck(false);
-//     setIsModalVisible(true);
-//   };
-
-//   const handleCreate = async () => {
-//     setLoading(true);
-//     await CreatedNewSemester(
-//       SemesterCode,
-//       SemesterStatus,
-//       StartDate,
-//       EndDate,
-//       CreatedBy,
-//     );
-//     setLoading(false);
-//     setIsModalVisible(false);
-//     resetModalFields();
-//     setReload((prevReload) => prevReload + 1);
-//   };
-
-//   const handleUpdate = async () => {
-//     setLoading(true);
-//     await updateExistingSemester(
-//       SemesterCode,
-//       SemesterStatus,
-//       StartDate,
-//       EndDate,
-//       semesterID,
-//     );
-//     setLoading(false);
-//     setIsModalVisible(false);
-//     resetModalFields();
-//     setReload((prevReload) => prevReload + 1);
-//   };
-
-//   const handleCancel = () => {
-//     setIsModalVisible(false);
-//     resetModalFields();
-//   };
-
-//   const resetModalFields = () => {
-//     setSemesterID(0);
-//     setSemesterCode('');
-//     setSemesterStatus(false);
-//     setStartDate('');
-//     setEndDate('');
-//     setCreatedBy('');
-//     setIsCheck(false);
-//   };
-
-//   const handleSearchSemester = (value: string) => {
-//     setSearchInput(value);
-//     const filtered = semester.filter(
-//       (item) =>
-//         item.semesterCode &&
-//         item.semesterCode.toLowerCase().includes(value.toLowerCase()),
-//     );
-//     setFilteredSemester(filtered);
-//     setIsUpdate(true);
-//   };
-
-//   const CreatedNewSemester = async (
-//     SemesterCode: string,
-//     SemesterStatus: boolean,
-//     StartDate: string,
-//     EndDate: string,
-//     CreatedBy: string,
-//   ) => {
-//     const arg = {
-//       SemesterCode: SemesterCode,
-//       SemesterStatus: SemesterStatus,
-//       StartDate: StartDate,
-//       EndDate: EndDate,
-//       CreatedBy: CreatedBy,
-//     };
-//     await dispatch(createSemester(arg) as any);
-//     setIsCheck(false);
-//   };
-
-//   const updateExistingSemester = async (
-//     SemesterCode: string,
-//     SemesterStatus: boolean,
-//     StartDate: string,
-//     EndDate: string,
-//     semesterID: number,
-//   ) => {
-//     const arg = {
-//       SemesterCode: SemesterCode,
-//       SemesterStatus: SemesterStatus,
-//       StartDate: StartDate,
-//       EndDate: EndDate,
-//       semesterID: semesterID,
-//     };
-//     await dispatch(updateSemester(arg) as any);
-//   };
-
-//   const deleteSemester = async (semesterID: number) => {
-//     Modal.confirm({
-//       title: 'Confirm Deletion',
-//       content: 'Are you sure you want to delete this semester?',
-//       onOk: async () => {
-//         await SemesterService.deleteSemester(semesterID);
-//         message.success('Semester deleted successfully');
-//         setReload((prevReload) => prevReload + 1);
-//       },
-//     });
-//   };
-
-//   const dataSource = useMemo(() => {
-//     return (!isUpdate ? semester : filteredSemester).map((item, index) => ({
-//       key: index,
-//       semester: item.semesterCode,
-//       semesterstatus: (
-//         <div>
-//           <p style={{ color: item.semesterStatus ? 'green' : 'red' }}>
-//             {item.semesterStatus ? 'active' : 'inactive'}
-//           </p>
-//         </div>
-//       ),
-//       startdate: moment(item.startDate, 'YYYY-MM-DD').format('DD/MM/YYYY'),
-//       enddate: moment(item.endDate, 'YYYY-MM-DD').format('DD/MM/YYYY'),
-//       action: (
-//         <div>
-//           <Button
-//             shape="circle"
-//             style={{ border: 'none', backgroundColor: 'white' }}
-//           >
-//             <CiEdit
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setIsCheck(true);
-//                 showModalUpdate(item);
-//               }}
-//               size={20}
-//               style={{ color: 'blue' }}
-//             />
-//           </Button>
-
-//           <Button
-//             shape="circle"
-//             style={{ border: 'none', backgroundColor: 'white' }}
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               deleteSemester(item.semesterID!);
-//             }}
-//           >
-//             <MdDeleteForever size={20} style={{ color: 'red' }} />
-//           </Button>
-//         </div>
-//       ),
-//       register: item,
-//     }));
-//   }, [isUpdate, semester, filteredSemester]);
-
-//   return (
-//     <Content className={styles.accountSemesterContent}>
-//       <ContentHeader
-//         contentTitle="Semester"
-//         previousBreadcrumb={'Home / '}
-//         currentBreadcrumb={'Semester'}
-//         key={''}
-//       />
-//       <Card className={styles.cardHeader}>
-//         <Content>
-//           <AntHeader className={styles.tableHeader}>
-//             <p className={styles.tableTitle}>Semester</p>
-//             <Row gutter={[16, 16]}>
-//               <Col>
-//                 <Input
-//                   placeholder="Search by name"
-//                   suffix={<CiSearch />}
-//                   variant="filled"
-//                   value={searchInput}
-//                   onChange={(e) => handleSearchSemester(e.target.value)}
-//                 ></Input>
-//               </Col>
-//               <Col>
-//                 <Button
-//                   onClick={showModalCreate}
-//                   type="primary"
-//                   icon={<PlusOutlined />}
-//                 >
-//                   Add New
-//                 </Button>
-//               </Col>
-//             </Row>
-//           </AntHeader>
-//         </Content>
-//       </Card>
-//       <Table
-//         columns={columns}
-//         dataSource={dataSource}
-//         pagination={{
-//           showSizeChanger: true,
-//         }}
-//         onRow={(record) => ({
-//           onClick: () => handleRowClick(record.register.semesterID),
-//         })}
-//       ></Table>
-//       <Modal
-//         title={isCheck ? 'Edit Semester' : 'Add New Semester'}
-//         visible={isModalVisible}
-//         onCancel={handleCancel}
-//         footer={[
-//           <Button key="back" onClick={handleCancel}>
-//             Return
-//           </Button>,
-//           <Button
-//             key="submit"
-//             type="primary"
-//             loading={loading}
-//             onClick={isCheck ? handleUpdate : handleCreate}
-//           >
-//             Submit
-//           </Button>,
-//         ]}
-//       >
-//         <p className={styles.createSemesterTitle}>Semester Code</p>
-//         <Input
-//           placeholder="Semester Code"
-//           value={SemesterCode}
-//           onChange={(e) => setSemesterCode(e.target.value)}
-//           style={{ marginBottom: '10px' }}
-//         />
-//         <p className={styles.createSemesterTitle}>Semester Status</p>
-//         <Radio.Group
-//           onChange={(e) => setSemesterStatus(e.target.value)}
-//           value={SemesterStatus}
-//           style={{ marginBottom: '10px' }}
-//         >
-//           <Radio value={1}>Active</Radio>
-//           <Radio value={0}>Inactive</Radio>
-//         </Radio.Group>
-//         <p className={styles.createSemesterTitle}>Start Date</p>
-//         <DatePicker
-//           placeholder="Start Date"
-//           value={StartDate ? moment(StartDate, 'YYYY-MM-DD') : null}
-//           onChange={(date, dateString) => setStartDate(`${dateString}`)}
-//           format="YYYY-MM-DD"
-//           style={{ marginBottom: '10px', width: '100%' }}
-//         />
-//         <p className={styles.createSemesterTitle}>End Date</p>
-//         <DatePicker
-//           placeholder="End Date"
-//           value={EndDate ? moment(EndDate, 'YYYY-MM-DD') : null}
-//           onChange={(date, dateString) => setEndDate(`${dateString}`)}
-//           format="YYYY-MM-DD"
-//           style={{ marginBottom: '10px', width: '100%' }}
-//         />
-
-//         {!isCheck && (
-//           <>
-//             <p className={styles.createSemesterTitle}>Create By</p>
-//             <Input
-//               placeholder="Create By"
-//               value={CreatedBy}
-//               onChange={(e) => setCreatedBy(e.target.value)}
-//             />
-//           </>
-//         )}
-//       </Modal>
-//     </Content>
-//   );
-// };
-
-// export default Semester;

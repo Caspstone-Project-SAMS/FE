@@ -73,21 +73,56 @@ const getDaysOfWeek = (range: string) => {
   return days;
 };
 
-const getWeeks = (startDate: string, endDate: string) => {
-  const start = moment(startDate, 'DD/MM');
-  const end = moment(endDate, 'DD/MM');
-  const weeks = [];
+const getWeeks = (
+  startDate: string,
+  endDate: string,
+  inputType: string, //DD-MM or YYYY/MM/DD and similar...
+  returnType: string,
+  exact: boolean, // For output exactly from startDay and endDay
+) => {
+  try {
+    const start = moment(startDate, inputType);
+    const end = moment(endDate, inputType);
+    const weeks = [];
 
-  const current = start.clone().startOf('isoWeek');
+    let current = start.clone().startOf('isoWeek');
 
-  while (current.isBefore(end) || current.isSame(end, 'week')) {
-    const weekStart = current.clone().format('DD/MM');
-    const weekEnd = current.clone().endOf('isoWeek').format('DD/MM');
-    weeks.push(`${weekStart} - ${weekEnd}`);
-    current.add(1, 'weeks');
+    if (exact) {
+      // Handle the first week
+      const firstWeekStart = start.clone().format(returnType);
+      const firstWeekEnd = current.clone().endOf('isoWeek').format(returnType);
+      weeks.push(`${firstWeekStart} - ${firstWeekEnd}`);
+
+      current.add(1, 'weeks');
+      while (current.isBefore(end, 'week')) {
+        const weekStart = current.clone().startOf('isoWeek').format(returnType);
+        const weekEnd = current.clone().endOf('isoWeek').format(returnType);
+        weeks.push(`${weekStart} - ${weekEnd}`);
+        current.add(1, 'weeks');
+      }
+
+      // Handle the last week
+      const lastWeekStart = current
+        .clone()
+        .startOf('isoWeek')
+        .format(returnType);
+      const lastWeekEnd = end.clone().format(returnType);
+      if (current.isSame(end, 'week')) {
+        weeks.push(`${lastWeekStart} - ${lastWeekEnd}`);
+      }
+    } else {
+      while (current.isBefore(end) || current.isSame(end, 'week')) {
+        const weekStart = current.clone().format(returnType);
+        const weekEnd = current.clone().endOf('isoWeek').format(returnType);
+        weeks.push(`${weekStart} - ${weekEnd}`);
+        current.add(1, 'weeks');
+      }
+    }
+
+    return weeks;
+  } catch (error) {
+    return [];
   }
-
-  return weeks;
 };
 
 const isStartWeekSooner = (weekStart: string, weekEnd: string): boolean => {
@@ -111,7 +146,7 @@ const navigateFAP = () => {
   window.open('https://fap.fpt.edu.vn/', '_blank');
 };
 
-const randomDelay = () => Math.floor(Math.random() * 800) + 500;
+const randomDelay = () => Math.floor(Math.random() * 400) + 200;
 
 const checkContainedDate = (item: Date[], sample: Date[]): boolean => {
   // console.log('Item in ', item);

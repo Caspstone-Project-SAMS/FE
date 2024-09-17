@@ -1,9 +1,11 @@
 .module-content {
   overflow-y: auto;
-  margin: 20px 20px 20px 20px;
+  padding: 20px;
+
   .card-header {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+
     .table-header {
       background-color: white;
       margin-top: 20px;
@@ -11,6 +13,7 @@
       justify-content: space-between;
       margin-top: -15px;
       margin-bottom: -15px;
+
       .table-title {
         font-size: 20px;
         font-weight: 500;
@@ -26,6 +29,7 @@
   display: flex;
   justify-content: space-between;
   margin-top: -15px;
+
   .table-title {
     font-size: 20px;
     font-weight: 500;
@@ -56,19 +60,22 @@
 .card-header-detail {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  height: 150%;
+  height: auto;
 }
 
 .account-info {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  align-items: flex-start;
+
   .account-details {
     flex: 1 1 50%;
     box-sizing: border-box;
     padding-left: 10px;
     width: 230px;
     height: max-content;
+
     .text-title {
       color: #8f8f91;
     }
@@ -84,11 +91,15 @@
   margin: 0 auto;
 }
 
-.moduleSettingsTitle {
+.module-settings-title {
   font-size: 1.5rem;
   margin-bottom: 20px;
   display: block;
   text-align: center;
+}
+
+.module-setting-title {
+  color: #40a9ff;
 }
 
 .settingItem {
@@ -121,9 +132,53 @@
   background-color: #1890ff;
   color: white;
   border: none;
+  margin-right: 10px;
 }
 
 .submitButton:hover {
   background-color: #40a9ff;
   color: white;
+}
+
+.suggest-text {
+  color: gray;
+  font-size: 12px;
+  margin: 0;
+}
+
+.lines {
+  margin: 4px 0px 10px;
+}
+
+.card-1 {
+  height: 100%;
+
+
+  .details-header {
+    font-weight: 500;
+    font-size: large;
+  }
+
+  .row-details {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
+
+.account-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+
+  .account-details {
+    flex: 1 1 50%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    width: 180px;
+    height: max-content;
+
+    .text-title {
+      color: #8f8f91;
+    }
+  }
 }

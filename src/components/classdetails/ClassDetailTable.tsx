@@ -1,5 +1,5 @@
 import styles from './ClassDetail.module.less';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { RadioChangeEvent, TableProps } from 'antd';
 import { Layout, Table, Typography, Avatar, Image, Button, Radio, Input, Tooltip } from 'antd';
@@ -19,13 +19,14 @@ const { Header: AntHeader } = Layout;
 
 type props = {
   scheduleID: string,
-  isOkOpen: boolean
+  isOkOpen: boolean,
+  studentAttendedList: string[]
 }
 type ColumnsType<T> = TableProps<T>['columns'];
 
 let socket
 
-const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
+const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttendedList }) => {
 
   const userToken = useSelector((state: RootState) => state.auth.userDetail?.token)
 
@@ -41,6 +42,9 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
   const [pageSize, setPageSize] = useState<number>(35);
   const [isUpdate, setIsUpdate] = useState(false);
 
+  const radioGroupRef = useRef<HTMLDivElement>(null);
+  const [isManual, setIsManual] = useState(false);
+
 
   const toggleUpdateAttendance = () => {
     setIsUpdate(!isUpdate);
@@ -48,9 +52,9 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
 
   function activeWebSocket() {
     if (userToken) {
-      socket = new WebSocket("ws://34.81.224.196/ws/client", ["access_token", userToken]);
+      socket = new WebSocket("wss://34.81.223.233/ws/client", ["access_token", userToken]);
       socket.onopen = function (event) {
-        console.log('Connecteed in herrrrrrrrrrrr brbrbr');
+        console.log('Connected websocket for slot class detail');
         // setInformation("Connected");
       };
 
@@ -68,42 +72,49 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
         switch (message.Event) {
           case "StudentAttended":
             {
-              //new
-              const studentIDs = message.Data.studentIDs
-              console.log("studentIDS ", studentIDs);
-              if (Array.isArray(studentIDs)) {
-                console.log("Im in the arr ",);
-                studentIDs.map(item => {
-                  console.log("On update item ", item);
-                  const element = document.getElementById(`attendanceStatus-${item}`);
-                  if (element) {
-                    element.innerHTML = 'Attended';
-                    element.style.color = 'green';
-                  }
-                })
+              try {
+                const studentIDs = message.Data.studentIDs
+                console.log("studentIDS ", studentIDs);
+                if (Array.isArray(studentIDs)) {
+                  studentIDs.map(item => {
+                    console.log("On update item ", item);
+                    console.log("List origin ", studentList);
+                    console.log("update list ", updatedList);
+                    // const sample = []
+                    // for (let i = 0; i < studentList.length; i++) {
+                    //   const student = studentList[i]
+                    //   if (student.studentID === item) {
+                    //     sample.push({ ...student, attendanceStatus: 1 })
+                    //   } else {
+                    //     sample.push(student)
+                    //   }
+                    // }
+                    // if (sample.length > 0) {
+                    //   setStudentList(sample);
+                    //   setUpdatedList(sample);
+                    // }
+
+                    const element = document.getElementById(`attendanceStatus-${item}`);
+                    if (element) {
+                      element.innerHTML = 'Attended';
+                      element.style.color = 'green';
+                    }
+                    const elementCheckBox = document.getElementById(`radio_${item}`) as HTMLInputElement
+                    console.log("Element check box, ", elementCheckBox);
+                    if (elementCheckBox) {
+                      // Find the radio input with value 1 and check it
+                      const radioInput = elementCheckBox.querySelector('input[value="1"]') as HTMLInputElement;
+                      console.log("radioInput ", radioInput);
+
+                      if (radioInput) {
+                        radioInput.checked = true;
+                      }
+                    }
+                  })
+                }
+              } catch (error) {
+                toast.error('Unexpected error happened when connecting')
               }
-
-              //old
-              // const data = JSON.parse(message.Data);
-              // console.log("case status change", data.studentID, data.status, studentIDs)
-
-              // const elementId = `attendanceStatus-${data.studentID}`;
-              // const element = document.getElementById(`attendanceStatus-${data.studentID}`);
-
-              // if (element) {
-              //   element.innerHTML = 'Attended';
-              //   element.style.color = 'green';
-              // }
-
-              // const newOne = studentList.map(item => {
-              //   if (item.studentID == data.studentID) {
-              //     item.attendanceStatus = data.status
-              //     return item
-              //   }
-              //   return item
-              // })
-              // console.log("The prev one ", studentList);
-              // console.log("The Edited one ", newOne);
             }
             break;
           default:
@@ -112,8 +123,15 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
       };
     }
   }
+  const updateStatusManual = () => {
+    setUpdatedList(updatedList.map(item => ({
+      ...item,
+      attendanceStatus: item.attendanceStatus === 0 ? 2 : item.attendanceStatus
+    })));
+  }
 
   const handleRadioChange = (e: RadioChangeEvent, studentCode: string) => {
+    console.log("check this event ", e);
     setUpdatedList((studentList) =>
       studentList.map((item) =>
         item.studentCode === studentCode ? { ...item, attendanceStatus: e.target.value } : item
@@ -141,33 +159,59 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
           studentID: studentID,
           scheduleID: Number(scheduleID),
           attendanceTime: currentTime,
-          attendanceStatus: attendanceStatus
+          attendanceStatus: attendanceStatus === 0 ? 2 : attendanceStatus
         }
       }
     }).filter(item => item !== undefined);
 
     const response = AttendanceService.updateListAttendance(fmtUpdatedList);
     response.then(data => {
+      setIsManual(true);
       setIsUpdate(false);
-      setStudentList(updatedList)
+      getScheduleDetail()
       toast.success('Update Attendance Successfully!')
     }).catch(err => {
-      toast.error('Something went wrong, please try again later');
+      const errData = err.response.data;
+      if (errData && Array.isArray(errData)) {
+        toast.error('Can not update status, modify time has ended!!! ');
+        setIsManual(true);
+        setIsUpdate(false);
+        getScheduleDetail()
+      }
+      else {
+        toast.error('Something went wrong, please try again later');
+      }
     })
   }
   const handleCancel = () => {
-    setIsUpdate(false)
+    setIsManual(false);
+    setIsUpdate(false);
     setUpdatedList(studentList);
   }
   const handleSearch = (value: string) => {
-    const filtered = studentList.filter((item) =>
-      item.studentCode!.toLowerCase().includes(value.toLowerCase()) ||
-      item.studentName!.toLowerCase().includes(value.toLowerCase())
-    );
-    setUpdatedList(filtered);
+    if (value.length === 0) {
+      setUpdatedList(studentList)
+    } else {
+      const filtered = studentList.filter((item) =>
+        item.studentCode!.toLowerCase().includes(value.toLowerCase()) ||
+        item.studentName!.toLowerCase().includes(value.toLowerCase())
+      );
+      setUpdatedList(filtered);
+    }
   };
 
   const columns: ColumnsType<Attendance> = [
+    {
+      key: '0',
+      title: '#',
+      render: ((value, record: Attendance, index: number) => {
+        return (
+          <div key={`index_${index}`}>
+            {index + 1}
+          </div>
+        )
+      }),
+    },
     {
       key: '1',
       title: 'Student name',
@@ -268,10 +312,12 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
         return (
           <>
             <Radio.Group
-              key={`radio_${index}`}
+              ref={radioGroupRef}
+              key={`radio_${record.studentID}`}
               name="radiogroup"
               onChange={e => handleRadioChange(e, record.studentCode!)}
-              value={record.attendanceStatus}
+              value={record.attendanceStatus ? record.attendanceStatus : 2}
+              // value={record.attendanceStatus && record.attendanceStatus}
               disabled={!isUpdate}
             // defaultValue={
             //   record.attendanceStatus !== 0 ? (
@@ -312,7 +358,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
     setPageSize(size);
   };
 
-  useEffect(() => {
+  const getScheduleDetail = () => {
     const response = AttendanceService.getAttendanceByScheduleID(scheduleID);
     setLoadingState(true);
 
@@ -326,6 +372,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
       setLoadingState(false)
       console.log(err);
     })
+  }
+
+  useEffect(() => {
+    getScheduleDetail()
   }, [])
 
   useEffect(() => {
@@ -336,22 +386,46 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
         socket.close();
       };
     }
-    // activeWebSocket();
-
-    // return () => {
-    //   socket.close();
-    // };
   }, [isOkOpen])
 
-  // useEffect(() => {
-  //   console.log("Change ", updatedList);
-  // }, [updatedList])
+  useEffect(() => {
+    if (studentAttendedList.length > 0 && !isManual) {
+      const uniqueStudents = new Map();
 
+      studentAttendedList.map(item => {
+        for (let i = 0; i < studentList.length; i++) {
+          const student = studentList[i]
+          if (student.studentID && student.studentID === item) {
+            uniqueStudents.set(student.studentID, { ...student, attendanceStatus: 1 });
+          } else {
+            uniqueStudents.set(student.studentID, student);
+          }
+        }
+      })
+
+      const result = Array.from(uniqueStudents.values())
+      console.log("uniqueStudents", result);
+      if (result.length > 0) {
+        setStudentList(Array.from(uniqueStudents.values()));
+        setUpdatedList(Array.from(uniqueStudents.values()));
+        setIsManual(false);
+      }
+    }
+  }, [studentAttendedList])
+
+  useEffect(() => {
+    console.log("Change of update list", updatedList);
+    console.log("Change of student list", studentList);
+  }, [updatedList, studentList])
 
   return (
     <Content className={styles.classDetailContent}>
       <AntHeader className={styles.classDetailHeader}>
-        <Typography.Title level={3} style={{ marginTop: 5 }}>
+        <Typography.Title level={3} style={{ marginTop: 5 }}
+          onClick={() => {
+            console.log("update list ", updatedList);
+          }}
+        >
           Student
         </Typography.Title>
         <div className={styles.studentTableCtn}>
@@ -364,7 +438,7 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
             }}
             onSearch={(text) => {
               handleSearch(text);
-              socket.close();
+              // socket.close();
             }}
           // onChange={() => console.log("StudentList ", studentList)}
           // onSearch={() => {
@@ -373,7 +447,10 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen }) => {
           />
           <Tooltip placement="top" title={'Update Attendance'}>
             <Button
-              onClick={() => setIsUpdate(true)}
+              onClick={() => {
+                setIsUpdate(true)
+                updateStatusManual();
+              }}
               type={isUpdate ? 'primary' : 'dashed'}
               shape="default"
               icon={<BiCalendarEdit />}

@@ -17,15 +17,16 @@ export interface ExcelClassList {
 export interface ClassMessage {
   data: {
     data: {
-      data: {
-        isSuccess?: boolean;
-        title?: string;
-        errors?: string[];
-        result?: null;
-      };
-      status: boolean;
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
     };
+    status: boolean;
   };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
 }
 
 export interface ClassFail {
@@ -48,6 +49,7 @@ export interface ClassDetails {
   classID: number;
   classCode: string;
   classStatus: boolean;
+  slotType: SlotType;
   semester: Semester;
   room: Room;
   subject: Subject;
@@ -55,11 +57,20 @@ export interface ClassDetails {
   students: Student[];
   schedules: Schedule[];
 }
+
+export interface SlotType {
+  slotTypeID: number;
+  typeName: string;
+  description: string;
+  status: number;
+  sessionCount: number;
+}
 export interface ClassDetail {
   result: {
     classID: number;
     classCode: string;
-    classStatus: boolean;
+    classStatus: number;
+    slotType: SlotType;
     semester: Semester;
     room: Room;
     subject: Subject;
@@ -95,6 +106,11 @@ export interface Lecturer {
   avatar: string;
   email: string;
   department: string;
+  address: string;
+  firstName: string;
+  lastName: string;
+  gender: number;
+  phoneNumber: string;
 }
 
 export interface Student {
@@ -110,6 +126,24 @@ export interface Schedule {
   scheduleID: number;
   date: string;
   dateOfWeek: number;
-  scheduleStatus: boolean;
-  slot: null;
+  scheduleStatus: number;
+  attended: number;
+  slot: Slot;
+  room: RoomSchedule;
+}
+
+export interface Slot {
+  endtime: string;
+  order: number;
+  slotID: number;
+  slotNumber: number;
+  startTime: string;
+  status: boolean;
+}
+
+export interface RoomSchedule {
+  roomID: number;
+  roomName: string;
+  roomDescription: string;
+  roomStatus: boolean;
 }

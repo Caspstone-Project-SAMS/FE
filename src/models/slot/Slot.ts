@@ -1,7 +1,7 @@
 export interface Slot {
   slotID: number;
   slotNumber: number;
-  status: boolean;
+  status: number;
   order: number;
   startTime: string;
   endtime: string;
@@ -16,4 +16,18 @@ export interface SlotDetail {
     startTime: string;
     endtime: string;
   };
+}
+
+export interface SlotTypes {
+  title: string;
+  result: SlotTypeDetail[];
+}
+
+export interface SlotTypeDetail {
+  slotTypeID: number;
+  typeName: string;
+  description: string;
+  status: number;
+  sessionCount: number;
+  slots: Slot[];
 }

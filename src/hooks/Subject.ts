@@ -24,8 +24,8 @@ const getSubjectByID = async (subjectID: number): Promise<Subject> => {
 const createSubject = async (
   SubjectCode: string,
   SubjectName: string,
-  SubjectStatus: boolean,
-  CreateBy: string,
+  SubjectStatus: number,
+  // CreateBy: string,
 ) => {
   try {
     const response = await axios.post(
@@ -34,7 +34,7 @@ const createSubject = async (
         SubjectCode,
         SubjectName,
         SubjectStatus,
-        CreateBy,
+        // CreateBy,
       },
       {
         headers: {
@@ -46,7 +46,7 @@ const createSubject = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log("abc", error.message)
-      throw new AxiosError(error.response)
+      throw new AxiosError(error.response.data)
     }
     return isRejectedWithValue(error.message)
   }
@@ -79,7 +79,7 @@ const updateSubject = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log("abc", error.message)
-      throw new AxiosError(error.response)
+      throw new AxiosError(error.response.data)
     }
     return isRejectedWithValue(error.message)
   }
@@ -90,9 +90,12 @@ const deleteSubject = async (subjectID: number) => {
     const response = await axios.delete(SUBJECT_API + '/' + subjectID);
     console.log('delete success', response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on delete Subject: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response.data)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 

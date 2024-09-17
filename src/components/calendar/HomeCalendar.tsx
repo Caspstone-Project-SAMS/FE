@@ -1,22 +1,73 @@
-import React from "react";
-import styles from "./HomeCalendar.module.less";
+import React, { useEffect, useState } from 'react';
+import styles from './HomeCalendar.module.less';
 
-import ContentHeader from "../header/contentHeader/ContentHeader";
-import MyCalendar from "./MyCalendar";
-import { Content } from "antd/es/layout/layout";
-import Excel from "../excel/Excel";
+import ContentHeader from '../header/contentHeader/ContentHeader';
+import MyCalendar from './MyCalendar';
+import { Content } from 'antd/es/layout/layout';
+import Excel from '../excel/Excel';
+import { Button, message, Modal } from 'antd';
+import { CiImageOn } from 'react-icons/ci';
+import { GoHistory } from 'react-icons/go';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { clearScheduleRecordMessages } from '../../redux/slice/ScheduleRecord';
+import ImportRecord from './ImportRecord';
+import PrepareSchedule from './PrepareSchedule';
 
 const HomeCalendar: React.FC = () => {
+  const userRole = useSelector(
+    (state: RootState) => state.auth.userDetail?.result?.role.name,
+  );
 
   return (
     <Content className={styles.homeCalendarCtn}>
       <div className={styles.header}>
         <ContentHeader
-          contentTitle='Calendar'
+          contentTitle="Calendar"
           previousBreadcrumb={undefined}
           currentBreadcrumb={undefined}
         />
-        <Excel fileType="schedule" />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {/* <Link to={'/calendar/import-schedule-record'}> */}
+
+          {/* </Link> */}
+          <ImportRecord />
+          {userRole && userRole === 'Lecturer' ? (
+            <>
+              <PrepareSchedule />
+              <Link to={'/calendar/import-schedule'}>
+                <Button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  size="large"
+                  icon={<CiImageOn size={18} />}
+                >
+                  Import FAP Image
+                </Button>
+              </Link>
+            </>
+          ) : (
+            userRole &&
+            userRole === 'Admin' && (
+              <Link to={'/schedule/import-schedule'}>
+                <Button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  size="large"
+                  icon={<CiImageOn size={18} />}
+                >
+                  Import FAP Image
+                </Button>
+              </Link>
+            )
+          )}
+          <Excel fileType="schedule" />
+        </div>
       </div>
       <div className={styles.calendarCtn}>
         <MyCalendar LECTURER_ID={undefined} />
@@ -26,9 +77,6 @@ const HomeCalendar: React.FC = () => {
 };
 
 export default HomeCalendar;
-
-
-
 
 // import React from "react";
 // import { Content, Header } from "antd/es/layout/layout";

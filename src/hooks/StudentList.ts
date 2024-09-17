@@ -1,10 +1,9 @@
-import axios, { Axios, AxiosError } from 'axios';
-import { DOWNLOAD_TEMPLATE_API, STUDENT_API } from '.';
+import axios, { AxiosError } from 'axios';
+import { DOWNLOAD_TEMPLATE_API, STUDENT_API, STUDENT_CLASS_API } from '.';
 import { Student, StudentDetail } from '../models/student/Student';
 import toast from 'react-hot-toast';
 import { HelperService } from './helpers/helperFunc';
 import { ExcelClassList } from '../models/Class';
-import { isRejectedWithValue } from '@reduxjs/toolkit';
 
 type StudentList = {
   studentCode: string;
@@ -13,13 +12,22 @@ type StudentList = {
   createBy: string;
 };
 
+interface StudentData {
+  StudentCode: string;
+  ClassCode: string;
+}
+
+interface StudentIDs {
+  studentID: string;
+}
+
 const getAllStudent = async (): Promise<Student[] | null> => {
   try {
     const response = await axios.get(STUDENT_API, {
       params: {
         startPage: 1,
-        endPage: 10,
-        quantity: 10,
+        endPage: 20,
+        quantity: 50,
       },
     });
     return response.data as Student[];
@@ -80,14 +88,17 @@ const createStudent = async (
   try {
     const response = await axios.post(
       STUDENT_API,
-      {
-        StudentCode,
-        DisplayName,
-        Email,
-      },
+      [
+        {
+          StudentCode,
+          DisplayName,
+          Email,
+        },
+      ],
       {
         headers: {
-          'Content-Type': 'application/json',
+          accept: '*/*',
+          'Content-Type': 'application/json-patch+json',
         },
       },
     );
@@ -95,10 +106,104 @@ const createStudent = async (
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('abccccccccc', error.message);
-      throw new AxiosError(error.response);
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
     }
-    return isRejectedWithValue(error.message);
+  }
+};
+
+// const addStudentToClass = async (
+//   semesterId: number,
+//   StudentCode: string,
+//   ClassCode: string,
+// ) => {
+//   try {
+//     const response = await axios.post(
+//       `${STUDENT_API}/add-students-to-class?semesterId=${semesterId}`,
+//       [
+//         {
+//           StudentCode,
+//           ClassCode,
+//         }
+//       ],
+//       {
+//         headers: {
+//           'accept': '*/*',
+//           'Content-Type': 'application/json-patch+json',
+//         },
+//       }
+//     );
+//     console.log(response.data);
+//     return response.data;
+//   } catch (error: any) {
+//     if (axios.isAxiosError(error) && error.response) {
+//       console.error('Error:', error.message);
+//       throw new AxiosError(error.response);
+//     } else {
+//       console.error('Error:', error.message);
+//       throw new Error(error.message);
+//     }
+//   }
+// };
+
+const addStudentToClass = async (
+  semesterId: number,
+  students: StudentData[],
+) => {
+  try {
+    const response = await axios.post(
+      `${STUDENT_API}/add-students-to-class?semesterId=${semesterId}`,
+      students,
+      {
+        headers: {
+          accept: '*/*',
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
+  }
+};
+
+const deleteStudentOfClass = async (
+  classID: number,
+  students: StudentIDs[],
+) => {
+  try {
+    console.log('afsedc', classID);
+    console.log('studentsssssss', students);
+    const response = await axios.delete(`${STUDENT_CLASS_API}`, {
+      headers: {
+        accept: '*/*',
+        'Content-Type': 'application/json-patch+json',
+      },
+      data: {
+        ClassId: classID,
+        StudentIds: students.map((student) => student.studentID),
+      },
+    });
+    console.log('aaaaaaaaaaaaaaaaaaaaa', response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Error:', error.message);
+      throw new AxiosError(error.response.data);
+    } else {
+      console.error('Error:', error.message);
+      throw new Error(error.message);
+    }
   }
 };
 
@@ -126,4 +231,6 @@ export const StudentService = {
   downloadTemplateExcel,
   importExcelClass,
   getStudentByPage,
+  addStudentToClass,
+  deleteStudentOfClass,
 };

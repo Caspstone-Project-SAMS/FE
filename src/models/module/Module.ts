@@ -1,7 +1,7 @@
 export interface Module {
   isSuccess: boolean;
   title: string;
-  errors?: null;
+  errors?: string;
   result: ModuleDetail[];
 }
 
@@ -14,6 +14,12 @@ export interface ModuleByID {
     autoPrepare: boolean;
     preparedMinBeforeSlot?: null;
     preparedTime?: null;
+    connectionLifeTimeSeconds?: number;
+    connectionSound: boolean;
+    connectionSoundDurationMs: number;
+    attendanceSound: boolean;
+    attendanceSoundDurationMs: number;
+    attendanceDurationMinutes: number;
     autoReset: boolean;
     resetMinAfterSlot?: null;
     resetMinBeforeSlot?: null;
@@ -26,6 +32,11 @@ export interface ModuleByID {
     isDeleted: boolean;
     connectionStatus: number;
   };
+}
+
+export interface ModuleActivityBySchedule {
+  title: string;
+  result: ModuleActivity[];
 }
 
 export interface ModuleDetail {
@@ -48,7 +59,7 @@ export interface ModuleDetail {
 }
 
 interface Employee {
-  userID: string;
+  userId: string;
   employeeID: string;
   displayName: string;
   avatar: string;
@@ -67,16 +78,33 @@ export interface ModuleActivity {
   description: string;
   startTime: string;
   endTime: string;
+  isSuccess: boolean;
   errors: [];
-  preparationTask: PrepareTask;
+  preparationTask: PrepareTask | null;
+  module: ModuleBySchedule;
 }
 
-interface PrepareTask{
+interface PrepareTask {
   progress: number;
   preparedScheduleId: number;
-  preparedSchedules: [];
+  preparedSchedules: preparedSchedule[];
+  totalFingers: number;
+  uploadedFingers: number;
 }
 
+export interface preparedSchedule {
+  scheduleId: number;
+  totalFingers: number;
+  uploadedFingers: number;
+}
+
+export interface ModuleBySchedule {
+  moduleID: number;
+  status: number;
+  connectionStatus?: boolean;
+  mode: number;
+  autoPrepare: boolean;
+}
 export interface ActiveModule {
   StatusCode: number;
   Title: string;
@@ -91,6 +119,12 @@ export interface ActiveModuleFail {
   data: {
     error: {
       title: string;
+      Errors: string;
+      errors: string;
     };
   };
+}
+
+export interface ModuleActivityByID {
+  result: ModuleActivity;
 }

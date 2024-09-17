@@ -27,9 +27,13 @@ const downloadTemplateExcel = async () => {
   }
 };
 
-const getAllClass = async (): Promise<Class | null> => {
+const getAllClass = async (semesterId: number | null | undefined): Promise<Class | null> => {
   try {
-    const response = await axios.get(`${CLASS_API}?quantity=50`);
+    const response = await axios.get(`${CLASS_API}?quantity=50`,{
+      params: {
+        semesterId,
+      },
+    });
 
     return response.data as Class;
   } catch (error) {
@@ -39,11 +43,12 @@ const getAllClass = async (): Promise<Class | null> => {
 };
 
 const getByClassLecturer = async (
-  lecturerId: string,
+  semesterId: number | null | undefined, lecturerId: string, 
 ): Promise<Class | null> => {
   try {
     const response = await axios.get(CLASS_API, {
       params: {
+        semesterId,
         lecturerId,
         quantity: 50,
       },
@@ -108,7 +113,7 @@ const createClass = async (
   RoomId: number,
   SubjectId: number,
   LecturerID: string,
-  // CreatedBy: string,
+  SlotTypeId: number,
 ) => {
   try {
     const response = await axios.post(
@@ -119,7 +124,42 @@ const createClass = async (
         RoomId,
         SubjectId,
         LecturerID,
-        // CreatedBy,
+        SlotTypeId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('abccccccccc', error.message);
+      throw new AxiosError(error.response.data);
+    }
+    return isRejectedWithValue(error.message);
+  }
+};
+
+const updateClass = async (
+  ClassID: number,
+  ClassCode: string,
+  SemesterId: number,
+  RoomId: number,
+  SubjectId: number,
+  LecturerID: string,
+  // CreatedBy: string,
+) => {
+  try {
+    const response = await axios.put(
+      `${CLASS_API}/${ClassID}`,
+      {
+        ClassCode,
+        SemesterId,
+        RoomId,
+        SubjectId,
+        LecturerID,
       },
       {
         headers: {
@@ -131,7 +171,25 @@ const createClass = async (
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abccccccccc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
+    }
+    return isRejectedWithValue(error.message);
+  }
+};
+
+const deleteClass = async (classID: number) => {
+  try {
+    const response = await axios.delete(`${CLASS_API}/${classID}`, {
+      headers: {
+        accept: '*/*',
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log('abccccccccc', error.message);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -142,6 +200,8 @@ export const ClassService = {
   getAllClass,
   getClassByID,
   createClass,
+  updateClass,
   getClassBySemesterID,
   getByClassLecturer,
+  deleteClass,
 };

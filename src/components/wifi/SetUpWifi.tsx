@@ -7,6 +7,7 @@ import { EyeInvisibleOutlined, EyeTwoTone, InfoOutlined } from '@ant-design/icon
 import OverviewImg from '../../assets/imgs/setUpWifi/Overview_Img.png'
 import ModuleRmBg from '../../assets/imgs/module_rm_bg.png'
 import { HelperService } from '../../hooks/helpers/helperFunc';
+import { useNavigate } from 'react-router-dom';
 
 const { Text, Title } = Typography
 
@@ -41,6 +42,7 @@ const SetUpWifi = () => {
     const [rememberWifis, setRememberWifis] = useState([]);
     const [ssid, setSsid] = useState<string>('');
     const [pass, setPass] = useState<string>('');
+    const navigate = useNavigate();
 
     //Guide
     const { token } = theme.useToken();
@@ -97,10 +99,13 @@ const SetUpWifi = () => {
         marginTop: 16,
         padding: '20px',
     };
-
+    //Web cant sent to http module
     const showModal = () => {
         setIsModalOpen(true);
     };
+    const navToConfig = () => {
+        navigate('/module')
+    }
 
     const showGuideModal = () => {
         setIsGuideModalOpen(true)
@@ -124,27 +129,28 @@ const SetUpWifi = () => {
             toast.error('Password must contains at least 8 characters!', { duration: 2200 });
         }
         if (isValid) {
-            // const promise = ModuleService.setUpWifi(ssid, pass);
-            // promise.then(data => {
-            //     isSuccess = true;
+            try {
+                const promise2 = await ModuleService.setUpWifi(ssid, pass);
+                if (promise2) {
+                    toast.success('Sent to wifi successfully, please check on module!')
+                    const wifi = {
+                        ssid: ssid,
+                        pass: HelperService.encryptString(pass)
+                    }
+                    handleRememberWifi(wifi) // used wifi will not pushed to top list - error
+                }
+            } catch (error) {
+                toast.error('Unknown error occured')
+            }
+            // const promise2 = await ModuleService.setUpWifi(ssid, pass);
+            // if (promise2) {
             //     toast.success('Sent to wifi successfully, please check on module!')
             //     const wifi = {
             //         ssid: ssid,
             //         pass: HelperService.encryptString(pass)
             //     }
-            //     handleRememberWifi(wifi)
-            // }).catch(err => {
-            //     toast.error('Connect failed, please check wifi name and password again')
-            // })
-            const promise2 = await ModuleService.setUpWifi(ssid, pass);
-            if (promise2) {
-                toast.success('Sent to wifi successfully, please check on module!')
-                const wifi = {
-                    ssid: ssid,
-                    pass: HelperService.encryptString(pass)
-                }
-                handleRememberWifi(wifi) // used wifi will not pushed to top list - error
-            }
+            //     handleRememberWifi(wifi) // used wifi will not pushed to top list - error
+            // }
         }
     }
     const getRememberWifi = () => {
@@ -159,6 +165,12 @@ const SetUpWifi = () => {
                 list.forEach(item => {
                     item.pass = HelperService.decryptString(item.pass);
                 });
+                const decryptedList = list.map(item => ({
+                    ...item,
+                    pass: HelperService.decryptString(item.pass)
+                }));
+                console.log("ok ", decryptedList);
+
                 return list
             }
             return []
@@ -187,13 +199,15 @@ const SetUpWifi = () => {
             console.log("Unknown err happen when remember wifi");
         }
     };
+
     useEffect(() => {
+        // console.log("wifi here ", getRememberWifiDecrypt());
         setRememberWifis(getRememberWifiDecrypt())
-    }, [])
+    }, [isModalOpen])
 
     return (
         <div className={styles.setUpWifiCtn}>
-            <Button type='dashed' style={{ height: '100%', marginTop: '20px' }} onClick={showModal}>
+            <Button type='dashed' style={{ height: '100%', marginTop: '20px' }} onClick={navToConfig}>
                 <div className={styles.imageCtn}>
                     <Image
                         className={styles.image}
@@ -201,10 +215,10 @@ const SetUpWifi = () => {
                         src={ModuleRmBg}
                         alt='Module'
                     />
-                    <Title level={4}>Set Up Module Wi-Fi</Title>
+                    <Title level={4}>Set Up Module</Title>
                     <Text style={{
                         color: '#64748B'
-                    }}>Module: BE_CA_xxx</Text>
+                    }}>Setting module, view history...</Text>
                 </div>
             </Button>
             {/* Setup wifi modal */}
@@ -213,7 +227,7 @@ const SetUpWifi = () => {
                     <div className={styles.modalTitleCtn}>
                         <div >
                             <Text className={styles.titleTxt}>
-                                Set up Wifi
+
                             </Text>
                             <Tooltip placement="top" title={'Guideline'} >
                                 <Button

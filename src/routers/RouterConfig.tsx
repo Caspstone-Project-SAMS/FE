@@ -21,9 +21,18 @@ import SemesterDetail from '../pages/admin/semester/SemesterDetail';
 import Slot from '../pages/admin/slot/Slot';
 import SlotDetail from '../pages/admin/slot/SlotDetail';
 import AdminClassDetail from '../pages/admin/class/AdminClassDetail';
+import LecturerModule from '../pages/module/LecturerModule'
 import Module from '../pages/admin/module/Module';
 import ModuleDetail from '../pages/admin/module/ModuleDetail';
 import ScheduleImport from '../pages/schedule/ScheduleImport';
+import AccountTeacherDetail from '../pages/admin/account/accountteachers/AccountTeacherDetail';
+import ClassReport from '../pages/class/classReport/ClassReport';
+import LecturerModuleDetail from '../pages/module/LecturerModuleDetail';
+import ScriptTime from '../pages/script/ScriptTime';
+import RegisterFingerprint from '../pages/script/RegisterFingerprint';
+import ImportScheduleRecord from '../components/calendar/ImportScheduleRecord';
+import SystemConfig from '../pages/admin/system/SystemConfig';
+import Notification from '../pages/notification/Notification';
 
 const lecture = [
   {
@@ -33,6 +42,10 @@ const lecture = [
   {
     path: '/class',
     element: <Class />
+  },
+  {
+    path: '/class/detail/class-report',
+    element: <ClassReport />
   },
   {
     path: '/class/detail',
@@ -51,13 +64,45 @@ const lecture = [
     element: <HomeCalendar />
   },
   {
+    path: '/calendar/import-schedule',
+    element: <ScheduleImport />
+  },
+  {
     path: '/class/classdetails',
     element: <ClassDetails />
   },
   {
-    path: '/import-schedule',
-    element: <ScheduleImport />
+    path: '/class-report',
+    element: <ClassReport />
   },
+  {
+    path: '/module',
+    element: <Module />
+  },
+  {
+    path: '/module/module-detail',
+    element: <ModuleDetail />
+  },
+  {
+    path: '/calendar/import-schedule-record',
+    element: <ImportScheduleRecord />
+  },
+  {
+    path: '/notification-detail',
+    element: <Notification />
+  },
+  // {
+  //   path: '/account/reset-password',
+  //   element: <ResetPassword />
+  // },
+  // {
+  //   path: '/account/edit-account',
+  //   element: <EditAccount />
+  // },
+  // {
+  //   path: '/import-schedule',
+  //   element: <ScheduleImport />
+  // },
 ];
 
 const admin = [
@@ -72,6 +117,10 @@ const admin = [
   {
     path: '/teacher',
     element: <Admin />
+  },
+  {
+    path: '/teacher/teacher-detail',
+    element: <AccountTeacherDetail />
   },
   {
     path: '/attendance',
@@ -114,6 +163,10 @@ const admin = [
     element: <AdminSchedule />
   },
   {
+    path: '/schedule/import-schedule',
+    element: <ScheduleImport />
+  },
+  {
     path: '/slot',
     element: <Slot />
   },
@@ -126,12 +179,24 @@ const admin = [
     element: <AdminClassDetail />
   },
   {
+    path: '/class/detail/class-report',
+    element: <ClassReport />
+  },
+  {
     path: '/module',
     element: <Module />
   },
   {
     path: '/module/module-detail',
     element: <ModuleDetail />
+  },
+  {
+    path: '/system',
+    element: <SystemConfig />
+  },
+  {
+    path: '/notification-detail',
+    element: <Notification />
   },
 ]
 
@@ -142,9 +207,21 @@ const student = [
   },
 ]
 
+const script = [
+  {
+    path: '/script/set-reset-time',
+    element: <ScriptTime />
+  },
+  {
+    path: '/script/register-fingerprint',
+    element: <RegisterFingerprint />
+  },
+]
+
 const routeConfig = {
   lecture,
   admin,
   student,
+  script,
 }
 export default routeConfig;

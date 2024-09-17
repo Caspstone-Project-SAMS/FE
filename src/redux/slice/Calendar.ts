@@ -34,7 +34,7 @@ const initialScheduleState: Schedule = {
 const initialSemester: Semester = {
   semesterID: 0,
   semesterCode: '',
-  semesterStatus: true,
+  semesterStatus: 3,
   startDate: '',
   endDate: '',
 };
@@ -74,7 +74,7 @@ const getScheduleByID = createAsyncThunk(
 const getScheduleByWeek = createAsyncThunk(
   'calendar/scheduleByWeek',
   async (
-    arg: { lecturerID: string; semesterID: string; week: Date[] },
+    arg: { lecturerID: string; semesterID: number; week: Date[] },
     { rejectWithValue },
   ) => {
     try {
@@ -84,7 +84,7 @@ const getScheduleByWeek = createAsyncThunk(
       if (week.length === 7) {
         startDate = formatDate(week[0]);
         endDate = formatDate(week[6]);
-        const schedulePromise = await CalendarService.getScheduleByWeek(
+        const schedulePromise = await CalendarService.getScheduleByTime(
           lecturerID,
           semesterID,
           35,
@@ -95,6 +95,45 @@ const getScheduleByWeek = createAsyncThunk(
         return schedulePromise;
       }
       return rejectWithValue('Currently support get data in week view');
+    } catch (error) {
+      if (
+        !(
+          axios.isAxiosError(error) &&
+          error.response?.data === 'Lecturer not have any Schedule'
+        )
+      ) {
+        console.log('Error when get schedule', error);
+      }
+    }
+  },
+);
+
+const getScheduleByMonth = createAsyncThunk(
+  'calendar/scheduleByMonth',
+  async (
+    arg: { lecturerID: string; semesterID: number; start: Date; end: Date },
+    { rejectWithValue },
+  ) => {
+    try {
+      const { lecturerID, semesterID, start, end } = arg;
+      const startDate = formatDate(start);
+      const endDate = formatDate(end);
+      if (start !== null && end !== null) {
+        const schedulePromise = await CalendarService.getScheduleByTime(
+          lecturerID,
+          semesterID,
+          50,
+          startDate,
+          endDate,
+          1,
+          20,
+        );
+        // console.log('Schedule promise ', schedulePromise);
+        return schedulePromise;
+      }
+      return rejectWithValue(
+        'Currently support get data in week and month view',
+      );
     } catch (error) {
       if (
         !(
@@ -167,9 +206,29 @@ const CalendarSlice = createSlice({
         loadingStatus: false,
       };
     });
+    //getScheduleByMonth
+    builder.addCase(getScheduleByMonth.pending, (state) => {
+      return {
+        ...state,
+        loadingStatus: true,
+      };
+    });
+    builder.addCase(getScheduleByMonth.fulfilled, (state, { payload }) => {
+      return {
+        ...state,
+        loadingStatus: false,
+        schedule: payload,
+      };
+    });
+    builder.addCase(getScheduleByMonth.rejected, (state) => {
+      return {
+        ...state,
+        loadingStatus: false,
+      };
+    });
   },
 });
 
-export { getScheduleByID, getScheduleByWeek };
+export { getScheduleByID, getScheduleByWeek, getScheduleByMonth };
 export const { addTimeLine } = CalendarSlice.actions;
 export default CalendarSlice.reducer;

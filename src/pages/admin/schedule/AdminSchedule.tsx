@@ -237,7 +237,6 @@ const AdminSchedule = () => {
                             {
                                 lecturerList.length > 0 ? lecturerList.map((item, index) => (
                                     <>
-
                                         <Button
                                             style={{
                                                 width: '100%',

@@ -1,4 +1,5 @@
-const server = 'http://34.81.224.196/api';
+const server = 'https://sams-project.com/api';
+//const server = 'http://34.81.223.233/api';
 
 //Auth
 export const USER_AUTH_API = `${server}/Auth`;
@@ -26,8 +27,14 @@ export const SUBJECT_API = `${server}/Subject`;
 export const MODULE_API = `${server}/Module`;
 export const SET_WIFI_API = `http://192.168.4.1/connect-to`;
 
+//Module activity
+export const MODULE_ACTIVITY_API = `${server}/ModuleActivity`;
+
 //Slot
 export const SLOT_API = `${server}/Slot`;
+
+//Slot Type
+export const SLOT_TYPE_API = `${server}/SlotType`;
 
 //Class
 export const EMPLOYEE_API = `${server}/Employee`;
@@ -48,7 +55,22 @@ export const NOTIFICATION_API = `${server}/Notification`;
 export const DASHBOARD_API = `${server}/Dashboard`;
 
 //Import Schedules Image
-export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`
+export const IMPORT_SCHEDULE_IMAGE_API = `${server}/Import/Schedules`;
+
+//User
+export const USER_API = `${server}/User`;
+
+//Script
+export const SCRIPT_API = `${server}/Script`;
+
+//Student Class
+export const STUDENT_CLASS_API = `${server}/StudentClass`;
+
+//Schedule Record
+export const SCHEDULE_RECORD_API = `${server}/ImportSchedulesRecord`;
+
+//System
+export const SYSTEM_API = `${server}/System`;
 
 //Google
 export const GET_GG_USER_INFO =

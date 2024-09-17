@@ -5,6 +5,7 @@ import React from 'react'
 import { CustomEvent as RBC_Event } from '../../../../models/calendar/CustomEvent';
 
 const CustomEvent: React.FC<EventProps<RBC_Event>> = ({ event }) => {
+    console.log("Event in customevent ", event);
     const classDetail = event.title.split('-');
     const statusColor = event.status == 'past' ? '#64748B' : (event.status == 'current' ? '#24D164' : '#FBBF24');
     const isActive = event.status === 'current';
@@ -20,8 +21,8 @@ const CustomEvent: React.FC<EventProps<RBC_Event>> = ({ event }) => {
                     ) : ('')}
                 </div>
                 <div className={styles.titleTxt}>
-                    {classDetail[0]} <br />
-                    {classDetail[1]}
+                    {event.classCode} <br />
+                    Ro.{classDetail[1]}
                 </div>
             </div>
             <div className={styles.eventTime}>{event.slot}</div>

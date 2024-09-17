@@ -27,10 +27,10 @@ const getSemesterByID = async (
 
 const createSemester = async (
   SemesterCode: string,
-  SemesterStatus: boolean,
+  SemesterStatus: number,
   StartDate: string,
   EndDate: string,
-  CreatedBy: string,
+  // CreatedBy: string,
 ) => {
   try {
     const response = await axios.post(
@@ -40,7 +40,7 @@ const createSemester = async (
         SemesterStatus,
         StartDate,
         EndDate,
-        CreatedBy,
+        // CreatedBy,
       },
       {
         headers: {
@@ -48,12 +48,12 @@ const createSemester = async (
         },
       },
     );
-    console.log(response.data);
+    console.log('sad', response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -61,7 +61,7 @@ const createSemester = async (
 
 const updateSemester = async (
   SemesterCode: string,
-  SemesterStatus: boolean,
+  // SemesterStatus: number,
   StartDate: string,
   EndDate: string,
   semesterID: number,
@@ -71,7 +71,7 @@ const updateSemester = async (
       `${SEMESTER_API}?id=${semesterID}`,
       {
         SemesterCode,
-        SemesterStatus,
+        // SemesterStatus,
         StartDate,
         EndDate,
       },
@@ -81,12 +81,12 @@ const updateSemester = async (
         },
       },
     );
-    console.log(response.data);
+    console.log('sad', response.data);
     return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.log('abc', error.message);
-      throw new AxiosError(error.response);
+      throw new AxiosError(error.response.data);
     }
     return isRejectedWithValue(error.message);
   }
@@ -97,9 +97,12 @@ const deleteSemester = async (semesterID: number) => {
     const response = await axios.delete(SEMESTER_API + '/' + semesterID);
     console.log(response.data);
     return response.data;
-  } catch (error) {
-    console.error('Error on delete Semester: ', error);
-    return null;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.log("abc", error.message)
+      throw new AxiosError(error.response.data)
+    }
+    return isRejectedWithValue(error.message)
   }
 };
 

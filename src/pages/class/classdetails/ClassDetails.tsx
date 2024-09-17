@@ -1,7 +1,7 @@
 import styles from '../Class.module.less';
 import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Content } from 'antd/es/layout/layout';
 import {
   Badge,
@@ -17,6 +17,11 @@ import {
   Typography,
   Select,
   Spin,
+  Popconfirm,
+  PopconfirmProps,
+  List,
+  Avatar,
+  Popover,
 } from 'antd';
 
 import module from '../../../assets/imgs/module.png';
@@ -31,9 +36,25 @@ import { HelperService } from '../../../hooks/helpers/helperFunc';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import { ModuleService } from '../../../hooks/Module';
-import { ModuleByID, ModuleDetail } from '../../../models/module/Module';
+import { IoReload } from 'react-icons/io5';
+import {
+  ModuleActivity,
+  ModuleByID,
+  ModuleDetail,
+} from '../../../models/module/Module';
 import moduleImg from '../../../assets/imgs/module00.png';
-import { activeModule, clearModuleMessages } from '../../../redux/slice/Module';
+import {
+  activeModule,
+  clearModuleMessages,
+  startCheckAttendances,
+  stopCheckAttendances,
+  syncAttendance,
+} from '../../../redux/slice/Module';
+import modules from '../../../assets/imgs/module.png';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import onlineDots from '../../../assets/animations/Online_Dot.json';
+import Lottie from 'react-lottie';
+
 const { Option } = Select;
 
 const ClassDetails: React.FC = () => {
@@ -60,11 +81,14 @@ const ClassDetails: React.FC = () => {
 
   //Temp fix------------
   const [isOkOpen, setIsOkOpen] = useState(false);
+  const [studentAttendedList, setStudentAttendedList] = useState<string[]>([]);
+
   //Temp fix------------
 
   const [change, setChange] = useState(0);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [preparationProgress, setPreparationProgress] = useState(0);
 
@@ -89,6 +113,17 @@ const ClassDetails: React.FC = () => {
     undefined,
   );
 
+  const [moduleActivity, setModuleActivity] = useState<ModuleActivity[]>([]);
+
+  const onlineDot = {
+    loop: true,
+    autoplay: true,
+    animationData: onlineDots,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+    },
+  };
+
   useEffect(() => {
     if (successMessage) {
       if (exit === false) {
@@ -96,30 +131,72 @@ const ClassDetails: React.FC = () => {
       }
       if (successMessage.title == 'Connect module successfully') {
         setSessionID(successMessage.result.sessionId);
+        setStatus('success');
       }
-      setStatus('success');
+
       dispatch(clearModuleMessages());
     }
     if (failMessage && failMessage.data.error.title) {
-      message.error(`${failMessage.data.error.title}`);
-      setStatus('fail');
+      // message.error(`${failMessage.data.error.errors}`);
+      if (failMessage.data.error.title == 'Syncing data failed') {
+        message.error(`${failMessage.data.error.title}`);
+      } else {
+        message.error(`${failMessage.data.error.errors}`);
+      }
+      if (failMessage.data.error.title == 'Connect module failed') {
+        // message.error(`${failMessage.data.error.title}`);
+        setStatus('fail');
+      }
+
       dispatch(clearModuleMessages());
     }
   }, [successMessage, failMessage, dispatch]);
 
+  const fetchModuleActivity = useCallback(async () => {
+    try {
+      const response = await ModuleService.getModuleActivityByScheduleID(
+        scheduleID,
+      );
+      if (response && response.result) {
+        const reverseList = response.result.reverse();
+        setModuleActivity(reverseList);
+      } else {
+        setModuleActivity([]);
+      }
+    } catch (error) {
+      console.log('error at fetchModuleActivity', error);
+    }
+  }, [scheduleID]);
+
+  console.log('aaaa');
+
+  useEffect(() => {
+    if (scheduleID !== 0) {
+      fetchModuleActivity();
+    }
+  }, [scheduleID]);
+
   // useEffect(() => {
-  //   if (moduleID !== 0) {
-  //     const response = ModuleService.getModuleByID(moduleID);
+  //   if (scheduleID !== 0) {
+  //     const response = ModuleService.getModuleActivityByScheduleID(scheduleID);
 
   //     response
   //       .then((data) => {
-  //         setModuleByID(data || undefined);
+  //         //Newest on top
+  //         if (data && data.result) {
+  //           const reverseList = data.result.reverse();
+  //           setModuleActivity(reverseList);
+  //         } else {
+  //           setModuleActivity([]);
+  //         }
   //       })
   //       .catch((error) => {
   //         console.log('get module by id error: ', error);
   //       });
   //   }
-  // }, [moduleID]);
+  // }, [scheduleID]);
+
+  const list = moduleActivity;
 
   const autoConnectModule = useCallback(async () => {
     try {
@@ -129,11 +206,11 @@ const ClassDetails: React.FC = () => {
         token: token,
       };
       await dispatch(activeModule(arg) as any);
-      console.log("testttt");
+      console.log('testttt');
     } catch (error) {
       console.log('error at auto connect module', error);
     }
-  }, [moduleID, token, dispatch]); // Add dependencies here
+  }, [moduleID, token, dispatch]);
 
   const modifyModuleConnection = useCallback(
     (moduleId: number, connectionStatus: number) => {
@@ -145,10 +222,8 @@ const ClassDetails: React.FC = () => {
     [moduleDetail],
   );
 
-console.log('session', sessionID)
-
   const ConnectWebsocket = useCallback(() => {
-    const ws = new WebSocket('ws://34.81.224.196/ws/client', [
+    const ws = new WebSocket('wss://sams-project.com/ws/client', [
       'access_token',
       token,
     ]);
@@ -184,56 +259,69 @@ console.log('session', sessionID)
             const specificModule = moduleDetail.find(
               (module) => module.moduleID === moduleId,
             );
-            autoConnectModule().then(() => {
-              setModuleByID(specificModule as ModuleDetail | undefined);
-              console.log('run');
-            }).catch((error) => {
+            // autoConnectModule().then(() => {
+            setModuleByID(specificModule as ModuleDetail | undefined);
+            //   console.log('run');
+            // }).catch((error) => {
 
-              console.log('Error in autoConnectModule:', error);
-            });
+            //   console.log('Error in autoConnectModule:', error);
+            // });
           }
           setModuleDetail([...moduleDetail]);
 
-
           break;
         }
-        case 'ModuleLostConnected': {
-          const data = message.Data;
-          const moduleId = data.ModuleId;
-          modifyModuleConnection(moduleId, 2);
-          if (moduleID === moduleId) {
-            const specificModule = moduleDetail.find(
-              (module) => module.moduleID === moduleId,
-            );
-            autoConnectModule().then(() => {
+        case 'ModuleLostConnected':
+          {
+            const data = message.Data;
+            const moduleId = data.ModuleId;
+            modifyModuleConnection(moduleId, 2);
+            if (moduleID === moduleId) {
+              const specificModule = moduleDetail.find(
+                (module) => module.moduleID === moduleId,
+              );
+              // autoConnectModule().then(() => {
               setModuleByID(specificModule as ModuleDetail | undefined);
-              console.log('run');
-            }).catch((error) => {
-
-              console.log('Error in autoConnectModule:', error);
-            });
-          }
-          setModuleDetail([...moduleDetail]);
-          break;
-        }
-        case 'PreparationProgress': {
-          const data = message.Data;
-          const socketSessionId = data.SessionId as number;
-          const progress = data.Progress as number;
-          if (socketSessionId === sessionID) setPreparationProgress(progress);
-          if (progress === 100) {
-            ws.close();
-            setIsOkOpen(true);
+              //   console.log('run');
+              // }).catch((error) => {
+              //   console.log('Error in autoConnectModule:', error);
+              // });
+            }
+            setModuleDetail([...moduleDetail]);
           }
           break;
-        }
-        default: {
-          console.log('Undefined Event!');
+        case 'PreparationProgress':
+          {
+            const data = message.Data;
+            const socketSessionId = data.SessionId as number;
+            const progress = data.Progress as number;
+            if (socketSessionId === sessionID) setPreparationProgress(progress);
+            if (progress === 100) {
+              // ws.close();
+              // setIsOkOpen(true);
+            }
+          }
           break;
-        }
+        case 'StudentAttended':
+          {
+            try {
+              const studentIDs = message.Data.studentIDs;
+              console.log('studentIDS ', studentIDs);
+              if (Array.isArray(studentIDs)) {
+                setStudentAttendedList(studentIDs);
+              }
+            } catch (error) {
+              toast.error('Unexpected error happened when connecting');
+            }
+          }
+          break;
+        default:
+          {
+            console.log('Undefined Event!');
+          }
+          break;
       }
     };
-
     ws.onclose = () => {
       console.log('WebSocket connection closed');
     };
@@ -245,7 +333,14 @@ console.log('session', sessionID)
     return () => {
       ws.close(); // Close the WebSocket when component unmounts
     };
-  }, [token, moduleDetail, modifyModuleConnection, sessionID, autoConnectModule, moduleID]);
+  }, [
+    token,
+    moduleDetail,
+    modifyModuleConnection,
+    sessionID,
+    // autoConnectModule,
+    moduleID,
+  ]);
 
   useEffect(() => {
     ConnectWebsocket();
@@ -340,47 +435,153 @@ console.log('session', sessionID)
       );
       return response;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   useEffect(() => {
-    // Return a cleanup function
     return () => {
       handleResetModule();
     };
-  }, []); // Empty dependency array means this runs on unmount only
+  }, []);
 
-  const handleReset = async () => {
+  // const handleReset = async (moduleID: number) => {
+  //   const StopAttendance = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.stopCheckAttendance(
+  //       moduleID,
+  //       4,
+  //       StopAttendance,
+  //       token,
+  //     );
+  //     // const arg = {
+  //     //   ModuleID: moduleID,
+  //     //   Mode: 6,
+  //     //   token: token,
+  //     // };
+
+  //     // await dispatch(activeModule(arg) as any);
+  //     setIsCheckAttendance(false);
+  //     setIsModalVisible(false);
+  //     setIsActiveModule(false);
+  //     setExit(true);
+  //     // setModuleID(0);
+  //     // setStatus('');
+  //     // setModuleByID(undefined);
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error.errors);
+  //   }
+  // };
+
+  // const handleSync = async (moduleID: number) => {
+  //   const SyncingAttendanceData = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.syncAttendanceData(
+  //       moduleID,
+  //       12,
+  //       SyncingAttendanceData,
+  //       token,
+  //     );
+  //     console.log(response);
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const handleStart = async (moduleID: number) => {
+  //   const StartAttendance = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.startCheckAttendance(
+  //       moduleID,
+  //       10,
+  //       StartAttendance,
+  //       token,
+  //     );
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const handleStart = async (moduleID: number) => {
+  //   const StartAttendance = {
+  //     ScheduleID: scheduleID,
+  //   };
+  //   try {
+  //     const response = await ModuleService.startCheckAttendance(
+  //       moduleID,
+  //       10,
+  //       StartAttendance,
+  //       token,
+  //     );
+  //     message.success(response.title);
+  //     return response;
+  //   } catch (error: any) {
+  //     message.error(error.errors);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const StartAttendance = {
+  //   ScheduleID: scheduleID,
+  // };
+
+  const handleReset = async (moduleID: number) => {
     const StopAttendance = {
       ScheduleID: scheduleID,
     };
-    try {
-      const response = await ModuleService.stopCheckAttendance(
-        moduleID,
-        4,
-        StopAttendance,
-        token,
-      );
-      // const arg = {
-      //   ModuleID: moduleID,
-      //   Mode: 6,
-      //   token: token,
-      // };
+    const arg = {
+      ModuleID: moduleID,
+      Mode: 4,
+      StopAttendance: StopAttendance,
+      token: token,
+    };
+    await dispatch(stopCheckAttendances(arg) as any);
 
-      // await dispatch(activeModule(arg) as any);
-      setIsCheckAttendance(false);
-      setIsModalVisible(false);
-      setIsActiveModule(false);
-      setExit(true);
-      // setModuleID(0);
-      // setStatus('');
-      // setModuleByID(undefined);
-      message.success(response.title);
-      return response;
-    } catch (error: any) {
-      message.error(error.errors);
-    }
+    setIsCheckAttendance(false);
+    setIsModalVisible(false);
+    setIsActiveModule(false);
+    setExit(true);
+  };
+
+  const handleStart = async (moduleID: number) => {
+    const StartAttendance = {
+      ScheduleID: scheduleID,
+    };
+    const arg = {
+      ModuleID: moduleID,
+      Mode: 10,
+      StartAttendance: StartAttendance,
+      token: token,
+    };
+    await dispatch(startCheckAttendances(arg) as any);
+  };
+
+  const handleSync = async (moduleID: number) => {
+    const SyncingAttendanceData = {
+      ScheduleID: scheduleID,
+    };
+    const arg = {
+      ModuleID: moduleID,
+      Mode: 12,
+      SyncingAttendanceData: SyncingAttendanceData,
+      token: token,
+    };
+    await dispatch(syncAttendance(arg) as any);
   };
 
   const handleModuleClick = async (moduleId: number, module: any) => {
@@ -440,16 +641,18 @@ console.log('session', sessionID)
       <Spin size="medium" />
     </span>
   );
-   console.log('exit', exit)
 
-  const activeModuleCheckAttendance = async (moduleID: number, SessionId: number) => {
-    if(exit === true) {
+  const activeModuleCheckAttendance = async (
+    moduleID: number,
+    SessionId: number,
+  ) => {
+    if (exit === true) {
       const arg = {
         ModuleID: moduleID,
         Mode: 6,
         token: token,
       };
-  
+
       await dispatch(activeModule(arg) as any);
     }
     setExit(false);
@@ -471,6 +674,11 @@ console.log('session', sessionID)
       .catch((error) => {
         console.error('Error:', error);
       });
+  };
+
+  const cancel: PopconfirmProps['onCancel'] = (e) => {
+    // console.log(e);
+    // message.error('Click on No');
   };
 
   return (
@@ -528,7 +736,7 @@ console.log('session', sessionID)
 
                 <Row className={styles.rowDetails}>
                   <Col span={10}>
-                    <div>{detail.label}</div>
+                    <div>{detail.label}:</div>
                   </Col>
                   <Col>
                     {detail.label === 'Class status' ? (
@@ -610,19 +818,41 @@ console.log('session', sessionID)
                               : ''}
                         </p>
                       </span>
-                      <span>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                      >
                         <b>Connect: </b>
-                        <p style={{ display: 'inline', alignItems: 'center' }}>
-                          {moduleByID?.connectionStatus === 1 ? (
-                            <>
-                              <Badge status="success" /> online
-                            </>
-                          ) : moduleByID?.connectionStatus === 2 ? (
-                            <>
-                              <Badge status="error" /> offline
-                            </>
-                          ) : null}
-                        </p>
+                        {moduleByID?.connectionStatus === 1 ? (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <div style={{ marginRight: -5 }}>
+                              <Lottie
+                                options={onlineDot}
+                                height={30}
+                                width={30}
+                              />
+                            </div>
+                            <div style={{ marginBottom: 2 }}>Online</div>
+                          </div>
+                        ) : moduleByID?.connectionStatus === 2 ? (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              marginLeft: 5,
+                              gap: 4,
+                            }}
+                          >
+                            <Badge status="error" /> Offline
+                          </div>
+                        ) : null}
                       </span>
                       <span>
                         <b>Mode: </b>
@@ -637,7 +867,7 @@ console.log('session', sessionID)
                     </div>
                   </div>
                 </Col>
-                <Col style={{ marginTop: 20 }}>
+                <Col style={{ marginTop: 10 }}>
                   <Button
                     style={{ width: '100%' }}
                     type="primary"
@@ -650,34 +880,10 @@ console.log('session', sessionID)
                     <p>Select Module</p>
                   </Button>
                 </Col>
-              </Col>
-
-              <hr className={styles.hrVertical} />
-
-              <Col
-                span={10}
-                style={{
-                  marginRight: 10,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Row className={styles.btnGroup}>
-                  <div style={{ marginBottom: '10px', width: '100%' }}>
-                    {/* <BtnDecoration
-                      btnFuncName="Import templates"
-                      btnTitle="Fingerprint"
-                      imgDecor={fingerprintIcon}
-                      key={'fingerprintImport'}
-                      isActiveModule={isActiveModule}
-                      moduleID={moduleID}
-                      setIsActiveModule={setIsActiveModule}
-                    /> */}
-                  </div>
+                <Col style={{ marginTop: 10 }}>
                   <BtnDecoration
-                    btnFuncName="Start session"
-                    btnTitle="Attendance"
+                    btnFuncName="Prepare Data"
+                    btnTitle="Fingerprints"
                     imgDecor={reportIcon}
                     key={'fingerprintImport'}
                     isActiveModule={isActiveModule}
@@ -689,23 +895,248 @@ console.log('session', sessionID)
                     activeModuleCheckAttendance={activeModuleCheckAttendance}
                     preparationProgress={preparationProgress}
                   />
-                  <Button
-                    onClick={handleReset}
-                    style={{
-                      marginTop: 10,
-                      backgroundColor: 'red',
-                      color: 'white',
-                    }}
+                </Col>
+              </Col>
+
+              <hr className={styles.hrVertical} />
+
+              <Col
+                span={12}
+                style={{
+                  marginRight: 10,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'flex-start',
+                }}
+              >
+                {/* <Row className={styles.btnGroup}> */}
+                {/* <div style={{ marginBottom: '10px', width: '100%' }}>
+                    <BtnDecoration
+                      btnFuncName="Import templates"
+                      btnTitle="Fingerprint"
+                      imgDecor={fingerprintIcon}
+                      key={'fingerprintImport'}
+                      isActiveModule={isActiveModule}
+                      moduleID={moduleID}
+                      setIsActiveModule={setIsActiveModule}
+                    />
+                  </div> */}
+                {/* <Popconfirm
+                    title="Disconnect Online Attendance Tracking"
+                    description="Are you sure to disconnect?"
+                    onConfirm={handleReset}
+                    onCancel={cancel}
+                    okText="Yes"
+                    cancelText="No"
                   >
-                    Stop
-                  </Button>
+                    <Button
+                      danger
+                      type='primary'
+                      style={{ alignSelf: 'end', marginBottom: '12px' }}
+                    >
+                      Disconnect tracking
+                    </Button>
+                  </Popconfirm> */}
+                <Row style={{ width: '100%', height: '100%' }}>
+                  <Space>
+                    <Button type="link" onClick={() => fetchModuleActivity()}>
+                      <IoReload size={25} />
+                    </Button>
+                  </Space>
+                  <List
+                    className="demo-loadmore-list"
+                    itemLayout="horizontal"
+                    dataSource={list}
+                    style={{
+                      width: '100%',
+                      borderRadius: 10,
+                      height: 250,
+                      overflowY: 'auto',
+                    }}
+                    renderItem={(item) => {
+                      let totalFingers = 0;
+                      let uploadedFingers = 0;
+
+                      if (
+                        item.preparationTask?.preparedScheduleId == scheduleID
+                      ) {
+                        totalFingers = item.preparationTask?.totalFingers ?? 0;
+                        uploadedFingers = item.preparationTask?.uploadedFingers ?? 0;
+                      } else {
+                        const schedule =
+                          item.preparationTask?.preparedSchedules.find(
+                            (s) => s.scheduleId == scheduleID,
+                          );
+                        if (schedule !== undefined) {
+                          totalFingers = schedule.totalFingers;
+                          uploadedFingers = schedule.uploadedFingers;
+                        }
+                      }
+
+                      return (
+                        <List.Item
+                          style={{
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: 10,
+                            marginBottom: 10,
+                          }}
+                        // actions={[
+                        //   <a style={{ color: 'green' }} key="list-loadmore-edit">
+                        //     start
+                        //   </a>,
+                        //   <a style={{ color: 'red' }} key="list-loadmore-more">
+                        //     stop
+                        //   </a>,
+                        //   <a style={{ color: 'blue' }} key="list-loadmore-more">
+                        //     sync
+                        //   </a>,
+                        // ]}
+                        >
+                          <List.Item.Meta
+                            avatar={
+                              <div style={{ marginLeft: 10 }}>
+                                <b>Module {item.module.moduleID}</b>
+                                <br />
+                                <Avatar
+                                  src={modules}
+                                  style={{
+                                    width: '120px',
+                                    height: '80px',
+                                    borderRadius: 5,
+                                  }}
+                                />
+                              </div>
+                            }
+                          // title={
+                          //   <a href="https://ant.design">{item.name?.last}</a>
+                          // }
+                          // title={`Module ${item.module.moduleID}`}
+                          // description="a"
+                          />
+                          {/* <div style={{width:'10%', marginRight: 40}}>
+                              <b>{'Module' + item.module.moduleID}</b>
+                              <br/>
+                              <img alt='module' src={modules} style={{height:25, width:25}}/>
+                            </div>
+                            <div style={{width:'25%'}}>
+                              {item.startTime}
+                            </div> */}
+                          <div>
+                            <b>Timestamp:</b>{' '}
+                            {new Date(item.startTime).toLocaleString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                              hour12: false,
+                            })}
+                            <div>
+                              <b>Uploaded:</b>{' '}
+                              <div
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  backgroundColor: '#f5f5f5',
+                                  borderRadius: '5px',
+                                  padding: '0px 5px',
+                                  fontSize: '10px',
+                                  color: '#333',
+                                  border: '1px solid #ddd',
+                                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  {uploadedFingers}
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    color: '#108ee9',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  /
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 'bold',
+                                    marginRight: '5px',
+                                  }}
+                                >
+                                  {totalFingers}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: '12px',
+                                    color: '#555',
+                                  }}
+                                >
+                                  Fingers
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Space>
+                            <Popover
+                              placement="bottomRight"
+                              content={
+                                <Space direction="vertical" size="small">
+                                  <Button
+                                    type="text"
+                                    onClick={() =>
+                                      handleStart(item.module.moduleID)
+                                    }
+                                  >
+                                    Start
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    onClick={() =>
+                                      handleReset(item.module.moduleID)
+                                    }
+                                  >
+                                    Stop
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    onClick={() =>
+                                      handleSync(item.module.moduleID)
+                                    }
+                                  >
+                                    Sync
+                                  </Button>
+                                </Space>
+                              }
+                              trigger="click"
+                            >
+                              <Button style={{ marginBottom: 50 }} type="link">
+                                <BsThreeDotsVertical size={25} />
+                              </Button>
+                            </Popover>
+                          </Space>
+                        </List.Item>
+                      );
+                    }}
+                  />
                 </Row>
               </Col>
             </Row>
           </Card>
         </Col>
 
-        <ClassDetailTable scheduleID={scheduleID} isOkOpen={isOkOpen} />
+        <ClassDetailTable
+          scheduleID={scheduleID}
+          isOkOpen={isOkOpen}
+          studentAttendedList={studentAttendedList}
+        />
       </Row>
 
       <Modal
@@ -837,13 +1268,30 @@ console.log('session', sessionID)
                             </p>
                             <p className={styles.upDetail}>
                               {item.connectionStatus === 1 ? (
-                                <>
-                                  <Badge status="success" /> online
-                                </>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    marginLeft: -10,
+                                  }}
+                                >
+                                  <div style={{ marginRight: 5 }}>
+                                    <Lottie
+                                      options={onlineDot}
+                                      height={30}
+                                      width={30}
+                                    />
+                                  </div>
+                                  <div
+                                    style={{ marginLeft: -10, marginBottom: 3 }}
+                                  >
+                                    Online
+                                  </div>
+                                </div>
                               ) : item.connectionStatus === 2 ? (
-                                <>
-                                  <Badge status="error" /> offline
-                                </>
+                                <div style={{ gap: 4 }}>
+                                  <Badge status="error" /> Offline
+                                </div>
                               ) : null}
                             </p>
                           </Col>

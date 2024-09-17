@@ -1,6 +1,6 @@
 .account-student-content {
   overflow-y: auto;
-  margin: 20px 20px 20px 20px;
+  padding: 20px;
 }
 
 .student-name {
@@ -24,6 +24,7 @@
   justify-content: space-between;
   margin-top: -15px;
   margin-bottom: -15px;
+
   .table-title {
     font-size: 20px;
     font-weight: 500;
@@ -40,7 +41,7 @@
 .card-header-detail {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  height: 160%;
+  height: auto;
 }
 
 .update-student-title {
@@ -48,7 +49,7 @@
 }
 
 .student-img {
-  width: 100%;
+  width: 50%;
 }
 
 .student-details-table {
@@ -93,7 +94,7 @@
   width: 45%;
 
   .moduleImg {
-      width: 100%;
+    width: 100%;
   }
 }
 
@@ -102,4 +103,150 @@
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+}
+
+.create-student-title {
+  font-weight: 500;
+}
+
+.error-text {
+  color: red;
+  font-size: 12px;
+  margin: 0;
+}
+
+// .selected-finger {
+//   border: 3px solid green;
+//   background-color: rgb(228, 255, 228);
+// }
+
+// .unselected-finger {
+//   border: 3px solid gray;
+//   background-color: rgb(246, 246, 246);
+// }
+
+.selectedFinger {
+  border: 2px solid #2196f3; 
+  background-color: #e3f2fd; 
+  padding: 20px;
+  border-radius: 12px; 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); 
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease; 
+}
+
+
+.selectedFinger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background-color: #2196f3; 
+}
+
+.selectedFinger:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+}
+
+
+.selectedFinger .card-icon {
+  color: #2196f3; 
+}
+
+.selectedFinger .card-status span {
+  font-weight: bold;
+  color: #1976d2; 
+}
+
+.selectedFinger .card-timestamp {
+  color: #616161; 
+}
+
+
+.selectedFinger:hover {
+  transform: translateY(-5px) scale(1.02); 
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+
+.unselectedFinger {
+  border: 2px solid #ddd; 
+  background-color: #f9f9f9; 
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.unselectedFinger:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.card-icon {
+  flex-shrink: 0;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+  padding-left: 12px;
+}
+
+.card-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-timestamp {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #757575; 
+}
+
+
+//---------------------------------
+
+.card-1 {
+  height: 100%;
+  
+
+  .details-header {
+    font-weight: 500;
+    font-size: large;
+  }
+
+  .row-details {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
+
+.imageContainer {
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+  height: 100%;            
+}
+
+.studentImg {
+  max-width: 100%;        
+  height: auto;           
 }

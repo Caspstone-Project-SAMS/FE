@@ -1,10 +1,52 @@
+@import '../../assets/styles/variables.less';
+
 .bordered-table {
-    border-collapse: collapse;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.bordered-table th,
+.bordered-table td {
+  border: 1px solid black;
+  padding: 8px;
+  transition: 'width 1s ease-in',
+}
+
+.slotContent {
+  height: fit-content;
+  padding: 20px;
+  background-color: #FFF;
+  border: 1px solid @blur-color;
+  overflow-y: auto;
+}
+
+.fapInfoCtn {
+  display: flex;
+  justify-content: space-between;
+  max-height: 57vh;
+  margin-bottom: 20px;
+
+  .fapInfoLeft {
+    width: 28%;
+  }
+
+  .fapInfoRight {
+    width: 70%;
+    text-align: center;
+    border: 1px solid @blur-color;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .createClassTitle {
+    width: fit-content;
+  }
+
+  .btn {
     width: 100%;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  .bordered-table th,
-  .bordered-table td {
-    border: 1px solid black;
-    padding: 8px;
-  }
+}

@@ -4,7 +4,7 @@ import useDispatch from '../../redux/UseDispatch';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
-import { login, loginGG, updateUser } from '../../redux/slice/Auth';
+import { getUserByID, login, loginGG, updateUser, updateUser2 } from '../../redux/slice/Auth';
 
 //assets
 import styles from './Login.module.less';
@@ -34,7 +34,13 @@ const initialVal = {
   token_type: '',
 };
 
-function Login() {
+interface RoutersProps {
+  ConnectWebsocket: (tokenString: string) => void
+}
+
+const Login: React.FC<RoutersProps> = ({
+  ConnectWebsocket
+}) => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isRemember, setIsRemember] = useState(false);
@@ -81,21 +87,23 @@ function Login() {
     if (oldSession) {
       const { expiredTime } = JSON.parse(oldSession);
       if (expiredTime >= currentTime) {
-        dispatch(updateUser())
+        dispatch(updateUser2());
       }
     } else {
       localStorage.removeItem('userAuth');
       localStorage.removeItem('session');
     }
 
-    if (authStatus) navigate('/dashboard');
+    if (authStatus) navigate('/dashboard')
   }, []);
 
   //after login, check role and then navigate
   useEffect(() => {
     if (role === 'Lecturer') {
+      ConnectWebsocket(Auth.userDetail?.token as string);
       navigate('/home');
     } else if (role === 'Admin') {
+      ConnectWebsocket(Auth.userDetail?.token as string);
       navigate('/home');
     } else if (role === 'Student') {
       navigate('/student');
@@ -148,7 +156,7 @@ function Login() {
         <div className={styles.right}>
           <div className={styles.loginBox}>
             <h2>Sign In to your Account</h2>
-            <div>Welcome back! please enter your detail</div>
+            <div>Welcome back! Please enter your detail</div>
             <div className={styles.loginForm}>
               <Input
                 size="large"
@@ -173,7 +181,7 @@ function Login() {
               <Typography.Link
                 onClick={() => {
                   // logOut();
-                  navigate('/excel-test')
+                  navigate('/forgot-password')
                 }}
               >
                 Forgot password

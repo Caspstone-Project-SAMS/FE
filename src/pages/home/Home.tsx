@@ -66,7 +66,6 @@ const Home: React.FC = () => {
 
   //Return current|next slot, upcoming class, subject prepare, today class
   const lectureDashboardCalculator = () => {
-    console.log("Calendar ", calendar);
     let hasEventToday = false
     let pastEvent = 0;
     const dashboardInfoVal: Dashboard = {
@@ -88,6 +87,7 @@ const Home: React.FC = () => {
     const schedules = calendar.schedule;
     const today = moment(new Date()).format('YYYY-MM-DD');
     if (schedules && schedules.length > 0) {
+      let isSetCurrentClass = false
       //Current date
       const todaySchedules = schedules.map(schedule => {
         if (schedule.date === today) {
@@ -98,10 +98,11 @@ const Home: React.FC = () => {
           if (status === 'current' || status === 'future') {
             if (status === 'current') {
               dashboardInfoVal.curUpClass = { ...schedule, status: status };
-            } else {
+              isSetCurrentClass = true
+            } else if (!isSetCurrentClass) {
               dashboardInfoVal.curUpClass = { ...schedule, status: status };
-              dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
             }
+            dashboardInfoVal.subjectPrepare.push(schedule.subjectCode)
             hasEventToday = true;
           }
           if (status === 'past') {
@@ -156,9 +157,9 @@ const Home: React.FC = () => {
     lectureDashboardCalculator()
   }, [calendar])
 
-  useEffect(() => {
-    console.log('dashboard change ', dashBoardInfo);
-  }, [dashBoardInfo])
+  // useEffect(() => {
+  //   console.log('dashboard change ', dashBoardInfo);
+  // }, [dashBoardInfo])
 
   const formatTime = (time: Date) => {
     const hours = time.getHours().toString().padStart(2, '0');

@@ -10,14 +10,19 @@ import {
   Table,
 } from 'antd';
 import { Content } from 'antd/es/layout/layout';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './Subject.module.less';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import type { Subject } from '../../../models/subject/Subject';
 import { SubjectService } from '../../../hooks/Subject';
 import { CiSearch, CiEdit } from 'react-icons/ci';
 import { MdDeleteForever } from 'react-icons/md';
-import { clearSubjectMessages, createSubject, updateSubject } from '../../../redux/slice/Subject';
+import {
+  clearSubjectMessages,
+  createSubject,
+  deleteSubject,
+  updateSubject,
+} from '../../../redux/slice/Subject';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/Store';
 import { message } from 'antd';
@@ -36,14 +41,14 @@ const Subject: React.FC = () => {
   const [subjectID, setSubjectID] = useState(0);
   const [SubjectCode, setSubjectCode] = useState('');
   const [SubjectName, setSubjectName] = useState('');
-  const [SubjectStatus, setSubjectStatus] = useState(false);
-  const [CreateBy, setCreateBy] = useState('');
-
-  const [reload, setReload] = useState(0);
+  const [SubjectStatus, setSubjectStatus] = useState(0);
+  // const [CreateBy, setCreateBy] = useState('');
   const [isCheck, setIsCheck] = useState(false);
   const dispatch = useDispatch();
 
-  console.log('run')
+  // const [fetchSuccess, setFetchSuccess] = useState(false);
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const failMessage = useSelector(
     (state: RootState) => state.subject.subjectDetail,
@@ -52,27 +57,106 @@ const Subject: React.FC = () => {
     (state: RootState) => state.subject.message,
   );
 
+
+  // const handleSearchSubject = useCallback(
+  //   (value: string) => {
+  //     setSearchInput(value);
+  //     const filtered = subject.filter(
+  //       (item) =>
+  //         (item.subjectName &&
+  //           item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
+  //         (item.subjectCode &&
+  //           item.subjectCode.toLowerCase().includes(value.toLowerCase())),
+  //     );
+  //     console.log(11111111);
+  //     setFilteredSubject(filtered);
+  //     setIsUpdate(true);
+  //   },
+  //   [subject],
+  // );
+
+  const handleSearchSubject = useCallback(
+    (value: string) => {
+      setSearchInput(value);
+  
+      const normalizeString = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+  
+      const normalizedValue = normalizeString(value).toLowerCase();
+      const filtered = subject.filter(
+        (item) =>
+          (item.subjectName &&
+            normalizeString(item.subjectName).toLowerCase().includes(normalizedValue)) ||
+          (item.subjectCode &&
+            normalizeString(item.subjectCode).toLowerCase().includes(normalizedValue)),
+      );
+  
+      console.log(11111111); // For debugging, remove or replace as needed
+      setFilteredSubject(filtered);
+      setIsUpdate(true);
+    },
+    [subject],
+  );
+  
+
+  const fetchSubjects = useCallback(async () => {
+    try {
+      const data = await SubjectService.getAllSubject();
+      setSubject(data || []);
+    } catch (error) {
+      console.log('get subject error: ', error);
+    }
+  }, []);
+
   useEffect(() => {
-    const response = SubjectService.getAllSubject();
-    response
-      .then((data) => {
-        setSubject(data || []);
-      })
-      .catch((error) => {
-        console.log('get subject error: ', error);
-      });
-  }, [reload]);
+    fetchSubjects();
+  }, [fetchSubjects]);
+
+  useEffect(() => {
+    if (searchInput !== '' && subject.length > 0) {
+      handleSearchSubject(searchInput);
+    } else if (searchInput === '') {
+      setIsUpdate(false);
+    }
+  }, [subject, searchInput, handleSearchSubject]);
+
+  // useEffect(() => {
+  //   if (successMessage) {
+  //     if (successMessage === 'Update subject successfully' || successMessage === 'Create new subject successfully') {
+  //       message.success(successMessage);
+  //     } else {
+  //       message.success(successMessage.title);
+  //     }
+
+  //     setIsModalVisible(false);
+  //     resetModalFields();
+  //     dispatch(clearSubjectMessages());
+  //   }
+  //   if (failMessage && failMessage.data) {
+  //     message.error(`${failMessage.data.data.errors}`);
+  //     dispatch(clearSubjectMessages());
+  //   }
+  // }, [successMessage, failMessage, dispatch]);
 
   useEffect(() => {
     if (successMessage) {
-      message.success(successMessage);
-      setReload((prevReload) => prevReload + 1);
+      if (successMessage.title) {
+        message.success(successMessage.title);
+      } else {
+        message.success(successMessage);
+      }
+
       setIsModalVisible(false);
       resetModalFields();
       dispatch(clearSubjectMessages());
     }
     if (failMessage && failMessage.data) {
-      message.error(`${failMessage.data.data.data.errors}`);
+      message.error(`${failMessage.data.data.errors}`);
       dispatch(clearSubjectMessages());
     }
   }, [successMessage, failMessage, dispatch]);
@@ -95,20 +179,22 @@ const Subject: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    if (!validateForm()) return;
     setLoading(true);
-    await createNewSubject(SubjectCode, SubjectName, SubjectStatus, CreateBy);
+    await createNewSubject(SubjectCode, SubjectName, SubjectStatus);
     setLoading(false);
-    setIsModalVisible(false);
-    resetModalFields();
-    setReload((prevReload) => prevReload + 1);
+    // setIsModalVisible(false);
+    // resetModalFields();
+    fetchSubjects();
   };
 
   const handleUpdate = async () => {
+    if (!validateForm()) return;
     setLoading(true);
     await updateExistingSubject(subjectID, SubjectCode, SubjectName);
     setLoading(false);
-    setIsModalVisible(false);
-    setReload((prevReload) => prevReload + 1);
+    // setIsModalVisible(false);
+    fetchSubjects();
   };
 
   const handleCancel = () => {
@@ -120,9 +206,10 @@ const Subject: React.FC = () => {
     setSubjectID(0);
     setSubjectCode('');
     setSubjectName('');
-    setSubjectStatus(false);
-    setCreateBy('');
+    setSubjectStatus(0);
+    // setCreateBy('');
     setIsCheck(false);
+    setErrors({});
     // setSubjectByID(undefined);
   };
 
@@ -144,30 +231,17 @@ const Subject: React.FC = () => {
     },
   ];
 
-  const handleSearchSubject = (value: string) => {
-    setSearchInput(value);
-    const filtered = subject.filter(
-      (item) =>
-        (item.subjectName &&
-          item.subjectName.toLowerCase().includes(value.toLowerCase())) ||
-        (item.subjectCode &&
-          item.subjectCode.toLowerCase().includes(value.toLowerCase())),
-    );
-    setFilteredSubject(filtered);
-    setIsUpdate(true);
-  };
-
   const createNewSubject = async (
     SubjectCode: string,
     SubjectName: string,
-    SubjectStatus: boolean,
-    CreateBy: string,
+    SubjectStatus: number,
+    // CreateBy: string,
   ) => {
     const arg = {
       SubjectCode: SubjectCode,
       SubjectName: SubjectName,
       SubjectStatus: SubjectStatus,
-      CreateBy: CreateBy,
+      // CreateBy: CreateBy,
     };
 
     await dispatch(createSubject(arg) as any);
@@ -185,22 +259,37 @@ const Subject: React.FC = () => {
       SubjectName: SubjectName,
       // SubjectStatus: true,
     };
-    setSubjectID(0);
-    setSubjectCode('');
-    setSubjectName('');
+    // setSubjectID(0);
+    // setSubjectCode('');
+    // setSubjectName('');
     await dispatch(updateSubject(arg) as any);
   };
 
-  const deleteSubject = async (subjectID: number) => {
+  const deleteSpecificSubject = async (subjectID: number) => {
     Modal.confirm({
       title: 'Confirm Deletion',
       content: 'Are you sure you want to delete this subject?',
       onOk: async () => {
-        await SubjectService.deleteSubject(subjectID);
-        message.success('Subject deleted successfully');
-        setReload((prevReload) => prevReload + 1);
+        const arg = { subjectID: subjectID };
+        await dispatch(deleteSubject(arg) as any);
+        fetchSubjects();
       },
     });
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+    if (!SubjectCode.trim()) {
+      newErrors.SubjectCode = 'Subject Code is required';
+    }
+    if (!SubjectName.trim()) {
+      newErrors.SubjectName = 'Subject Name is required';
+    }
+    // if (!isCheck && !CreateBy.trim()) {
+    //   newErrors.CreateBy = 'Created By is required';
+    // }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -243,8 +332,8 @@ const Subject: React.FC = () => {
         dataSource={(!isUpdate ? subject : filteredSubject).map(
           (item, index) => ({
             key: index,
-            subjectcode: item.subjectCode,
-            subjectname: item.subjectName,
+            subjectcode: item.subjectCode || 'N/A',
+            subjectname: item.subjectName || 'N/A',
             action: (
               <div>
                 <Button
@@ -264,7 +353,7 @@ const Subject: React.FC = () => {
                 <Button
                   shape="circle"
                   style={{ border: 'none', backgroundColor: 'white' }}
-                  onClick={() => deleteSubject(item.subjectID!)}
+                  onClick={() => deleteSpecificSubject(item.subjectID!)}
                 >
                   <MdDeleteForever size={20} style={{ color: 'red' }} />
                 </Button>
@@ -300,16 +389,28 @@ const Subject: React.FC = () => {
         <Input
           placeholder="Subject Code"
           value={SubjectCode}
-          onChange={(e) => setSubjectCode(e.target.value)}
+          onChange={(e) => {
+            setSubjectCode(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, SubjectCode: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.SubjectCode && (
+          <p className={styles.errorText}>{errors.SubjectCode}</p>
+        )}
         <p className={styles.createSubjectTitle}>Subject Name</p>
         <Input
           placeholder="Subject Name"
           value={SubjectName}
-          onChange={(e) => setSubjectName(e.target.value)}
+          onChange={(e) => {
+            setSubjectName(e.target.value);
+            setErrors((prevErrors) => ({ ...prevErrors, SubjectName: '' }));
+          }}
           style={{ marginBottom: '10px' }}
         />
+        {errors.SubjectName && (
+          <p className={styles.errorText}>{errors.SubjectName}</p>
+        )}
         {!isCheck && (
           <>
             <p className={styles.createSubjectTitle}>Subject Status</p>
@@ -321,12 +422,12 @@ const Subject: React.FC = () => {
               <Radio value={1}>Active</Radio>
               <Radio value={0}>Inactive</Radio>
             </Radio.Group>
-            <p className={styles.createSubjectTitle}>Create By</p>
+            {/* <p className={styles.createSubjectTitle}>Create By</p>
             <Input
               placeholder="Create By"
               value={CreateBy}
               onChange={(e) => setCreateBy(e.target.value)}
-            />
+            /> */}
           </>
         )}
       </Modal>

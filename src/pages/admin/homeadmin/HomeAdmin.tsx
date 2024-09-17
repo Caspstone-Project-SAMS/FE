@@ -9,22 +9,24 @@ import HomeCalendar from '../../../components/calendar/HomeCalendar';
 import useDispatch from '../../../redux/UseDispatch';
 import { getAllSemester } from '../../../redux/slice/global/GlobalSemester';
 import { DashboardService } from '../../../hooks/Dashboard';
+import LineChart from '../../../components/chart/LineChart';
+import BarChart from '../../../components/chart/BarChart';
 
 type AdminDashnoard = {
-  totalStudent: string,
-  totalTeacher: string,
-  totalSubject: string,
-  totalClass: string
-}
+  totalStudent: string;
+  totalTeacher: string;
+  totalSubject: string;
+  totalClass: string;
+};
 
 const HomeAdmin: React.FC = () => {
   const [dashboardStat, setDashboardStat] = useState<AdminDashnoard>({
     totalClass: '',
     totalStudent: '',
     totalSubject: '',
-    totalTeacher: ''
-  })
-  const dispatch = useDispatch()
+    totalTeacher: '',
+  });
+  const dispatch = useDispatch();
 
   const handleFetchDashboard = async () => {
     try {
@@ -34,25 +36,24 @@ const HomeAdmin: React.FC = () => {
       const classes = await DashboardService.getTotalClass();
 
       if (students && lecturers && subjects && classes) {
-        setDashboardStat(prev => ({
+        setDashboardStat((prev) => ({
           ...prev,
           totalStudent: students.data,
           totalClass: classes.data,
           totalSubject: subjects.data,
-          totalTeacher: lecturers.data
-        }))
+          totalTeacher: lecturers.data,
+        }));
       }
-
     } catch (error) {
-      console.log("Unknown error occurer when get data dashboard");
+      console.log('Unknown error occurer when get data dashboard');
     }
-  }
+  };
 
   useEffect(() => {
-    handleFetchDashboard()
+    handleFetchDashboard();
 
     dispatch(getAllSemester());
-  }, [])
+  }, []);
 
   return (
     <Content className={styles.homeAdminContent}>
@@ -74,7 +75,9 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        {dashboardStat.totalStudent ? dashboardStat.totalStudent : '...'}
+                        {dashboardStat.totalStudent
+                          ? dashboardStat.totalStudent
+                          : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
@@ -95,8 +98,9 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        {dashboardStat.totalTeacher ? dashboardStat.totalTeacher : '...'}
-
+                        {dashboardStat.totalTeacher
+                          ? dashboardStat.totalTeacher
+                          : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
@@ -117,7 +121,9 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        {dashboardStat.totalSubject ? dashboardStat.totalSubject : '...'}
+                        {dashboardStat.totalSubject
+                          ? dashboardStat.totalSubject
+                          : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
@@ -138,7 +144,9 @@ const HomeAdmin: React.FC = () => {
                       </Typography.Text>
                       <br />
                       <Typography.Text className={styles.subInfo}>
-                        {dashboardStat.totalClass ? dashboardStat.totalClass : '...'}
+                        {dashboardStat.totalClass
+                          ? dashboardStat.totalClass
+                          : '...'}
                       </Typography.Text>
                     </Col>
                     <Col
@@ -154,8 +162,20 @@ const HomeAdmin: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      <Row>
+      {/* <div>
         <HomeCalendar />
+      </div> */}
+      <Row gutter={[24, 0]} style={{ marginTop: '20px' }}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={11} className="mb-24">
+          <Card bordered={false} className="criclebox h-full">
+            <BarChart />
+          </Card>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12} xl={13} className="mb-24">
+          <Card bordered={false} className="criclebox h-full">
+            <LineChart />
+          </Card>
+        </Col>
       </Row>
     </Content>
   );

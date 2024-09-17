@@ -1,11 +1,4 @@
-import {
-  Card,
-  Col,
-  Input,
-  Layout,
-  Row,
-  Table,
-} from 'antd';
+import { Card, Col, Input, Layout, Row, Table, Tag } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import React, { useState, useEffect } from 'react';
 import styles from './Semester.module.less';
@@ -17,6 +10,7 @@ import type {
 import { useLocation } from 'react-router-dom';
 import ContentHeader from '../../../components/header/contentHeader/ContentHeader';
 import { CiSearch } from 'react-icons/ci';
+import moment from 'moment';
 const { Header: AntHeader } = Layout;
 
 const SemesterDetail: React.FC = () => {
@@ -29,17 +23,34 @@ const SemesterDetail: React.FC = () => {
   const [filteredSemesterClass, setFilteredSemesterClass] =
     useState<SemesterClass[]>(semesterClass);
 
-    console.log("clss", semester)
-
   const semesterDetails = [
-    { title: 'Semester Code', value: semester?.result.semesterCode },
+    { title: 'Semester Code', value: semester?.result.semesterCode || 'N/A' },
     {
       title: 'Status',
-      value: semester?.result.semesterStatus ? 'active' : 'inactive',
+      value:
+        semester?.result.semesterStatus === 1 ? (
+          <Tag color="gray">Not Yet</Tag>
+        ) : semester?.result.semesterStatus === 2 ? (
+          <Tag color="blue">On-going</Tag>
+        ) : semester?.result.semesterStatus === 3 ? (
+          <Tag color="green">Finished</Tag>
+        ) : (
+          <Tag color="gray">N/A</Tag>
+        ),
       isAuthenticated: true,
     },
-    { title: 'Start Date', value: semester?.result.startDate },
-    { title: 'End Date', value: semester?.result.endDate },
+    {
+      title: 'Start Date',
+      value:(semester?.result.startDate) ? moment(semester?.result.startDate, 'YYYY-MM-DD').format(
+        'DD/MM/YYYY',
+      ) : 'N/A',
+    },
+    {
+      title: 'End Date',
+      value: (semester?.result.endDate) ? moment(semester?.result.endDate, 'YYYY-MM-DD').format(
+        'DD/MM/YYYY',
+      ) : 'N/A',
+    },
   ];
 
   useEffect(() => {
@@ -64,37 +75,58 @@ const SemesterDetail: React.FC = () => {
     }
   }, [semesterID]);
 
+  // const handleSearchClass = (value: string) => {
+  //   setSearchInput(value);
+  //   const filtered = semester?.result.classes.filter(
+  //     (item) =>
+  //       item.classCode &&
+  //       item.classCode.toLowerCase().includes(value.toLowerCase()),
+  //   );
+  //   setFilteredSemesterClass(filtered ?? []);
+  //   setIsUpdate(true);
+  // };
+
   const handleSearchClass = (value: string) => {
     setSearchInput(value);
+  
+    const normalizeString = (str: string) => {
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+  
+    const normalizedValue = normalizeString(value).toLowerCase();
     const filtered = semester?.result.classes.filter(
       (item) =>
         item.classCode &&
-        item.classCode.toLowerCase().includes(value.toLowerCase()),
+        normalizeString(item.classCode).toLowerCase().includes(normalizedValue),
     );
+  
     setFilteredSemesterClass(filtered ?? []);
     setIsUpdate(true);
   };
+  
 
   const columns = [
     {
       key: '1',
-      title: 'Class ID',
-      dataIndex: 'classID',
-    },
-    {
-      key: '2',
       title: 'Class Code',
       dataIndex: 'classCode',
     },
     {
-      key: '3',
+      key: '2',
       title: 'status',
       dataIndex: 'classStatus',
-      render: (classStatus: boolean) => (
+      render: (classStatus: number) => (
         <div>
-          <p style={{ color: classStatus ? 'green' : 'red' }}>
-            {classStatus ? 'active' : 'inactive'}
-          </p>
+          <Tag
+            color={classStatus === 1 ? 'green' : classStatus === 2 ? 'red' : 'gray'}
+            style={{ fontWeight: 'bold', fontSize: '10px' }}
+          >
+            {classStatus === 1 ? 'available' : classStatus === 2 ? 'unavailable' : 'N/A'}
+          </Tag>
         </div>
       ),
     },
@@ -131,14 +163,14 @@ const SemesterDetail: React.FC = () => {
             </Card>
             <Table
               columns={columns}
-              dataSource={(!isUpdate ? semesterClass : filteredSemesterClass).map(
-                (item, index) => ({
-                  key: index,
-                  classID: item.classID,
-                  classCode: item.classCode,
-                  classStatus: item.classStatus,
-                }),
-              )}
+              dataSource={(!isUpdate
+                ? semesterClass
+                : filteredSemesterClass
+              ).map((item, index) => ({
+                key: index,
+                classCode: item.classCode || 'N/A',
+                classStatus: item.classStatus,
+              }))}
               pagination={{
                 showSizeChanger: true,
               }}
@@ -150,7 +182,7 @@ const SemesterDetail: React.FC = () => {
                 <p className={styles.tableTitle}>Semester Details</p>
               </AntHeader>
 
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Content>
                   <Content>
                     <table className={styles.semesterDetailsTable}>
@@ -161,15 +193,7 @@ const SemesterDetail: React.FC = () => {
                               {detail.title}
                             </td>
                             <td>
-                              <p
-                                style={{
-                                  color: detail.isAuthenticated
-                                    ? detail.value === 'true'
-                                      ? 'green'
-                                      : 'red'
-                                    : 'inherit',
-                                }}
-                              >
+                              <p>
                                 {detail.value}
                               </p>
                             </td>
@@ -179,6 +203,30 @@ const SemesterDetail: React.FC = () => {
                     </table>
                   </Content>
                 </Content>
+              </Col> */}
+              <Col span={24}>
+                <Card className={styles.card1}>
+                  {semesterDetails.map((detail, i) => (
+                    <div key={`info_${i}`}>
+                      <Row className={styles.rowDetails}>
+                        <Col span={14}>
+                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                        </Col>
+                        <Col span={10}>
+                          <div style={{ fontWeight: 500, color: '#667085' }}>
+                            {detail.value}
+                          </div>
+                        </Col>
+                      </Row>
+                      <hr
+                        style={{
+                          borderColor: '#e6e7e9',
+                          borderWidth: 0.5,
+                        }}
+                      />
+                    </div>
+                  ))}
+                </Card>
               </Col>
             </Content>
           </Col>

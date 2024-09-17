@@ -93,7 +93,7 @@ const ClassDetail: React.FC = () => {
               </Col>
               <Col>
                 <text style={{ color: 'green', fontWeight: 500, fontSize: 20 }}>
-                  On going
+                  On-going
                 </text>
               </Col>
             </Row>
