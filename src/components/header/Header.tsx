@@ -128,6 +128,7 @@ const Headers: React.FC<HeadersProps> = ({
   );
 
   const user = useSelector((state: RootState) => state.auth.data);
+  const userRole = useSelector((state: RootState) => state.auth.data?.result?.role.name);
   const name = user?.result?.displayName;
   const avatar = user?.result?.avatar;
   const [reload, setReload] = useState(0);
@@ -381,12 +382,27 @@ const Headers: React.FC<HeadersProps> = ({
           {(user?.result?.role.name as any === 'Admin') ||
             (user?.result?.role.name as any === 'Lecturer') ? (
             <>
-              <Button type="text" onClick={handleNavigateHome}>
+              <Button
+                style={{ width: '100%' }}
+                type="text"
+                onClick={handleNavigateHome}>
                 Home
               </Button>
               <br />
             </>
           ) : null}
+
+          {
+            userRole && userRole === 'Lecturer' && (
+              <>
+                <Button
+                  href='https://storage.googleapis.com/sams-bucket-1/sams_production_14-9_0.2.apk' type="text">
+                  Download mobile app
+                </Button>
+                <br />
+              </>
+            )
+          }
 
           {(user?.result?.role.name as any) === 'Admin' ? (
             <div>
@@ -397,7 +413,7 @@ const Headers: React.FC<HeadersProps> = ({
             </div>
           ) : null}
 
-          <Button type="text" onClick={handleLogout}>
+          <Button style={{ width: '100%' }} type="text" onClick={handleLogout}>
             Log out
           </Button>
         </>
