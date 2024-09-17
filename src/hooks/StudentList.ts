@@ -26,8 +26,8 @@ const getAllStudent = async (): Promise<Student[] | null> => {
     const response = await axios.get(STUDENT_API, {
       params: {
         startPage: 1,
-        endPage: 10,
-        quantity: 10,
+        endPage: 20,
+        quantity: 50,
       },
     });
     return response.data as Student[];
@@ -182,8 +182,8 @@ const deleteStudentOfClass = async (
   students: StudentIDs[],
 ) => {
   try {
-    console.log('afsedc', classID)
-console.log('studentsssssss', students)
+    console.log('afsedc', classID);
+    console.log('studentsssssss', students);
     const response = await axios.delete(`${STUDENT_CLASS_API}`, {
       headers: {
         accept: '*/*',

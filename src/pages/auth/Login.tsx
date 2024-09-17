@@ -4,7 +4,7 @@ import useDispatch from '../../redux/UseDispatch';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
-import { login, loginGG, updateUser } from '../../redux/slice/Auth';
+import { getUserByID, login, loginGG, updateUser, updateUser2 } from '../../redux/slice/Auth';
 
 //assets
 import styles from './Login.module.less';
@@ -87,14 +87,14 @@ const Login: React.FC<RoutersProps> = ({
     if (oldSession) {
       const { expiredTime } = JSON.parse(oldSession);
       if (expiredTime >= currentTime) {
-        dispatch(updateUser())
+        dispatch(updateUser2());
       }
     } else {
       localStorage.removeItem('userAuth');
       localStorage.removeItem('session');
     }
 
-    if (authStatus) navigate('/dashboard');
+    if (authStatus) navigate('/dashboard')
   }, []);
 
   //after login, check role and then navigate
@@ -183,7 +183,7 @@ const Login: React.FC<RoutersProps> = ({
               <Typography.Link
                 onClick={() => {
                   // logOut();
-                  navigate('/excel-test')
+                  navigate('/forgot-password')
                 }}
               >
                 Forgot password

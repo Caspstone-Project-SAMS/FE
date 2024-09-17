@@ -438,20 +438,20 @@ const AdminClassDetail: React.FC = () => {
                 scheduleStatus === 1 || scheduleStatus === 0
                   ? 'gray'
                   : scheduleStatus === 2
-                  ? 'blue'
-                  : scheduleStatus === 3
-                  ? 'green'
-                  : 'white'
+                    ? 'blue'
+                    : scheduleStatus === 3
+                      ? 'green'
+                      : 'white'
               }
               style={{ fontWeight: 'bold', fontSize: '10px' }}
             >
               {scheduleStatus === 1 || scheduleStatus === 0
                 ? 'Not Yet'
                 : scheduleStatus === 2
-                ? 'On-going'
-                : scheduleStatus === 3
-                ? 'Ended'
-                : 'undefined'}
+                  ? 'On-going'
+                  : scheduleStatus === 3
+                    ? 'Ended'
+                    : 'undefined'}
             </Tag>
           </div>
         );
@@ -468,20 +468,20 @@ const AdminClassDetail: React.FC = () => {
               attendanceStatus === 1 || attendanceStatus === 0
                 ? 'gray'
                 : attendanceStatus === 2
-                ? 'green'
-                : attendanceStatus === 3
-                ? 'red'
-                : 'white'
+                  ? 'green'
+                  : attendanceStatus === 3
+                    ? 'red'
+                    : 'white'
             }
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
             {attendanceStatus === 1 || attendanceStatus === 0
               ? 'Not Yet'
               : attendanceStatus === 2
-              ? 'Attended'
-              : attendanceStatus === 3
-              ? 'Absence'
-              : 'undefined'}
+                ? 'Attended'
+                : attendanceStatus === 3
+                  ? 'Absence'
+                  : 'undefined'}
           </Tag>
         </div>
       ),
@@ -730,7 +730,7 @@ const AdminClassDetail: React.FC = () => {
     //  console.log('students', students)
     Modal.confirm({
       title: 'Confirm Deletion',
-      content: 'Are you sure you want to delete all selected students?',
+      content: 'Are you sure you want to delete selected students?',
       onOk: async () => {
         const arg = { classID: ClassId, students: students };
         await dispatch(deleteStudentOfClasses(arg) as any);
@@ -772,11 +772,11 @@ const AdminClassDetail: React.FC = () => {
             <Card style={{ height: '100%' }}>
               <Row>
                 {/* <Col span={1}> */}
-                <Row style={{ display: 'flex', alignItems: 'center' }}>
+                <Row style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <img
                     alt="Lecturer"
                     src={classes?.result.lecturer.avatar}
-                    style={{ width: 100, height: 100, borderRadius: '50%' }}
+                    style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover' }}
                   />
                   <p
                     style={{
@@ -867,7 +867,7 @@ const AdminClassDetail: React.FC = () => {
                     <div key={`info_${i}`}>
                       <Row className={styles.rowDetails}>
                         <Col span={14}>
-                          <div style={{ fontWeight: 500 }}>{detail.title}</div>
+                          <div style={{ fontWeight: 500 }}>{detail.title}:</div>
                         </Col>
                         <Col span={10}>
                           <div style={{ fontWeight: 500, color: '#667085' }}>
@@ -957,13 +957,13 @@ const AdminClassDetail: React.FC = () => {
                     {!item.slot
                       ? 'N/A'
                       : `${(typeof item.slot.startTime === 'string'
-                          ? item.slot.startTime
-                          : String(item.slot.startTime ?? '')
-                        ).slice(0, 5)} - ${(typeof item.slot.endtime ===
+                        ? item.slot.startTime
+                        : String(item.slot.startTime ?? '')
+                      ).slice(0, 5)} - ${(typeof item.slot.endtime ===
                         'string'
-                          ? item.slot.endtime
-                          : String(item.slot.endtime ?? '')
-                        ).slice(0, 5)}`}
+                        ? item.slot.endtime
+                        : String(item.slot.endtime ?? '')
+                      ).slice(0, 5)}`}
                   </div>
                 ),
                 slot: item.slot.slotNumber || 'N/A',
@@ -1109,10 +1109,10 @@ const AdminClassDetail: React.FC = () => {
                 isCheck === 'addSchedule'
                   ? 'Add Schedule To Class'
                   : isCheck === 'updateSchedule'
-                  ? 'Update Schedule'
-                  : isCheck === 'addStudent'
-                  ? 'Add Student To Class'
-                  : ''
+                    ? 'Update Schedule'
+                    : isCheck === 'addStudent'
+                      ? 'Add Student To Class'
+                      : ''
               }
               open={isModalVisible}
               onCancel={handleCancel}
@@ -1128,10 +1128,10 @@ const AdminClassDetail: React.FC = () => {
                     isCheck === 'addSchedule'
                       ? handleAddSchedule
                       : isCheck === 'updateSchedule'
-                      ? handleUpdateSchedule
-                      : isCheck === 'addStudent'
-                      ? handleAddStudent
-                      : undefined
+                        ? handleUpdateSchedule
+                        : isCheck === 'addStudent'
+                          ? handleAddStudent
+                          : undefined
                   }
                 >
                   Submit
@@ -1211,7 +1211,7 @@ const AdminClassDetail: React.FC = () => {
                     }}
                     dateFormat="dd-MM-yyyy"
                     className={styles.datePicker}
-                    // style={{ marginBottom: '10px', width: '100%' }}
+                  // style={{ marginBottom: '10px', width: '100%' }}
                   />
                   {errors.date && (
                     <p className={styles.errorText}>{errors.date}</p>

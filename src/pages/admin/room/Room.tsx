@@ -75,28 +75,28 @@ const Room: React.FC = () => {
   const handleSearchRoom = useCallback(
     (value: string) => {
       setSearchInput(value);
-  
+
       const normalizeString = (str: string) => {
         return str
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '')
-          .replace(/\s+/g, ' ') 
-          .trim(); 
+          .replace(/\s+/g, ' ')
+          .trim();
       };
-  
+
       const normalizedValue = normalizeString(value).toLowerCase();
       const filtered = room.filter(
         (item) =>
           item.roomName &&
           normalizeString(item.roomName).toLowerCase().includes(normalizedValue),
       );
-  
+
       setFilteredRoom(filtered);
       setIsUpdate(true);
     },
     [room],
   );
-  
+
 
   const fetchRooms = useCallback(async () => {
     try {
@@ -114,7 +114,7 @@ const Room: React.FC = () => {
   useEffect(() => {
     if (searchInput !== '' && room.length > 0) {
       handleSearchRoom(searchInput);
-    } else if(searchInput === '') {
+    } else if (searchInput === '') {
       setIsUpdate(false);
     }
   }, [room, searchInput, handleSearchRoom]);
@@ -343,7 +343,7 @@ const Room: React.FC = () => {
                 color={item.roomStatus === 1 ? 'green' : item.roomStatus === 0 ? 'red' : 'gray'}
                 style={{ fontWeight: 'bold', fontSize: '10px' }}
               >
-                {item.roomStatus === 1 ? 'available' : item.roomStatus === 0 ? 'unavailable' : 'N/A'}
+                {item.roomStatus === 1 ? 'Available' : item.roomStatus === 0 ? 'Unavailable' : 'N/A'}
               </Tag>
             </div>
           ),
@@ -391,7 +391,7 @@ const Room: React.FC = () => {
             type="primary"
             loading={loading}
             onClick={isCheck ? handleUpdate : handleCreate}
-            // disabled={!isFormValid()}
+          // disabled={!isFormValid()}
           >
             Submit
           </Button>,

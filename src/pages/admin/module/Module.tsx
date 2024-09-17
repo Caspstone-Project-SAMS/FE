@@ -75,7 +75,7 @@ const Module: React.FC<ModuleProps> = ({moduleId, connection}) => {
     },
     {
       key: '2',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'status',
       render: (status: number) => (
         <div>
@@ -83,7 +83,7 @@ const Module: React.FC<ModuleProps> = ({moduleId, connection}) => {
             color={status === 1 ? 'green' : status === 2 ? 'red' : 'gray'}
             style={{ fontWeight: 'bold', fontSize: '10px' }}
           >
-            {status === 1 ? 'available' : status === 2 ? 'unavailable' : 'N/A'}
+            {status === 1 ? 'Available' : status === 2 ? 'Unavailable' : 'N/A'}
           </Tag>
         </div>
       ),
@@ -265,13 +265,13 @@ const Module: React.FC<ModuleProps> = ({moduleId, connection}) => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      marginLeft:-5
+                      marginLeft: -5
                     }}
                   >
                     <div style={{ marginRight: -8 }}>
                       <Lottie options={onlineDot} height={30} width={30} />
                     </div>
-                    <div style={{ marginBottom: 2 }}>online</div>
+                    <div style={{ marginBottom: 2 }}>{' '}Online</div>
                   </div>
                 ) : item.connectionStatus === 2 ? (
                   <div
@@ -279,9 +279,10 @@ const Module: React.FC<ModuleProps> = ({moduleId, connection}) => {
                       display: 'flex',
                       alignItems: 'center',
                       marginLeft: 5,
+                      gap: 4
                     }}
                   >
-                    <Badge status="error" /> offline
+                    <Badge status="error" />{' '}Offline
                   </div>
                 ) : null}
               </>
@@ -319,9 +320,9 @@ const Module: React.FC<ModuleProps> = ({moduleId, connection}) => {
         pagination={{
           showSizeChanger: true,
         }}
-        // onRow={(record) => ({
-        //   onClick: () => handleRowClick(record.moduleID),
-        // })}
+      // onRow={(record) => ({
+      //   onClick: () => handleRowClick(record.moduleID),
+      // })}
       ></Table>
     </Content>
   );

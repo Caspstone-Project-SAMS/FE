@@ -3,8 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/auth/Login';
 import ErrorPage from '../pages/ErrorPage';
 import ProtectedRoute from './ProtectedRoute';
-import TestComponent from './TestComponent';
 import toast from 'react-hot-toast';
+import ForgotPassword from '../pages/auth/ForgotPassword';
 
 interface PreparationProgress {
   SessionId: number;
@@ -106,7 +106,7 @@ const Router = () => {
     setPreparationProgress(null);
     ws?.close();
   };
-  
+
 
   return (
     <Routes>
@@ -123,11 +123,8 @@ const Router = () => {
           />
         }
       />
-      <Route
-        path="/login"
-        element={<Login ConnectWebsocket={ConnectWebsocket} />}
-      />
-      <Route path="/excel-test" element={<TestComponent />} />
+      <Route path="/login" element={<Login ConnectWebsocket={ConnectWebsocket} />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
