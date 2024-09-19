@@ -17,6 +17,7 @@ import { Schedule } from '../../models/calendar/Schedule';
 import { useNavigate } from 'react-router-dom';
 import SetUpWifi from '../../components/wifi/SetUpWifi';
 import { HelperService } from '../../hooks/helpers/helperFunc';
+import OldSchedule from '../../components/classtable/oldSchedule/OldSchedule';
 
 type scheduleStatus = 'past' | 'current' | 'future';
 interface ScheduleExtend extends Schedule {
@@ -340,6 +341,8 @@ const Home: React.FC = () => {
       </Row>
 
       <HomeCalendar />
+
+      <OldSchedule />
     </Content>
   );
 };
