@@ -7,6 +7,10 @@ export interface Schedule {
   scheduleID: number;
   slotNumber: number;
   subjectCode: string;
+  attended?: number;
+  attendStudent?: string;
+  classID?: number;
+  scheduleStatus?: number;
 }
 
 export interface Schedules {
