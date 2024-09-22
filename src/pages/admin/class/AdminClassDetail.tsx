@@ -110,7 +110,7 @@ const AdminClassDetail: React.FC = () => {
 
   //Chart
   const pieParams = { height: 200, margin: { right: 5 } };
-  const palette = ['red', 'gray', 'green'];
+  const palette = ['#E83B3B', '#9A9999', '#4EFD4E'];
 
   const failMessage = useSelector(
     (state: RootState) => state.student.studentDetail,
@@ -488,6 +488,11 @@ const AdminClassDetail: React.FC = () => {
     },
     {
       key: '8',
+      title: 'Students Attendance',
+      dataIndex: 'studentattendancestatus',
+    },
+    {
+      key: '9',
       title: 'Action',
       dataIndex: 'action',
     },
@@ -895,9 +900,9 @@ const AdminClassDetail: React.FC = () => {
                 series={[
                   {
                     data: [
-                      { value: (countAttendedThree / totalAttended) * 100 },
-                      { value: (countAttendedOne / totalAttended) * 100 },
-                      { value: (countAttendedTwo / totalAttended) * 100 },
+                      { value: countAttendedThree },
+                      { value: countAttendedOne },
+                      { value: countAttendedTwo },
                     ],
                   },
                 ]}
@@ -969,6 +974,20 @@ const AdminClassDetail: React.FC = () => {
                 dateOfWeek: item.dateOfWeek || 'N/A',
                 scheduleStatus: item.scheduleStatus,
                 attendanceStatus: item.attended,
+                studentattendancestatus: (
+                  <>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      {item.attendedStudent}
+                    </div>
+                  </>
+                ),
                 action: (
                   <div>
                     <Button

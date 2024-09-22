@@ -52,7 +52,6 @@ const getAllSchedule = async (
   listScheduleId: number[],
 ): Promise<Scheduless | null> => {
   try {
-
     const response = await axios.get(`${SCHEDULE_API}/test-get-all`, {
       params: {
         startPage: 1,
@@ -78,7 +77,6 @@ const getAllSchedule = async (
       },
     });
 
-   
     return response.data as Scheduless;
   } catch (error) {
     console.error('Error fetching all schedules:', error);
@@ -261,6 +259,45 @@ const deleteScheduleOfClass = async (scheduleID: number) => {
   }
 };
 
+const getScheduleByDay = async (
+  lecturerId: string,
+  semesterId: number,
+  startDate: string,
+  endDate: string,
+) => {
+  const response = await axios.get(SCHEDULE_API, {
+    params: {
+      lecturerId,
+      semesterId,
+      startDate,
+      endDate,
+      startPage: 1,
+      endPage: 10,
+      quantity: 50,
+    },
+  });
+  return response.data;
+};
+
+const getScheduleByWeek = async (
+  lecturerId: string,
+  semesterId: number,
+  quantity: number,
+  startDate: string,
+  endDate: string,
+) => {
+  const response = await axios.get(SCHEDULE_API, {
+    params: {
+      lecturerId,
+      semesterId,
+      quantity,
+      startDate,
+      endDate,
+    },
+  });
+  return response.data;
+};
+
 const getScheduleRecord = async (
   userID: string,
 ): Promise<ScheduleRecord | null> => {
@@ -319,4 +356,6 @@ export const CalendarService = {
   deleteScheduleOfClass,
   getScheduleRecord,
   revertScheduleImport,
+  getScheduleByDay,
+  getScheduleByWeek,
 };

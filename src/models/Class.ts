@@ -83,7 +83,7 @@ export interface ClassDetail {
 export interface Semester {
   semesterID: number;
   semesterCode: string;
-  semesterStatus: boolean;
+  semesterStatus: number;
   startDate: string;
   endDate: string;
 }
@@ -128,6 +128,7 @@ export interface Schedule {
   dateOfWeek: number;
   scheduleStatus: number;
   attended: number;
+  attendedStudent: string
   slot: Slot;
   room: RoomSchedule;
 }

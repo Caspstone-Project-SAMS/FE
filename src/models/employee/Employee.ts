@@ -61,3 +61,18 @@ export interface ManageModule {
   resetMinAfterSlot?: string;
   resetTime?: string;
 }
+
+export interface EmployeeMessage {
+  data: {
+    data: {
+      isSuccess?: boolean;
+      title?: string;
+      errors?: string[];
+      result?: null;
+    };
+    status: boolean;
+  };
+  isSuccess?: boolean;
+  title?: string;
+  errors?: string[];
+}

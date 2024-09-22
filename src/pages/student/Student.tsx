@@ -3,7 +3,10 @@ import styles from './Student.module.less'; // Adjust the import if necessary
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { StudentAttendanceService } from '../../hooks/StudentAttendance';
-import { Slot, StudentAttendance } from '../../models/student/StudentAttendance';
+import {
+  Slot,
+  StudentAttendance,
+} from '../../models/student/StudentAttendance';
 import { CalendarService } from '../../hooks/Calendar';
 import { Content } from 'antd/es/layout/layout';
 import { ClassService } from '../../hooks/Class';
@@ -103,6 +106,37 @@ const Student: React.FC = () => {
         return formattedDate;
       },
     },
+    {
+      title: 'Status',
+      dataIndex: 'semesterStatus',
+      key: '4',
+      render: (status: number) => {
+        return (
+          <>
+            <Tag
+              color={
+                status === 1
+                  ? 'gray'
+                  : status === 2
+                  ? 'blue'
+                  : status === 3
+                  ? 'green'
+                  : 'black'
+              }
+              style={{ fontWeight: 'bold', fontSize: '10px' }}
+            >
+              {status === 1
+                ? 'Not Yet'
+                : status === 2
+                ? 'On-going'
+                : status === 3
+                ? 'Finished'
+                : 'N/A'}
+            </Tag>
+          </>
+        );
+      },
+    },
   ];
 
   const classColumns = [
@@ -120,7 +154,7 @@ const Student: React.FC = () => {
       dataIndex: 'slot',
       render: (_, record) => {
         const slot = studentAttendance?.result.find(
-          (attendance) => attendance.slot.slotID === record.slot.slotID
+          (attendance) => attendance.slot.slotID === record.slot.slotID,
         )?.slot?.slotNumber;
         return slot ?? 'N/A';
       },
@@ -140,16 +174,24 @@ const Student: React.FC = () => {
       dataIndex: 'time',
       render: (_, record) => {
         const startTime = studentAttendance?.result.find(
-          (attendance) => attendance.slot.slotID === record.slot.slotID
+          (attendance) => attendance.slot.slotID === record.slot.slotID,
         )?.slot?.startTime;
         const endTime = studentAttendance?.result.find(
-          (attendance) => attendance.slot.slotID === record.slot.slotID
+          (attendance) => attendance.slot.slotID === record.slot.slotID,
         )?.slot?.endtime;
         return (
           <div>
-            {(typeof startTime === 'string' ? startTime : String(startTime ?? '')).slice(0, 5)} - {(typeof endTime === 'string' ? endTime : String(endTime ?? '')).slice(0, 5)}
+            {(typeof startTime === 'string'
+              ? startTime
+              : String(startTime ?? '')
+            ).slice(0, 5)}{' '}
+            -{' '}
+            {(typeof endTime === 'string'
+              ? endTime
+              : String(endTime ?? '')
+            ).slice(0, 5)}
           </div>
-        )
+        );
       },
     },
     {
@@ -158,7 +200,7 @@ const Student: React.FC = () => {
       dataIndex: 'roomName',
       render: (_, record) => {
         const room = studentAttendance?.result.find(
-          (attendance) => attendance.room.roomID === record.room.roomID
+          (attendance) => attendance.room.roomID === record.room.roomID,
         )?.room?.roomName;
         return room ?? 'N/A';
       },
@@ -186,7 +228,9 @@ const Student: React.FC = () => {
           <Tag color="green">Attended</Tag>
         ) : text === 2 ? (
           <Tag color="red">Absence</Tag>
-        ) : 'undefined';
+        ) : (
+          'undefined'
+        );
       },
     },
   ];
@@ -323,7 +367,13 @@ const Student: React.FC = () => {
           expandedRowKeys: expandedSemester ? [expandedSemester] : [],
           onExpand: handleSemesterExpand,
         }}
-        dataSource={semesters}
+        dataSource={semesters.map((sem) => ({
+          semesterID: sem.semesterID,
+          semesterCode: sem.semesterCode,
+          startDate: sem.startDate,
+          endDate: sem.endDate,
+          semesterStatus: sem.semesterStatus,
+        }))}
         rowKey="semesterID"
         pagination={false}
       />

@@ -15,7 +15,12 @@ import Lottie from 'react-lottie';
 
 const { Header: AntHeader } = Layout;
 
-const Module: React.FC = () => {
+interface ModuleProps {
+  moduleId: number;
+  connection: boolean;
+}
+
+const Module: React.FC<ModuleProps> = ({moduleId, connection}) => {
   const userDetail = useSelector((state: RootState) => state.auth.userDetail);
   const [module, setModule] = useState<ModuleDetail[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -29,6 +34,8 @@ const Module: React.FC = () => {
       state: { moduleID: moduleID },
     });
   };
+
+  console.log('connect', connection);
 
   const handleSearchModule = (value: string) => {
     setSearchInput(value);
@@ -112,6 +119,11 @@ const Module: React.FC = () => {
     },
     {
       key: '6',
+      title: 'Using',
+      dataIndex: 'using',
+    },
+    {
+      key: '7',
       title: 'Info',
       dataIndex: 'info',
       render: (moduleID: number) => (
@@ -163,6 +175,22 @@ const Module: React.FC = () => {
       preserveAspectRatio: 'xMidYMid slice',
     },
   };
+
+  useEffect(() => {
+    if (connection === true) {
+      const existedModule = module.find((m) => m.moduleID === moduleId);
+      if (existedModule) {
+        existedModule.connectionStatus = 1;
+      }
+      setModule([...module])
+    } else if (connection === false) {
+      const existedModule = module.find((m) => m.moduleID === moduleId);
+      if (existedModule) {
+        existedModule.connectionStatus = 2;
+      }
+      setModule([...module])
+    }
+  }, [moduleId, connection]);
 
   useEffect(() => {
     if (userDetail && userDetail.result?.role.name === 'Admin') {
@@ -255,6 +283,33 @@ const Module: React.FC = () => {
                     }}
                   >
                     <Badge status="error" />{' '}Offline
+                  </div>
+                ) : null}
+              </>
+            ),
+            using: (
+              <>
+                {item.using === 2 ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginLeft:-5,
+                      color:'green'
+                    }}
+                  >
+                    Not use
+                  </div>
+                ) : item.using === 1 ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginLeft: 5,
+                      color:'red'
+                    }}
+                  >
+                    In Use
                   </div>
                 ) : null}
               </>

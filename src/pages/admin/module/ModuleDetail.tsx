@@ -637,13 +637,13 @@ const ModuleDetail: React.FC = () => {
                   </Col>
                   <Col>
                     <b className={styles.moduleSettingTitle}>
-                      Check Attendance Duration
+                      Attendance
                     </b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
                         <p className={styles.settingLabel}>
-                          Duration Time (minunes)
+                          Attendance Duration (minunes)
                         </p>
                         <div
                           style={{
@@ -694,9 +694,44 @@ const ModuleDetail: React.FC = () => {
                         </p>
                       </div>
                     </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>Sound:</span>
+                        <Switch
+                          checked={AttendanceSound}
+                          onChange={(checked) => setAttendanceSound(checked)}
+                        />
+                        <p className={styles.suggestText}>
+                          Turn on or off sound when check attendance
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Attendance Sound Duration (milliseconds)
+                        </span>
+                        <br />
+                        <InputNumber
+                          placeholder="Attendance Sound Duration (ms)"
+                          value={AttendanceSoundDurationMs} // Convert seconds to milliseconds for display
+                          onChange={(value) => {
+                            if (value !== null) {
+                              setAttendanceSoundDurationMs(value); // Convert milliseconds back to seconds
+                            }
+                          }}
+                          min={0}
+                          step={1} // Set the step to 1 millisecond
+                          className={styles.inputNumber}
+                        />{' '}
+                        <p className={styles.suggestText}>
+                          Set attendance sound duration for module
+                        </p>
+                      </div>
+                    </div>
                   </Col>
                   <Col>
-                    <b className={styles.moduleSettingTitle}>Activities</b>
+                    <b className={styles.moduleSettingTitle}>Connection</b>
                     <hr className={styles.lines} />
                     <div className={styles.settingItem}>
                       <div>
@@ -722,8 +757,43 @@ const ModuleDetail: React.FC = () => {
                         </p>
                       </div>
                     </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>Sound:</span>
+                        <Switch
+                          checked={ConnectionSound}
+                          onChange={(checked) => setConnectionSound(checked)}
+                        />
+                        <p className={styles.suggestText}>
+                          Turn on or off sound when connecting module
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.settingItem}>
+                      <div>
+                        <span className={styles.settingLabel}>
+                          Connection Sound Duration (milliseconds)
+                        </span>
+                        <br />
+                        <InputNumber
+                          placeholder="Connection Sound Duration (ms)"
+                          value={ConnectionSoundDurationMs} 
+                          onChange={(value) => {
+                            if (value !== null) {
+                              setConnectionSoundDurationMs(value); 
+                            }
+                          }}
+                          min={0}
+                          step={1} 
+                          className={styles.inputNumber}
+                        />{' '}
+                        <p className={styles.suggestText}>
+                          Set connection sound duration for module
+                        </p>
+                      </div>
+                    </div>
                   </Col>
-                  <Col>
+                  {/* <Col>
                     <b className={styles.moduleSettingTitle}>
                       Connection Sound
                     </b>
@@ -748,17 +818,17 @@ const ModuleDetail: React.FC = () => {
                         <br />
                         <InputNumber
                           placeholder="Connection Sound Duration (ms)"
-                          value={ConnectionSoundDurationMs} // Convert seconds to milliseconds for display
+                          value={ConnectionSoundDurationMs} 
                           onChange={(value) => {
                             if (value !== null) {
-                              setConnectionSoundDurationMs(value); // Convert milliseconds back to seconds
+                              setConnectionSoundDurationMs(value); 
                             }
                           }}
                           min={0}
-                          step={1} // Set the step to 1 millisecond
+                          step={1} 
                           className={styles.inputNumber}
                         />{' '}
-                        {/* {' millisecond'} */}
+                
                         <p className={styles.suggestText}>
                           Set connection time duration for module
                         </p>
@@ -790,23 +860,22 @@ const ModuleDetail: React.FC = () => {
                         <br />
                         <InputNumber
                           placeholder="Attendance Sound Duration (ms)"
-                          value={AttendanceSoundDurationMs} // Convert seconds to milliseconds for display
+                          value={AttendanceSoundDurationMs} 
                           onChange={(value) => {
                             if (value !== null) {
-                              setAttendanceSoundDurationMs(value); // Convert milliseconds back to seconds
+                              setAttendanceSoundDurationMs(value); 
                             }
                           }}
                           min={0}
-                          step={1} // Set the step to 1 millisecond
+                          step={1} 
                           className={styles.inputNumber}
                         />{' '}
-                        {/* {' millisecond'} */}
                         <p className={styles.suggestText}>
                           Set connection time duration for module
                         </p>
                       </div>
                     </div>
-                  </Col>
+                  </Col> */}
                   <div className={styles.submitButtonContainer}>
                     <Button
                       onClick={handleApply}
@@ -814,12 +883,12 @@ const ModuleDetail: React.FC = () => {
                     >
                       Apply
                     </Button>
-                    <Button
+                    {/* <Button
                       onClick={handleSubmit}
                       className={styles.submitButton}
                     >
                       Submit
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </TabPane>

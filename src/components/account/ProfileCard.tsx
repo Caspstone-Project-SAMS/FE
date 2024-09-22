@@ -110,13 +110,13 @@ export default function ProfileCard(props: any) {
         {/* DETAILS */}
         <Grid container>
           <Grid item xs={6}>
-            <Typography style={styles.details}>Department</Typography>
+            {/* <Typography style={styles.details}>Department</Typography> */}
             {/* <Typography style={styles.details}>Detail 2</Typography>
             <Typography style={styles.details}>Detail 3</Typography> */}
           </Grid>
           {/* VALUES */}
           <Grid item xs={6} sx={{ textAlign: "end" }}>
-            <Typography style={styles.value}>{props.department}</Typography>
+            {/* <Typography style={styles.value}>{props.department}</Typography> */}
             {/* <Typography style={styles.value}>{props.dt2}</Typography>
             <Typography style={styles.value}>{props.dt3}</Typography> */}
           </Grid>

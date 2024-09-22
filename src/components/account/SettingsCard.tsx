@@ -17,11 +17,16 @@ import Tab from '@mui/material/Tab';
 import CustomInput from './CustomInput';
 import AccountCard from './AccountCard';
 import ResetPasswordCard from './ResetPasswordCard';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import StudentDetail from './StudentDetail';
 
 //APP
 export default function SettingsCard(props: any) {
   //TAB STATES
   const [value, setValue] = React.useState('one');
+
+  const role = useSelector((state: RootState) => state.auth.userDetail?.result?.role.name);
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -81,6 +86,8 @@ export default function SettingsCard(props: any) {
     setUser({ ...user });
   };
 
+  console.log('userssss', props.gender)
+
   //RETURN
   return (
     <Card variant="outlined" sx={{ height: '115%', width: '100%' }}>
@@ -94,6 +101,7 @@ export default function SettingsCard(props: any) {
       >
         <Tab value="one" label="Account" />
         <Tab value="two" label="Reset Password" />
+        {role === 'Student' && <Tab value="three" label="Details" />}
         {/* <Tab value="three" label="Tab 3" /> */}
       </Tabs>
       <Divider></Divider>
@@ -138,6 +146,7 @@ export default function SettingsCard(props: any) {
         />
       )}
       {value === 'two' && <ResetPasswordCard />}
+      {value === 'three' && role === 'Student' && <StudentDetail gender={props.gender} user={user} firstName={props.firstName} lastName={props.lastName} email={props.email} phone={props.phone} address={props.address} dob={props.dob} fullName = {props.fullName}/>}
     </Card>
   );
 }
