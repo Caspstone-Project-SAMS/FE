@@ -725,7 +725,7 @@ const ModuleDetail: React.FC = () => {
                           className={styles.inputNumber}
                         />{' '}
                         <p className={styles.suggestText}>
-                          Set connection time duration for module
+                          Set attendance sound duration for module
                         </p>
                       </div>
                     </div>
@@ -780,7 +780,7 @@ const ModuleDetail: React.FC = () => {
                           value={ConnectionSoundDurationMs} 
                           onChange={(value) => {
                             if (value !== null) {
-                              setConnectionSoundDurationMs(value); // Convert milliseconds back to seconds
+                              setConnectionSoundDurationMs(value); 
                             }
                           }}
                           min={0}
@@ -788,7 +788,7 @@ const ModuleDetail: React.FC = () => {
                           className={styles.inputNumber}
                         />{' '}
                         <p className={styles.suggestText}>
-                          Set connection time duration for module
+                          Set connection sound duration for module
                         </p>
                       </div>
                     </div>
