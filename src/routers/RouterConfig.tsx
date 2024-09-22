@@ -210,6 +210,10 @@ const routeConfig = (
       path: '/student',
       element: <Student />,
     },
+    {
+      path: '/account',
+      element: <Account />,
+    },
   ];
 
   const script: RouteObject[] = [

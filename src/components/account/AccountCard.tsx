@@ -34,7 +34,7 @@ export default function AccountCard(props: any) {
     fullName: props.Name || props.user.fullName || '',
     address: props.Address || props.user.address || '',
     dob: props.DOB || props.user.dob || '',
-    gender: props.Gender || props.user.gender || 1,
+    gender: props.Gender || props.user.gender || 0,
     firstName: props.FirstName || props.user.firstName || '',
     lastName: props.LastName || props.user.lastName || '',
     phone: phone,
@@ -151,7 +151,7 @@ export default function AccountCard(props: any) {
     isEdit: false,
   });
 
-  console.log('ddd', edit.isEdit);
+  console.log('ddd', props.user.gender);
 
   // EDIT -> UPDATE
   const changeButton = (event: any) => {
@@ -261,7 +261,6 @@ export default function AccountCard(props: any) {
                   title="Gender"
                   dis={edit.disabled}
                   req={edit.required}
-                  //MAP THRU OPTIONS
                   content={genderSelect.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}

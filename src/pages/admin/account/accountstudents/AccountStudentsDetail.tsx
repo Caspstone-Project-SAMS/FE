@@ -604,7 +604,7 @@ const AccountStudentsDetail: React.FC = () => {
     },
     {
       key: '2',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'classStatus',
       render: (classStatus: number) => (
         <div>
@@ -1467,7 +1467,7 @@ const AccountStudentsDetail: React.FC = () => {
                                 )}
                               </span>
                             </div>
-                            <p>{item.description}</p>
+                            {/* <p>{item.description}</p> */}
                           </div>
                         </div>
                       </Card>

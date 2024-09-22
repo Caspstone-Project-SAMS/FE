@@ -66,7 +66,7 @@ const LecturerModule: React.FC = () => {
     },
     {
       key: '2',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'status',
       render: (status: boolean) => (
         <div>

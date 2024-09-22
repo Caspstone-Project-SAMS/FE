@@ -117,7 +117,7 @@ const SemesterDetail: React.FC = () => {
     },
     {
       key: '2',
-      title: 'status',
+      title: 'Status',
       dataIndex: 'classStatus',
       render: (classStatus: number) => (
         <div>

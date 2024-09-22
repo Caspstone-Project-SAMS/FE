@@ -58,8 +58,6 @@ const EditAccount: React.FC = () => {
 
   const [lecturer, setLecturer] = useState<EmployeeDetails>();
 
-  console.log('data', user);
-
   const [errors, setErrors] = useState({
     OldPassword: '',
     NewPassword: '',

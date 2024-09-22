@@ -527,6 +527,7 @@ const Semester: React.FC = () => {
               const endDate = new Date(date);
               endDate.setDate(endDate.getDate() + semesterDurationInDays); 
               setEndDate(endDate);
+              setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
             }
             setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
           }}
@@ -547,6 +548,7 @@ const Semester: React.FC = () => {
               const startDate = new Date(date);
               startDate.setDate(startDate.getDate() - semesterDurationInDays); 
               setStartDate(startDate);
+              setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
             }
             setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
           }}
