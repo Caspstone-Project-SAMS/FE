@@ -793,10 +793,14 @@ const Headers: React.FC<HeadersProps> = ({
     >
       <p className="headerTitle">Student Attendance Management System</p>
       <div className="leftHeaderUserInfo">
-        <HeaderProgress
-          preparationProgress={preparationProgress}
-          newNotificaton={newNotificaton}
-        />
+        {
+          userRole === 'Student' ? ('') : (
+            <HeaderProgress
+              preparationProgress={preparationProgress}
+              newNotificaton={newNotificaton}
+            />
+          )
+        }
 
         <Dropdown
           // arrow
