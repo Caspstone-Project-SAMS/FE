@@ -197,8 +197,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isRunScript }) => {
                 ]
               : [
                   {
-                    label: 'Account',
+                    label: 'Attendance',
                     key: '/student',
+                    icon: <MdOutlineManageAccounts />,
+                  },
+                  {
+                    label: 'Account',
+                    key: '/account',
                     icon: <MdOutlineManageAccounts />,
                   },
                 ]

@@ -48,14 +48,15 @@ const HomeAdmin: React.FC = () => {
     totalModule: '',
   });
   const pieParamSchedule = { height: 200, margin: { right: 5 } };
-  const paletteSchedule = ['red', 'gray', 'green'];
+  const paletteSchedule = ['#9A9999', '#4EFD4E', '#E83B3B'];
 
   const pieParamModuleActivity = { height: 200, margin: { right: 5 } };
-  const paletteModuleActivity = ['green', 'red'];
+  const paletteModuleActivity = ['#4EFD4E', '#E83B3B'];
 
   const [scheduleSemester, setScheduleSemester] = useState<ScheduleStatistic>();
   const [semesterId, setSemesterId] = useState(0);
-  const [moduleActivityStat, setModuleActivityStat] = useState<moduleActivities>();
+  const [moduleActivityStat, setModuleActivityStat] =
+    useState<moduleActivities>();
   const [semester, setSemester] = useState<Semester[]>([]);
 
   const dispatch = useDispatch();
@@ -108,12 +109,12 @@ const HomeAdmin: React.FC = () => {
   const handleFetchChartData = async () => {
     try {
       const response = await CalendarService.getAllSemester();
-      setSemester(response || [])
+      setSemester(response || []);
       const currentSemester: Semester | undefined = response?.find(
         (se) => se.semesterStatus === 2,
       );
       const currentSemesterId = currentSemester?.semesterID || 0;
-      
+
       // Set the semesterId state
       setSemesterId(currentSemesterId);
 
@@ -133,14 +134,12 @@ const HomeAdmin: React.FC = () => {
       if (semesterId !== 0) {
         try {
           // Now that semesterId is updated, make the other requests
-          const scheduleStatistics = await DashboardService.getScheduleStatistic(
-            semesterId
-          );
+          const scheduleStatistics =
+            await DashboardService.getScheduleStatistic(semesterId);
           setScheduleSemester(scheduleStatistics);
 
-          const moduleActivityStatistics = await DashboardService.getAllModuleActivityStatistic(
-            semesterId
-          );
+          const moduleActivityStatistics =
+            await DashboardService.getAllModuleActivityStatistic(semesterId);
           setModuleActivityStat(moduleActivityStatistics);
         } catch (error) {
           console.log('Error occurred when fetching additional data');
@@ -152,7 +151,7 @@ const HomeAdmin: React.FC = () => {
     // dispatch(getAllSemester());
   }, [semesterId]);
 
-  console.log('sdffvfv')
+  console.log('sdffvfv');
 
   return (
     <Content className={styles.homeAdminContent}>
@@ -309,12 +308,29 @@ const HomeAdmin: React.FC = () => {
           }}
         >
           {semester.map((sem) => (
-            <Select.Option 
-              key={sem.semesterID} 
-              value={sem.semesterID} 
-              style={{ color: sem.semesterStatus === 2 ? 'blue' : sem.semesterStatus === 1 ? 'gray' : sem.semesterStatus === 3 ? 'green' : 'transparent' }}
+            <Select.Option
+              key={sem.semesterID}
+              value={sem.semesterID}
+              style={{
+                color:
+                  sem.semesterStatus === 2
+                    ? 'blue'
+                    : sem.semesterStatus === 1
+                    ? 'gray'
+                    : sem.semesterStatus === 3
+                    ? 'green'
+                    : 'transparent',
+              }}
             >
-              {sem.semesterCode + ' (' + (sem.semesterStatus === 1 ? 'Not Yet)' : sem.semesterStatus === 2 ? 'On-going)' : sem.semesterStatus === 3 ? 'Finished)' : '...' )}
+              {sem.semesterCode +
+                ' (' +
+                (sem.semesterStatus === 1
+                  ? 'Not Yet)'
+                  : sem.semesterStatus === 2
+                  ? 'On-going)'
+                  : sem.semesterStatus === 3
+                  ? 'Finished)'
+                  : '...')}
             </Select.Option>
           ))}
         </Select>
@@ -336,16 +352,16 @@ const HomeAdmin: React.FC = () => {
                   {
                     data: [
                       {
-                        value: scheduleSemester?.absenceCount ?? 0,
-                        label: 'Absence',
+                        value: scheduleSemester?.notYetCount ?? 0,
+                        label: 'Not Yet',
                       },
                       {
                         value: scheduleSemester?.attendedCount ?? 0,
                         label: 'Attended',
                       },
                       {
-                        value: scheduleSemester?.notYetCount ?? 0,
-                        label: 'Not Yet',
+                        value: scheduleSemester?.absenceCount ?? 0,
+                        label: 'Absence',
                       },
                     ],
                   },
@@ -385,7 +401,7 @@ const HomeAdmin: React.FC = () => {
                         label: 'Success',
                       },
                       {
-                        value: moduleActivityStat?.successCount ?? 0,
+                        value: moduleActivityStat?.failedCount ?? 0,
                         label: 'Fail',
                       },
                     ],
