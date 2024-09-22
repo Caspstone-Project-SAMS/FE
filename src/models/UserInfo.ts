@@ -30,6 +30,7 @@ export interface UserDetail {
   gender?: number;
   firstName: string;
   lastName: string;
+  studentID: string;
 }
 
 interface Role {
