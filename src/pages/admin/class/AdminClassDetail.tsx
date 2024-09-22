@@ -110,7 +110,7 @@ const AdminClassDetail: React.FC = () => {
 
   //Chart
   const pieParams = { height: 200, margin: { right: 5 } };
-  const palette = ['#9A9999', '#4EFD4E', '#E83B3B'];
+  const palette = ['#E83B3B', '#9A9999', '#4EFD4E'];
 
   const failMessage = useSelector(
     (state: RootState) => state.student.studentDetail,
