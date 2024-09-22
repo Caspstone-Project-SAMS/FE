@@ -16,9 +16,9 @@ interface CustomPaletteOptions extends PaletteOptions { // Extend PaletteOptions
 const theme = createTheme({
   palette: {
     primary: {
-      main: 'green', 
-      light: 'gray', 
-      dark: 'red', 
+      main: '#4EFD4E', 
+      light: '#9A9999', 
+      dark: '#E83B3B', 
       contrastText: '#FFFFFF', 
     },
     secondary: {
