@@ -877,18 +877,18 @@ const ModuleDetail: React.FC = () => {
                     </div>
                   </Col> */}
                   <div className={styles.submitButtonContainer}>
-                    <Button
+                    {/* <Button
                       onClick={handleApply}
                       className={styles.submitButton}
                     >
                       Apply
-                    </Button>
-                    {/* <Button
+                    </Button> */}
+                    <Button
                       onClick={handleSubmit}
                       className={styles.submitButton}
                     >
-                      Submit
-                    </Button> */}
+                      Apply
+                    </Button>
                   </div>
                 </div>
               </TabPane>
