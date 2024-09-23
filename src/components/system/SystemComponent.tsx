@@ -85,10 +85,10 @@ const SystemComponent: React.FC = () => {
       label: 'Class Code Match Rate (%)',
       value: systemConfig?.result.classCodeMatchRate || 'N/A',
     },
-    {
-      label: 'Semester Duration In Days (days)',
-      value: systemConfig?.result.semesterDurationInDays || 'N/A',
-    },
+    // {
+    //   label: 'Semester Duration In Days (days)',
+    //   value: systemConfig?.result.semesterDurationInDays || 'N/A',
+    // },
     // { label: 'Slot Duration In Mins', value: systemConfig?.result.semesterDurationInDays },
   ];
 
@@ -202,7 +202,7 @@ const SystemComponent: React.FC = () => {
               <p className={styles.suggestText}>Specify the match ratio of the class code when analyzing the schedule image</p>
             </div>
           </div>
-          <div className={styles.settingItem}>
+          {/* <div className={styles.settingItem}>
             <div>
               <span className={styles.settingLabel}>
                 Semester Duration (days)
@@ -220,10 +220,9 @@ const SystemComponent: React.FC = () => {
                 step={1}
                 className={styles.inputNumber}
               />{' '}
-              {/* {' days'} */}
               <p className={styles.suggestText}>Specify the duration of a semester</p>
             </div>
-          </div>
+          </div> */}
         </Col>
         <Col span={24} style={{textAlign: 'right' }}>
           <Button
