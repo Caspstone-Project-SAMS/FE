@@ -1455,7 +1455,7 @@ const AccountStudentsDetail: React.FC = () => {
                               </span>
                             </div>
                             <div className="card-timestamp">
-                              <b>Timestamp: </b>
+                              <b>Date created: </b>
                               <span>
                                 {new Date(item.createdAt).toLocaleDateString(
                                   'en-GB',

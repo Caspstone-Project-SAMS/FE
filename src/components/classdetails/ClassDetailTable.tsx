@@ -74,8 +74,8 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
             {
               try {
                 const studentIDs = message.Data.studentIDs
-                console.log("studentIDS ", studentIDs);
                 if (Array.isArray(studentIDs)) {
+                  console.log("This is studentIDS at studentAttended websocket event------------------ ", studentIDs);
                   studentIDs.map(item => {
                     console.log("On update item ", item);
                     console.log("List origin ", studentList);
@@ -390,18 +390,32 @@ const ClassDetailTable: React.FC<props> = ({ scheduleID, isOkOpen, studentAttend
 
   useEffect(() => {
     if (studentAttendedList.length > 0 && !isManual) {
+      console.log("Student attended list has changed, ", studentAttendedList);
       const uniqueStudents = new Map();
 
-      studentAttendedList.map(item => {
-        for (let i = 0; i < studentList.length; i++) {
-          const student = studentList[i]
-          if (student.studentID && student.studentID === item) {
+      // studentAttendedList.map(item => {
+      // let isUnique = false;
+      // for (let i = 0; i < studentList.length; i++) {
+      //   const student = studentList[i]
+      //   if (student.studentID && student.studentID === item) {
+      //     uniqueStudents.set(student.studentID, { ...student, attendanceStatus: 1 });
+      //   } else {
+      //     uniqueStudents.set(student.studentID, student);
+      //   }
+      // }
+      // })
+
+      for (let i = 0; i < studentList.length; i++) {
+        const student = studentList[i];
+        if (student.studentID) {
+          const isValid = studentAttendedList.includes(student.studentID)
+          if (isValid) {
             uniqueStudents.set(student.studentID, { ...student, attendanceStatus: 1 });
           } else {
             uniqueStudents.set(student.studentID, student);
           }
         }
-      })
+      }
 
       const result = Array.from(uniqueStudents.values())
       console.log("uniqueStudents", result);
