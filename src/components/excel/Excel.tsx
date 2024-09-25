@@ -568,7 +568,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                 closable={true}
                 footer={
                     <>
-                        {
+                        {/* {
                             //Continue import student to class
                             (isContinueAble && fileType === 'student') && (
                                 <div>
@@ -585,7 +585,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                     </Checkbox>
                                 </div>
                             )
-                        }
+                        } */}
                         {
                             current === 1 ? (
                                 <Button key="submit" type="primary"
@@ -676,7 +676,7 @@ const Excel: React.FC<FolderType> = ({ fileType }) => {
                                 <div className={styles.templateSection}>
                                     <div className={styles.templateSectionLeft}>
                                         {/* Import class, and continue import to class when import student */}
-                                        {(fileType === 'class' || (fileType === 'student' && isContinueAble)) && (
+                                        {(fileType === 'class') && (
                                             <>
                                                 <Text>Semester: </Text>
                                                 <Dropdown

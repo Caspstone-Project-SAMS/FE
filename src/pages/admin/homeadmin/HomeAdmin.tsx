@@ -316,10 +316,10 @@ const HomeAdmin: React.FC = () => {
                   sem.semesterStatus === 2
                     ? 'blue'
                     : sem.semesterStatus === 1
-                    ? 'gray'
-                    : sem.semesterStatus === 3
-                    ? 'green'
-                    : 'transparent',
+                      ? 'gray'
+                      : sem.semesterStatus === 3
+                        ? 'green'
+                        : 'transparent',
               }}
             >
               {sem.semesterCode +
@@ -327,10 +327,10 @@ const HomeAdmin: React.FC = () => {
                 (sem.semesterStatus === 1
                   ? 'Not Yet)'
                   : sem.semesterStatus === 2
-                  ? 'On-going)'
-                  : sem.semesterStatus === 3
-                  ? 'Finished)'
-                  : '...')}
+                    ? 'On-going)'
+                    : sem.semesterStatus === 3
+                      ? 'Finished)'
+                      : '...')}
             </Select.Option>
           ))}
         </Select>
@@ -345,7 +345,7 @@ const HomeAdmin: React.FC = () => {
               }}
             >
               {/* <BarChart /> */}
-              <Typography className={styles.tableTitle}>Attendance</Typography>
+              <Typography className={styles.tableTitle}>Schedules</Typography>
               <PieChart
                 colors={paletteSchedule}
                 series={[
